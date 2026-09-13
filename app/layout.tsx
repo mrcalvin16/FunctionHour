@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import ConvexClientProvider from "./ConvexClientProvider";
 import SyncUserWithConvex from "@/components/SyncUserWithConvex";
+import BackToHome from "@/components/navigation/BackToHome";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -46,6 +47,7 @@ export default function RootLayout({
           </a>
           <ConvexClientProvider>
             <SyncUserWithConvex />
+            <BackToHome />
             <div id="main-content" tabIndex={-1}>
               {children}
             </div>
