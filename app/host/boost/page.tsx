@@ -189,6 +189,7 @@ function BoostEventContent() {
             price="$15"
             desc="24-hour discovery boost."
             disabled={!eventId || isBoosting}
+            isBoosting={isBoosting}
             onSelect={() => handleBoost("spotlight")}
           />
 
@@ -237,6 +238,7 @@ function BoostPlan({
   desc,
   featured = false,
   disabled = false,
+  isBoosting = false,
   onSelect,
 }: {
   title: string;
@@ -244,6 +246,7 @@ function BoostPlan({
   desc: string;
   featured?: boolean;
   disabled?: boolean;
+  isBoosting?: boolean;
   onSelect: () => void;
 }) {
   const PlanIcon = title === "Spotlight" ? Sparkles : title === "Weekend Push" ? Zap : Crown;
