@@ -1,6 +1,6 @@
 "use client";
 
-import type { Dispatch, SetStateAction } from "react";
+import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import {
   Church,
   Handshake,
@@ -12,6 +12,8 @@ import {
   Trophy,
   Users,
   Utensils,
+  MapPin,
+  Search,
 } from "lucide-react";
 
 type EventsView = "all" | "mine";
@@ -27,6 +29,7 @@ type ExperienceHeroProps = {
   view: EventsView;
   setView: Dispatch<SetStateAction<EventsView>>;
   totalEvents: number;
+  events: Array<{ city?: string; state?: string; location?: string }>;
   quickFilter: QuickFilter;
   setQuickFilter: Dispatch<SetStateAction<QuickFilter>>;
 };
@@ -42,19 +45,6 @@ const categories = [
   { label: "Food", icon: Utensils },
   { label: "Networking", icon: Handshake },
   { label: "Sports", icon: Trophy },
-];
-
-const cities = [
-  "All Cities",
-  "New Orleans",
-  "New York",
-  "Baton Rouge",
-  "Houston",
-  "Atlanta",
-  "Miami",
-  "Los Angeles",
-  "Slidell",
-  "Algiers",
 ];
 
 const universeNodes = [
@@ -118,9 +108,27 @@ export default function ExperienceHero({
   view,
   setView,
   totalEvents,
+  events,
   quickFilter,
   setQuickFilter,
 }: ExperienceHeroProps) {
+  const [citySearch, setCitySearch] = useState("");
+  const [cityPickerOpen, setCityPickerOpen] = useState(false);
+  const cityOptions = useMemo(() => {
+    const counts = new Map();
+    for (const event of events) {
+      const eventCity = event.city?.trim() || event.location?.split(",")[0]?.trim() || "";
+      const state = event.state?.trim() || event.location?.split(",")[1]?.trim().split(/\s+/)[0] || "";
+      if (!eventCity) continue;
+      const key = (eventCity + "|" + state).toLowerCase();
+      const previous = counts.get(key);
+      counts.set(key, { city: eventCity, state, count: (previous?.count ?? 0) + 1 });
+    }
+    return [...counts.values()].sort((a, b) => a.state.localeCompare(b.state) || a.city.localeCompare(b.city));
+  }, [events]);
+  const popularCities = [...cityOptions].sort((a, b) => b.count - a.count).slice(0, 4);
+  const visibleCities = cityOptions.filter((item) => (item.city + " " + item.state).toLowerCase().includes(citySearch.toLowerCase()));
+  const states = [...new Set(visibleCities.map((item) => item.state || "Other locations"))];
   const resetFilters = () => {
     setSearch("");
     setCategory("All");
@@ -353,24 +361,12 @@ export default function ExperienceHero({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 border-t border-white/10 px-3 py-3">
-            {cities.map((item) => {
-              const isActive = city === item;
-
-              return (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setCity(item)}
-                  className={`rounded-full border px-5 py-2.5 text-xs font-black transition ${
-                    isActive
-                      ? "border-violet-500 bg-violet-600 text-white shadow-[0_0_22px_rgba(124,58,237,0.28)]"
-                      : "border-white/15 bg-white/[0.025] text-zinc-300 hover:border-white/30 hover:text-white"
-                  }`}
-                >
-                  {item}
-                </button>
-              );
+            <button type="button" onClick={() => setCity("All Cities")} aria-pressed={city === "All Cities"} className={"rounded-full border px-4 py-2.5 text-xs font-black " + (city === "All Cities" ? "border-violet-500 bg-violet-600 text-white" : "border-white/15 text-zinc-300")}>All cities</button>
+            {popularCities.map((item) => {
+              const value = item.state ? item.city + ", " + item.state : item.city;
+              return <button key={value} type="button" onClick={() => setCity(value)} aria-pressed={city === value} className={"rounded-full border px-4 py-2.5 text-xs font-black " + (city === value ? "border-violet-500 bg-violet-600 text-white" : "border-white/15 text-zinc-300")}>{item.city}{item.state ? ", " + item.state : ""}<span className="ml-2 text-violet-200/70">{item.count}</span></button>;
             })}
+            <button type="button" onClick={() => setCityPickerOpen(!cityPickerOpen)} aria-expanded={cityPickerOpen} className="inline-flex items-center gap-2 rounded-full border border-violet-400/40 bg-violet-500/10 px-4 py-2.5 text-xs font-black text-violet-200"><MapPin className="h-3.5 w-3.5" />Browse {cityOptions.length} cities</button>
 
             <button
               type="button"
@@ -398,6 +394,10 @@ export default function ExperienceHero({
               </button>
             )}
           </div>
+          {cityPickerOpen && <div className="border-t border-white/10 p-4">
+            <label className="flex items-center gap-2 rounded-xl border border-white/15 px-3"><Search className="h-4 w-4 text-zinc-500" /><input value={citySearch} onChange={(event) => setCitySearch(event.target.value)} placeholder="Search city or state..." className="h-11 flex-1 bg-transparent text-sm text-white outline-none" /></label>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{states.map((state) => <div key={state}><p className="mb-2 text-xs font-black uppercase tracking-widest text-violet-300">{state}</p><div className="flex flex-wrap gap-2">{visibleCities.filter((item) => (item.state || "Other locations") === state).map((item) => { const value = item.state ? item.city + ", " + item.state : item.city; return <button key={value} type="button" onClick={() => { setCity(value); setCityPickerOpen(false); setCitySearch(""); }} className={"rounded-full border px-3 py-2 text-xs " + (city === value ? "border-violet-500 bg-violet-600 text-white" : "border-white/10 text-zinc-300")}>{value} · {item.count}</button>; })}</div></div>)}</div>
+          </div>}
         </div>
       </div>
     </section>
