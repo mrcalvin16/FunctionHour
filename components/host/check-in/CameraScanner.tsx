@@ -367,7 +367,7 @@ export default function CameraScanner({
                 onClick={() => onActiveChange(true)}
                 className="mt-6 h-12 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Start camera
+                Continue to camera permission
               </button>
             </div>
           </div>
