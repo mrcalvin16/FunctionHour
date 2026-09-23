@@ -57,7 +57,7 @@ type SupportHandoff = {
 const initialMessage: ChatMessage = {
   role: "assistant",
   content:
-    "Hi — I’m Function Hour Help. I can help you find events, understand your tickets, and navigate the platform.",
+    "Hi — I’m Chev. I can help you find events, understand your tickets, and navigate the platform.",
 };
 
 const defaultPrompts = [
@@ -174,7 +174,7 @@ export default function SupportChat() {
       const message =
         error instanceof Error
           ? error.message
-          : "Function Hour Help is unavailable right now.";
+          : "Chev is unavailable right now.";
       setMessages((current) => [
         ...current,
         {
@@ -267,7 +267,7 @@ export default function SupportChat() {
     <div className="fixed bottom-5 right-5 z-[70] sm:bottom-6 sm:right-6">
       {open ? (
         <section
-          aria-label="Function Hour Help"
+          aria-label="Chev"
           className="mb-3 flex h-[min(620px,calc(100vh-7rem))] w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-3xl border border-black/10 bg-white shadow-2xl dark:border-white/10 dark:bg-zinc-950"
         >
           <header className="flex items-center justify-between border-b border-black/10 px-4 py-3 dark:border-white/10">
@@ -276,7 +276,7 @@ export default function SupportChat() {
                 <Bot className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-zinc-950 dark:text-white">Function Hour Help</p>
+                <p className="text-sm font-semibold text-zinc-950 dark:text-white">Chev</p>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">Support + event discovery</p>
               </div>
             </div>
@@ -284,7 +284,7 @@ export default function SupportChat() {
               type="button"
               onClick={() => setOpen(false)}
               className="rounded-full p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-950 dark:hover:bg-zinc-900 dark:hover:text-white"
-              aria-label="Close Function Hour Help"
+              aria-label="Close Chev"
             >
               <X className="h-5 w-5" aria-hidden="true" />
             </button>
@@ -433,7 +433,7 @@ export default function SupportChat() {
           ) : null}
 
           <form onSubmit={handleSubmit} className="flex items-end gap-2 border-t border-black/10 p-3 dark:border-white/10">
-            <label htmlFor="function-hour-support-input" className="sr-only">Ask Function Hour Help</label>
+            <label htmlFor="function-hour-support-input" className="sr-only">Ask Chev</label>
             <textarea
               id="function-hour-support-input"
               rows={1}
@@ -466,7 +466,7 @@ export default function SupportChat() {
         onClick={() => setOpen((value) => !value)}
         className="ml-auto flex h-14 items-center gap-2 rounded-full bg-black px-5 text-sm font-semibold text-white shadow-xl transition hover:scale-[1.02] dark:bg-white dark:text-black"
         aria-expanded={open}
-        aria-label={open ? "Close Function Hour Help" : "Open Function Hour Help"}
+        aria-label={open ? "Close Chev" : "Open Chev"}
       >
         <MessageCircle className="h-5 w-5" aria-hidden="true" />
         <span>Help</span>
