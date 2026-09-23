@@ -106,6 +106,13 @@ export default function CanvasStage({
         </div>
       </div>
 
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-black/10 bg-white/80 px-4 py-2 text-[11px] font-medium text-zinc-600">
+        <span><strong className="text-zinc-900">Select</strong> an element</span>
+        <span><strong className="text-zinc-900">Drag</strong> to move</span>
+        <span><strong className="text-zinc-900">Double-click</strong> text to edit</span>
+        <span><strong className="text-zinc-900">Resize handles</strong> adjust size</span>
+      </div>
+
       <div className="flex flex-1 items-start justify-center overflow-auto p-4 sm:p-8 lg:p-12">
         <div
           className="relative shrink-0"
