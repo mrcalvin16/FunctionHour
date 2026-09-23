@@ -5,6 +5,7 @@ export default function PropertiesPanel({
   selectedElement,
   updateElement,
   moveLayer,
+  alignToCanvas,
   duplicateSelected,
   deleteSelected,
 }: {
@@ -16,6 +17,9 @@ export default function PropertiesPanel({
       | ((element: CanvasElement) => Partial<CanvasElement>)
   ) => void;
   moveLayer: (direction: "up" | "down") => void;
+  alignToCanvas: (
+    alignment: "left" | "center" | "right" | "top" | "middle" | "bottom"
+  ) => void;
   duplicateSelected: () => void;
   deleteSelected: () => void;
 }) {
@@ -104,6 +108,29 @@ export default function PropertiesPanel({
             )}
           </div>
 
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+            <p className="mb-2 text-xs font-bold text-white/50">Position on canvas</p>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                ["left", "Left"],
+                ["center", "Center"],
+                ["right", "Right"],
+                ["top", "Top"],
+                ["middle", "Middle"],
+                ["bottom", "Bottom"],
+              ] as const).map(([alignment, label]) => (
+                <button
+                  key={alignment}
+                  type="button"
+                  onClick={() => alignToCanvas(alignment)}
+                  className="rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-xs font-bold transition hover:border-violet-400/60 hover:bg-violet-500/15"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="flex gap-2">
             <button
               type="button"
@@ -130,6 +157,21 @@ export default function PropertiesPanel({
               />
             </label>
           </div>
+
+          <button
+            type="button"
+            aria-pressed={Boolean(selectedElement.textShadow)}
+            onClick={() =>
+              updateElement(selectedElement.id, {
+                textShadow: !selectedElement.textShadow,
+              })
+            }
+            className={selectedElement.textShadow
+              ? "w-full rounded-lg border border-violet-400/60 bg-violet-500/20 px-3 py-2 text-xs font-black"
+              : "w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"}
+          >
+            {selectedElement.textShadow ? "Text shadow on" : "Add text shadow"}
+          </button>
 
           <div className="grid grid-cols-2 gap-2">
             <button
