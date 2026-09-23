@@ -168,7 +168,7 @@ export default function ExperienceHero({
       <div className="relative mx-auto max-w-[1240px] px-5 pb-7 pt-8 sm:px-7 lg:px-8 lg:pb-9 lg:pt-10">
         <div className="grid gap-9 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-3 rounded-full border border-violet-400/35 bg-violet-500/10 px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.26em] text-violet-200 shadow-[0_0_28px_rgba(139,92,246,0.15)]">
+            <div className="inline-flex items-center gap-3 rounded-full border border-violet-300 bg-violet-100 px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.26em] text-violet-900 shadow-[0_0_28px_rgba(139,92,246,0.12)] dark:border-violet-400/35 dark:bg-violet-500/10 dark:text-violet-200">
               <span className="text-violet-300">✦</span>
               Discover experiences
             </div>
