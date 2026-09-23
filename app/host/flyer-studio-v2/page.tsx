@@ -59,6 +59,8 @@ export default function FlyerStudioV2Page() {
     { id: string; imageUrl: string; caption?: string }[]
   >([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [confirmGeneration, setConfirmGeneration] = useState(false);
+  const [brandColor, setBrandColor] = useState("#8b5cf6");
   const [status, setStatus] = useState("");
   const [overlayStrength, setOverlayStrength] = useState(55);
   const [zoom, setZoom] = useState(85);
@@ -410,7 +412,17 @@ export default function FlyerStudioV2Page() {
         return element;
       }),
     );
-    setActiveTool("ai");
+  }
+
+  function applyBrandColor(color: string) {
+    setBrandColor(color);
+    commitElements((current) =>
+      current.map((element) => {
+        if (element.id === "kicker") return { ...element, color };
+        if (element.id === "cta") return { ...element, background: color };
+        return element;
+      }),
+    );
   }
 
   function addTextElement(kind: "heading" | "subheading" | "body") {
@@ -783,8 +795,8 @@ export default function FlyerStudioV2Page() {
             ← Back
           </Link>
           <div className="min-w-0">
-            <p className="text-sm font-black">Function Hour Studio</p>
-            <p className="hidden text-xs text-white/35 sm:block">Canva-style editor V2</p>
+            <p className="text-sm font-black">Flyer Studio</p>
+            <p className="hidden text-xs text-white/45 sm:block">Edit directly on the canvas · no AI required</p>
           </div>
         </div>
 
@@ -852,6 +864,9 @@ export default function FlyerStudioV2Page() {
         <aside className="max-h-[42vh] overflow-y-auto border-b border-white/10 bg-[#202020] p-4 lg:max-h-none lg:border-b-0 lg:border-r">
           {activeTool === "templates" && (
             <ToolPanel title="Templates">
+              <p className="mb-4 text-xs leading-5 text-white/45">
+                Start with a layout, then edit text and move elements on the canvas.
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 {templates.map((template) => (
                   <button
@@ -895,7 +910,10 @@ export default function FlyerStudioV2Page() {
           )}
 
           {activeTool === "ai" && (
-            <ToolPanel title="AI Image Generator">
+            <ToolPanel title="Optional AI image">
+              <div className="mb-4 rounded-xl border border-amber-300/20 bg-amber-500/[0.08] p-3 text-xs leading-5 text-amber-100/80">
+                Image generation may use credits. Templates, uploads, text edits, and canvas changes do not call the image generator. You’ll confirm before any image is generated.
+              </div>
               <label className="text-xs font-bold text-white/50">
                 Select event
               </label>
@@ -969,11 +987,12 @@ export default function FlyerStudioV2Page() {
 
               <button
                 type="button"
-                onClick={generateFlyer}
-                disabled={isGenerating}
+                onClick={() => setConfirmGeneration(true)}
+                disabled={isGenerating || !prompt.trim()}
+                aria-haspopup="dialog"
                 className="mt-5 w-full rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-4 py-3 text-sm font-black disabled:opacity-50"
               >
-                {isGenerating ? "Generating..." : "Generate Image"}
+                {isGenerating ? "Generating..." : "Generate image…"}
               </button>
               {status && (
                 <p className="mt-3 text-center text-xs font-bold text-white/50">
@@ -1047,11 +1066,30 @@ export default function FlyerStudioV2Page() {
 
           {activeTool === "brand" && (
             <ToolPanel title="Brand Kit">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <p className="text-sm font-black">Function Hour</p>
-                <p className="mt-1 text-xs text-white/40">
-                  Brand presets can be connected here next.
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                <p className="text-sm font-black">Function Hour highlights</p>
+                <p className="mt-1 text-xs leading-5 text-white/45">
+                  Choose an accent. It updates the kicker and ticket button on your flyer.
                 </p>
+                <div className="mt-4 grid grid-cols-4 gap-2">
+                  {[
+                    { name: "Violet", value: "#8b5cf6" },
+                    { name: "Orange", value: "#f97316" },
+                    { name: "Rose", value: "#f43f5e" },
+                    { name: "Sky", value: "#0ea5e9" },
+                  ].map((swatch) => (
+                    <button
+                      key={swatch.value}
+                      type="button"
+                      onClick={() => applyBrandColor(swatch.value)}
+                      aria-label={swatch.name + " brand accent"}
+                      aria-pressed={brandColor === swatch.value}
+                      title={swatch.name}
+                      className={"h-10 rounded-xl border-2 transition hover:scale-105 " + (brandColor === swatch.value ? "border-white ring-2 ring-violet-400" : "border-white/10")}
+                      style={{ backgroundColor: swatch.value }}
+                    />
+                  ))}
+                </div>
               </div>
             </ToolPanel>
           )}
@@ -1125,6 +1163,42 @@ export default function FlyerStudioV2Page() {
           deleteSelected={deleteSelected}
         />
       </div>
+
+      {confirmGeneration ? (
+        <div className="fixed inset-0 z-[100] grid place-items-center bg-black/75 p-4 backdrop-blur-sm">
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="studio-generation-confirm-title"
+            className="w-full max-w-md rounded-3xl border border-white/10 bg-[#202020] p-6 text-white shadow-2xl sm:p-8"
+          >
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-orange-300">Optional AI image</p>
+            <h2 id="studio-generation-confirm-title" className="mt-3 text-2xl font-black">Generate an image?</h2>
+            <p className="mt-3 text-sm leading-6 text-white/65">
+              This sends a request to the AI image generator and may use credits. Your canvas edits, templates, and uploads stay as they are if you cancel.
+            </p>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setConfirmGeneration(false)}
+                className="rounded-xl border border-white/15 px-4 py-3 text-sm font-bold text-white/80 transition hover:bg-white/10"
+              >
+                Keep editing
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmGeneration(false);
+                  void generateFlyer();
+                }}
+                className="rounded-xl bg-violet-600 px-4 py-3 text-sm font-black transition hover:bg-violet-500"
+              >
+                Generate image
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }
