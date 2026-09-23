@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import EventImage from "@/components/events/EventImage";
 import { formatEventDate } from "@/app/events/eventPresentation";
+import { BadgeCheck } from "lucide-react";
 
 export default function OrganizerProfilePage({
   params,
@@ -103,9 +104,14 @@ export default function OrganizerProfilePage({
                     </h1>
 
                     {organizer.isVerifiedOrganizer && (
-                      <div className="rounded-full border border-violet-300/30 bg-violet-500/20 px-4 py-1 text-xs font-black uppercase tracking-wider text-violet-100 backdrop-blur">
-                        Verified Organizer
-                      </div>
+                      <span
+                        aria-label="Verified host"
+                        title="Verified host"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 shadow-sm dark:border-blue-400/30 dark:bg-blue-500/15 dark:text-blue-200"
+                      >
+                        <BadgeCheck className="h-4 w-4" aria-hidden="true" />
+                        Verified host
+                      </span>
                     )}
                   </div>
 
