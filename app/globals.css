@@ -142,7 +142,8 @@ html.light [class*="bg-[#090812]"],
 html.light [class*="bg-[#0c0b14]"],
 html.light [class*="bg-[#0d0b16]"],
 html.light [class*="bg-[#0d0d11]"],
-html.light [class*="bg-[#111]"] {
+html.light [class*="bg-[#111]"],
+html.light [class*="bg-[#141414]"] {
   background-color: rgba(255, 255, 255, 0.94) !important;
 }
 
