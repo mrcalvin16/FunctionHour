@@ -11,6 +11,7 @@ import PropertiesPanel from "@/components/host/flyer-studio-v2/PropertiesPanel";
 import CanvasStage from "@/components/host/flyer-studio-v2/CanvasStage";
 import {
   CANVAS_WIDTH,
+  backgroundPresets,
   MIN_HEIGHT,
   MIN_WIDTH,
   SNAP_THRESHOLD,
@@ -63,7 +64,8 @@ export default function FlyerStudioV2Page() {
   const [brandColor, setBrandColor] = useState("#8b5cf6");
   const [status, setStatus] = useState("");
   const [overlayStrength, setOverlayStrength] = useState(55);
-  const [zoom, setZoom] = useState(85);
+  const [backgroundPreset, setBackgroundPreset] = useState("aurora");
+  const [zoom, setZoom = useState(85);
   const {
     elements,
     commitElements,
@@ -138,6 +140,7 @@ export default function FlyerStudioV2Page() {
       setStyle(document.style);
       setImagePreview(document.imageUrl);
       setOverlayStrength(document.overlayStrength);
+      setBackgroundPreset(document.backgroundPreset || "aurora");
       resetElements(document.elements);
     } else {
       const eventElements = cloneElements(initialElements).map((element) => {
@@ -158,6 +161,7 @@ export default function FlyerStudioV2Page() {
       setStyle("Luxury");
       setImagePreview("");
       setOverlayStrength(55);
+      setBackgroundPreset("aurora");
       resetElements(eventElements);
     }
 
@@ -184,6 +188,7 @@ export default function FlyerStudioV2Page() {
       style,
       imageUrl: imagePreview,
       overlayStrength,
+      backgroundPreset,
       elements: cloneElements(elements),
     };
 
@@ -423,6 +428,22 @@ export default function FlyerStudioV2Page() {
         return element;
       }),
     );
+  }
+
+  function alignSelectedToCanvas(
+    alignment: "left" | "center" | "right" | "top" | "middle" | "bottom",
+  ) {
+    if (!selectedElement) return;
+
+    const position: Partial<Pick<CanvasElement, "x" | "y">> = {};
+    if (alignment === "left") position.x = 0;
+    if (alignment === "center") position.x = (CANVAS_WIDTH - selectedElement.width) / 2;
+    if (alignment === "right") position.x = CANVAS_WIDTH - selectedElement.width;
+    if (alignment === "top") position.y = 0;
+    if (alignment === "middle") position.y = (canvasHeight - selectedElement.height) / 2;
+    if (alignment === "bottom") position.y = canvasHeight - selectedElement.height;
+
+    updateElement(selectedElement.id, position);
   }
 
   function addTextElement(kind: "heading" | "subheading" | "body") {
@@ -1096,7 +1117,39 @@ export default function FlyerStudioV2Page() {
 
           {activeTool === "background" && (
             <ToolPanel title="Background">
-              <label className="text-xs font-bold text-white/50">
+              <p className="mb-3 text-xs leading-5 text-white/45">
+                Pick a ready-made gradient. These presets are edited locally and use no AI credits.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {backgroundPresets.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => setBackgroundPreset(preset.id)}
+                    aria-pressed={backgroundPreset === preset.id}
+                    className={"overflow-hidden rounded-xl border text-left transition " + (backgroundPreset === preset.id ? "border-violet-400 ring-2 ring-violet-500/40" : "border-white/10 hover:border-white/30")}
+                  >
+                    <span
+                      className="block h-14"
+                      style={{ backgroundImage: preset.backgroundImage }}
+                    />
+                    <span className="block bg-black/40 px-2 py-2 text-[11px] font-bold">
+                      {preset.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {imagePreview ? (
+                <button
+                  type="button"
+                  onClick={() => setImagePreview("")}
+                  className="mt-3 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-white/70 hover:bg-white/10"
+                >
+                  Remove image and use gradient
+                </button>
+              ) : null}
+
+              <label className="mt-5 block text-xs font-bold text-white/50">
                 Overlay strength
               </label>
               <input
@@ -1138,6 +1191,7 @@ export default function FlyerStudioV2Page() {
           canvasHeight={canvasHeight}
           canvasScale={canvasScale}
           imagePreview={imagePreview}
+          backgroundPreset={backgroundPreset}
           overlayStrength={overlayStrength}
           elements={elements}
           selectedElementId={selectedElementId}
@@ -1159,6 +1213,7 @@ export default function FlyerStudioV2Page() {
           selectedElement={selectedElement}
           updateElement={updateElement}
           moveLayer={moveLayer}
+          alignToCanvas={alignSelectedToCanvas}
           duplicateSelected={duplicateSelected}
           deleteSelected={deleteSelected}
         />
