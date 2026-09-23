@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { useQuery } from "convex/react";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { api } from "@/convex/_generated/api";
@@ -37,6 +37,11 @@ export default function EventMerchStore({
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [checkoutResult, setCheckoutResult] = useState("");
+  useEffect(() => {
+    const result = new URLSearchParams(window.location.search).get("checkout");
+    if (result === "success" || result === "cancelled") setCheckoutResult(result);
+  }, []);
   const total = useMemo(
     () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cart],
@@ -185,6 +190,15 @@ export default function EventMerchStore({
   return (
     <main className="min-h-screen bg-[#07060c] px-4 py-8 text-white sm:px-6">
       <div className="mx-auto max-w-7xl">
+        {checkoutResult === "success" && (
+          <div role="status" className="mb-5 flex flex-col gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-100 sm:flex-row sm:items-center sm:justify-between">
+            <span>Payment received. Your merch order is being confirmed and will appear in your order history.</span>
+            <Link href="/my-merch-orders" className="font-black underline underline-offset-4">View my merch orders</Link>
+          </div>
+        )}
+        {checkoutResult === "cancelled" && (
+          <div role="status" className="mb-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-zinc-300">Checkout was cancelled. Your cart is still here, and you have not been charged.</div>
+        )}
         <div className="flex flex-col gap-4 border-b border-white/[0.08] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">
