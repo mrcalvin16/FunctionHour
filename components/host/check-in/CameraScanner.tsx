@@ -358,7 +358,7 @@ export default function CameraScanner({
               <div className="mx-auto mt-4 max-w-sm rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-xs leading-5 text-zinc-300">
                 <strong className="font-bold text-white">Camera permission</strong>
                 <br />
-                After you continue, your browser will ask to use the camera. The live video is used to read ticket QR codes. You can deny access or stop scanning at any time.
+                By continuing, you authorize this page to use your camera to scan ticket QR codes. Your browser may show its own permission prompt. You can deny access or stop scanning at any time.
               </div>
 
               <button
