@@ -134,14 +134,14 @@ Privacy rules:
 - Minimize personal data. Include only details necessary to understand the issue.
 - Never repeat passwords, full payment-card numbers, CVVs, QR codes, authentication tokens, Stripe identifiers, or other secrets even if the user typed them.
 - Do not include inferred sensitive information.
-- Do not claim a case was created or submitted. This output is only a summary the user can copy.
+- Do not claim a case was created or submitted. This output is only a summary the user can copy. It is not sent automatically.
 
 Routing guidance:
 - payment, account_access, technical, and safety_or_fraud generally go to function_hour_support.
 - organizer-specific event operations or organizer decisions generally go to event_organizer.
 - refunds or event issues can use function_hour_and_organizer when both may need to review.
 
-handoffText should be a ready-to-copy plain-text note with a short subject-style first line, then the issue summary and key details. Keep it under 900 characters.`,
+handoffText should be a ready-to-copy plain-text email to operations@functionhour.com with a short subject-style first line, then the issue summary and key details. Include the recipient address. Keep it under 900 characters.`,
       input: [
         {
           role: "user",
