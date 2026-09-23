@@ -39,7 +39,7 @@ export default function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={nextLabel}
       title={nextLabel}
-      className="theme-toggle fixed bottom-24 right-4 z-[80] inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-black/80 px-4 py-3 text-xs font-black text-white shadow-2xl backdrop-blur-xl transition hover:scale-[1.03] hover:border-orange-300/50 sm:bottom-6 sm:right-6"
+      className="theme-toggle fixed bottom-6 left-6 z-[80] inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-black/80 px-4 py-3 text-xs font-black text-white shadow-2xl backdrop-blur-xl transition hover:scale-[1.03] hover:border-orange-300/50"
     >
       {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       <span>{theme === "dark" ? "Light" : "Dark"}</span>
