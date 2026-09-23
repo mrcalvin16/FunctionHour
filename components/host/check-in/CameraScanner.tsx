@@ -351,10 +351,15 @@ export default function CameraScanner({
                 Camera scanner
               </h3>
 
-              <p className="mt-2 max-w-sm text-sm leading-6 text-zinc-500">
-                Use the rear camera on a phone or tablet to scan
-                guest QR codes.
+              <p className="mt-2 max-w-sm text-sm leading-6 text-zinc-300">
+                Scan guest ticket QR codes with this device’s camera.
               </p>
+
+              <div className="mx-auto mt-4 max-w-sm rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-left text-xs leading-5 text-zinc-300">
+                <strong className="font-bold text-white">Camera permission</strong>
+                <br />
+                After you continue, your browser will ask to use the camera. The live video is used to read ticket QR codes. You can deny access or stop scanning at any time.
+              </div>
 
               <button
                 type="button"
