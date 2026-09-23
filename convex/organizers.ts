@@ -279,6 +279,11 @@ export const setOrganizerVerified = mutation({
   },
 
   handler: async (ctx, args) => {
+    const actor = await getCurrentUserDoc(ctx);
+    if (!actor?.user || actor.user.role !== "admin") {
+      throw new Error("Only Function Hour Operations admins can change host verification.");
+    }
+
     const organizer =
       (await ctx.db
         .query("users")
@@ -297,8 +302,13 @@ export const setOrganizerVerified = mutation({
       throw new Error("Organizer not found.");
     }
 
+    if (args.verified && !organizer.verificationRequested) {
+      throw new Error("The organizer must request verification before approval.");
+    }
+
     await ctx.db.patch(organizer._id, {
       isVerifiedOrganizer: args.verified,
+      verificationRequested: args.verified ? false : organizer.verificationRequested,
       updatedAt: Date.now(),
     });
 
