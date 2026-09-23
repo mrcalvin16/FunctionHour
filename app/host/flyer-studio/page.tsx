@@ -156,6 +156,7 @@ export default function FlyerStudioPage() {
   const [copied, setCopied] = useState(false);
   const [selectedCreativeId, setSelectedCreativeId] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [confirmGeneration, setConfirmGeneration] = useState(false);
   const [generationStatus, setGenerationStatus] = useState("");
 
   const [lightingMood, setLightingMood] = useState("Neon Violet");
@@ -602,13 +603,22 @@ Create a premium nightlife event flyer with cinematic composition, luxury typogr
             </p>
 
             <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-6xl">
-              AI Flyer Studio
+              Flyer Studio
             </h1>
 
             <p className="mt-4 max-w-2xl text-white/60">
-              Create launch visuals, captions, and social-ready event creative
-              before your event goes live.
+              Design event artwork, shape your message, and export social-ready creative.
+              AI image generation is optional.
             </p>
+
+            <div className="mt-5 max-w-3xl rounded-3xl border border-emerald-300/20 bg-emerald-500/[0.07] p-4 sm:p-5">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-200">
+                Design without generating
+              </p>
+              <p className="mt-2 text-sm leading-6 text-white/70">
+                Upload and preview artwork, adjust your creative direction, and use the export tools without generating an AI image. Generating an image may use credits; the Generate button will ask you to confirm first.
+              </p>
+            </div>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -814,8 +824,9 @@ Create a premium nightlife event flyer with cinematic composition, luxury typogr
                 <button
                   type="button"
                   className="oc-button-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
-                  onClick={handleGenerateFlyer}
+                  onClick={() => setConfirmGeneration(true)}
                   disabled={isGenerating || !selectedEvent}
+                  aria-haspopup="dialog"
                 >
                   {isGenerating
                     ? "Generating variations..."
@@ -829,6 +840,42 @@ Create a premium nightlife event flyer with cinematic composition, luxury typogr
                     Select an event first so your generated flyer can be saved
                     automatically.
                   </p>
+                )}
+
+                {confirmGeneration && (
+                  <div className="fixed inset-0 z-[100] grid place-items-center bg-black/70 p-4 backdrop-blur-sm">
+                    <section
+                      role="dialog"
+                      aria-modal="true"
+                      aria-labelledby="flyer-generation-confirm-title"
+                      className="w-full max-w-md rounded-[2rem] border border-white/10 bg-zinc-950 p-6 text-white shadow-2xl sm:p-8"
+                    >
+                      <p className="text-xs font-black uppercase tracking-[0.24em] text-orange-300">Before you generate</p>
+                      <h2 id="flyer-generation-confirm-title" className="mt-3 text-2xl font-black">Generate AI artwork?</h2>
+                      <p className="mt-3 text-sm leading-6 text-zinc-300">
+                        Image generation may use credits. You can keep editing, upload your own artwork, or export without generating.
+                      </p>
+                      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setConfirmGeneration(false)}
+                          className="rounded-full border border-white/15 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10"
+                        >
+                          Keep editing
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setConfirmGeneration(false);
+                            void handleGenerateFlyer();
+                          }}
+                          className="rounded-full bg-orange-400 px-5 py-3 text-sm font-black text-zinc-950 transition hover:bg-orange-300"
+                        >
+                          Generate artwork
+                        </button>
+                      </div>
+                    </section>
+                  </div>
                 )}
 
                 {generationStatus && (
