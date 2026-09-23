@@ -197,7 +197,7 @@ export default function EventMerchStore({
           </div>
         )}
         {checkoutResult === "cancelled" && (
-          <div role="status" className="mb-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-zinc-300">Checkout was cancelled. Your cart is still here, and you have not been charged.</div>
+          <div role="status" className="mb-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-zinc-300">Checkout was cancelled. You have not been charged. Add your merch to the cart again whenever you’re ready.</div>
         )}
         <div className="flex flex-col gap-4 border-b border-white/[0.08] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
