@@ -38,6 +38,7 @@ export type CanvasElement = {
   background?: string;
   hidden?: boolean;
   locked?: boolean;
+  textShadow?: boolean;
 };
 
 export type Guide = {
@@ -52,6 +53,7 @@ export type FlyerDocument = {
   style: string;
   imageUrl: string;
   overlayStrength: number;
+  backgroundPreset?: string;
   elements: CanvasElement[];
 };
 
