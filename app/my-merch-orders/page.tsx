@@ -1,15 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { useAuth, SignInButton } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { ArrowLeft, PackageCheck, ShoppingBag, Truck } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 
 export default function MyMerchOrdersPage() {
-  const orders = useQuery(api.merch.getMyMerchOrders, {});
+  const { isLoaded, isSignedIn } = useAuth();
+  const orders = useQuery(api.merch.getMyMerchOrders, isLoaded && isSignedIn ? {} : "skip");
 
-  if (orders === undefined) {
+  if (!isLoaded) {
     return <main className="min-h-screen bg-[#07060c] px-4 py-16 text-center text-zinc-400">Loading your merch orders…</main>;
+  }
+
+  if (!isSignedIn) {
+    return <main className="min-h-screen bg-[#07060c] px-4 py-16 text-center text-white"><h1 className="text-3xl font-black">Your merch orders</h1><p className="mt-3 text-zinc-400">Sign in to view purchases and fulfillment updates.</p><SignInButton mode="modal"><button className="mt-6 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 px-5 py-3 text-sm font-black">Sign in</button></SignInButton></main>;
   }
 
   return (
