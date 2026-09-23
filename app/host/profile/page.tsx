@@ -8,7 +8,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
 export default function HostProfilePage() {
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
 
   const profile = useQuery(
     api.organizers.getMyOrganizerProfile,
@@ -101,6 +101,35 @@ export default function HostProfilePage() {
     }
   }
 
+  async function handleVerificationRequest() {
+    try {
+      await requestVerification({});
+      const organizerNameForEmail =
+        profile?.organizerName ?? profile?.name ?? organizerName ?? "Organizer";
+      const profileUrl = profile?.userId
+        ? "https://functionhour.com/organizers/" + profile.userId
+        : "Please include the link to your public organizer profile.";
+      const emailBody = [
+        "Hello Function Hour Operations,",
+        "",
+        "I would like to request verification for my host profile and review for the blue verified check.",
+        "",
+        "Organizer name: " + organizerNameForEmail,
+        "Account email: " + (user?.primaryEmailAddress?.emailAddress ?? "Please add the email for this account"),
+        "Profile: " + profileUrl,
+        "Website: " + (profile?.website || website || "Not provided"),
+        "Instagram: " + (profile?.instagram || instagram || "Not provided"),
+        "",
+        "I understand the badge is added only after Operations reviews and approves the request.",
+      ].join("\n");
+      const subject = encodeURIComponent("Host verification request — " + organizerNameForEmail);
+      window.location.href = "mailto:operations@functionhour.com?subject=" + subject + "&body=" + encodeURIComponent(emailBody);
+      setMessage("Your request is recorded. Send the prepared email to Operations to complete the review request.");
+    } catch (error) {
+      console.error(error);
+      setMessage("We couldn't record the request. Please email operations@functionhour.com with your organizer profile link.");
+    }
+  }
   if (!isLoaded) {
     return (
       <main className="min-h-screen bg-black px-4 py-6 sm:px-6 sm:py-10 text-white">
@@ -193,18 +222,23 @@ export default function HostProfilePage() {
 
                 {!profile?.isVerifiedOrganizer && (
                   <button
-                    onClick={() => requestVerification({})}
+                    onClick={() => void handleVerificationRequest()}
                     className="rounded-xl border border-orange-500 px-5 py-3 font-semibold text-orange-400 hover:bg-orange-500/10"
                   >
                     {profile?.verificationRequested
-                      ? "Verification Requested"
-                      : "Request Verification"}
+                      ? "Email Operations — request pending"
+                      : "Request blue check"}
                   </button>
                 )}
               </div>
             </div>
 
             {message && <p className="mt-5 text-sm text-white/70">{message}</p>}
+            {!profile?.isVerifiedOrganizer && (
+              <p className="mt-4 text-sm leading-6 text-white/60">
+                Request a blue verified check by emailing Operations. Your badge appears on your public profile only after approval.
+              </p>
+            )}
 
             <div className="mt-8 grid gap-4 sm:p-6 md:grid-cols-1 lg:grid-cols-2">
               <div>
