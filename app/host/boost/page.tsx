@@ -90,8 +90,11 @@ function BoostEventContent() {
           ← Back to Host Command Center
         </Link>
 
-        <div className="relative mt-6 overflow-hidden rounded-[2rem] border border-zinc-200 bg-white p-5 shadow-[0_24px_80px_rgba(24,24,27,0.08)] dark:border-white/10 dark:bg-zinc-900/70 dark:shadow-2xl sm:mt-8 sm:p-8">\n          <div className="pointer-events-none absolute -right-12 -top-20 h-64 w-64 rounded-full bg-orange-300/20 blur-3xl dark:bg-orange-500/15" />\n          <div className="relative">
-          <p className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-orange-800 dark:border-orange-300/20 dark:bg-orange-500/10 dark:text-orange-200">\n            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+        <div className="relative mt-6 overflow-hidden rounded-[2rem] border border-zinc-200 bg-white p-5 shadow-[0_24px_80px_rgba(24,24,27,0.08)] dark:border-white/10 dark:bg-zinc-900/70 dark:shadow-2xl sm:mt-8 sm:p-8">
+          <div className="pointer-events-none absolute -right-12 -top-20 h-64 w-64 rounded-full bg-orange-300/20 blur-3xl dark:bg-orange-500/15" />
+          <div className="relative">
+          <p className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-orange-800 dark:border-orange-300/20 dark:bg-orange-500/10 dark:text-orange-200">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             Function Hour Growth
           </p>
 
@@ -122,20 +125,25 @@ function BoostEventContent() {
             </div>
           ) : (
             <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-orange-200 bg-orange-50 p-5 dark:border-orange-300/20 dark:bg-orange-500/10 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-orange-800 dark:text-orange-200">
-                Selected Event
-              </p>
-
-              <h2 className="mt-2 text-xl sm:text-2xl font-black">
-                {event?.name || "Loading event..."}
-              </h2>
-
-              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                {event?.dateString || "Date pending"} ·{" "}
-                {event?.location || "Location pending"}
-              </p>
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-orange-800 dark:text-orange-200">
+                  Selected Event
+                </p>
+                <h2 className="mt-2 text-xl font-black text-zinc-950 dark:text-white sm:text-2xl">
+                  {event?.name || "Loading event..."}
+                </h2>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                  {event?.dateString || "Date pending"} ·{" "}
+                  {event?.location || "Location pending"}
+                </p>
+              </div>
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-200 bg-white px-3 py-2 text-xs font-bold text-orange-900 dark:border-orange-300/20 dark:bg-black/20 dark:text-orange-100">
+                <Zap className="h-4 w-4" aria-hidden="true" />
+                Ready to promote
+              </span>
             </div>
           )}
+          </div>
         </div>
 
         {!eventId && myEvents.length > 0 && (
