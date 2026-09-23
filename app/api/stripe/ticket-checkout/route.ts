@@ -252,12 +252,10 @@ export async function POST(req: Request) {
       "/onboarding/attendee",
       "success"
     );
-    const cancelUrl = buildReturnUrl(
-      appUrl,
-      cancelPath,
-      `/events/${eventId}/checkout`,
-      "cancelled"
-    );
+    const cancelUrl = new URL(
+      `/events/${eventId}/checkout?checkout=cancelled`,
+      "https://functionhour.com"
+    ).toString();
 
     checkoutStage = "stripe-session-creation";
     let session;
