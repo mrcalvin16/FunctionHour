@@ -173,6 +173,7 @@ export default function EventsPage() {
               <SignedIn>
                 <Link href="/saved-events" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">Saved</Link>
                 <Link prefetch={false} href="/my-tickets" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">My Tickets</Link>
+                <Link href="/my-merch-orders" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-violet-400">Merch orders</Link>
                 <OrganizerPortalLink className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white" />
               </SignedIn>
             </div>
@@ -196,6 +197,7 @@ export default function EventsPage() {
             <SignedIn>
               <Link href="/saved-events" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Saved</Link>
               <Link prefetch={false} href="/my-tickets" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">My Tickets</Link>
+              <Link href="/my-merch-orders" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Merch orders</Link>
               <OrganizerPortalLink organizerLabel="Host" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm" />
             </SignedIn>
           </div>
