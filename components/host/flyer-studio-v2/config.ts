@@ -57,6 +57,34 @@ export const formats = [
   { id: "story", label: "Story", height: 924 },
 ];
 
+
+export const backgroundPresets = [
+  {
+    id: "aurora",
+    label: "Aurora",
+    backgroundImage:
+      "radial-gradient(circle at 20% 10%, rgba(124,58,237,.9), transparent 35%), radial-gradient(circle at 85% 85%, rgba(249,115,22,.7), transparent 40%), linear-gradient(145deg, #111, #26113e 55%, #190b10)",
+  },
+  {
+    id: "sunset",
+    label: "Sunset",
+    backgroundImage:
+      "radial-gradient(circle at 78% 22%, rgba(251,146,60,.95), transparent 32%), radial-gradient(circle at 20% 85%, rgba(190,24,93,.75), transparent 42%), linear-gradient(145deg, #241017, #541c39 58%, #171018)",
+  },
+  {
+    id: "ocean",
+    label: "Ocean",
+    backgroundImage:
+      "radial-gradient(circle at 22% 18%, rgba(14,165,233,.8), transparent 35%), radial-gradient(circle at 82% 82%, rgba(99,102,241,.7), transparent 40%), linear-gradient(145deg, #071923, #102a46 58%, #101323)",
+  },
+  {
+    id: "mono",
+    label: "Monochrome",
+    backgroundImage:
+      "radial-gradient(circle at 75% 18%, rgba(161,161,170,.35), transparent 36%), linear-gradient(145deg, #09090b, #27272a 58%, #111113)",
+  },
+] as const;
+
 export const styleOptions = [
   "Luxury",
   "Underground",
