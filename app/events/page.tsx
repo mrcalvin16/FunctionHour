@@ -39,7 +39,7 @@ function eventMatchesCategory(event: DiscoveryEvent, category: string) {
 
 function eventMatchesCity(event: DiscoveryEvent, city: string) {
   if (city === "All Cities") return true;
-  const normalize = (value: string) => value.toLowerCase().replace(/[,.]/g, " ").replace(/\\s+/g, " ").trim();
+  const normalize = (value: string) => value.toLowerCase().replace(/[,.]/g, " ").replace(/\s+/g, " ").trim();
   const text = [event.city, event.state, event.location, event.venueName, event.venueAddress]
     .filter(Boolean)
     .join(" ");
