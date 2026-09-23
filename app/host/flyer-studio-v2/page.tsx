@@ -65,7 +65,7 @@ export default function FlyerStudioV2Page() {
   const [status, setStatus] = useState("");
   const [overlayStrength, setOverlayStrength] = useState(55);
   const [backgroundPreset, setBackgroundPreset] = useState("aurora");
-  const [zoom, setZoom = useState(85);
+  const [zoom, setZoom] = useState(85);
   const {
     elements,
     commitElements,
