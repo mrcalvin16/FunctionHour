@@ -39,11 +39,11 @@ function eventMatchesCategory(event: DiscoveryEvent, category: string) {
 
 function eventMatchesCity(event: DiscoveryEvent, city: string) {
   if (city === "All Cities") return true;
+  const normalize = (value: string) => value.toLowerCase().replace(/[,.]/g, " ").replace(/\\s+/g, " ").trim();
   const text = [event.city, event.state, event.location, event.venueName, event.venueAddress]
     .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-  return text.includes(city.toLowerCase());
+    .join(" ");
+  return normalize(text).includes(normalize(city));
 }
 
 function eventMatchesSearch(event: DiscoveryEvent, search: string) {
@@ -212,6 +212,7 @@ export default function EventsPage() {
         view={view}
         setView={setView}
         totalEvents={displayedEvents.length}
+        events={((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event))}
         quickFilter={quickFilter}
         setQuickFilter={setQuickFilter}
       />
