@@ -1,5 +1,5 @@
 import type { MutableRefObject } from "react";
-import { CANVAS_WIDTH, formats, resizeHandles } from "./config";
+import { backgroundPresets, CANVAS_WIDTH, formats, resizeHandles } from "./config";
 import { resizeHandleClass } from "./editor-utils";
 import type {
   CanvasElement,
@@ -24,6 +24,7 @@ export default function CanvasStage({
   canvasHeight,
   canvasScale,
   imagePreview,
+  backgroundPreset,
   overlayStrength,
   elements,
   selectedElementId,
@@ -46,6 +47,7 @@ export default function CanvasStage({
   canvasHeight: number;
   canvasScale: number;
   imagePreview: string;
+  backgroundPreset: string;
   overlayStrength: number;
   elements: CanvasElement[];
   selectedElementId: string;
@@ -70,6 +72,10 @@ export default function CanvasStage({
   onFinishInlineEditing: () => void;
   updateElement: UpdateElement;
 }) {
+  const selectedBackground =
+    backgroundPresets.find((preset) => preset.id === backgroundPreset) ||
+    backgroundPresets[0];
+
   return (
     <section className="relative flex min-h-[70vh] min-w-0 flex-col bg-[#ececef] text-black lg:min-h-0">
       <div className="flex min-h-[56px] flex-wrap items-center justify-between gap-2 border-b border-black/10 bg-white px-3 py-2 sm:px-4">
@@ -146,7 +152,10 @@ export default function CanvasStage({
                 className="pointer-events-none absolute inset-0 h-full w-full object-cover"
               />
             ) : (
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,.9),transparent_35%),radial-gradient(circle_at_85%_85%,rgba(249,115,22,.7),transparent_40%),linear-gradient(145deg,#111,#26113e_55%,#190b10)]" />
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{ backgroundImage: selectedBackground.backgroundImage }}
+              />
             )}
             <div
               className="pointer-events-none absolute inset-0 bg-black"
@@ -204,6 +213,9 @@ export default function CanvasStage({
                       fontSize: element.fontSize,
                       fontWeight: element.fontWeight,
                       color: element.color,
+                      textShadow: element.textShadow
+                        ? "0 3px 14px rgba(0,0,0,0.9)"
+                        : undefined,
                       letterSpacing: element.letterSpacing,
                       textTransform: element.uppercase ? "uppercase" : "none",
                       borderRadius: element.borderRadius,
