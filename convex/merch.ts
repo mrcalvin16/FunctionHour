@@ -1126,6 +1126,43 @@ export const getOrganizerOrder = query({
   },
 });
 
+export const getMyMerchOrders = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await requireIdentity(ctx);
+    const orders = await ctx.db
+      .query("merchOrders")
+      .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+      .order("desc")
+      .take(100);
+    return Promise.all(orders.map(async (order) => {
+      const items = await ctx.db
+        .query("merchOrderItems")
+        .withIndex("by_orderId", (q) => q.eq("orderId", order._id))
+        .take(20);
+      const event = order.eventId ? await ctx.db.get(order.eventId) : null;
+      return {
+        _id: order._id,
+        paidAt: order.paidAt ?? order.createdAt ?? 0,
+        total: order.total,
+        currency: order.currency ?? "usd",
+        status: order.status ?? "pending",
+        fulfillmentStatus: order.fulfillmentStatus ?? "unfulfilled",
+        fulfillmentMethod: order.fulfillmentMethod ?? "pickup",
+        trackingNumber: order.trackingNumber,
+        trackingUrl: order.trackingUrl,
+        eventName: event?.name ?? "Function Hour event",
+        eventLocation: event?.location,
+        items: items.map((item) => ({
+          productName: item.productName,
+          variantName: item.variantName,
+          quantity: item.quantity,
+        })),
+      };
+    }));
+  },
+});
+
 export const getPrintfulOrderPayload = query({
   args: { serverSecret: v.string(), orderId: v.id("merchOrders") },
   handler: async (ctx, args) => {
