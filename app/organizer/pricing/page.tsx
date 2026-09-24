@@ -114,7 +114,7 @@ export default function OrganizerPricingPage() {
 
           <div className="relative">
             <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-violet-500/25 to-orange-400/15 blur-2xl" />
-            <div className="relative rounded-[1.75rem] border border-white/[0.12] bg-[#111019]/95 p-6 shadow-2xl shadow-black/50 sm:p-8">
+            <div className="relative rounded-[1.75rem] border border-white/[0.12] bg-white/[0.055] p-6 shadow-[0_28px_100px_rgba(0,0,0,0.45)] backdrop-blur-3xl sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Function Hour launch pricing</p>
@@ -125,7 +125,7 @@ export default function OrganizerPricingPage() {
                 </span>
               </div>
 
-              <div className="mt-7 rounded-2xl border border-white/[0.08] bg-black/35 p-5">
+              <div className="mt-7 rounded-2xl border border-white/[0.11] bg-black/25 p-5 shadow-inner">
                 <div className="flex items-end justify-between gap-3">
                   <div>
                     <p className="text-xs font-bold text-zinc-400">Function Hour service fee</p>
@@ -172,7 +172,7 @@ export default function OrganizerPricingPage() {
                 "relative rounded-2xl border p-5 sm:p-6",
                 item.featured
                   ? "border-violet-300/35 bg-gradient-to-br from-violet-500/[0.13] via-white/[0.04] to-orange-500/[0.08] shadow-[0_20px_60px_rgba(124,58,237,0.12)]"
-                  : "border-white/[0.09] bg-white/[0.025]",
+                  : "border-white/[0.10] bg-white/[0.045] backdrop-blur-2xl",
               ].join(" ")}>
                 {item.featured && <span className="absolute right-4 top-4 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-200">Launch offer</span>}
                 <p className="text-xs font-bold text-zinc-400">{item.name}</p>
@@ -195,7 +195,7 @@ export default function OrganizerPricingPage() {
         </section>
 
         <section className="grid gap-4 border-t border-white/[0.08] py-14 md:grid-cols-[1fr_1.15fr]">
-          <div className="rounded-2xl border border-orange-300/20 bg-orange-300/[0.055] p-5 sm:p-6">
+          <div className="rounded-2xl border border-orange-300/20 bg-orange-300/[0.07] p-5 shadow-[0_20px_70px_rgba(249,115,22,0.07)] backdrop-blur-2xl sm:p-6">
             <div className="flex items-center gap-2 text-orange-200">
               <Wallet className="h-4 w-4" />
               <p className="text-[10px] font-black uppercase tracking-[0.18em]">Payout status</p>
@@ -209,7 +209,7 @@ export default function OrganizerPricingPage() {
             </a>
           </div>
 
-          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 sm:p-6">
+          <div className="rounded-2xl border border-white/[0.10] bg-white/[0.045] p-5 backdrop-blur-2xl sm:p-6">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">The short version</p>
             <h2 className="mt-4 text-xl font-black">Good tools. Clear costs.</h2>
             <div className="mt-5 grid gap-x-5 gap-y-3 sm:grid-cols-2">
@@ -232,7 +232,7 @@ export default function OrganizerPricingPage() {
           <h2 className="mt-3 text-3xl font-black tracking-tight">The details, simply.</h2>
           <div className="mt-7 grid gap-3 md:grid-cols-2">
             {faqs.map((faq) => (
-              <article key={faq.question} className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
+              <article key={faq.question} className="rounded-2xl border border-white/[0.10] bg-white/[0.045] p-5 backdrop-blur-2xl">
                 <h3 className="text-sm font-black">{faq.question}</h3>
                 <p className="mt-2 text-xs leading-5 text-zinc-500">{faq.answer}</p>
               </article>
