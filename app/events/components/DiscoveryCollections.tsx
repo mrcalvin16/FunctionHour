@@ -20,7 +20,7 @@ const collections: Collection[] = [
     title: "Outside after dark",
     description:
       "Nightlife, concerts, parties, and live experiences worth leaving home for.",
-    gradient: "from-violet-600/30 via-fuchsia-600/10 to-transparent",
+    gradient: "from-violet-100/80 via-fuchsia-50/60 to-transparent",
   },
   {
     key: "culture",
@@ -28,7 +28,7 @@ const collections: Collection[] = [
     title: "Made for the city",
     description:
       "Food, festivals, art, reunions, and community experiences near you.",
-    gradient: "from-orange-600/30 via-rose-600/10 to-transparent",
+    gradient: "from-orange-100/80 via-rose-50/60 to-transparent",
   },
   {
     key: "connect",
@@ -36,7 +36,7 @@ const collections: Collection[] = [
     title: "Build your network",
     description:
       "Professional events, conferences, meetups, and spaces to make connections.",
-    gradient: "from-blue-600/25 via-violet-600/10 to-transparent",
+    gradient: "from-blue-100/80 via-violet-50/60 to-transparent",
   },
 ];
 
@@ -67,8 +67,8 @@ export default function DiscoveryCollections({
               onClick={() => onSelect(isActive ? "all" : collection.key)}
               className={`group relative min-h-[230px] overflow-hidden rounded-[1.6rem] border p-6 text-left transition duration-300 hover:-translate-y-1 ${
                 isActive
-                  ? "border-violet-300/55 bg-white/[0.08]"
-                  : "border-white/10 bg-white/[0.035] hover:border-white/25"
+                  ? "border-orange-300 bg-orange-50 shadow-sm"
+                  : "border-zinc-200 bg-white hover:border-orange-200"
               }`}
             >
               <div
