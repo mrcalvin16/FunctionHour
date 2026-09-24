@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 px-6 py-10 text-center sm:flex-row sm:text-left">
         <div>
           <p className="font-black tracking-[0.2em] text-zinc-950">
-            FUNCTION<span className="text-violet-500">HOUR</span>
+            FUNCTION<span className="bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">HOUR</span>
           </p>
           <p className="mt-2 text-sm text-zinc-500">
             © {new Date().getFullYear()} Function Hour. All rights reserved.
