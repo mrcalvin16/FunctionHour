@@ -133,7 +133,7 @@ export default function OrganizerPricingPage() {
                 <div className="my-4 h-px bg-white/[0.08]" />
                 <div className="flex items-center justify-between gap-3 text-xs">
                   <span className="text-zinc-500">Monthly subscription</span>
-                  <span className="font-black text-white">None</span>
+                  <span className="font-black text-zinc-950">None</span>
                 </div>
               </div>
 
