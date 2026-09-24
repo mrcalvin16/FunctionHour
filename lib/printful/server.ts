@@ -4,6 +4,12 @@ type PrintfulOrder = {
   items: Array<{ variantId: number; quantity: number; retailPrice: string; name: string }>;
 };
 
+function ensurePrintfulEnabled() {
+  if (process.env.PRINTFUL_ENABLED !== "true") {
+    throw new Error("Printful integration is disabled.");
+  }
+}
+
 function getPrintfulHeaders(includeJson = false) {
   const token = process.env.PRINTFUL_API_TOKEN;
   if (!token) throw new Error("PRINTFUL_API_TOKEN is not configured.");
@@ -14,6 +20,7 @@ function getPrintfulHeaders(includeJson = false) {
 }
 
 export async function createPrintfulOrder(order: PrintfulOrder) {
+  ensurePrintfulEnabled();
   const confirm = process.env.PRINTFUL_AUTO_CONFIRM === "true";
   const response = await fetch(`https://api.printful.com/orders?confirm=${confirm}`, {
     method: "POST",
@@ -30,6 +37,7 @@ export async function createPrintfulOrder(order: PrintfulOrder) {
 }
 
 export async function getPrintfulOrderStatus(orderId: string) {
+  ensurePrintfulEnabled();
   const response = await fetch(`https://api.printful.com/orders/${encodeURIComponent(orderId)}`, { headers: getPrintfulHeaders(), cache: "no-store" });
   const data = await response.json();
   if (!response.ok || !data.result) throw new Error(data.error?.message || data.error?.reason || "Unable to load the Printful order.");
