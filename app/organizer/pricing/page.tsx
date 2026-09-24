@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import OrganizerPortalLink from "@/components/OrganizerPortalLink";
 import {
   ArrowDownRight,
   ArrowRight,
@@ -81,9 +82,7 @@ export default function OrganizerPricingPage() {
           <Link href="/" aria-label="Function Hour home" className="text-[15px] font-black tracking-[-0.06em]">
             FUNCTION<span className="bg-gradient-to-r from-violet-400 to-orange-400 bg-clip-text text-transparent">HOUR</span>
           </Link>
-          <Link href="/host/create" className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/15 px-4 text-xs font-bold text-zinc-200 transition hover:border-white/40 hover:bg-white/[0.05]">
-            Create Event <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          <OrganizerPortalLink className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/15 px-4 text-xs font-bold text-zinc-200 transition hover:border-white/40 hover:bg-white/[0.05]" />
         </header>
 
         <section className="grid gap-12 pb-20 pt-16 sm:pt-24 lg:grid-cols-[1fr_.82fr] lg:items-center lg:gap-20 lg:pb-28">
@@ -248,9 +247,7 @@ export default function OrganizerPricingPage() {
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-200">Bring your people together</p>
             <h2 className="mt-2 text-2xl font-black tracking-tight">Your next event starts here.</h2>
           </div>
-          <Link href="/host/create" className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-zinc-200">
-            Create Event <ArrowRight className="h-4 w-4" />
-          </Link>
+          <OrganizerPortalLink className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-zinc-200" />
         </section>
       </div>
     </main>
