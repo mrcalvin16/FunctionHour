@@ -59,6 +59,9 @@ const responseFormat = {
   },
 };
 
+const TEMPORARY_SUPPORT_MESSAGE =
+  "I’m having a temporary issue. You can still check ticket access, merch delivery, or refund terms using the links below. For payment, account, or order problems that need review, email operations@functionhour.com with the event name and purchase email. Never send your full card number or sign-in codes.";
+
 type PublicEvent = Awaited<ReturnType<typeof fetchPublicEvents>>[number];
 
 type RankedEvent = {
@@ -282,7 +285,23 @@ function fallbackSupportResponse(
   signedIn: boolean,
   eventDataAvailable: boolean,
   savedEventIds: Set<string>,
+  temporaryIssue = false,
 ) {
+  if (temporaryIssue) {
+    return NextResponse.json({
+      answer: TEMPORARY_SUPPORT_MESSAGE,
+      suggestedPrompts: ["Where are my tickets?", "Where are my merch orders?", "How do refunds work?"],
+      escalationRecommended: true,
+      events: [],
+      links: [
+        { label: "My Tickets", href: "/my-tickets" },
+        { label: "My Merch Orders", href: "/my-merch-orders" },
+        { label: "Refund Policy", href: "/refund-policy" },
+        { label: "Email Operations", href: "mailto:operations@functionhour.com" },
+      ],
+    });
+  }
+
   const lower = question.toLowerCase();
   const isMerch = /merch|shirt|hoodie|shipping|pickup|delivery|tracking/.test(lower);
   const isMerchOrder = /my merch|order|shipping|pickup|delivery|tracking/.test(lower);
@@ -463,7 +482,7 @@ export async function POST(request: Request) {
 
     if (!apiKey) {
       console.error("Function Hour support assistant is not configured.");
-      return fallbackSupportResponse(latestUserMessage, candidateEvents, userTickets, Boolean(session.userId), eventDataAvailable, savedEventIds);
+      return fallbackSupportResponse(latestUserMessage, candidateEvents, userTickets, Boolean(session.userId), eventDataAvailable, savedEventIds, true);
     }
 
     const transcript = parsed.data.messages
@@ -524,7 +543,7 @@ Safety and accuracy rules:
     });
 
     if (!response) {
-      return fallbackSupportResponse(latestUserMessage, candidateEvents, userTickets, Boolean(session.userId), eventDataAvailable, savedEventIds);
+      return fallbackSupportResponse(latestUserMessage, candidateEvents, userTickets, Boolean(session.userId), eventDataAvailable, savedEventIds, true);
     }
 
     let parsedOutput: unknown;
@@ -532,13 +551,13 @@ Safety and accuracy rules:
       parsedOutput = JSON.parse(response.output_text);
     } catch (error) {
       console.error("Chev returned invalid JSON; using safe fallback:", error);
-      return fallbackSupportResponse(latestUserMessage, candidateEvents, userTickets, Boolean(session.userId), eventDataAvailable, savedEventIds);
+      return fallbackSupportResponse(latestUserMessage, candidateEvents, userTickets, Boolean(session.userId), eventDataAvailable, savedEventIds, true);
     }
     const answer = answerSchema.safeParse(parsedOutput);
 
     if (!answer.success) {
       console.error("Chev response did not match the support schema; using safe fallback.");
-      return fallbackSupportResponse(latestUserMessage, candidateEvents, userTickets, Boolean(session.userId), eventDataAvailable, savedEventIds);
+      return fallbackSupportResponse(latestUserMessage, candidateEvents, userTickets, Boolean(session.userId), eventDataAvailable, savedEventIds, true);
     }
 
     const candidateById = new Map(
@@ -563,7 +582,7 @@ Safety and accuracy rules:
     console.error("Function Hour support assistant error:", error);
 
     return NextResponse.json({
-      answer: "I’m having a temporary issue, but here are the fastest next steps: open My Tickets for ticket access, My Merch Orders for merchandise updates, or the Refund Policy for refund terms. For payment, account, or unresolved order issues, email operations@functionhour.com with the event name and purchase email. Never include your full card number or sign-in codes.",
+      answer: TEMPORARY_SUPPORT_MESSAGE,
       suggestedPrompts: ["Where are my tickets?", "Where are my merch orders?", "How do refunds work?"],
       escalationRecommended: true,
       events: [],
