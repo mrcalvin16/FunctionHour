@@ -1,7 +1,17 @@
+"use client";
+
 import { SignUp } from "@clerk/nextjs";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export default function SignUpPage() {
+  const searchParams = useSearchParams();
+  const requestedRedirect = searchParams.get("redirect_url");
+  const fallbackRedirectUrl =
+    requestedRedirect?.startsWith("/") && !requestedRedirect.startsWith("//")
+      ? requestedRedirect
+      : "/onboarding";
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-black px-4 py-10 text-white">
       <div className="w-full max-w-md text-center">
@@ -10,7 +20,7 @@ export default function SignUpPage() {
           path="/sign-up"
           routing="path"
           signInUrl="/sign-in"
-          fallbackRedirectUrl="/onboarding"
+          fallbackRedirectUrl={fallbackRedirectUrl}
         />
         <p className="mt-6 text-xs leading-5 text-zinc-500">
           By creating an account, you agree to the <Link href="/terms" className="text-zinc-300 underline">Terms</Link> and acknowledge the <Link href="/privacy" className="text-zinc-300 underline">Privacy Policy</Link>.
