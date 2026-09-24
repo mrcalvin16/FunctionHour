@@ -16,6 +16,10 @@ export default function Footer() {
           <Link href="/refund-policy" className="hover:text-white">Refunds</Link>
           <Link href="/terms" className="hover:text-white">Terms</Link>
           <Link href="/privacy" className="hover:text-white">Privacy</Link>
+          <a href="https://www.eventbrite.com/l/accessibility/" target="_blank" rel="noreferrer" className="hover:text-white">Accessibility</a>
+          <a href="https://www.eventbrite.com/help/en-us/articles/666792/eventbrite-cookie-policy/" target="_blank" rel="noreferrer" className="hover:text-white">Cookies</a>
+          <Link href="/privacy" className="hover:text-white">Manage Cookie Preferences</Link>
+          <Link href="/privacy" className="hover:text-white">Do Not Sell or Share My Personal Information</Link>
           <a href="mailto:support@functionhour.com" className="hover:text-white">Support</a>
         </nav>
       </div>
