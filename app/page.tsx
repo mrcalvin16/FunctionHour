@@ -47,7 +47,7 @@ export default function HomePage() {
 
   return (
     <main className="safe-x min-h-screen overflow-x-hidden bg-black text-white">
-      <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-black/55 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-2xl">
+      <nav className="sticky top-2 z-50 mx-auto w-[calc(100%-1rem)] max-w-7xl rounded-[1.5rem] border border-white/[0.12] bg-black/45 shadow-[0_12px_48px_rgba(0,0,0,0.34)] backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <Link href="/" className="shrink-0 text-2xl font-extrabold tracking-[0.02em]" aria-label="Function Hour home">
             <span className="text-white">FUNCTION</span><span className="text-violet-500">HOUR</span>
