@@ -65,7 +65,7 @@ export default function TrendingCarousel({
                   <EventImage storageId={event.imageStorageId} />
                 </Link>
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/15" />
-                <button type="button" aria-label={isSaved ? "Remove saved event" : "Save event"} onClick={() => onToggleSave(event._id)} className={`absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border text-lg backdrop-blur-xl ${isSaved ? "border-violet-300 bg-violet-600 text-white" : "border-white/20 bg-black/55 text-white hover:bg-white hover:text-black"}`}>
+                <button type="button" aria-label={isSaved ? "Remove saved event" : "Save event"} onClick={() => onToggleSave(event._id)} className={`absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border text-lg  ${isSaved ? "border-violet-300 bg-violet-600 text-white" : "border-white/20 bg-black/55 text-white hover:bg-white hover:text-black"}`}>
                   {isSaved ? "♥" : "♡"}
                 </button>
               </div>
