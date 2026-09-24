@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useMemo } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ShareEventButton from "@/components/share/ShareEventButton";
 import { useMutation, useQuery } from "convex/react";
@@ -12,6 +12,7 @@ import EventAnnouncements from "@/components/events/EventAnnouncements";
 import type { Id } from "@/convex/_generated/dataModel";
 import VenueRules from "@/components/functionhour/VenueRules";
 import { getEventViewAttribution } from "@/lib/analytics/eventViewAttribution";
+import { getPrivacyPreferences, PRIVACY_PREFERENCES_EVENT } from "@/lib/privacyPreferences";
 import { formatEventDate, isEventUpcoming } from "../eventPresentation";
 
 function EventImage({
@@ -141,6 +142,7 @@ export default function EventDetailPage({
   );
 
   const trackView = useMutation(api.eventViews.trackEventView);
+  const [privacyPreferencesRevision, setPrivacyPreferencesRevision] = useState(0);
 
   const alreadyPurchased = useMemo(() => {
     if (!myTickets || !event) return false;
@@ -148,13 +150,23 @@ export default function EventDetailPage({
   }, [myTickets, event]);
 
   useEffect(() => {
-    if (!event?._id) return;
+    const refreshPrivacyPreferences = () => setPrivacyPreferencesRevision((revision) => revision + 1);
+    window.addEventListener(PRIVACY_PREFERENCES_EVENT, refreshPrivacyPreferences);
+    window.addEventListener("storage", refreshPrivacyPreferences);
+    return () => {
+      window.removeEventListener(PRIVACY_PREFERENCES_EVENT, refreshPrivacyPreferences);
+      window.removeEventListener("storage", refreshPrivacyPreferences);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!event?._id || !getPrivacyPreferences().analytics) return;
 
     trackView({
       eventId: event._id,
       ...getEventViewAttribution(),
     }).catch(() => {});
-  }, [event?._id, trackView]);
+  }, [event?._id, trackView, privacyPreferencesRevision]);
 
   if (event === undefined) {
     return (
