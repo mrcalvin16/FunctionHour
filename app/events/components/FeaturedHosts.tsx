@@ -18,13 +18,13 @@ export default function FeaturedHosts({
 
   return (
     <section className="mx-auto max-w-[1240px] px-5 pb-12 sm:px-7 lg:px-8">
-      <div className="rounded-[1.8rem] border border-white/10 bg-white/[0.025] p-6 sm:p-8">
+      <div className="rounded-[1.8rem] border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="mb-7">
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-violet-300">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-violet-700">
             Featured Hosts
           </p>
 
-          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-black text-zinc-950 sm:text-3xl">
             Organizers shaping the crowd.
           </h2>
         </div>
@@ -33,7 +33,7 @@ export default function FeaturedHosts({
           {organizerStats.slice(0, 8).map((organizer) => (
             <div
               key={organizer.userId}
-              className="min-w-[150px] rounded-[1.35rem] border border-white/10 bg-black/35 px-4 py-5"
+              className="min-w-[150px] rounded-[1.35rem] border border-zinc-200 bg-white px-4 py-5"
             >
               <OrganizerOrb
                 userId={organizer.userId}
