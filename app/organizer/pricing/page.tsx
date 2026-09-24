@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: "Organizer pricing",
   description:
-    "Clear, competitive pricing for event organizers. No monthly subscription. A competitive 2.1% + $0.99 fee on each paid ticket.",
+    "Clear, competitive pricing for event organizers. No monthly subscription. 3.7% + $1.78 per paid ticket—one cent below Eventbrite's published per-ticket fee.",
 };
 
 const features = [
@@ -28,8 +28,8 @@ const features = [
 const comparisons = [
   {
     name: "Function Hour",
-    platformFee: "2.1% + $0.99",
-    note: "Per paid ticket. Card processing applies to the payment account.",
+    platformFee: "3.7% + $1.78",
+    note: "Same 3.7% rate as Eventbrite, with a $1.78 flat fee—one cent less per paid ticket.",
     featured: true,
   },
   {
@@ -55,7 +55,7 @@ const faqs = [
   {
     question: "What is Function Hour’s ticket fee?",
     answer:
-      "Function Hour charges 2.1% + $0.99 per paid ticket. This buyer-paid fee is itemized in checkout; free tickets have no service fee.",
+      "Function Hour charges 3.7% + $1.78 per paid ticket. This buyer-paid fee is itemized in checkout; free tickets have no service fee.",
   },
   {
     question: "What about card processing?",
@@ -104,7 +104,7 @@ export default function OrganizerPricingPage() {
             </div>
             <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs text-zinc-500">
               <span className="inline-flex items-center gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> No monthly subscription</span>
-              <span className="inline-flex items-center gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> 2.1% + $0.99 fee</span>
+              <span className="inline-flex items-center gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> 3.7% + $1.78 fee</span>
               <span className="inline-flex items-center gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> Free events stay free</span>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function OrganizerPricingPage() {
                     <p className="text-xs font-bold text-zinc-500">Function Hour service fee</p>
                     <p className="mt-1 text-[11px] text-zinc-500">Per paid ticket</p>
                   </div>
-                  <p className="text-3xl font-black tracking-tight">2.1% + $0.99</p>
+                  <p className="text-3xl font-black tracking-tight">3.7% + $1.78</p>
                 </div>
                 <div className="my-4 h-px bg-white/[0.08]" />
                 <div className="flex items-center justify-between gap-3 text-xs">
@@ -145,7 +145,7 @@ export default function OrganizerPricingPage() {
                 ))}
               </ul>
               <p className="mt-6 border-t border-zinc-200 pt-5 text-[11px] leading-5 text-zinc-500">
-                Example: a $20 ticket has a $1.41 Function Hour service fee, for a $21.41 total before any applicable taxes.
+                Example: a $20 ticket has a $2.52 Function Hour service fee, for a $22.52 total before any applicable taxes.
               </p>
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function OrganizerPricingPage() {
               {[
                 "No monthly fee",
                 "No upfront listing fee",
-                "2.1% + $0.99 per paid ticket",
+                "3.7% + $1.78 per paid ticket",
                 "Free tickets have no service fee",
               ].map((line) => (
                 <p key={line} className="flex items-center gap-2 text-xs font-semibold text-zinc-700">

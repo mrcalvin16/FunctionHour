@@ -234,7 +234,7 @@ export async function POST(req: Request) {
     ];
     const ticketUnitAmount = Math.round((checkoutTotal / quantity) * 100);
     const platformFeeUnitAmount = ticketUnitAmount > 0
-      ? Math.round(ticketUnitAmount * 0.021) + 99
+      ? Math.round(ticketUnitAmount * 0.037) + 178
       : 0;
     const platformFeeAmount = (platformFeeUnitAmount * quantity) / 100;
     const lineItems = [
@@ -257,7 +257,7 @@ export async function POST(req: Request) {
               unit_amount: platformFeeUnitAmount,
               product_data: {
                 name: "Function Hour service fee",
-                description: "2.1% + $0.99 per paid ticket",
+                description: "3.7% + $1.78 per paid ticket",
               },
             },
           }]
