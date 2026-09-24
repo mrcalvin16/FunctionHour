@@ -125,6 +125,7 @@ export async function POST(req: Request) {
         buyerName,
         currency: session.currency || "usd",
         grossAmount: (session.amount_total ?? 0) / 100,
+        platformFeeAmount: Number(session.metadata.platformFeeAmount || 0),
         quantity: tickets.reduce(
           (total: number, line: any) =>
             total + Math.max(0, Number(line.quantity || 0)),
