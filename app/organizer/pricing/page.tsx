@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: "Organizer pricing",
   description:
-    "Clear, competitive pricing for event organizers. Create events without a monthly subscription and pay a simple per-ticket fee.",
+    "Clear, competitive pricing for event organizers. No monthly subscription. A competitive 2.1% + $0.99 fee on each paid ticket.",
 };
 
 const features = [
@@ -97,12 +97,10 @@ export default function OrganizerPricingPage() {
               </span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-zinc-400 sm:text-lg">
-              Launch your event without a subscription or a Function Hour service fee. Simple to start. Clear at checkout.
+              No subscription. One clear service fee on each paid ticket, shown before checkout.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href="/host/create" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-zinc-200">
-                Start your event <ArrowRight className="h-4 w-4" />
-              </Link>
+              <OrganizerPortalLink attendeeLabel="Start your event" organizerLabel="Open Organizer OS" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-zinc-200" />
               <a href="#compare" className="inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-sm font-bold text-zinc-400 transition hover:text-white">
                 Compare fees <ArrowDownRight className="h-4 w-4" />
               </a>
@@ -120,7 +118,7 @@ export default function OrganizerPricingPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Function Hour launch pricing</p>
-                  <h2 className="mt-3 text-4xl font-black tracking-tight">Free to start<span className="text-violet-300">.</span></h2>
+                  <h2 className="mt-3 text-4xl font-black tracking-tight">Simple pricing<span className="text-violet-300">.</span></h2>
                 </div>
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-violet-300/20 bg-violet-300/10 text-violet-200">
                   <Ticket className="h-5 w-5" />
@@ -130,15 +128,15 @@ export default function OrganizerPricingPage() {
               <div className="mt-7 rounded-2xl border border-white/[0.08] bg-black/35 p-5">
                 <div className="flex items-end justify-between gap-3">
                   <div>
-                    <p className="text-xs font-bold text-zinc-400">Function Hour platform fee</p>
+                    <p className="text-xs font-bold text-zinc-400">Function Hour service fee</p>
                     <p className="mt-1 text-[11px] text-zinc-600">Per paid ticket</p>
                   </div>
-                  <p className="text-3xl font-black tracking-tight">$0</p>
+                  <p className="text-3xl font-black tracking-tight">2.1% + $0.99</p>
                 </div>
                 <div className="my-4 h-px bg-white/[0.08]" />
                 <div className="flex items-center justify-between gap-3 text-xs">
-                  <span className="text-zinc-500">Monthly organizer subscription</span>
-                  <span className="font-black text-white">$0</span>
+                  <span className="text-zinc-500">Monthly subscription</span>
+                  <span className="font-black text-white">None</span>
                 </div>
               </div>
 
@@ -151,7 +149,7 @@ export default function OrganizerPricingPage() {
                 ))}
               </ul>
               <p className="mt-6 border-t border-white/[0.08] pt-5 text-[11px] leading-5 text-zinc-500">
-                Card processing may carry separate charges. Current paid-ticket checkout charges the ticket price you set and does not add a Function Hour fee.
+                Example: a $20 ticket has a $1.41 Function Hour service fee, for a $21.41 total before any applicable taxes.
               </p>
             </div>
           </div>
