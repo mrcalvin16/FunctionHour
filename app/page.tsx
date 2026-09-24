@@ -60,6 +60,7 @@ export default function HomePage() {
               <SignedIn>
                 <Link href="/saved-events" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">Saved</Link>
                 <Link href="/my-tickets" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">My Tickets</Link>
+                <Link href="/my-merch-orders" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-violet-400">Merch orders</Link>
                 <OrganizerPortalLink className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white" />
               </SignedIn>
             </div>
@@ -72,12 +73,12 @@ export default function HomePage() {
             <Link href="/events" className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black">Events</Link>
             <Link href="/map" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Map</Link>
             <Link href="/recommendations" className="shrink-0 rounded-full border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-950 transition-colors hover:bg-orange-100 dark:border-orange-400/30 dark:bg-orange-500/10 dark:text-orange-200 dark:hover:bg-orange-500/20">AI picks</Link>
-            <SignedIn><Link href="/saved-events" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Saved</Link><Link href="/my-tickets" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">My Tickets</Link></SignedIn>
+            <SignedIn><Link href="/saved-events" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Saved</Link><Link href="/my-tickets" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">My Tickets</Link><Link href="/my-merch-orders" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Merch orders</Link></SignedIn>
           </div>
         </div>
       </nav>
 
-      <ExperienceHero search={search} setSearch={setSearch} category={category} setCategory={setCategory} city={city} setCity={setCity} view={view} setView={setView} totalEvents={displayedEvents.length} quickFilter={quickFilter} setQuickFilter={setQuickFilter} />
+      <ExperienceHero search={search} setSearch={setSearch} category={category} setCategory={setCategory} city={city} setCity={setCity} view={view} setView={setView} totalEvents={displayedEvents.length} events={((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event))} quickFilter={quickFilter} setQuickFilter={setQuickFilter} />
 
       {events === undefined ? (
         <section className="mx-auto max-w-[1240px] px-5 py-20 text-center text-zinc-400">Loading events…</section>
