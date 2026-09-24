@@ -131,9 +131,9 @@ export default function EventCheckoutPage({
     discountedTicketSubtotal > 0
       ? quantity *
         (Math.round(
-          Math.round((discountedTicketSubtotal / quantity) * 100) * 0.021,
-        ) +
-          99) /
+          Math.round((discountedTicketSubtotal / quantity) * 100) * 0.037,
+        ) + 
+          178) /
         100
       : 0;
   const displayedTotal =
@@ -462,7 +462,7 @@ export default function EventCheckoutPage({
               )}
 
               <p className="text-[11px] leading-5 text-zinc-500 dark:text-white/40">
-                Service fee: 2.1% + $0.99 per paid ticket. Card processing may apply separately.
+                Service fee: 3.7% + $1.78 per paid ticket. Card processing may apply separately.
               </p>
 
               <div className="border-t border-zinc-200 pt-4 dark:border-white/10">
