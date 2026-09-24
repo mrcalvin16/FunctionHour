@@ -331,7 +331,7 @@ export default function ExperienceHero({
               </div>
             ))}
 
-            <div className="absolute bottom-[4%] right-[16%] z-20 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white shadow-xl ">
+            <div className="absolute bottom-[4%] right-[16%] z-20 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-700 shadow-sm ">
               <span className="text-orange-600">⌖</span>
               Live around you
               <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-violet-200">
@@ -367,11 +367,11 @@ export default function ExperienceHero({
             })}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 border-t border-white/10 px-3 py-3">
+          <div className="flex flex-wrap items-center gap-2 border-t border-zinc-200 px-3 py-3">
             <button type="button" onClick={() => setCity("All Cities")} aria-pressed={city === "All Cities"} className={"rounded-full border px-4 py-2.5 text-xs font-black " + (city === "All Cities" ? "border-orange-500 bg-orange-500 text-white" : "border-zinc-300 text-zinc-700 hover:bg-zinc-50")}>All cities</button>
             {popularCities.map((item) => {
               const value = item.state ? item.city + ", " + item.state : item.city;
-              return <button key={value} type="button" onClick={() => setCity(value)} aria-pressed={city === value} className={"rounded-full border px-4 py-2.5 text-xs font-black " + (city === value ? "border-orange-500 bg-orange-500 text-white" : "border-zinc-300 text-zinc-700 hover:bg-zinc-50")}>{item.city}{item.state ? ", " + item.state : ""}<span className="ml-2 text-violet-200/70">{item.count}</span></button>;
+              return <button key={value} type="button" onClick={() => setCity(value)} aria-pressed={city === value} className={"rounded-full border px-4 py-2.5 text-xs font-black " + (city === value ? "border-orange-500 bg-orange-500 text-white" : "border-zinc-300 text-zinc-700 hover:bg-zinc-50")}>{item.city}{item.state ? ", " + item.state : ""}<span className="ml-2 text-violet-700">{item.count}</span></button>;
             })}
             <button type="button" onClick={() => setCityPickerOpen(!cityPickerOpen)} aria-expanded={cityPickerOpen} className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-2.5 text-xs font-black text-orange-800"><MapPin className="h-3.5 w-3.5" />Browse {cityOptions.length} cities</button>
 
@@ -401,9 +401,9 @@ export default function ExperienceHero({
               </button>
             )}
           </div>
-          {cityPickerOpen && <div className="border-t border-white/10 p-4">
+          {cityPickerOpen && <div className="border-t border-zinc-200 p-4">
             <label className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3"><Search className="h-4 w-4 text-zinc-500" /><input value={citySearch} onChange={(event) => setCitySearch(event.target.value)} placeholder="Search city or state..." className="h-11 flex-1 bg-transparent text-sm text-zinc-900 outline-none" /></label>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{states.map((state) => <div key={state}><p className="mb-2 text-xs font-black uppercase tracking-widest text-violet-700">{state}</p><div className="flex flex-wrap gap-2">{visibleCities.filter((item) => (item.state || "Other locations") === state).map((item) => { const value = item.state ? item.city + ", " + item.state : item.city; return <button key={value} type="button" onClick={() => { setCity(value); setCityPickerOpen(false); setCitySearch(""); }} className={"rounded-full border px-3 py-2 text-xs " + (city === value ? "border-orange-500 bg-orange-500 text-white" : "border-white/10 text-zinc-300")}>{value} · {item.count}</button>; })}</div></div>)}</div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{states.map((state) => <div key={state}><p className="mb-2 text-xs font-black uppercase tracking-widest text-violet-700">{state}</p><div className="flex flex-wrap gap-2">{visibleCities.filter((item) => (item.state || "Other locations") === state).map((item) => { const value = item.state ? item.city + ", " + item.state : item.city; return <button key={value} type="button" onClick={() => { setCity(value); setCityPickerOpen(false); setCitySearch(""); }} className={"rounded-full border px-3 py-2 text-xs " + (city === value ? "border-orange-500 bg-orange-500 text-white" : "border-zinc-300 text-zinc-700 hover:bg-zinc-50")}>{value} · {item.count}</button>; })}</div></div>)}</div>
           </div>}
         </div>
       </div>
