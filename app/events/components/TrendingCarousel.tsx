@@ -32,10 +32,10 @@ export default function TrendingCarousel({
     <section id="event-results" className="mx-auto max-w-[1240px] px-5 py-10 sm:px-7 lg:px-8">
       <div className="mb-6 flex items-end justify-between gap-6">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-violet-300">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-violet-700">
             Trending Near You
           </p>
-          <h2 className="mt-2 text-2xl font-black tracking-[-0.035em] text-white sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-black tracking-[-0.035em] text-zinc-950 sm:text-3xl">
             Experiences people are watching.
           </h2>
           <p className="mt-2 text-sm text-zinc-500">
@@ -44,10 +44,10 @@ export default function TrendingCarousel({
         </div>
 
         <div className="hidden gap-2 sm:flex">
-          <button type="button" aria-label="Scroll trending events left" onClick={() => scroll("left")} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10">
+          <button type="button" aria-label="Scroll trending events left" onClick={() => scroll("left")} className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-100">
             ←
           </button>
-          <button type="button" aria-label="Scroll trending events right" onClick={() => scroll("right")} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10">
+          <button type="button" aria-label="Scroll trending events right" onClick={() => scroll("right")} className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-100">
             →
           </button>
         </div>
@@ -59,7 +59,7 @@ export default function TrendingCarousel({
           const price = Number(event.startingPrice ?? event.price ?? 0);
 
           return (
-            <article key={event._id} className="group min-w-[280px] max-w-[280px] snap-start overflow-hidden rounded-[1.35rem] border border-white/10 bg-zinc-950 transition duration-300 hover:-translate-y-1 hover:border-violet-400/45 sm:min-w-[310px] sm:max-w-[310px]">
+            <article key={event._id} className="group min-w-[280px] max-w-[280px] snap-start overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-md sm:min-w-[310px] sm:max-w-[310px]">
               <div className="relative h-[190px] overflow-hidden">
                 <Link href={`/events/${event._id}`}>
                   <EventImage storageId={event.imageStorageId} />
@@ -71,18 +71,18 @@ export default function TrendingCarousel({
               </div>
 
               <div className="p-4">
-                <p className="truncate text-xs font-bold uppercase tracking-[0.12em] text-orange-300">
+                <p className="truncate text-xs font-bold uppercase tracking-[0.12em] text-orange-700">
                   {formatEventDate(event)}
                 </p>
                 <Link href={`/events/${event._id}`}>
-                  <h3 className="mt-2 line-clamp-2 min-h-[52px] text-xl font-black leading-tight tracking-[-0.025em] text-white">
+                  <h3 className="mt-2 line-clamp-2 min-h-[52px] text-xl font-black leading-tight tracking-[-0.025em] text-zinc-950">
                     {event.name || "Untitled event"}
                   </h3>
                 </Link>
-                <p className="mt-3 truncate text-sm text-zinc-400">{getEventLocation(event)}</p>
-                <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
-                  <p className="text-lg font-black text-white">{price > 0 ? `From $${price.toLocaleString()}` : "Free"}</p>
-                  <Link href={`/events/${event._id}`} className="rounded-full bg-white px-4 py-2 text-xs font-black text-black">
+                <p className="mt-3 truncate text-sm text-zinc-600">{getEventLocation(event)}</p>
+                <div className="mt-4 flex items-center justify-between border-t border-zinc-200 pt-4">
+                  <p className="text-lg font-black text-zinc-950">{price > 0 ? `From $${price.toLocaleString()}` : "Free"}</p>
+                  <Link href={`/events/${event._id}`} className="rounded-full bg-zinc-950 px-4 py-2 text-xs font-black text-white transition hover:bg-zinc-800">
                     View event
                   </Link>
                 </div>
