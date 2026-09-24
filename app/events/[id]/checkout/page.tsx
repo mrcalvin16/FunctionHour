@@ -97,22 +97,6 @@ export default function EventCheckoutPage({
   );
 
   const total = Number(basePrice) * quantity + addOnTotal;
-  const discountedTicketSubtotal = Math.max(
-    0,
-    Number(basePrice) * quantity - appliedDiscountAmount,
-  );
-  const platformFeeAmount =
-    discountedTicketSubtotal > 0
-      ? quantity *
-        (Math.round(
-          Math.round((discountedTicketSubtotal / quantity) * 100) * 0.021,
-        ) +
-          99) /
-        100
-      : 0;
-  const displayedTotal =
-    Math.max(0, total - appliedDiscountAmount) + platformFeeAmount;
-
   const selectedInventory = selectedTicketType?.quantity
     ? Math.max(selectedTicketType.quantity - (selectedTicketType.sold ?? 0), 0)
     : 10;
@@ -138,6 +122,22 @@ export default function EventCheckoutPage({
   );
   const appliedDiscountAmount =
     discount?.valid === true ? discount.discountAmount ?? 0 : 0;
+
+  const discountedTicketSubtotal = Math.max(
+    0,
+    Number(basePrice) * quantity - appliedDiscountAmount,
+  );
+  const platformFeeAmount =
+    discountedTicketSubtotal > 0
+      ? quantity *
+        (Math.round(
+          Math.round((discountedTicketSubtotal / quantity) * 100) * 0.021,
+        ) +
+          99) /
+        100
+      : 0;
+  const displayedTotal =
+    Math.max(0, total - appliedDiscountAmount) + platformFeeAmount;
 
   function toggleAddOn(addOnId: string) {
     setSelectedAddOnIds((current) =>
