@@ -15,6 +15,8 @@ export default function Footer() {
         </div>
         <nav aria-label="Legal and support" className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-zinc-400">
           <Link href="/organizer/pricing" className="hover:text-white">Organizer pricing</Link>
+          <a href="https://www.instagram.com/functionhour/" target="_blank" rel="noreferrer" aria-label="Function Hour on Instagram" className="hover:text-white">Instagram · @FunctionHour ↗</a>
+          <a href="https://www.tiktok.com/@functionhour" target="_blank" rel="noreferrer" aria-label="Function Hour on TikTok" className="hover:text-white">TikTok · @FunctionHour ↗</a>
           <Link href="/refund-policy" className="hover:text-white">Refunds</Link>
           <Link href="/terms" className="hover:text-white">Terms</Link>
           <Link href="/privacy" className="hover:text-white">Privacy</Link>
