@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: "Organizer pricing",
   description:
-    "Clear, competitive pricing for event organizers. Create events with no monthly subscription or Function Hour platform fee.",
+    "Clear, competitive pricing for event organizers. Create events without a monthly subscription and pay a simple per-ticket fee.",
 };
 
 const features = [
@@ -28,8 +28,8 @@ const features = [
 const comparisons = [
   {
     name: "Function Hour",
-    platformFee: "$0",
-    note: "No Function Hour platform fee today",
+    platformFee: "2.1% + $0.99",
+    note: "Per paid ticket. Card processing applies to the payment account.",
     featured: true,
   },
   {
@@ -53,14 +53,14 @@ const faqs = [
       "No. There is no monthly Function Hour organizer subscription to create or publish an event.",
   },
   {
-    question: "Does Function Hour add a ticket fee?",
+    question: "What is Function Hour’s ticket fee?",
     answer:
-      "The current ticket checkout adds no separate Function Hour platform fee. It charges the ticket price set by the organizer.",
+      "Function Hour charges 2.1% + $0.99 per paid ticket. This buyer-paid fee is itemized in checkout; free tickets have no service fee.",
   },
   {
     question: "What about card processing?",
     answer:
-      "Payment processing costs may apply. Confirm the applicable Stripe charges and who bears them before selling paid tickets.",
+      "Stripe card-processing costs apply to the payment account separately from Function Hour’s service fee. The checkout total shows the ticket price and Function Hour fee before payment.",
   },
   {
     question: "Are organizer payouts ready?",
@@ -97,7 +97,7 @@ export default function OrganizerPricingPage() {
               </span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-zinc-400 sm:text-lg">
-              Launch your event without a subscription or a Function Hour platform fee. Simple to start. Clear at checkout.
+              Launch your event without a subscription or a Function Hour service fee. Simple to start. Clear at checkout.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link href="/host/create" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-black text-black transition hover:bg-zinc-200">
@@ -108,8 +108,8 @@ export default function OrganizerPricingPage() {
               </a>
             </div>
             <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs text-zinc-500">
-              <span className="inline-flex items-center gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> No monthly plan</span>
-              <span className="inline-flex items-center gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> $0 platform fee</span>
+              <span className="inline-flex items-center gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> No monthly subscription</span>
+              <span className="inline-flex items-center gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> 2.1% + $0.99 fee</span>
               <span className="inline-flex items-center gap-2"><Check className="h-3.5 w-3.5 text-emerald-400" /> Free events stay free</span>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function OrganizerPricingPage() {
                 <div className="flex items-end justify-between gap-3">
                   <div>
                     <p className="text-xs font-bold text-zinc-400">Function Hour platform fee</p>
-                    <p className="mt-1 text-[11px] text-zinc-600">Per ticket sold</p>
+                    <p className="mt-1 text-[11px] text-zinc-600">Per paid ticket</p>
                   </div>
                   <p className="text-3xl font-black tracking-tight">$0</p>
                 </div>
@@ -164,7 +164,7 @@ export default function OrganizerPricingPage() {
               <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Compare platform fees.</h2>
             </div>
             <p className="max-w-md text-xs leading-5 text-zinc-500">
-              Public U.S. rates for paid tickets. Processor charges may be additional and rates can change.
+              Published U.S. platform fees for paid tickets. Payment processing is separate; rates may change.
             </p>
           </div>
 
@@ -181,7 +181,7 @@ export default function OrganizerPricingPage() {
                 <p className="mt-6 text-2xl font-black tracking-tight sm:text-3xl">{item.platformFee}</p>
                 <p className="mt-2 min-h-10 text-xs leading-5 text-zinc-500">{item.note}</p>
                 {item.featured ? (
-                  <p className="mt-5 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-violet-200"><BadgeCheck className="h-4 w-4" /> No platform fee</p>
+                  <p className="mt-5 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-violet-200"><BadgeCheck className="h-4 w-4" /> Competitive fee</p>
                 ) : (
                   <p className="mt-5 inline-flex items-center gap-1.5 text-[10px] font-bold text-zinc-600"><CreditCard className="h-4 w-4" /> Payment processing additional</p>
                 )}
@@ -217,9 +217,9 @@ export default function OrganizerPricingPage() {
             <div className="mt-5 grid gap-x-5 gap-y-3 sm:grid-cols-2">
               {[
                 "No monthly fee",
-                "No listing fee",
-                "No Function Hour ticket fee today",
-                "Free events cost nothing",
+                "No upfront listing fee",
+                "2.1% + $0.99 per paid ticket",
+                "Free tickets have no service fee",
               ].map((line) => (
                 <p key={line} className="flex items-center gap-2 text-xs font-semibold text-zinc-300">
                   <Check className="h-4 w-4 text-emerald-400" /> {line}
