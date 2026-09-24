@@ -36,7 +36,7 @@ export default function HomePage() {
     const source = (view === "mine" ? myEvents ?? [] : events ?? []) as DiscoveryEvent[];
     return source.filter((event) => isEventUpcoming(event))
       .filter((event) => matches(event, search, category, city))
-      .filter((event) => quickFilter === "tonight" ? isTonight(event) : quickFilter === "weekend" ? isThisWeekend(event) : true)
+      .filter((event) => quickFilter === "free" ? Number(event.startingPrice ?? event.price ?? 0) <= 0 : quickFilter === "tonight" ? isTonight(event) : quickFilter === "weekend" ? isThisWeekend(event) : true)
       .sort((a, b) => discoveryScore(b) - discoveryScore(a));
   }, [category, city, events, myEvents, quickFilter, search, view]);
 
