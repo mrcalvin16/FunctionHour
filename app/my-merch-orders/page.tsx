@@ -17,6 +17,9 @@ export default function MyMerchOrdersPage() {
   if (!isSignedIn) {
     return <main className="min-h-screen bg-[#07060c] px-4 py-16 text-center text-white"><h1 className="text-3xl font-black">Your merch orders</h1><p className="mt-3 text-zinc-400">Sign in to view purchases and fulfillment updates.</p><SignInButton mode="modal"><button className="mt-6 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 px-5 py-3 text-sm font-black">Sign in</button></SignInButton></main>;
   }
+  if (orders === undefined) {
+    return <main className="min-h-screen bg-[#07060c] px-4 py-16 text-center text-zinc-400">Loading your merch orders…</main>;
+  }
 
   return (
     <main className="min-h-screen bg-[#07060c] px-4 py-8 text-white sm:px-6 sm:py-12">
