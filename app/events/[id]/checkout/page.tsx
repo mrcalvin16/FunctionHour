@@ -97,6 +97,21 @@ export default function EventCheckoutPage({
   );
 
   const total = Number(basePrice) * quantity + addOnTotal;
+  const discountedTicketSubtotal = Math.max(
+    0,
+    Number(basePrice) * quantity - appliedDiscountAmount,
+  );
+  const platformFeeAmount =
+    discountedTicketSubtotal > 0
+      ? quantity *
+        (Math.round(
+          Math.round((discountedTicketSubtotal / quantity) * 100) * 0.021,
+        ) +
+          99) /
+        100
+      : 0;
+  const displayedTotal =
+    Math.max(0, total - appliedDiscountAmount) + platformFeeAmount;
 
   const selectedInventory = selectedTicketType?.quantity
     ? Math.max(selectedTicketType.quantity - (selectedTicketType.sold ?? 0), 0)
@@ -437,10 +452,23 @@ export default function EventCheckoutPage({
                 </div>
               )}
 
+              {platformFeeAmount > 0 && (
+                <div className="flex justify-between gap-4 text-sm">
+                  <span className="text-zinc-600 dark:text-white/50">
+                    Function Hour service fee
+                  </span>
+                  <span>${platformFeeAmount.toFixed(2)}</span>
+                </div>
+              )}
+
+              <p className="text-[11px] leading-5 text-zinc-500 dark:text-white/40">
+                Service fee: 2.1% + $0.99 per paid ticket. Card processing may apply separately.
+              </p>
+
               <div className="border-t border-zinc-200 pt-4 dark:border-white/10">
                 <div className="flex justify-between text-xl font-black">
                   <span>Total</span>
-                  <span>${Math.max(0, total - appliedDiscountAmount).toFixed(2)}</span>
+                  <span>${displayedTotal.toFixed(2)}</span>
                 </div>
               </div>
             </div>
