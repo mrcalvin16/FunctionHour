@@ -47,11 +47,11 @@ export default function DiscoveryCollections({
   return (
     <section className="mx-auto max-w-[1240px] px-5 pb-10 sm:px-7 lg:px-8">
       <div className="mb-5">
-        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-orange-300">
+        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-orange-700">
           Curated For You
         </p>
 
-        <h2 className="mt-2 text-2xl font-black tracking-[-0.035em] text-white sm:text-3xl">
+        <h2 className="mt-2 text-2xl font-black tracking-[-0.035em] text-zinc-950 sm:text-3xl">
           Find the right kind of crowd.
         </h2>
       </div>
@@ -75,23 +75,23 @@ export default function DiscoveryCollections({
                 className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${collection.gradient}`}
               />
 
-              <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full border border-white/10" />
-              <div className="pointer-events-none absolute -right-3 top-12 h-24 w-24 rounded-full border border-white/10" />
+              <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full border border-zinc-200" />
+              <div className="pointer-events-none absolute -right-3 top-12 h-24 w-24 rounded-full border border-zinc-200" />
 
               <div className="relative">
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-violet-200">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-violet-700">
                   {collection.eyebrow}
                 </p>
 
-                <h3 className="mt-5 max-w-[250px] text-2xl font-black tracking-[-0.04em] text-white">
+                <h3 className="mt-5 max-w-[250px] text-2xl font-black tracking-[-0.04em] text-zinc-950">
                   {collection.title}
                 </h3>
 
-                <p className="mt-3 max-w-sm text-sm leading-6 text-zinc-400">
+                <p className="mt-3 max-w-sm text-sm leading-6 text-zinc-600">
                   {collection.description}
                 </p>
 
-                <p className="mt-6 text-sm font-black text-white">
+                <p className="mt-6 text-sm font-black text-zinc-950">
                   {isActive
                     ? "Collection selected ✓"
                     : "Explore collection →"}
