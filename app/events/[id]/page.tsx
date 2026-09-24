@@ -533,6 +533,11 @@ export default function EventDetailPage({
                       ? `$${startingPrice.toLocaleString()}`
                       : "Free"}
                 </p>
+                {startingPrice !== null && startingPrice > 0 && (
+                  <p className="mt-1 text-[11px] text-white/45">
+                    Plus 2.1% + $0.99 service fee per ticket
+                  </p>
+                )}
               </div>
               {event.totalTickets ? (
                 <p className="pb-1 text-right text-xs font-semibold text-white/45">
@@ -684,13 +689,18 @@ export default function EventDetailPage({
               Starting at
             </p>
 
-            <p className="truncate text-2xl font-black text-white">
-              {startingPrice === null
-                ? "—"
-                : startingPrice > 0
-                  ? `$${startingPrice.toLocaleString()}`
-                  : "Free"}
-            </p>
+            <div>
+              <p className="truncate text-2xl font-black text-white">
+                {startingPrice === null
+                  ? "—"
+                  : startingPrice > 0
+                    ? `${startingPrice.toLocaleString()}`
+                    : "Free"}
+              </p>
+              {startingPrice !== null && startingPrice > 0 && (
+                <p className="text-[9px] text-white/45">+ $0.99 and 2.1% service fee</p>
+              )}
+            </div>
           </div>
 
           {!salesOpen ? (
