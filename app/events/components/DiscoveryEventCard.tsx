@@ -79,7 +79,7 @@ export default function DiscoveryEventCard({
   const schedule = getEventSchedule(event);
 
   return (
-    <article className="group relative overflow-hidden rounded-[1.65rem] border border-white/10 bg-[#0d0d11] shadow-[0_20px_60px_rgba(0,0,0,0.22)] transition duration-300 hover:-translate-y-1.5 hover:border-violet-400/40 hover:shadow-[0_28px_80px_rgba(76,29,149,0.22)]">
+    <article className="group relative overflow-hidden rounded-[1.65rem] border border-zinc-200 bg-white shadow-[0_12px_36px_rgba(24,24,27,0.07)] transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-[0_20px_50px_rgba(24,24,27,0.12)]">
       <div className="relative h-[230px] overflow-hidden bg-zinc-900">
         <Link
           href={`/events/${event._id}`}
@@ -149,16 +149,16 @@ export default function DiscoveryEventCard({
 
       <div className="p-5">
         <Link href={`/events/${event._id}`} className="block">
-          <h3 className="line-clamp-2 min-h-[58px] text-[1.35rem] font-black leading-[1.18] tracking-[-0.035em] text-white transition group-hover:text-violet-200">
+          <h3 className="line-clamp-2 min-h-[58px] text-[1.35rem] font-black leading-[1.18] tracking-[-0.035em] text-zinc-950 transition group-hover:text-orange-700">
             {event.name}
           </h3>
         </Link>
 
         <div className="mt-4 space-y-2">
-          <p className="flex min-w-0 items-center gap-2 text-sm text-zinc-400">
+          <p className="flex min-w-0 items-center gap-2 text-sm text-zinc-600">
             <span
               aria-hidden="true"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-xs"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs"
             >
               ◉
             </span>
@@ -167,10 +167,10 @@ export default function DiscoveryEventCard({
           </p>
 
           {organizerName && (
-            <p className="flex min-w-0 items-center gap-2 text-sm text-zinc-500">
+            <p className="flex min-w-0 items-center gap-2 text-sm text-zinc-600">
               <span
                 aria-hidden="true"
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-xs"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs"
               >
                 ◌
               </span>
@@ -199,7 +199,7 @@ export default function DiscoveryEventCard({
 
           <Link
             href={`/events/${event._id}`}
-            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-xs font-black text-black transition duration-200 hover:scale-[1.03] hover:bg-violet-200 active:scale-95"
+            className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-3 text-xs font-black text-white transition duration-200 hover:scale-[1.02] hover:bg-zinc-800 active:scale-95"
           >
             View event
             <span aria-hidden="true">→</span>
