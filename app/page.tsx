@@ -79,7 +79,7 @@ export default function HomePage() {
       <ExperienceHero search={search} setSearch={setSearch} category={category} setCategory={setCategory} city={city} setCity={setCity} view={view} setView={setView} totalEvents={displayedEvents.length} events={((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event))} quickFilter={quickFilter} setQuickFilter={setQuickFilter} />
 
       {events === undefined ? (
-        <section className="mx-auto max-w-[1240px] px-5 py-20 text-center text-zinc-400">Loading events…</section>
+        <section className="mx-auto max-w-[1240px] px-5 py-20 text-center text-zinc-600">Loading events…</section>
       ) : displayedEvents.length > 0 ? (
         <>
           <TrendingCarousel city={city} events={displayedEvents.slice(0, 6)} savedEventIds={savedEventIds} onToggleSave={toggleSavedEvent} />
@@ -87,7 +87,7 @@ export default function HomePage() {
         </>
       ) : (
         <section className="mx-auto max-w-[1240px] px-5 py-16 sm:px-7 lg:px-8">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-10 text-center">
+          <div className="rounded-3xl border border-zinc-200 bg-white/[0.035] p-10 text-center">
             <p className="text-sm font-black uppercase tracking-[0.24em] text-orange-300">No matches</p>
             <h2 className="mt-3 text-3xl font-black">Try another search, category, or city.</h2>
             <button type="button" onClick={() => { setSearch(""); setCategory("All"); setCity("All Cities"); setView("all"); setQuickFilter(""); }} className="mt-6 rounded-full bg-white px-6 py-3 text-sm font-black text-black">Reset discovery</button>
@@ -95,9 +95,9 @@ export default function HomePage() {
         </section>
       )}
 
-      <section className="border-y border-white/10 bg-white/[0.025] px-5 py-12 text-center">
+      <section className="border-y border-zinc-200 bg-white px-5 py-12 text-center">
         <h2 className="text-3xl font-black">Want the full discovery experience?</h2>
-        <p className="mx-auto mt-3 max-w-xl text-zinc-400">Explore collections, hosts, the live map, and every Function Hour event.</p>
+        <p className="mx-auto mt-3 max-w-xl text-zinc-600">Explore collections, hosts, the live map, and every Function Hour event.</p>
         <Link href="/events" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-gradient-to-r from-violet-500 to-orange-500 px-7 font-black">Open all events →</Link>
       </section>
       <Footer />
