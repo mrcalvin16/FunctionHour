@@ -2,11 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
-import OrganizerPortalLink from "@/components/OrganizerPortalLink";
+import DiscoveryNav from "@/components/DiscoveryNav";
 import Footer from "@/components/Footer";
 import ExperienceHero, { type QuickFilter } from "./events/components/ExperienceHero";
 import EventGrid from "./events/components/EventGrid";
@@ -47,34 +46,7 @@ export default function HomePage() {
 
   return (
     <main className="safe-x min-h-screen overflow-x-hidden bg-[#fffaf7] text-zinc-950">
-      <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Link href="/" className="shrink-0 text-2xl font-extrabold tracking-[0.02em]" aria-label="Function Hour home">
-            <span className="text-zinc-950">FUNCTION</span><span className="bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">HOUR</span>
-          </Link>
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
-            <div className="hidden items-center gap-3 md:flex">
-              <Link href="/events" className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50">Events</Link>
-              <Link href="/map" className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50">Map</Link>
-              <SignedIn>
-                <Link href="/saved-events" className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50">Saved</Link>
-                <Link href="/my-tickets" className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50">My Tickets</Link>
-                <Link href="/my-merch-orders" className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700 transition hover:border-violet-300 hover:bg-violet-50">Merch orders</Link>
-                <OrganizerPortalLink className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50" />
-              </SignedIn>
-            </div>
-            <SignedOut><SignInButton mode="modal"><button className="shrink-0 rounded-full bg-white px-5 py-2 text-sm font-semibold text-black">Sign In</button></SignInButton></SignedOut>
-            <SignedIn><UserButton afterSignOutUrl="/" /></SignedIn>
-          </div>
-        </div>
-        <div className="border-t border-zinc-200 px-4 py-3 md:hidden">
-          <div className="flex gap-3 overflow-x-auto pb-1">
-            <Link href="/events" className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black">Events</Link>
-            <Link href="/map" className="shrink-0 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700">Map</Link>
-            <SignedIn><Link href="/saved-events" className="shrink-0 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700">Saved</Link><Link href="/my-tickets" className="shrink-0 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700">My Tickets</Link><Link href="/my-merch-orders" className="shrink-0 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700">Merch orders</Link></SignedIn>
-          </div>
-        </div>
-      </nav>
+      <DiscoveryNav />
 
       <ExperienceHero search={search} setSearch={setSearch} category={category} setCategory={setCategory} city={city} setCity={setCity} view={view} setView={setView} totalEvents={displayedEvents.length} events={((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event))} quickFilter={quickFilter} setQuickFilter={setQuickFilter} />
 
