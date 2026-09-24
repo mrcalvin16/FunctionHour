@@ -107,7 +107,7 @@ export default function EventsPage() {
       .filter((event) => eventMatchesCategory(event, category))
       .filter((event) => eventMatchesCity(event, city))
       .filter((event) => eventMatchesSearch(event, search))
-      .filter((event) => quickFilter === "tonight" ? isTonight(event) : quickFilter === "weekend" ? isThisWeekend(event) : true)
+      .filter((event) => quickFilter === "free" ? Number(event.startingPrice ?? event.price ?? 0) <= 0 : quickFilter === "tonight" ? isTonight(event) : quickFilter === "weekend" ? isThisWeekend(event) : true)
       .filter((event) => matchesCollection(event, activeCollection))
       .sort((a, b) => {
         const scoreDifference = discoveryScore(b) - discoveryScore(a);
@@ -141,39 +141,39 @@ export default function EventsPage() {
 
   if (events === undefined) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-black text-white">
+      <main className="flex min-h-screen items-center justify-center bg-[#fffaf7] text-zinc-900">
         <div className="text-lg">Loading events...</div>
       </main>
     );
   }
 
   return (
-    <main className="safe-x min-h-screen overflow-x-hidden bg-black text-white">
-      <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-black/90 backdrop-blur-md">
+    <main className="safe-x min-h-screen overflow-x-hidden bg-[#fffaf7] text-zinc-950">
+      <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <Link href="/" className="shrink-0 text-2xl font-extrabold tracking-[0.02em]" aria-label="Function Hour home">
-            <span className="text-white">FUNCTION</span>
+            <span className="text-zinc-950">FUNCTION</span>
             <span className="text-violet-500">HOUR</span>
           </Link>
 
           <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
             <div className="hidden items-center gap-3 md:flex">
-              <Link href="/events" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">Events</Link>
-              <Link href="/map" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">Map</Link>
+              <Link href="/events" className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-800 hover:text-zinc-950">Events</Link>
+              <Link href="/map" className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-800 hover:text-zinc-950">Map</Link>
 
               <SignedOut>
-                <Link href="/explore" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">Explore</Link>
-                <Link href="/cities" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">Cities</Link>
+                <Link href="/explore" className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-800 hover:text-zinc-950">Explore</Link>
+                <Link href="/cities" className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-800 hover:text-zinc-950">Cities</Link>
                 <SignInButton mode="modal">
-                  <button className="rounded-full border border-orange-400/40 px-4 py-2 text-sm font-semibold text-orange-300">Create Event</button>
+                  <button className="rounded-full border border-orange-500 bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-600">Create Event</button>
                 </SignInButton>
               </SignedOut>
 
               <SignedIn>
-                <Link href="/saved-events" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">Saved</Link>
-                <Link prefetch={false} href="/my-tickets" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">My Tickets</Link>
-                <Link href="/my-merch-orders" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-violet-400">Merch orders</Link>
-                <OrganizerPortalLink organizerLabel="Create Event" attendeeLabel="Create Event" organizerHref="/host/create" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white" />
+                <Link href="/saved-events" className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-800 hover:text-zinc-950">Saved</Link>
+                <Link prefetch={false} href="/my-tickets" className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-800 hover:text-zinc-950">My Tickets</Link>
+                <Link href="/my-merch-orders" className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition hover:border-violet-500 hover:text-zinc-950">Merch orders</Link>
+                <OrganizerPortalLink organizerLabel="Create Event" attendeeLabel="Create Event" organizerHref="/host/create" className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition hover:border-zinc-800 hover:text-zinc-950" />
               </SignedIn>
             </div>
 
@@ -188,15 +188,15 @@ export default function EventsPage() {
           </div>
         </div>
 
-        <div className="border-t border-zinc-900 px-4 py-3 md:hidden">
+        <div className="border-t border-zinc-200 px-4 py-3 md:hidden">
           <div className="flex gap-3 overflow-x-auto pb-1">
             <Link href="/events" className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black">Events</Link>
-            <Link href="/map" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Map</Link>
+            <Link href="/map" className="shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700">Map</Link>
             <SignedIn>
-              <Link href="/saved-events" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Saved</Link>
-              <Link prefetch={false} href="/my-tickets" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">My Tickets</Link>
-              <Link href="/my-merch-orders" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Merch orders</Link>
-              <OrganizerPortalLink organizerLabel="Create Event" attendeeLabel="Create Event" organizerHref="/host/create" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm" />
+              <Link href="/saved-events" className="shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700">Saved</Link>
+              <Link prefetch={false} href="/my-tickets" className="shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700">My Tickets</Link>
+              <Link href="/my-merch-orders" className="shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700">Merch orders</Link>
+              <OrganizerPortalLink organizerLabel="Create Event" attendeeLabel="Create Event" organizerHref="/host/create" className="shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700" />
             </SignedIn>
           </div>
         </div>
@@ -226,10 +226,6 @@ export default function EventsPage() {
         />
       )}
 
-      <DiscoveryCollections activeCollection={activeCollection} onSelect={setActiveCollection} />
-      <LiveMapSection nearbyCount={displayedEvents.length} />
-      <FeaturedHosts organizerStats={organizerStats} />
-
       {displayedEvents.length > 0 ? (
         <EventGrid
           events={gridEvents}
@@ -238,9 +234,9 @@ export default function EventsPage() {
         />
       ) : (
         <section className="mx-auto max-w-[1240px] px-5 pb-20 sm:px-7 lg:px-8">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-10 text-center">
-            <p className="text-sm font-black uppercase tracking-[0.24em] text-orange-300">No matches</p>
-            <h2 className="mt-3 text-3xl font-black">Try a broader search or another collection.</h2>
+          <div className="rounded-3xl border border-zinc-200 bg-white p-8 text-center shadow-sm sm:p-10">
+            <p className="text-sm font-black uppercase tracking-[0.24em] text-orange-700">No matches</p>
+            <h2 className="mt-3 text-3xl font-black text-zinc-950">Try a broader search or another collection.</h2>
             <button
               type="button"
               onClick={() => {
@@ -251,13 +247,17 @@ export default function EventsPage() {
                 setView("all");
                 setQuickFilter("");
               }}
-              className="mt-6 rounded-full bg-white px-6 py-3 text-sm font-black text-black"
+              className="mt-6 rounded-full bg-zinc-950 px-6 py-3 text-sm font-black text-white transition hover:bg-zinc-800"
             >
               Reset discovery
             </button>
           </div>
         </section>
       )}
+
+      <DiscoveryCollections activeCollection={activeCollection} onSelect={setActiveCollection} />
+      <LiveMapSection nearbyCount={displayedEvents.length} />
+      <FeaturedHosts organizerStats={organizerStats} />
 
       <Footer />
     </main>

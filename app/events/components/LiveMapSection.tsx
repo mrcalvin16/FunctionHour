@@ -49,7 +49,7 @@ export default function LiveMapSection({
             <div className="absolute left-[58%] top-[38%] h-4 w-4 rounded-full border-4 border-white bg-violet-500 shadow-[0_0_24px_rgba(139,92,246,0.65)] dark:border-black" />
             <div className="absolute left-[43%] top-[62%] h-4 w-4 rounded-full border-4 border-white bg-orange-500 shadow-[0_0_24px_rgba(249,115,22,0.65)] dark:border-black" />
 
-            <div className="absolute bottom-6 left-6 right-6 rounded-[1.5rem] border border-zinc-200 bg-white/95 p-5 shadow-xl backdrop-blur-xl dark:border-white/15 dark:bg-zinc-950/90 sm:left-auto sm:w-[340px]">
+            <div className="absolute bottom-6 left-6 right-6 rounded-[1.5rem] border border-zinc-200 bg-white p-5 shadow-xl dark:border-white/15 dark:bg-zinc-950/90 sm:left-auto sm:w-[340px]">
               <div className="flex items-center gap-3">
                 <span className="grid h-10 w-10 place-items-center rounded-2xl bg-violet-100 text-violet-800 dark:bg-violet-500/15 dark:text-violet-200">
                   <MapPin className="h-5 w-5" aria-hidden="true" />

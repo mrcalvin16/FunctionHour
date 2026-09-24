@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 type EventsView = "all" | "mine";
-export type QuickFilter = "" | "tonight" | "weekend";
+export type QuickFilter = "" | "tonight" | "weekend" | "free";
 
 type ExperienceHeroProps = {
   search: string;
@@ -155,6 +155,12 @@ export default function ExperienceHero({
       setQuickFilter(quickFilter === "weekend" ? "" : "weekend");
       return;
     }
+    if (chip === "Free") {
+      setSearch("");
+      setCategory("All");
+      setQuickFilter(quickFilter === "free" ? "" : "free");
+      return;
+    }
     setQuickFilter("");
     if (chip === "Food" || chip === "Sports" || chip === "Networking") {
       setCategory(chip);
@@ -166,36 +172,36 @@ export default function ExperienceHero({
   };
 
   return (
-    <section className="relative overflow-hidden border-b border-white/10 bg-[#08070d]">
+    <section className="relative overflow-hidden border-b border-zinc-200 bg-[#fffaf7] text-zinc-950">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-[9%] top-[-12rem] h-[34rem] w-[34rem] rounded-full bg-violet-600/20 blur-[140px]" />
-        <div className="absolute right-[9%] top-[-8rem] h-[34rem] w-[34rem] rounded-full bg-orange-600/15 blur-[145px]" />
-        <div className="absolute bottom-[-15rem] left-1/2 h-[28rem] w-[52rem] -translate-x-1/2 rounded-full bg-fuchsia-700/10 blur-[150px]" />
+        <div className="absolute left-[9%] top-[-12rem] h-[34rem] w-[34rem] rounded-full bg-violet-200/35 blur-[140px]" />
+        <div className="absolute right-[9%] top-[-8rem] h-[34rem] w-[34rem] rounded-full bg-orange-200/35 blur-[145px]" />
+        <div className="absolute bottom-[-15rem] left-1/2 h-[28rem] w-[52rem] -translate-x-1/2 rounded-full bg-pink-100/45 blur-[150px]" />
       </div>
 
       <div className="relative mx-auto max-w-[1240px] px-5 pb-7 pt-8 sm:px-7 lg:px-8 lg:pb-9 lg:pt-10">
         <div className="grid gap-9 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.075] px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.26em] text-violet-100 shadow-[0_8px_32px_rgba(139,92,246,0.12)] backdrop-blur-2xl">
-              <span className="text-violet-300">✦</span>
+            <div className="inline-flex items-center gap-3 rounded-full border border-violet-200 bg-white px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.26em] text-violet-800 shadow-sm">
+              <span className="text-violet-700">✦</span>
               Discover experiences
             </div>
 
-            <h1 className="mt-5 text-[3.7rem] font-black leading-[0.9] tracking-[-0.065em] text-white sm:text-[4.7rem] lg:text-[5.25rem]">
+            <h1 className="mt-5 text-[3.7rem] font-black leading-[0.9] tracking-[-0.065em] text-zinc-950 sm:text-[4.7rem] lg:text-[5.25rem]">
               Find your
               <span className="mt-1 block bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-400 bg-clip-text text-transparent">
                 next event.
               </span>
             </h1>
 
-            <p className="mt-5 max-w-xl text-[15px] leading-7 text-zinc-300 sm:text-base">
+            <p className="mt-5 max-w-xl text-[15px] leading-7 text-zinc-600 sm:text-base">
               Search concerts, festivals, nightlife, pop-ups, networking events,
               and local experiences.
             </p>
 
             <div className="mt-7 max-w-[620px]">
-  <div className="flex h-[68px] items-center rounded-[1.5rem] border border-white/15 bg-white/[0.075] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-2xl transition focus-within:border-violet-300/60 focus-within:bg-white/[0.1]">
-    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-violet-500/15 text-lg text-violet-200">
+  <div className="flex h-[68px] items-center rounded-[1.5rem] border border-zinc-200 bg-white p-2 shadow-sm transition focus-within:border-orange-300 focus-within:ring-4 focus-within:ring-orange-100">
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-50 text-lg text-orange-700">
       🔍
     </div>
 
@@ -203,14 +209,14 @@ export default function ExperienceHero({
       value={search}
       onChange={(event) => setSearch(event.target.value)}
       placeholder="Search events, artists, venues, neighborhoods..."
-      className="flex-1 bg-transparent px-4 text-white outline-none placeholder:text-zinc-500"
+      className="flex-1 bg-transparent px-4 text-zinc-900 outline-none placeholder:text-zinc-400"
     />
 
     {search ? (
       <button
         type="button"
         onClick={() => setSearch("")}
-        className="rounded-xl px-4 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/10 hover:text-white"
+        className="rounded-xl px-4 py-2 text-sm font-bold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
       >
         Clear
       </button>
@@ -218,7 +224,7 @@ export default function ExperienceHero({
       <button
         type="button"
         onClick={() => document.getElementById("event-filters")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-zinc-300"
+        className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100"
       >
         Filters
       </button>
@@ -230,6 +236,7 @@ export default function ExperienceHero({
       "Near Me",
       "Tonight",
       "This Weekend",
+      "Free",
       "Music",
       "Comedy",
       "Food",
@@ -240,11 +247,11 @@ export default function ExperienceHero({
         key={chip}
         type="button"
         onClick={() => activateQuickFilter(chip)}
-        aria-pressed={(chip === "Tonight" && quickFilter === "tonight") || (chip === "This Weekend" && quickFilter === "weekend")}
-        className={`rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm font-medium text-zinc-200 backdrop-blur-xl transition hover:border-white/25 hover:bg-white/[0.1] hover:text-white ${
-          (chip === "Tonight" && quickFilter === "tonight") || (chip === "This Weekend" && quickFilter === "weekend")
-            ? "border-violet-300/50 bg-violet-400/20 text-white shadow-[0_0_24px_rgba(139,92,246,0.15)]"
-            : "border-white/10 bg-white/[0.045] text-zinc-300 hover:bg-violet-500/15"
+        aria-pressed={(chip === "Tonight" && quickFilter === "tonight") || (chip === "This Weekend" && quickFilter === "weekend") || (chip === "Free" && quickFilter === "free")}
+        className={`rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50 ${
+          (chip === "Tonight" && quickFilter === "tonight") || (chip === "This Weekend" && quickFilter === "weekend") || (chip === "Free" && quickFilter === "free")
+            ? "border-orange-300 bg-orange-50 text-orange-800"
+            : "border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:bg-orange-50"
         }`}
       >
         {chip}
@@ -273,7 +280,7 @@ export default function ExperienceHero({
           setQuickFilter("");
           document.getElementById("event-results")?.scrollIntoView({ behavior: "smooth" });
         }}
-        className="rounded-full border border-white/10 bg-white/[0.045] px-3 py-1.5 text-zinc-300 backdrop-blur-xl transition hover:bg-white/[0.1] hover:text-white"
+        className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950"
       >
         {term}
       </button>
@@ -324,8 +331,8 @@ export default function ExperienceHero({
               </div>
             ))}
 
-            <div className="absolute bottom-[4%] right-[16%] z-20 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white shadow-xl backdrop-blur-2xl">
-              <span className="text-orange-400">⌖</span>
+            <div className="absolute bottom-[4%] right-[16%] z-20 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-700 shadow-sm ">
+              <span className="text-orange-600">⌖</span>
               Live around you
               <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-violet-200">
                 {totalEvents}
@@ -334,7 +341,7 @@ export default function ExperienceHero({
           </div>
         </div>
 
-        <div id="event-filters" className="mt-8 scroll-mt-28 overflow-hidden rounded-[1.65rem] border border-white/15 bg-white/[0.06] shadow-[0_20px_70px_rgba(0,0,0,0.35)] backdrop-blur-2xl">
+        <div id="event-filters" className="mt-8 scroll-mt-28 overflow-hidden rounded-[1.65rem] border border-zinc-200 bg-white shadow-sm">
           <div className="grid grid-cols-5 gap-1 p-2 sm:grid-cols-10">
             {categories.map((item) => {
               const isActive = category === item.label;
@@ -347,8 +354,8 @@ export default function ExperienceHero({
                   onClick={() => setCategory(item.label)}
                   className={`group flex min-h-[76px] flex-col items-center justify-center rounded-[1.15rem] px-2 py-3 text-center transition ${
                     isActive
-                      ? "bg-gradient-to-br from-violet-600 to-violet-500 text-white shadow-[0_0_30px_rgba(124,58,237,0.38)]"
-                      : "text-zinc-300 hover:bg-white/[0.06] hover:text-white"
+                      ? "bg-gradient-to-br from-orange-500 to-pink-500 text-white shadow-sm"
+                      : "text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
                   }`}
                 >
                   <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
@@ -360,13 +367,13 @@ export default function ExperienceHero({
             })}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 border-t border-white/10 px-3 py-3">
-            <button type="button" onClick={() => setCity("All Cities")} aria-pressed={city === "All Cities"} className={"rounded-full border px-4 py-2.5 text-xs font-black " + (city === "All Cities" ? "border-violet-500 bg-violet-600 text-white" : "border-white/15 text-zinc-300")}>All cities</button>
+          <div className="flex flex-wrap items-center gap-2 border-t border-zinc-200 px-3 py-3">
+            <button type="button" onClick={() => setCity("All Cities")} aria-pressed={city === "All Cities"} className={"rounded-full border px-4 py-2.5 text-xs font-black " + (city === "All Cities" ? "border-orange-500 bg-orange-500 text-white" : "border-zinc-300 text-zinc-700 hover:bg-zinc-50")}>All cities</button>
             {popularCities.map((item) => {
               const value = item.state ? item.city + ", " + item.state : item.city;
-              return <button key={value} type="button" onClick={() => setCity(value)} aria-pressed={city === value} className={"rounded-full border px-4 py-2.5 text-xs font-black " + (city === value ? "border-violet-500 bg-violet-600 text-white" : "border-white/15 text-zinc-300")}>{item.city}{item.state ? ", " + item.state : ""}<span className="ml-2 text-violet-200/70">{item.count}</span></button>;
+              return <button key={value} type="button" onClick={() => setCity(value)} aria-pressed={city === value} className={"rounded-full border px-4 py-2.5 text-xs font-black " + (city === value ? "border-orange-500 bg-orange-500 text-white" : "border-zinc-300 text-zinc-700 hover:bg-zinc-50")}>{item.city}{item.state ? ", " + item.state : ""}<span className="ml-2 text-violet-700">{item.count}</span></button>;
             })}
-            <button type="button" onClick={() => setCityPickerOpen(!cityPickerOpen)} aria-expanded={cityPickerOpen} className="inline-flex items-center gap-2 rounded-full border border-violet-400/40 bg-violet-500/10 px-4 py-2.5 text-xs font-black text-violet-200"><MapPin className="h-3.5 w-3.5" />Browse {cityOptions.length} cities</button>
+            <button type="button" onClick={() => setCityPickerOpen(!cityPickerOpen)} aria-expanded={cityPickerOpen} className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-2.5 text-xs font-black text-orange-800"><MapPin className="h-3.5 w-3.5" />Browse {cityOptions.length} cities</button>
 
             <button
               type="button"
@@ -374,7 +381,7 @@ export default function ExperienceHero({
               className={`rounded-full border px-5 py-2.5 text-xs font-black transition ${
                 view === "mine"
                   ? "border-orange-500 bg-orange-500/20 text-orange-200"
-                  : "border-orange-500/45 bg-orange-500/5 text-orange-200 hover:bg-orange-500/15"
+                  : "border-orange-200 bg-orange-50 text-orange-800 hover:bg-orange-100"
               }`}
             >
               My Events
@@ -388,15 +395,15 @@ export default function ExperienceHero({
               <button
                 type="button"
                 onClick={resetFilters}
-                className="ml-auto rounded-full px-4 py-2.5 text-xs font-bold text-zinc-500 transition hover:text-white"
+                className="ml-auto rounded-full px-4 py-2.5 text-xs font-bold text-zinc-600 transition hover:text-zinc-950"
               >
                 Reset
               </button>
             )}
           </div>
-          {cityPickerOpen && <div className="border-t border-white/10 p-4">
-            <label className="flex items-center gap-2 rounded-xl border border-white/15 px-3"><Search className="h-4 w-4 text-zinc-500" /><input value={citySearch} onChange={(event) => setCitySearch(event.target.value)} placeholder="Search city or state..." className="h-11 flex-1 bg-transparent text-sm text-white outline-none" /></label>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{states.map((state) => <div key={state}><p className="mb-2 text-xs font-black uppercase tracking-widest text-violet-300">{state}</p><div className="flex flex-wrap gap-2">{visibleCities.filter((item) => (item.state || "Other locations") === state).map((item) => { const value = item.state ? item.city + ", " + item.state : item.city; return <button key={value} type="button" onClick={() => { setCity(value); setCityPickerOpen(false); setCitySearch(""); }} className={"rounded-full border px-3 py-2 text-xs " + (city === value ? "border-violet-500 bg-violet-600 text-white" : "border-white/10 text-zinc-300")}>{value} · {item.count}</button>; })}</div></div>)}</div>
+          {cityPickerOpen && <div className="border-t border-zinc-200 p-4">
+            <label className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3"><Search className="h-4 w-4 text-zinc-500" /><input value={citySearch} onChange={(event) => setCitySearch(event.target.value)} placeholder="Search city or state..." className="h-11 flex-1 bg-transparent text-sm text-zinc-900 outline-none" /></label>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{states.map((state) => <div key={state}><p className="mb-2 text-xs font-black uppercase tracking-widest text-violet-700">{state}</p><div className="flex flex-wrap gap-2">{visibleCities.filter((item) => (item.state || "Other locations") === state).map((item) => { const value = item.state ? item.city + ", " + item.state : item.city; return <button key={value} type="button" onClick={() => { setCity(value); setCityPickerOpen(false); setCitySearch(""); }} className={"rounded-full border px-3 py-2 text-xs " + (city === value ? "border-orange-500 bg-orange-500 text-white" : "border-zinc-300 text-zinc-700 hover:bg-zinc-50")}>{value} · {item.count}</button>; })}</div></div>)}</div>
           </div>}
         </div>
       </div>

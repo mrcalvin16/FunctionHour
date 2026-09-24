@@ -40,7 +40,7 @@ function getEventPrice(event: any) {
   const ticketCents = Math.round(price * 100);
   const serviceFeeCents = Math.round(ticketCents * 0.021) + 99;
   const totalCents = ticketCents + serviceFeeCents;
-  return `${(totalCents / 100).toLocaleString("en-US", {
+  return `$${(totalCents / 100).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })} incl. fee`;
@@ -79,7 +79,7 @@ export default function DiscoveryEventCard({
   const schedule = getEventSchedule(event);
 
   return (
-    <article className="group relative overflow-hidden rounded-[1.65rem] border border-white/10 bg-[#0d0d11] shadow-[0_20px_60px_rgba(0,0,0,0.22)] transition duration-300 hover:-translate-y-1.5 hover:border-violet-400/40 hover:shadow-[0_28px_80px_rgba(76,29,149,0.22)]">
+    <article className="group relative overflow-hidden rounded-[1.65rem] border border-zinc-200 bg-white shadow-[0_12px_36px_rgba(24,24,27,0.07)] transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-[0_20px_50px_rgba(24,24,27,0.12)]">
       <div className="relative h-[230px] overflow-hidden bg-zinc-900">
         <Link
           href={`/events/${event._id}`}
@@ -94,12 +94,12 @@ export default function DiscoveryEventCard({
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/5 to-black/25" />
 
         <div className="pointer-events-none absolute left-4 top-4 flex max-w-[calc(100%-5rem)] flex-wrap gap-2">
-          <span className="rounded-full border border-white/15 bg-black/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur-xl">
+          <span className="rounded-full border border-white/15 bg-black/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white ">
             {category}
           </span>
 
           {event.isFeatured && (
-            <span className="rounded-full border border-orange-300/30 bg-orange-500/85 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur-xl">
+            <span className="rounded-full border border-orange-300/30 bg-orange-500/85 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white ">
               Featured
             </span>
           )}
@@ -114,7 +114,7 @@ export default function DiscoveryEventCard({
             clickEvent.stopPropagation();
             onToggleSave();
           }}
-          className={`absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border text-xl shadow-lg backdrop-blur-xl transition duration-200 active:scale-90 ${
+          className={`absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border text-xl shadow-lg  transition duration-200 active:scale-90 ${
             isSaved
               ? "scale-105 border-violet-300/70 bg-violet-600 text-white"
               : "border-white/20 bg-black/55 text-white hover:scale-105 hover:bg-white hover:text-black"
@@ -130,13 +130,13 @@ export default function DiscoveryEventCard({
         </button>
 
         <div className="pointer-events-none absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
-          <div className="max-w-[72%] rounded-xl border border-white/20 bg-black/85 px-3 py-2 text-white shadow-lg backdrop-blur-xl">
+          <div className="max-w-[72%] rounded-xl border border-white/20 bg-black/85 px-3 py-2 text-white shadow-lg ">
             <p className="truncate text-xs font-black leading-4">{schedule.date}</p>
             <p className="mt-0.5 text-[11px] font-bold text-violet-200">{schedule.time}</p>
           </div>
 
           <div
-            className={`rounded-full px-3 py-2 text-xs font-black backdrop-blur-xl ${
+            className={`rounded-full px-3 py-2 text-xs font-black  ${
               priceLabel === "Free"
                 ? "bg-emerald-400 text-black"
                 : "bg-white text-black"
@@ -149,16 +149,16 @@ export default function DiscoveryEventCard({
 
       <div className="p-5">
         <Link href={`/events/${event._id}`} className="block">
-          <h3 className="line-clamp-2 min-h-[58px] text-[1.35rem] font-black leading-[1.18] tracking-[-0.035em] text-white transition group-hover:text-violet-200">
+          <h3 className="line-clamp-2 min-h-[58px] text-[1.35rem] font-black leading-[1.18] tracking-[-0.035em] text-zinc-950 transition group-hover:text-orange-700">
             {event.name}
           </h3>
         </Link>
 
         <div className="mt-4 space-y-2">
-          <p className="flex min-w-0 items-center gap-2 text-sm text-zinc-400">
+          <p className="flex min-w-0 items-center gap-2 text-sm text-zinc-600">
             <span
               aria-hidden="true"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-xs"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs"
             >
               ◉
             </span>
@@ -167,10 +167,10 @@ export default function DiscoveryEventCard({
           </p>
 
           {organizerName && (
-            <p className="flex min-w-0 items-center gap-2 text-sm text-zinc-500">
+            <p className="flex min-w-0 items-center gap-2 text-sm text-zinc-600">
               <span
                 aria-hidden="true"
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-xs"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs"
               >
                 ◌
               </span>
@@ -180,7 +180,7 @@ export default function DiscoveryEventCard({
           )}
         </div>
 
-        <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/10 pt-5">
+        <div className="mt-5 flex items-center justify-between gap-4 border-t border-zinc-200 pt-5">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-600">
               Starting at
@@ -199,7 +199,7 @@ export default function DiscoveryEventCard({
 
           <Link
             href={`/events/${event._id}`}
-            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-xs font-black text-black transition duration-200 hover:scale-[1.03] hover:bg-violet-200 active:scale-95"
+            className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-3 text-xs font-black text-white transition duration-200 hover:scale-[1.02] hover:bg-zinc-800 active:scale-95"
           >
             View event
             <span aria-hidden="true">→</span>
