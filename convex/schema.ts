@@ -163,6 +163,7 @@ eventInteractions: defineTable({
     buyerName: v.optional(v.string()),
     currency: v.string(),
     grossAmount: v.float64(),
+    platformFeeAmount: v.optional(v.float64()),
     refundedAmount: v.float64(),
     netAmount: v.float64(),
     quantity: v.float64(),
