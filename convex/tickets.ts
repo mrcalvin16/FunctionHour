@@ -518,6 +518,7 @@ export const recordTicketOrder = mutation({
     buyerName: v.optional(v.string()),
     currency: v.string(),
     grossAmount: v.number(),
+    platformFeeAmount: v.optional(v.number()),
     quantity: v.number(),
     paidAt: v.number(),
     discountCodeId: v.optional(v.id("discountCodes")),
@@ -539,6 +540,10 @@ export const recordTicketOrder = mutation({
     if (!event) throw new Error("Event not found.");
 
     const grossAmount = Math.max(0, args.grossAmount);
+    const platformFeeAmount = Math.min(
+      grossAmount,
+      Math.max(0, args.platformFeeAmount ?? 0),
+    );
     const now = Date.now();
 
     const orderId = await ctx.db.insert("ticketOrders", {
@@ -549,8 +554,9 @@ export const recordTicketOrder = mutation({
       buyerName: args.buyerName,
       currency: args.currency.toLowerCase(),
       grossAmount,
+      platformFeeAmount,
       refundedAmount: 0,
-      netAmount: grossAmount,
+      netAmount: Math.max(0, grossAmount - platformFeeAmount),
       quantity: Math.max(1, Math.floor(args.quantity)),
       discountCodeId: args.discountCodeId,
       discountAmount: Math.max(0, args.discountAmount ?? 0),
@@ -596,10 +602,14 @@ export const recordTicketRefund = mutation({
       Math.max(0, args.refundedAmount),
     );
     const fullyRefunded = refundedAmount >= order.grossAmount;
+    const ticketProceeds = Math.max(
+      0,
+      order.grossAmount - (order.platformFeeAmount ?? 0),
+    );
 
     await ctx.db.patch(order._id, {
       refundedAmount,
-      netAmount: Math.max(0, order.grossAmount - refundedAmount),
+      netAmount: Math.max(0, ticketProceeds - Math.min(ticketProceeds, refundedAmount)),
       status: fullyRefunded ? "refunded" : "partially_refunded",
       updatedAt: Date.now(),
     });
