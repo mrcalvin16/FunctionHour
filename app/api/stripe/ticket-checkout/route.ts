@@ -232,18 +232,36 @@ export async function POST(req: Request) {
         quantity,
       },
     ];
+    const ticketUnitAmount = Math.round((checkoutTotal / quantity) * 100);
+    const platformFeeUnitAmount = ticketUnitAmount > 0
+      ? Math.round(ticketUnitAmount * 0.021) + 99
+      : 0;
+    const platformFeeAmount = (platformFeeUnitAmount * quantity) / 100;
     const lineItems = [
       {
         quantity,
         price_data: {
           currency: "usd",
-          unit_amount: Math.round((checkoutTotal / quantity) * 100),
+          unit_amount: ticketUnitAmount,
           product_data: {
             name: `${reservation.eventName} — ${reservation.ticketTypeName || "Standard Admission"}`,
             description: reservation.ticketTypeDescription || "Event ticket",
           },
         },
       },
+      ...(platformFeeUnitAmount > 0
+        ? [{
+            quantity,
+            price_data: {
+              currency: "usd",
+              unit_amount: platformFeeUnitAmount,
+              product_data: {
+                name: "Function Hour service fee",
+                description: "2.1% + $0.99 per paid ticket",
+              },
+            },
+          }]
+        : []),
     ];
 
     const successUrl = buildReturnUrl(
@@ -277,6 +295,7 @@ export async function POST(req: Request) {
             : "",
           discountCode: validDiscount?.code ?? "",
           discountAmount: String(validDiscount?.discountAmount ?? 0),
+          platformFeeAmount: String(platformFeeAmount),
         },
         expires_at: Math.floor(reservation.expiresAt / 1000),
         success_url: successUrl,
