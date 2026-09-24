@@ -67,7 +67,7 @@ export default function HomePage() {
             <SignedIn><UserButton afterSignOutUrl="/" /></SignedIn>
           </div>
         </div>
-        <div className="border-t border-zinc-900 px-4 py-3 md:hidden">
+        <div className="border-t border-zinc-200 px-4 py-3 md:hidden">
           <div className="flex gap-3 overflow-x-auto pb-1">
             <Link href="/events" className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black">Events</Link>
             <Link href="/map" className="shrink-0 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-700">Map</Link>
