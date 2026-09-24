@@ -47,20 +47,20 @@ export default function HomePage() {
 
   return (
     <main className="safe-x min-h-screen overflow-x-hidden bg-black text-white">
-      <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-black/90 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-white/[0.08] bg-black/55 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <Link href="/" className="shrink-0 text-2xl font-extrabold tracking-[0.02em]" aria-label="Function Hour home">
             <span className="text-white">FUNCTION</span><span className="text-violet-500">HOUR</span>
           </Link>
           <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
             <div className="hidden items-center gap-3 md:flex">
-              <Link href="/events" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">Events</Link>
-              <Link href="/map" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">Map</Link>
+              <Link href="/events" className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-zinc-200 backdrop-blur-xl transition hover:border-white/25 hover:bg-white/[0.1]">Events</Link>
+              <Link href="/map" className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-zinc-200 backdrop-blur-xl transition hover:border-white/25 hover:bg-white/[0.1]">Map</Link>
               <SignedIn>
-                <Link href="/saved-events" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">Saved</Link>
-                <Link href="/my-tickets" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white">My Tickets</Link>
-                <Link href="/my-merch-orders" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-violet-400">Merch orders</Link>
-                <OrganizerPortalLink className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-white" />
+                <Link href="/saved-events" className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-zinc-200 backdrop-blur-xl transition hover:border-white/25 hover:bg-white/[0.1]">Saved</Link>
+                <Link href="/my-tickets" className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-zinc-200 backdrop-blur-xl transition hover:border-white/25 hover:bg-white/[0.1]">My Tickets</Link>
+                <Link href="/my-merch-orders" className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-zinc-200 backdrop-blur-xl transition hover:border-violet-300/40 hover:bg-violet-300/[0.08]">Merch orders</Link>
+                <OrganizerPortalLink className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-zinc-200 backdrop-blur-xl transition hover:border-white/25 hover:bg-white/[0.1]" />
               </SignedIn>
             </div>
             <SignedOut><SignInButton mode="modal"><button className="shrink-0 rounded-full bg-white px-5 py-2 text-sm font-semibold text-black">Sign In</button></SignInButton></SignedOut>
@@ -70,8 +70,8 @@ export default function HomePage() {
         <div className="border-t border-zinc-900 px-4 py-3 md:hidden">
           <div className="flex gap-3 overflow-x-auto pb-1">
             <Link href="/events" className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black">Events</Link>
-            <Link href="/map" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Map</Link>
-            <SignedIn><Link href="/saved-events" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Saved</Link><Link href="/my-tickets" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">My Tickets</Link><Link href="/my-merch-orders" className="shrink-0 rounded-full border border-zinc-700 px-4 py-2 text-sm">Merch orders</Link></SignedIn>
+            <Link href="/map" className="shrink-0 rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-zinc-200 backdrop-blur-xl">Map</Link>
+            <SignedIn><Link href="/saved-events" className="shrink-0 rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-zinc-200 backdrop-blur-xl">Saved</Link><Link href="/my-tickets" className="shrink-0 rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-zinc-200 backdrop-blur-xl">My Tickets</Link><Link href="/my-merch-orders" className="shrink-0 rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm text-zinc-200 backdrop-blur-xl">Merch orders</Link></SignedIn>
           </div>
         </div>
       </nav>
