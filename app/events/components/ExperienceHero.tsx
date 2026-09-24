@@ -166,7 +166,7 @@ export default function ExperienceHero({
   };
 
   return (
-    <section className="relative overflow-hidden border-b border-white/10 bg-black">
+    <section className="relative overflow-hidden border-b border-white/10 bg-[#08070d]">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[9%] top-[-12rem] h-[34rem] w-[34rem] rounded-full bg-violet-600/20 blur-[140px]" />
         <div className="absolute right-[9%] top-[-8rem] h-[34rem] w-[34rem] rounded-full bg-orange-600/15 blur-[145px]" />
@@ -176,7 +176,7 @@ export default function ExperienceHero({
       <div className="relative mx-auto max-w-[1240px] px-5 pb-7 pt-8 sm:px-7 lg:px-8 lg:pb-9 lg:pt-10">
         <div className="grid gap-9 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-3 rounded-full border border-violet-300 bg-violet-100 px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.26em] text-violet-900 shadow-[0_0_28px_rgba(139,92,246,0.12)] dark:border-violet-400/35 dark:bg-violet-500/10 dark:text-violet-200">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.075] px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.26em] text-violet-100 shadow-[0_8px_32px_rgba(139,92,246,0.12)] backdrop-blur-2xl">
               <span className="text-violet-300">✦</span>
               Discover experiences
             </div>
@@ -194,7 +194,7 @@ export default function ExperienceHero({
             </p>
 
             <div className="mt-7 max-w-[620px]">
-  <div className="flex h-[68px] items-center rounded-[1.5rem] border border-violet-400/40 bg-black/75 p-2 shadow-[0_0_40px_rgba(139,92,246,0.22)] backdrop-blur-xl transition focus-within:border-violet-300">
+  <div className="flex h-[68px] items-center rounded-[1.5rem] border border-white/15 bg-white/[0.075] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-2xl transition focus-within:border-violet-300/60 focus-within:bg-white/[0.1]">
     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-violet-500/15 text-lg text-violet-200">
       🔍
     </div>
@@ -241,10 +241,10 @@ export default function ExperienceHero({
         type="button"
         onClick={() => activateQuickFilter(chip)}
         aria-pressed={(chip === "Tonight" && quickFilter === "tonight") || (chip === "This Weekend" && quickFilter === "weekend")}
-        className={`rounded-full border px-4 py-2 text-sm font-medium transition hover:border-violet-400 hover:text-white ${
+        className={`rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-sm font-medium text-zinc-200 backdrop-blur-xl transition hover:border-white/25 hover:bg-white/[0.1] hover:text-white ${
           (chip === "Tonight" && quickFilter === "tonight") || (chip === "This Weekend" && quickFilter === "weekend")
-            ? "border-violet-400 bg-violet-500/25 text-white"
-            : "border-white/10 bg-white/5 text-zinc-300 hover:bg-violet-500/10"
+            ? "border-violet-300/50 bg-violet-400/20 text-white shadow-[0_0_24px_rgba(139,92,246,0.15)]"
+            : "border-white/10 bg-white/[0.045] text-zinc-300 hover:bg-violet-500/15"
         }`}
       >
         {chip}
@@ -273,7 +273,7 @@ export default function ExperienceHero({
           setQuickFilter("");
           document.getElementById("event-results")?.scrollIntoView({ behavior: "smooth" });
         }}
-        className="rounded-full bg-white/5 px-3 py-1.5 text-zinc-400 transition hover:bg-white/10 hover:text-white"
+        className="rounded-full border border-white/10 bg-white/[0.045] px-3 py-1.5 text-zinc-300 backdrop-blur-xl transition hover:bg-white/[0.1] hover:text-white"
       >
         {term}
       </button>
@@ -324,7 +324,7 @@ export default function ExperienceHero({
               </div>
             ))}
 
-            <div className="absolute bottom-[4%] right-[16%] z-20 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/90 px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white shadow-xl">
+            <div className="absolute bottom-[4%] right-[16%] z-20 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white shadow-xl backdrop-blur-2xl">
               <span className="text-orange-400">⌖</span>
               Live around you
               <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-violet-200">
@@ -334,7 +334,7 @@ export default function ExperienceHero({
           </div>
         </div>
 
-        <div id="event-filters" className="mt-8 scroll-mt-28 overflow-hidden rounded-[1.65rem] border border-white/15 bg-white/[0.045] shadow-[0_20px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+        <div id="event-filters" className="mt-8 scroll-mt-28 overflow-hidden rounded-[1.65rem] border border-white/15 bg-white/[0.06] shadow-[0_20px_70px_rgba(0,0,0,0.35)] backdrop-blur-2xl">
           <div className="grid grid-cols-5 gap-1 p-2 sm:grid-cols-10">
             {categories.map((item) => {
               const isActive = category === item.label;
