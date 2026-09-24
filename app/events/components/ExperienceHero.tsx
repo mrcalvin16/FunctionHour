@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 type EventsView = "all" | "mine";
-export type QuickFilter = "" | "tonight" | "weekend";
+export type QuickFilter = "" | "tonight" | "weekend" | "free";
 
 type ExperienceHeroProps = {
   search: string;
@@ -155,6 +155,12 @@ export default function ExperienceHero({
       setQuickFilter(quickFilter === "weekend" ? "" : "weekend");
       return;
     }
+    if (chip === "Free") {
+      setSearch("");
+      setCategory("All");
+      setQuickFilter(quickFilter === "free" ? "" : "free");
+      return;
+    }
     setQuickFilter("");
     if (chip === "Food" || chip === "Sports" || chip === "Networking") {
       setCategory(chip);
@@ -230,6 +236,7 @@ export default function ExperienceHero({
       "Near Me",
       "Tonight",
       "This Weekend",
+      "Free",
       "Music",
       "Comedy",
       "Food",
@@ -240,9 +247,9 @@ export default function ExperienceHero({
         key={chip}
         type="button"
         onClick={() => activateQuickFilter(chip)}
-        aria-pressed={(chip === "Tonight" && quickFilter === "tonight") || (chip === "This Weekend" && quickFilter === "weekend")}
+        aria-pressed={(chip === "Tonight" && quickFilter === "tonight") || (chip === "This Weekend" && quickFilter === "weekend") || (chip === "Free" && quickFilter === "free")}
         className={`rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50 ${
-          (chip === "Tonight" && quickFilter === "tonight") || (chip === "This Weekend" && quickFilter === "weekend")
+          (chip === "Tonight" && quickFilter === "tonight") || (chip === "This Weekend" && quickFilter === "weekend") || (chip === "Free" && quickFilter === "free")
             ? "border-orange-300 bg-orange-50 text-orange-800"
             : "border-zinc-200 bg-white text-zinc-700 hover:border-orange-200 hover:bg-orange-50"
         }`}
