@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Share2 } from "lucide-react";
 
 interface Props {
   eventId: string;
@@ -41,8 +42,9 @@ export default function ShareEventButton({
     <button
       type="button"
       onClick={shareEvent}
-      className="flex min-h-11 w-full items-center justify-center rounded-xl border border-white/15 px-4 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
+      className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-lg border border-white/15 px-3 text-xs font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
     >
+      <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
       {copied ? "Link copied" : "Share event"}
     </button>
   );
