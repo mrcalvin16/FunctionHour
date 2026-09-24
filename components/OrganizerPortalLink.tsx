@@ -7,8 +7,8 @@ import { api } from "@/convex/_generated/api";
 
 export default function OrganizerPortalLink({
   className,
-  organizerLabel = "Host Dashboard",
-  attendeeLabel = "Become a Host",
+  organizerLabel = "Organizer OS",
+  attendeeLabel = "Create Event",
   organizerHref = "/host",
 }: {
   className?: string;
@@ -30,7 +30,7 @@ export default function OrganizerPortalLink({
 
   return (
     <Link prefetch={false} href={href} className={className}>
-      {canAccess ? organizerLabel : attendeeLabel}
+      {isSignedIn && canAccess ? organizerLabel : attendeeLabel}
     </Link>
   );
 }
