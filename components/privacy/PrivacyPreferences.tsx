@@ -67,7 +67,7 @@ export default function PrivacyPreferences() {
         Do Not Sell or Share My Personal Information
       </button>
       {savedMessage && (
-        <span role="status" className="sr-only">{savedMessage}</span>
+        <span role="status" className="basis-full text-xs text-emerald-300">{savedMessage}</span>
       )}
 
       {open && (
