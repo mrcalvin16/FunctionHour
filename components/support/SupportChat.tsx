@@ -33,10 +33,13 @@ type EventResult = {
   url: string;
 };
 
+type SupportLink = { label: string; href: string };
+
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   events?: EventResult[];
+  links?: SupportLink[];
 };
 
 type SupportResponse = {
@@ -44,6 +47,7 @@ type SupportResponse = {
   suggestedPrompts: string[];
   escalationRecommended: boolean;
   events: EventResult[];
+  links?: SupportLink[];
 };
 
 type SupportHandoff = {
@@ -64,6 +68,7 @@ const defaultPrompts = [
   "Find events this weekend",
   "Where are my tickets?",
   "How do refunds work?",
+  "Where are my merch orders?",
 ];
 
 function formatEventDate(event: EventResult) {
@@ -165,23 +170,26 @@ export default function SupportChat() {
 
       setMessages((current) => [
         ...current,
-        { role: "assistant", content: payload.answer, events: payload.events },
+        { role: "assistant", content: payload.answer, events: payload.events, links: payload.links },
       ]);
       setSuggestedPrompts(payload.suggestedPrompts);
       setEscalationRecommended(payload.escalationRecommended);
       setLatestHadEventResults(payload.events.length > 0);
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Chev is unavailable right now.";
+    } catch {
       setMessages((current) => [
         ...current,
         {
           role: "assistant",
-          content: `${message} You can also review your tickets in My Tickets or the Refund Policy for purchase questions.`,
+          content: "I’m having a temporary issue. You can still check ticket access, merch delivery, or refund terms using the links below. For payment, account, or order problems that need review, email operations@functionhour.com with the event name and purchase email. Never send your full card number or sign-in codes.",
+          links: [
+            { label: "My Tickets", href: "/my-tickets" },
+            { label: "My Merch Orders", href: "/my-merch-orders" },
+            { label: "Refund Policy", href: "/refund-policy" },
+            { label: "Email Operations", href: "mailto:operations@functionhour.com" },
+          ],
         },
       ]);
+      setSuggestedPrompts(["Where are my tickets?", "Where are my merch orders?", "How do refunds work?"]);
     } finally {
       setLoading(false);
     }
@@ -304,6 +312,16 @@ export default function SupportChat() {
                     {message.content}
                   </div>
                 </div>
+
+                {message.links?.length ? (
+                  <div className="flex flex-wrap gap-2 pl-1">
+                    {message.links.map((item) => (
+                      <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="rounded-full border border-violet-300/50 bg-violet-50 px-3 py-1.5 text-xs font-semibold text-violet-800 transition hover:bg-violet-100 dark:border-violet-400/30 dark:bg-violet-500/10 dark:text-violet-200 dark:hover:bg-violet-500/20">
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
 
                 {message.events?.length ? (
                   <div className="space-y-2">
