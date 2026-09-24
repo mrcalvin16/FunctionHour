@@ -41,7 +41,7 @@ const comparisons = [
   {
     name: "Humanitix",
     platformFee: "2.1% + $0.99",
-    note: "Standard U.S. booking fee per paid ticket, plus processing",
+    note: "Per paid ticket, plus 2.9% + $0.30 payment processing",
     featured: false,
   },
 ];
