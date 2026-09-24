@@ -16,10 +16,13 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-4">
-          
-          
           <Link href="/my-tickets" className="text-zinc-300 hover:text-white">My Tickets</Link>
-          <OrganizerPortalLink organizerLabel="Host" className="text-zinc-300 hover:text-white" />
+          <OrganizerPortalLink
+            organizerLabel="Create Event"
+            attendeeLabel="Create Event"
+            organizerHref="/host/create"
+            className="text-zinc-300 hover:text-white"
+          />
 
           <SignedOut>
             <SignInButton>
