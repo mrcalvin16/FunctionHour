@@ -94,12 +94,12 @@ export default function DiscoveryEventCard({
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/5 to-black/25" />
 
         <div className="pointer-events-none absolute left-4 top-4 flex max-w-[calc(100%-5rem)] flex-wrap gap-2">
-          <span className="rounded-full border border-white/15 bg-black/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur-xl">
+          <span className="rounded-full border border-white/15 bg-black/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white ">
             {category}
           </span>
 
           {event.isFeatured && (
-            <span className="rounded-full border border-orange-300/30 bg-orange-500/85 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur-xl">
+            <span className="rounded-full border border-orange-300/30 bg-orange-500/85 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white ">
               Featured
             </span>
           )}
@@ -114,7 +114,7 @@ export default function DiscoveryEventCard({
             clickEvent.stopPropagation();
             onToggleSave();
           }}
-          className={`absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border text-xl shadow-lg backdrop-blur-xl transition duration-200 active:scale-90 ${
+          className={`absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border text-xl shadow-lg  transition duration-200 active:scale-90 ${
             isSaved
               ? "scale-105 border-violet-300/70 bg-violet-600 text-white"
               : "border-white/20 bg-black/55 text-white hover:scale-105 hover:bg-white hover:text-black"
@@ -130,13 +130,13 @@ export default function DiscoveryEventCard({
         </button>
 
         <div className="pointer-events-none absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
-          <div className="max-w-[72%] rounded-xl border border-white/20 bg-black/85 px-3 py-2 text-white shadow-lg backdrop-blur-xl">
+          <div className="max-w-[72%] rounded-xl border border-white/20 bg-black/85 px-3 py-2 text-white shadow-lg ">
             <p className="truncate text-xs font-black leading-4">{schedule.date}</p>
             <p className="mt-0.5 text-[11px] font-bold text-violet-200">{schedule.time}</p>
           </div>
 
           <div
-            className={`rounded-full px-3 py-2 text-xs font-black backdrop-blur-xl ${
+            className={`rounded-full px-3 py-2 text-xs font-black  ${
               priceLabel === "Free"
                 ? "bg-emerald-400 text-black"
                 : "bg-white text-black"
@@ -180,7 +180,7 @@ export default function DiscoveryEventCard({
           )}
         </div>
 
-        <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/10 pt-5">
+        <div className="mt-5 flex items-center justify-between gap-4 border-t border-zinc-200 pt-5">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-600">
               Starting at
