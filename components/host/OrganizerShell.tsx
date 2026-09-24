@@ -52,6 +52,12 @@ const navigation: NavGroup[] = [
         icon: "overview",
         exact: true,
       },
+      {
+        label: "Profile & verification",
+        description: "Public profile and blue check request",
+        href: "/host/profile",
+        icon: "permissions",
+      },
     ],
   },
   {
@@ -187,6 +193,10 @@ const pageMetadata: Record<
   "/host": {
     title: "Overview",
     description: "Command center for all your events",
+  },
+  "/host/profile": {
+    title: "Profile & verification",
+    description: "Manage your public organizer profile and request verification",
   },
   "/host/comp-tickets": {
     title: "Comp Tickets",

@@ -402,8 +402,9 @@ export default function EditEventPage() {
 
             <div>
               <label className="text-sm font-semibold text-white/70">
-                Ticket Price
+                Fallback ticket price
               </label>
+              <p className="mt-1 text-xs text-white/45">Used when this event has no ticket types. Edit ticket type prices in <Link className="text-orange-300 underline" href={`/host/events/${event._id}/tickets`}>Tickets</Link>.</p>
               <input
                 type="number"
                 min="0"
