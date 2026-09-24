@@ -535,7 +535,7 @@ export default function EventDetailPage({
                 </p>
                 {startingPrice !== null && startingPrice > 0 && (
                   <p className="mt-1 text-[11px] text-white/45">
-                    Plus 2.1% + $0.99 service fee per ticket
+                    Plus 3.7% + $1.78 service fee per ticket
                   </p>
                 )}
               </div>
@@ -698,7 +698,7 @@ export default function EventDetailPage({
                     : "Free"}
               </p>
               {startingPrice !== null && startingPrice > 0 && (
-                <p className="text-[9px] text-white/45">+ $0.99 and 2.1% service fee</p>
+                <p className="text-[9px] text-white/45">+ $1.78 and 3.7% service fee</p>
               )}
             </div>
           </div>
