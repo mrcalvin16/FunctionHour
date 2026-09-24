@@ -22,11 +22,11 @@ export default function EventGrid({
     >
       <div className="mb-7 flex items-end justify-between">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-violet-300">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-violet-700">
             All Experiences
           </p>
 
-          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-black text-zinc-950 sm:text-3xl">
             Keep exploring.
           </h2>
         </div>
