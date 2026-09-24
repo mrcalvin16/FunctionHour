@@ -91,12 +91,22 @@ export default function PrivacyPage() {
         {
           title: "Your choices",
           content: (
-            <p>
-              You may request access to, correction of, or deletion of applicable
-              personal information, or opt out of non-essential marketing messages,
-              by contacting us. We may need to verify your identity, and some records
-              may be retained where legally or operationally required.
-            </p>
+            <>
+              <p>
+                Use Manage Cookie Preferences in the site footer to turn off
+                optional event-view analytics, or choose Do Not Sell or Share My
+                Personal Information. The choice is saved in this browser and stops
+                future event-view analytics from this browser. It does not remove
+                activity already recorded or change essential account, ticketing,
+                payment, fraud-prevention, or security processing.
+              </p>
+              <p>
+                You may also request access to, correction of, or deletion of
+                applicable personal information by contacting us. We may need to
+                verify your identity, and some records may be retained where legally
+                or operationally required.
+              </p>
+            </>
           ),
         },
         {
