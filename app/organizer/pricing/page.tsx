@@ -35,7 +35,7 @@ const comparisons = [
   {
     name: "Eventbrite",
     platformFee: "3.7% + $1.79",
-    note: "Service fee per paid ticket, plus 2.9% processing",
+    note: "Service fee per ticket, plus 2.9% of the order for processing",
     featured: false,
   },
   {
@@ -110,7 +110,6 @@ export default function OrganizerPricingPage() {
           </div>
 
           <div className="relative">
-            <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-violet-500/25 to-orange-400/15 blur-2xl" />
             <div className="relative rounded-[1.75rem] border border-zinc-200 bg-white p-6 shadow-[0_18px_48px_rgba(24,24,27,0.08)] sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <div>
