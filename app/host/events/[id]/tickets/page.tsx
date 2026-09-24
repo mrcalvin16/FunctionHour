@@ -19,6 +19,7 @@ export default function HostEventTicketsPage({
   const addOns = useQuery(api.ticketAddOns.getByEvent, { eventId });
 
   const createTicketType = useMutation(api.ticketTypes.create);
+  const updateTicketType = useMutation(api.ticketTypes.update);
   const removeTicketType = useMutation(api.ticketTypes.remove);
   const toggleTicketSoldOut = useMutation(api.ticketTypes.toggleSoldOut);
   const toggleTicketSalesPaused = useMutation(api.ticketTypes.toggleSalesPaused);
@@ -32,6 +33,8 @@ export default function HostEventTicketsPage({
   const [ticketPrice, setTicketPrice] = useState("");
   const [ticketQuantity, setTicketQuantity] = useState("");
   const [ticketPerks, setTicketPerks] = useState("");
+  const [ticketPrices, setTicketPrices] = useState<Record<string, string>>({});
+  const [savingPriceFor, setSavingPriceFor] = useState<string | null>(null);
 
   const [addOnName, setAddOnName] = useState("");
   const [addOnDescription, setAddOnDescription] = useState("");
@@ -268,9 +271,56 @@ export default function HostEventTicketsPage({
                           </p>
                         )}
                         <p className="mt-3 text-sm text-white/60">
-                          ${ticket.price} · {ticket.sold ?? 0} sold
+                          {ticket.sold ?? 0} sold
                           {ticket.quantity ? ` / ${ticket.quantity}` : ""}
                         </p>
+                        <div className="mt-4 flex flex-wrap items-end gap-2">
+                          <label className="text-xs font-semibold text-white/60">
+                            Ticket price ($)
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={ticketPrices[ticket._id] ?? String(ticket.price)}
+                              onChange={(event) =>
+                                setTicketPrices((prices) => ({
+                                  ...prices,
+                                  [ticket._id]: event.target.value,
+                                }))
+                              }
+                              className="mt-1 block w-32 rounded-xl border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white outline-none focus:border-orange-400"
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            disabled={savingPriceFor === ticket._id}
+                            onClick={async () => {
+                              const value = ticketPrices[ticket._id] ?? String(ticket.price);
+                              const nextPrice = Number(value);
+                              if (!value.trim() || !Number.isFinite(nextPrice) || nextPrice < 0) {
+                                setMessage("Enter a valid ticket price of $0 or more.");
+                                return;
+                              }
+                              setSavingPriceFor(ticket._id);
+                              setMessage("");
+                              try {
+                                await updateTicketType({
+                                  ticketTypeId: ticket._id,
+                                  price: nextPrice,
+                                });
+                                setTicketPrices((prices) => ({ ...prices, [ticket._id]: String(nextPrice) }));
+                                setMessage(`${ticket.name} price updated to $${nextPrice.toFixed(2)}. New checkouts will use this price.`);
+                              } catch (error) {
+                                setMessage(error instanceof Error ? error.message : "Unable to update ticket price.");
+                              } finally {
+                                setSavingPriceFor(null);
+                              }
+                            }}
+                            className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-50"
+                          >
+                            {savingPriceFor === ticket._id ? "Saving…" : "Save price"}
+                          </button>
+                        </div>
 
                         <div className="mt-3 flex flex-wrap gap-2">
                           {ticket.isSoldOut && (
