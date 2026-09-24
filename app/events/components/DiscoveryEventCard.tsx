@@ -38,7 +38,7 @@ function getEventPrice(event: any) {
   }
 
   const ticketCents = Math.round(price * 100);
-  const serviceFeeCents = Math.round(ticketCents * 0.021) + 99;
+  const serviceFeeCents = Math.round(ticketCents * 0.037) + 178;
   const totalCents = ticketCents + serviceFeeCents;
   return `$${(totalCents / 100).toLocaleString("en-US", {
     minimumFractionDigits: 2,
