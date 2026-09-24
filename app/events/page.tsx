@@ -107,7 +107,7 @@ export default function EventsPage() {
       .filter((event) => eventMatchesCategory(event, category))
       .filter((event) => eventMatchesCity(event, city))
       .filter((event) => eventMatchesSearch(event, search))
-      .filter((event) => quickFilter === "tonight" ? isTonight(event) : quickFilter === "weekend" ? isThisWeekend(event) : true)
+      .filter((event) => quickFilter === "free" ? Number(event.startingPrice ?? event.price ?? 0) <= 0 : quickFilter === "tonight" ? isTonight(event) : quickFilter === "weekend" ? isThisWeekend(event) : true)
       .filter((event) => matchesCollection(event, activeCollection))
       .sort((a, b) => {
         const scoreDifference = discoveryScore(b) - discoveryScore(a);
@@ -226,10 +226,6 @@ export default function EventsPage() {
         />
       )}
 
-      <DiscoveryCollections activeCollection={activeCollection} onSelect={setActiveCollection} />
-      <LiveMapSection nearbyCount={displayedEvents.length} />
-      <FeaturedHosts organizerStats={organizerStats} />
-
       {displayedEvents.length > 0 ? (
         <EventGrid
           events={gridEvents}
@@ -258,6 +254,10 @@ export default function EventsPage() {
           </div>
         </section>
       )}
+
+      <DiscoveryCollections activeCollection={activeCollection} onSelect={setActiveCollection} />
+      <LiveMapSection nearbyCount={displayedEvents.length} />
+      <FeaturedHosts organizerStats={organizerStats} />
 
       <Footer />
     </main>
