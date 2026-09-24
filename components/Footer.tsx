@@ -14,6 +14,7 @@ export default function Footer() {
           </p>
         </div>
         <nav aria-label="Legal and support" className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-zinc-400">
+          <Link href="/organizer/pricing" className="hover:text-white">Organizer pricing</Link>
           <Link href="/refund-policy" className="hover:text-white">Refunds</Link>
           <Link href="/terms" className="hover:text-white">Terms</Link>
           <Link href="/privacy" className="hover:text-white">Privacy</Link>
