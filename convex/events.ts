@@ -425,6 +425,12 @@ export const updateEvent = mutation({
       ...(args.refundContactEmail !== undefined && {
         refundContactEmail: args.refundContactEmail,
       }),
+      ...(args.dressCode !== undefined && { dressCode: args.dressCode }),
+      ...(args.ageRequirement !== undefined && {
+        ageRequirement: args.ageRequirement,
+      }),
+      ...(args.parkingInfo !== undefined && { parkingInfo: args.parkingInfo }),
+      ...(args.entryNotes !== undefined && { entryNotes: args.entryNotes }),
     });
 
     const imageWasReplaced =
