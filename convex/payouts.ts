@@ -10,7 +10,15 @@ export const getConnectRecord = query({
   args: { serverSecret: v.string(), clerkId: v.string() },
   handler: async (ctx, args) => {
     assertServerSecret(args.serverSecret);
-    const user = await ctx.db.query("users").withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId)).first();
+    const user =
+      (await ctx.db
+        .query("users")
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
+        .first()) ??
+      (await ctx.db
+        .query("users")
+        .withIndex("by_userId", (q) => q.eq("userId", args.clerkId))
+        .first());
     return user ? { accountId: user.stripeConnectAccountId ?? null } : { accountId: null };
   },
 });
@@ -61,7 +69,15 @@ export const saveConnectAccount = mutation({
   },
   handler: async (ctx, args) => {
     assertServerSecret(args.serverSecret);
-    const existing = await ctx.db.query("users").withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId)).first();
+    const existing =
+      (await ctx.db
+        .query("users")
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
+        .first()) ??
+      (await ctx.db
+        .query("users")
+        .withIndex("by_userId", (q) => q.eq("userId", args.clerkId))
+        .first());
     const patch = {
       clerkId: args.clerkId,
       userId: args.clerkId,
