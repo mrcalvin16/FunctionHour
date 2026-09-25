@@ -7,7 +7,6 @@ import OrganizerPortalLink from "@/components/OrganizerPortalLink";
 
 const browseLinks = [
   { href: "/events", label: "Events" },
-  { href: "/explore", label: "Explore" },
   { href: "/cities", label: "Cities" },
   { href: "/map", label: "Map" },
 ];
