@@ -1,6 +1,6 @@
 "use client";
 
-const categories = ["Party","Concert","Festival","Reunion","Pop-up"];
+const categories = ["Experience", "Party", "Concert", "Festival", "Reunion", "Pop-up"];
 
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
