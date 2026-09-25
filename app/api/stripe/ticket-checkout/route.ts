@@ -289,6 +289,7 @@ export async function POST(req: Request) {
           checkoutType: "ticket",
           eventId,
           buyerEmail,
+          buyerUserId: user.id,
           buyerName: buyerName || "",
           reservationId: activeReservationId,
           eventName: reservation.eventName,
