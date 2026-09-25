@@ -165,6 +165,44 @@ export async function POST(req: Request) {
       );
     }
 
+    checkoutStage = "organizer-payout-readiness";
+    const payoutDestination = await convex.query(
+      api.payouts.getEventPayoutDestination,
+      {
+        serverSecret: checkoutSecret,
+        eventId: eventId as Id<"events">,
+      },
+    );
+
+    if (!payoutDestination.accountId) {
+      return NextResponse.json(
+        {
+          error:
+            "Paid checkout is unavailable until this organizer completes payout setup.",
+        },
+        { status: 409 },
+      );
+    }
+
+    const connectedAccount = await getStripeClient().accounts.retrieve(
+      payoutDestination.accountId,
+    );
+
+    if (
+      !connectedAccount.charges_enabled ||
+      !connectedAccount.payouts_enabled
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Paid checkout is unavailable while this organizer’s payout account is being verified.",
+        },
+        { status: 409 },
+      );
+    }
+
+    const payoutAccountId = connectedAccount.id;
+
     checkoutStage = "ticket-reservation";
     const reservationId = crypto.randomUUID();
     const reservation = await convex.mutation(
@@ -297,6 +335,18 @@ export async function POST(req: Request) {
           discountAmount: String(validDiscount?.discountAmount ?? 0),
           platformFeeAmount: String(platformFeeAmount),
         },
+        payment_intent_data: {
+          application_fee_amount: platformFeeUnitAmount * quantity,
+          transfer_data: {
+            destination: payoutAccountId,
+          },
+          metadata: {
+            checkoutType: "ticket",
+            eventId,
+            reservationId: activeReservationId,
+            payoutAccountId,
+          },
+        },
         expires_at: Math.floor(reservation.expiresAt / 1000),
         success_url: successUrl,
         cancel_url: cancelUrl,
@@ -327,6 +377,8 @@ export async function POST(req: Request) {
       "checkout in progress",
       "checkout is already being prepared",
       "previous checkout expired",
+      "No such account",
+      "has been deauthorized",
     ].some((knownMessage) => message.includes(knownMessage));
     const configurationError =
       message.includes("Unauthorized checkout request") ||
