@@ -16,11 +16,7 @@ import {
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
-export default function TicketPass({
-  ticketId,
-}: {
-  ticketId: Id<"tickets">;
-}) {
+export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
   const ticket = useQuery(api.tickets.getTicketDetails, { ticketId });
 
   if (ticket === undefined) {
@@ -87,7 +83,9 @@ export default function TicketPass({
               <p className="text-[10px] font-black uppercase tracking-[0.25em] text-orange-400">
                 Function Hour Entry Pass
               </p>
-              <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] ${statusClass}`}>
+              <span
+                className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] ${statusClass}`}
+              >
                 {status}
               </span>
             </div>
@@ -121,28 +119,23 @@ export default function TicketPass({
             </div>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <MiniDetail label="Quantity" value={String(ticket.quantity ?? 1)} />
               <MiniDetail
-                label="Price"
-                value={formatMoney(ticket.unitPrice)}
+                label="Quantity"
+                value={String(ticket.quantity ?? 1)}
               />
+              <MiniDetail label="Price" value={formatMoney(ticket.unitPrice)} />
               <MiniDetail
                 label="Purchased"
                 value={formatPurchaseDate(ticket.purchasedAt)}
               />
-              <MiniDetail
-                label="Source"
-                value={formatTicketSource(
-                  ticket.ticketSource,
-                  ticket.stripeCheckoutSessionId,
-                )}
-              />
+              <MiniDetail label="Source" value={ticket.sourceName} />
             </div>
 
             <div className="mt-7 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-xs leading-5 text-zinc-400">
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-violet-300" />
               <p>
-                This pass is tied to your Function Hour account. Do not share the QR code publicly.
+                This pass is tied to your Function Hour account. Do not share
+                the QR code publicly.
               </p>
             </div>
           </div>
@@ -152,7 +145,9 @@ export default function TicketPass({
               Scan at entry
             </p>
 
-            <div className={`mt-5 rounded-[1.75rem] bg-white p-5 shadow-[0_20px_70px_rgba(255,255,255,0.12)] ${isRevoked ? "opacity-35" : ""}`}>
+            <div
+              className={`mt-5 rounded-[1.75rem] bg-white p-5 shadow-[0_20px_70px_rgba(255,255,255,0.12)] ${isRevoked ? "opacity-35" : ""}`}
+            >
               <QRCode
                 value={qrValue}
                 size={230}
@@ -167,7 +162,10 @@ export default function TicketPass({
 
             <div className="mt-6 flex items-start gap-2 text-left text-[11px] leading-5 text-zinc-500">
               <Clock3 className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>Turn up screen brightness and have this pass open before reaching the gate.</p>
+              <p>
+                Turn up screen brightness and have this pass open before
+                reaching the gate.
+              </p>
             </div>
 
             {ticket.checkedInAt ? (
@@ -252,19 +250,6 @@ function formatPurchaseDate(value: number | undefined) {
   }).format(value);
 }
 
-function formatTicketSource(
-  source: "stripe" | "complimentary" | "manual" | undefined,
-  stripeCheckoutSessionId: string | undefined,
-) {
-  if (source === "complimentary") return "Complimentary";
-  if (source === "manual") return "Organizer issued";
-  if (source === "stripe" || stripeCheckoutSessionId) {
-    return "Online purchase";
-  }
-
-  return "Function Hour";
-}
-
 function getEventTime(
   eventDate: number | undefined,
   dateString: string | undefined,
@@ -282,7 +267,9 @@ function TicketPassLoading() {
     <main className="flex min-h-screen items-center justify-center bg-[#07060c] text-white">
       <div className="text-center">
         <span className="mx-auto block h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-violet-400" />
-        <p className="mt-4 text-sm font-bold text-zinc-500">Preparing your pass...</p>
+        <p className="mt-4 text-sm font-bold text-zinc-500">
+          Preparing your pass...
+        </p>
       </div>
     </main>
   );
