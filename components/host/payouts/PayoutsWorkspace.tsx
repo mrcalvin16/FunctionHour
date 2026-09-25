@@ -46,6 +46,10 @@ export default function PayoutsWorkspace() {
   }
 
   const trackedRevenue = analytics?.totalRevenue ?? 0;
+  const reconciliation = analytics?.reconciliation;
+  const trackedGross = reconciliation?.grossAmount ?? trackedRevenue;
+  const organizerNet = reconciliation?.netAmount ?? trackedRevenue;
+  const functionHourFee = Math.max(0, trackedGross - organizerNet);
 
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
@@ -58,6 +62,12 @@ export default function PayoutsWorkspace() {
         <Metric label="Tracked ticket revenue" value={analytics === undefined ? "—" : currency(trackedRevenue)} icon={DollarSign} accent="text-violet-400" />
         <Metric label="Payout routing" value={status === "active" ? "Ready" : "Not ready"} icon={ArrowUpRight} accent={status === "active" ? "text-emerald-400" : "text-orange-400"} />
         <Metric label="Bank payout status" value={statusLabel(status)} icon={Building2} accent={status === "active" ? "text-emerald-400" : "text-zinc-500"} />
+      </section>
+
+      <section className="mt-3 grid gap-3 sm:grid-cols-3">
+        <Metric label="Gross sales" value={analytics === undefined ? "—" : currency(trackedGross)} icon={DollarSign} accent="text-violet-400" />
+        <Metric label="Function Hour fee" value={analytics === undefined ? "—" : currency(functionHourFee)} icon={ArrowUpRight} accent="text-orange-400" />
+        <Metric label="Organizer net" value={analytics === undefined ? "—" : currency(organizerNet)} icon={Building2} accent="text-emerald-400" />
       </section>
 
       <section className="mt-6 grid gap-5 lg:grid-cols-[1.2fr_.8fr]">

@@ -61,6 +61,9 @@ export default async function SupportAdminPage() {
         <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-300">
           Runtime counters for the current application instance. No conversation transcripts are stored here.
         </p>
+        <a href="/admin/finance" className="mt-4 inline-flex rounded-xl bg-zinc-950 px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800">
+          Open platform finance
+        </a>
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
