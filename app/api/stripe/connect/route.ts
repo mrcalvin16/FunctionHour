@@ -67,20 +67,26 @@ export async function POST(request: Request) {
       });
     }
 
-    await stripe.accounts.update(accountId, {
-      capabilities: {
-        card_payments: { requested: true },
-        transfers: { requested: true },
-      },
-    });
+    const connectedAccount = await stripe.accounts.retrieve(accountId);
+    if (
+      connectedAccount.capabilities?.card_payments === undefined ||
+      connectedAccount.capabilities?.transfers === undefined
+    ) {
+      await stripe.accounts.update(accountId, {
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
+      });
+    }
 
     if (action === "dashboard") {
       const login = await stripe.accounts.createLoginLink(accountId);
       return NextResponse.json({ url: login.url });
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-    if (!appUrl) throw new Error("NEXT_PUBLIC_APP_URL is missing.");
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
     const link = await stripe.accountLinks.create({
       account: accountId,
       refresh_url: new URL("/host/payouts?connect=refresh", appUrl).toString(),
