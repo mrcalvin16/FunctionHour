@@ -12,6 +12,7 @@ import MapCanvas, {
 
 const categories = [
   "All",
+  "Experience",
   "Music",
   "Nightlife",
   "Festival",
