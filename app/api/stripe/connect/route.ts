@@ -14,8 +14,14 @@ export async function GET() {
     if (!record.accountId) return NextResponse.json({ status: "not_connected", accountId: null });
     const account = await getStripeClient().accounts.retrieve(record.accountId);
     return NextResponse.json({
-      status: account.payouts_enabled ? "active" : account.details_submitted ? "pending" : "incomplete",
+      status:
+        account.charges_enabled && account.payouts_enabled
+          ? "active"
+          : account.details_submitted
+            ? "pending"
+            : "incomplete",
       accountId: account.id,
+      chargesEnabled: account.charges_enabled,
       payoutsEnabled: account.payouts_enabled,
       detailsSubmitted: account.details_submitted,
       requirementsDue: account.requirements?.currently_due?.length ?? 0,
@@ -45,7 +51,10 @@ export async function POST(request: Request) {
         country: "US",
         email,
         business_profile: { name: user.fullName || undefined, product_description: "Event organizer ticket sales" },
-        capabilities: { transfers: { requested: true } },
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
         metadata: { clerkUserId: user.id, platform: "Function Hour" },
       });
       accountId = account.id;
@@ -57,6 +66,13 @@ export async function POST(request: Request) {
         accountId,
       });
     }
+
+    await stripe.accounts.update(accountId, {
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+    });
 
     if (action === "dashboard") {
       const login = await stripe.accounts.createLoginLink(accountId);
