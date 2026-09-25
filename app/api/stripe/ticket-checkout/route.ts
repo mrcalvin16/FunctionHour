@@ -327,6 +327,8 @@ export async function POST(req: Request) {
           buyerEmail,
           buyerName: buyerName || "",
           reservationId: activeReservationId,
+          eventName: reservation.eventName,
+          ticketTypeName: reservation.ticketTypeName || "Standard Admission",
           tickets: JSON.stringify(authoritativeTickets),
           discountCodeId: validDiscount?.discountCodeId
             ? String(validDiscount.discountCodeId)
@@ -336,6 +338,7 @@ export async function POST(req: Request) {
           platformFeeAmount: String(platformFeeAmount),
         },
         payment_intent_data: {
+          receipt_email: buyerEmail,
           application_fee_amount: platformFeeUnitAmount * quantity,
           transfer_data: {
             destination: payoutAccountId,
