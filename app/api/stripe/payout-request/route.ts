@@ -59,13 +59,13 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(httpRequest: Request) {
   try {
     const appOrigin = process.env.NEXT_PUBLIC_APP_URL
       ? new URL(process.env.NEXT_PUBLIC_APP_URL).origin
-      : new URL(request.url).origin;
-    const requestOrigin = new URL(request.url).origin;
-    const origin = request.headers.get("origin");
+      : new URL(httpRequest.url).origin;
+    const requestOrigin = new URL(httpRequest.url).origin;
+    const origin = httpRequest.headers.get("origin");
     if (origin !== requestOrigin && origin !== appOrigin) {
       return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
     }
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const request = await data.convex.mutation(
+    const payoutRequest = await data.convex.mutation(
       api.payouts.createOrganizerPayoutRequest,
       {
         serverSecret: data.secret,
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
       },
     );
     const availableCents = data.availableStripeBalance * 100;
-    if (request.amount * 100 > availableCents) {
+    if (payoutRequest.amount * 100 > availableCents) {
       return NextResponse.json(
         { error: "Stripe funds are still pending. Try again when they are available." },
         { status: 409 },
@@ -107,27 +107,27 @@ export async function POST(request: Request) {
 
     const transfer = await getStripeClient().transfers.create(
       {
-        amount: Math.round(request.amount * 100),
+        amount: Math.round(payoutRequest.amount * 100),
         currency: "usd",
         destination: data.account.id,
         transfer_group: `functionhour-organizer-${user.id}`,
         metadata: {
           type: "organizer_payout_request",
           organizerId: user.id,
-          payoutRequestId: String(request.requestId),
+          payoutRequestId: String(payoutRequest.requestId),
         },
       },
-      { idempotencyKey: `functionhour-payout-${request.requestId}` },
+      { idempotencyKey: `functionhour-payout-${payoutRequest.requestId}` },
     );
 
     await data.convex.mutation(api.payouts.markOrganizerPayoutTransferred, {
       serverSecret: data.secret,
-      requestId: request.requestId,
+      requestId: payoutRequest.requestId,
       stripeTransferId: transfer.id,
     });
     return NextResponse.json({
       success: true,
-      amount: request.amount,
+      amount: payoutRequest.amount,
       transferId: transfer.id,
       message: "Funds were transferred to your Stripe account. Your bank payout follows the schedule shown in Stripe.",
     });
