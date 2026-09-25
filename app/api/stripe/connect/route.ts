@@ -14,8 +14,14 @@ export async function GET() {
     if (!record.accountId) return NextResponse.json({ status: "not_connected", accountId: null });
     const account = await getStripeClient().accounts.retrieve(record.accountId);
     return NextResponse.json({
-      status: account.payouts_enabled ? "active" : account.details_submitted ? "pending" : "incomplete",
+      status:
+        account.charges_enabled && account.payouts_enabled
+          ? "active"
+          : account.details_submitted
+            ? "pending"
+            : "incomplete",
       accountId: account.id,
+      chargesEnabled: account.charges_enabled,
       payoutsEnabled: account.payouts_enabled,
       detailsSubmitted: account.details_submitted,
       requirementsDue: account.requirements?.currently_due?.length ?? 0,
