@@ -3,6 +3,7 @@
 import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import {
   Church,
+  Compass,
   Handshake,
   LayoutGrid,
   Music2,
@@ -36,6 +37,7 @@ type ExperienceHeroProps = {
 
 const categories = [
   { label: "All", icon: LayoutGrid },
+  { label: "Experience", icon: Compass },
   { label: "Concert", icon: Music2 },
   { label: "Reunion", icon: Users },
   { label: "Conference", icon: Presentation },
@@ -342,7 +344,7 @@ export default function ExperienceHero({
         </div>
 
         <div id="event-filters" className="mt-8 scroll-mt-28 overflow-hidden rounded-[1.65rem] border border-zinc-200 bg-white shadow-sm">
-          <div className="grid grid-cols-5 gap-1 p-2 sm:grid-cols-10">
+          <div className="grid grid-cols-4 gap-1 p-2 sm:grid-cols-6 lg:grid-cols-11">
             {categories.map((item) => {
               const isActive = category === item.label;
               const Icon = item.icon;
