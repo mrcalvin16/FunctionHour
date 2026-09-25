@@ -112,6 +112,7 @@ export const getOrganizerAnalytics = query({
         totalRevenue: 0,
         reconciliation: {
           grossAmount: 0,
+          platformFeeAmount: 0,
           refundedAmount: 0,
           netAmount: 0,
           paidOrders: 0,
@@ -166,6 +167,42 @@ export const getOrganizerAnalytics = query({
       )
       .order("desc")
       .take(50);
+
+    const orderBatches = await Promise.all(
+      events.map((event) =>
+        ctx.db
+          .query("ticketOrders")
+          .withIndex("by_event_and_paidAt", (q) =>
+            q.eq("eventId", event._id)
+          )
+          .order("desc")
+          .take(2_000)
+      )
+    );
+    const organizerOrders = orderBatches.flat();
+    const reconciliation = organizerOrders.reduce(
+      (result, order) => ({
+        grossAmount: result.grossAmount + order.grossAmount,
+        platformFeeAmount: result.platformFeeAmount + (order.platformFeeAmount ?? 0),
+        refundedAmount: result.refundedAmount + order.refundedAmount,
+        netAmount: result.netAmount + order.netAmount,
+        paidOrders: result.paidOrders + (order.status === "paid" ? 1 : 0),
+        partiallyRefundedOrders:
+          result.partiallyRefundedOrders + (order.status === "partially_refunded" ? 1 : 0),
+        refundedOrders: result.refundedOrders + (order.status === "refunded" ? 1 : 0),
+        firstTrackedAt: Math.min(result.firstTrackedAt, order.paidAt),
+      }),
+      {
+        grossAmount: 0,
+        platformFeeAmount: 0,
+        refundedAmount: 0,
+        netAmount: 0,
+        paidOrders: 0,
+        partiallyRefundedOrders: 0,
+        refundedOrders: 0,
+        firstTrackedAt: Number.POSITIVE_INFINITY,
+      }
+    );
 
     const eventAnalytics = await Promise.all(
       events.map(async (event) => {
@@ -388,6 +425,21 @@ export const getOrganizerAnalytics = query({
       totalTicketsSold,
       totalRevenue:
         Math.round(totalRevenue * 100) / 100,
+      reconciliation: {
+        grossAmount: Math.round(reconciliation.grossAmount * 100) / 100,
+        platformFeeAmount: Math.round(reconciliation.platformFeeAmount * 100) / 100,
+        refundedAmount: Math.round(reconciliation.refundedAmount * 100) / 100,
+        netAmount: Math.round(reconciliation.netAmount * 100) / 100,
+        paidOrders: reconciliation.paidOrders,
+        partiallyRefundedOrders: reconciliation.partiallyRefundedOrders,
+        refundedOrders: reconciliation.refundedOrders,
+        trackedOrders: organizerOrders.length,
+        firstTrackedAt: Number.isFinite(reconciliation.firstTrackedAt)
+          ? reconciliation.firstTrackedAt
+          : null,
+        currency: organizerOrders[0]?.currency ?? "usd",
+        payoutStatus: "not_connected" as const,
+      },
       totalPageViews,
       totalConversionRate,
       bestSellingCount,

@@ -472,6 +472,9 @@ export default function EventCheckoutPage({
                 </div>
               </div>
             </div>
+            <p className="mt-3 text-center text-[11px] leading-5 text-zinc-500 dark:text-white/40">
+              Secure payment is processed by Stripe. Organizer payout setup does not affect your purchase.
+            </p>
 
             <div className="mt-6">
               {!isLoaded ? (

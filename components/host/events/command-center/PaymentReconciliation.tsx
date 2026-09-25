@@ -86,10 +86,10 @@ export default function PaymentReconciliation({
         <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
         <div>
           <p className="text-xs font-black text-amber-100">
-            Stripe Connect payout tracking is not connected yet
+            Organizer transfer tracking
           </p>
           <p className="mt-1 text-[11px] leading-5 text-amber-100/55">
-            Net sales represent tracked payments minus refunds—not confirmed bank payouts. Transfer and payout status will appear after Connect settlement records are integrated.
+            Net sales are recorded after refunds. Organizers can request available funds from the Payouts page; Stripe confirms transfers and handles bank payout timing.
           </p>
         </div>
       </div>

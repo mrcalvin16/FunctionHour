@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 
 type ConnectStatus = "loading" | "not_connected" | "incomplete" | "pending" | "active" | "error";
 type StatusResponse = { status: Exclude<ConnectStatus, "loading" | "error">; accountId: string | null; chargesEnabled?: boolean; payoutsEnabled?: boolean; detailsSubmitted?: boolean; requirementsDue?: number; error?: string };
+type PayoutRequestStatus = { connected: boolean; accountReady: boolean; earnedAmount: number; transferredAmount: number; requestableAmount: number; pendingRequest: { amount: number; createdAt: number } | null };
 
 export default function PayoutsWorkspace() {
   const analytics = useQuery(api.analytics.getOrganizerAnalytics, {});
@@ -14,6 +15,7 @@ export default function PayoutsWorkspace() {
   const [status, setStatus] = useState<ConnectStatus>("loading");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [requestStatus, setRequestStatus] = useState<PayoutRequestStatus | null>(null);
 
   const loadStatus = useCallback(async () => {
     setStatus("loading");
@@ -23,6 +25,10 @@ export default function PayoutsWorkspace() {
       if (!response.ok) throw new Error(data.error || "Unable to load payout status.");
       setConnect(data);
       setStatus(data.status);
+      const payoutResponse = await fetch("/api/stripe/payout-request", { cache: "no-store" });
+      const payoutData = await payoutResponse.json();
+      if (!payoutResponse.ok) throw new Error(payoutData.error || "Unable to load payout request status.");
+      setRequestStatus(payoutData);
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Unable to load payout status.");
@@ -45,11 +51,28 @@ export default function PayoutsWorkspace() {
     }
   }
 
+  async function requestFunds() {
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/stripe/payout-request", { method: "POST" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to request funds.");
+      setMessage(data.message || "Your payout request was completed.");
+      await loadStatus();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to request funds.");
+      await loadStatus();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const trackedRevenue = analytics?.totalRevenue ?? 0;
   const reconciliation = analytics?.reconciliation;
   const trackedGross = reconciliation?.grossAmount ?? trackedRevenue;
   const organizerNet = reconciliation?.netAmount ?? trackedRevenue;
-  const functionHourFee = Math.max(0, trackedGross - organizerNet);
+  const functionHourFee = reconciliation?.platformFeeAmount ?? Math.max(0, trackedGross - organizerNet);
 
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
@@ -61,13 +84,15 @@ export default function PayoutsWorkspace() {
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <Metric label="Tracked ticket revenue" value={analytics === undefined ? "—" : currency(trackedRevenue)} icon={DollarSign} accent="text-violet-400" />
         <Metric label="Payout routing" value={status === "active" ? "Ready" : "Not ready"} icon={ArrowUpRight} accent={status === "active" ? "text-emerald-400" : "text-orange-400"} />
-        <Metric label="Bank payout status" value={statusLabel(status)} icon={Building2} accent={status === "active" ? "text-emerald-400" : "text-zinc-500"} />
+        <Metric label="Stripe payout status" value={statusLabel(status)} icon={Building2} accent={status === "active" ? "text-emerald-400" : "text-zinc-500"} />
       </section>
 
-      <section className="mt-3 grid gap-3 sm:grid-cols-3">
+      <section className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <Metric label="Funds ready to request" value={requestStatus ? currency(requestStatus.requestableAmount) : "—"} icon={Clock3} accent="text-emerald-400" />
         <Metric label="Gross sales" value={analytics === undefined ? "—" : currency(trackedGross)} icon={DollarSign} accent="text-violet-400" />
         <Metric label="Function Hour fee" value={analytics === undefined ? "—" : currency(functionHourFee)} icon={ArrowUpRight} accent="text-orange-400" />
         <Metric label="Organizer net" value={analytics === undefined ? "—" : currency(organizerNet)} icon={Building2} accent="text-emerald-400" />
+        <Metric label="Transferred to Stripe" value={requestStatus ? currency(requestStatus.transferredAmount) : "—"} icon={ArrowUpRight} accent="text-emerald-400" />
       </section>
 
       <section className="mt-6 grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
@@ -85,8 +110,18 @@ export default function PayoutsWorkspace() {
         </div>
 
         <div className="rounded-[1.75rem] border border-orange-400/15 bg-orange-400/[0.055] p-5 sm:p-6">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-400">Settlement guardrail</p><h3 className="mt-2 text-lg font-black">Paid checkout fails closed.</h3><p className="mt-3 text-xs leading-6 text-zinc-500">Function Hour only opens paid checkout after Stripe confirms the organizer can accept charges and payouts. Ticket revenue is routed through Stripe Connect at payment.</p>
-          <div className="mt-5 space-y-3 text-xs"><Guardrail done={status === "active"} text="Identity and bank account verified" /><Guardrail done={status === "active"} text="Charges and destination routing enabled" /><Guardrail done={status === "active"} text="Stripe payout schedule available" /></div>
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-400">Settlement</p><h3 className="mt-2 text-lg font-black">Ticket sales stay open.</h3><p className="mt-3 text-xs leading-6 text-zinc-500">Buyers can pay through Stripe while Function Hour tracks the organizer’s net ticket funds. Connect a payout account when you are ready to request a transfer. Your tax responsibilities remain yours.</p>
+          <div className="mt-5 space-y-3 text-xs"><Guardrail done={Boolean(connect?.accountId)} text="Stripe account connected" /><Guardrail done={status === "active"} text="Stripe account ready to receive transfers" /><Guardrail done={Boolean(requestStatus?.transferredAmount)} text="Previous transfers recorded" /></div>
+          <div className="mt-5 rounded-2xl border border-white/[0.08] bg-black/20 p-4 text-sm">
+            <p className="font-bold">Eligible funds</p>
+            <p className="mt-1 text-2xl font-black">{requestStatus ? currency(requestStatus.requestableAmount) : "—"}</p>
+            {requestStatus?.pendingRequest ? <p className="mt-1 text-xs text-orange-300">A {currency(requestStatus.pendingRequest.amount)} request is still processing.</p> : <p className="mt-1 text-xs text-zinc-500">Transfers are limited to recorded net ticket sales and Stripe funds available now.</p>}
+            <button type="button" onClick={() => void requestFunds()} disabled={busy || status !== "active" || (!requestStatus?.pendingRequest && !(requestStatus?.requestableAmount ?? 0))} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 text-xs font-black text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-40">
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
+              {requestStatus?.pendingRequest ? "Retry fund transfer" : "Request available funds"}
+            </button>
+            <p className="mt-2 text-[10px] leading-4 text-zinc-500">Funds move to your Stripe account. Your bank receives them according to the payout schedule in Stripe.</p>
+          </div>
         </div>
       </section>
     </div>
@@ -98,5 +133,5 @@ function Guardrail({ done, text }: { done: boolean; text: string }) { return <di
 function StatusIcon({ status }: { status: ConnectStatus }) { if (status === "loading") return <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />; if (status === "active") return <CheckCircle2 className="h-5 w-5 text-emerald-400" />; if (status === "pending") return <Clock3 className="h-5 w-5 text-orange-400" />; return <AlertTriangle className="h-5 w-5 text-zinc-600" />; }
 function statusLabel(status: ConnectStatus) { return ({ loading: "Checking", not_connected: "Not connected", incomplete: "Setup incomplete", pending: "Under review", active: "Ready", error: "Unavailable" })[status]; }
 function statusHeadline(status: ConnectStatus) { return ({ loading: "Checking Stripe status", not_connected: "Connect a payout account", incomplete: "Finish your payout setup", pending: "Stripe verification is pending", active: "Your payout account is ready", error: "Payout status unavailable" })[status]; }
-function statusDescription(status: ConnectStatus, due: number) { return ({ loading: "Retrieving the latest account requirements from Stripe.", not_connected: "Stripe securely collects your business, identity, tax, and bank information.", incomplete: `${due || "Some"} Stripe requirement${due === 1 ? " is" : "s are"} still due.`, pending: "Your submitted information is being reviewed. Refresh this page for updates.", active: "Stripe has enabled charges and payouts for this connected account.", error: "Try refreshing. No payout settings were changed." })[status]; }
+function statusDescription(status: ConnectStatus, due: number) { return ({ loading: "Retrieving the latest account requirements from Stripe.", not_connected: "Stripe securely collects your business, identity, tax, and bank information.", incomplete: `${due || "Some"} Stripe requirement${due === 1 ? " is" : "s are"} still due.`, pending: "Your submitted information is being reviewed. Refresh this page for updates.", active: "Stripe has enabled transfers and payouts for this connected account.", error: "Try refreshing. No payout settings were changed." })[status]; }
 function currency(value: number) { return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value); }
