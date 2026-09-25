@@ -3,7 +3,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 import ConvexClientProvider from "./ConvexClientProvider";
 import SyncUserWithConvex from "@/components/SyncUserWithConvex";
 import BackToHome from "@/components/navigation/BackToHome";
-import ThemeToggle from "@/components/navigation/ThemeToggle";
 import SupportChat from "@/components/support/SupportChat";
 import "./globals.css";
 
@@ -71,13 +70,6 @@ export default function RootLayout({
       }}
     >
       <html lang="en" className="light" suppressHydrationWarning>
-        <head>
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(){try{var t=localStorage.getItem('function-hour-theme-v2');localStorage.removeItem('function-hour-theme');if(t!=='light'&&t!=='dark')t='light';var r=document.documentElement;r.classList.remove('light','dark');r.classList.add(t);r.dataset.theme=t;r.style.colorScheme=t}catch(e){}})();`,
-            }}
-          />
-        </head>
         <body>
           <a className="skip-link" href="#main-content">
             Skip to main content
@@ -85,7 +77,6 @@ export default function RootLayout({
           <ConvexClientProvider>
             <SyncUserWithConvex />
             <BackToHome />
-            <ThemeToggle />
             <div id="main-content" tabIndex={-1}>
               {children}
             </div>
