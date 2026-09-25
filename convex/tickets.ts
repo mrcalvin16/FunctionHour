@@ -6,11 +6,53 @@ import {
   mutation,
   query,
   type MutationCtx,
+  type QueryCtx,
 } from "./_generated/server";
 import { requireEventCapability } from "./eventAccess";
 import { requireEventSalesOpen } from "./eventDates";
 
 const CHECKOUT_RESERVATION_MS = 32 * 60 * 1000;
+
+type TicketIdentity = {
+  subject: string;
+  tokenIdentifier: string;
+  email?: string | null;
+};
+
+async function getTicketOwnerIdentifiers(
+  ctx: QueryCtx | MutationCtx,
+  identity: TicketIdentity,
+) {
+  const profileByToken = await ctx.db
+    .query("users")
+    .withIndex("by_tokenIdentifier", (q) =>
+      q.eq("tokenIdentifier", identity.tokenIdentifier),
+    )
+    .first();
+  const profileByClerkId = profileByToken
+    ? null
+    : await ctx.db
+        .query("users")
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+        .first();
+  const profileByUserId = profileByToken || profileByClerkId
+    ? null
+    : await ctx.db
+        .query("users")
+        .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+        .first();
+  const profile = profileByToken ?? profileByClerkId ?? profileByUserId;
+
+  return [
+    ...new Set(
+      [
+        identity.subject,
+        identity.email?.trim().toLowerCase(),
+        profile?.email?.trim().toLowerCase(),
+      ].filter((value): value is string => Boolean(value)),
+    ),
+  ];
+}
 
 export const getOrganizerOrders = query({
   args: { limit: v.optional(v.number()) },
@@ -302,10 +344,7 @@ export const createTicket = mutation({
       throw new Error("You must be signed in.");
     }
 
-    const attendeeIdentifiers = [
-      identity.subject,
-      identity.email?.trim().toLowerCase(),
-    ].filter((value): value is string => Boolean(value));
+    const attendeeIdentifiers = await getTicketOwnerIdentifiers(ctx, identity);
 
     let existingTicket = null;
 
@@ -357,6 +396,7 @@ export const createTicketsAfterPayment = mutation({
     webhookSecret: v.string(),
     eventId: v.id("events"),
     buyerEmail: v.string(),
+    buyerUserId: v.optional(v.string()),
     buyerName: v.optional(v.string()),
     stripeCheckoutSessionId: v.string(),
     stripePaymentIntentId: v.optional(v.string()),
@@ -421,7 +461,7 @@ export const createTicketsAfterPayment = mutation({
       for (let i = 0; i < reservation.quantity; i++) {
         await ctx.db.insert("tickets", {
           eventId: reservation.eventId,
-          userId: reservation.buyerEmail,
+          userId: args.buyerUserId || reservation.buyerEmail,
           buyerEmail: reservation.buyerEmail,
           buyerName: reservation.buyerName,
           ticketTypeId: reservation.ticketTypeId,
@@ -447,6 +487,7 @@ export const createTicketsAfterPayment = mutation({
       return true;
     }
 
+    const normalizedBuyerEmail = args.buyerEmail.trim().toLowerCase();
     const totalQuantity = args.tickets.reduce(
       (sum, line) => sum + Math.max(0, line.quantity),
       0,
@@ -484,8 +525,8 @@ export const createTicketsAfterPayment = mutation({
       for (let i = 0; i < line.quantity; i++) {
         await ctx.db.insert("tickets", {
           eventId: args.eventId,
-          userId: args.buyerEmail,
-          buyerEmail: args.buyerEmail,
+          userId: args.buyerUserId || normalizedBuyerEmail,
+          buyerEmail: normalizedBuyerEmail,
           buyerName: args.buyerName,
           ticketTypeId: line.ticketTypeId,
           ticketTypeName,
@@ -497,7 +538,7 @@ export const createTicketsAfterPayment = mutation({
           checkedIn: false,
           purchasedAt: Date.now(),
           createdAt: Date.now(),
-          qrCode: `${args.eventId}:${args.buyerEmail}:${Date.now()}:${i}`,
+          qrCode: `${args.eventId}:${normalizedBuyerEmail}:${Date.now()}:${i}`,
         });
       }
     }
@@ -675,10 +716,7 @@ export const getUserTickets = query({
       return [];
     }
 
-    const attendeeIdentifiers = [
-      identity.subject,
-      identity.email?.trim().toLowerCase(),
-    ].filter((value): value is string => Boolean(value));
+    const attendeeIdentifiers = await getTicketOwnerIdentifiers(ctx, identity);
 
     const ticketGroups = await Promise.all(
       [...new Set(attendeeIdentifiers)].map((attendeeId) =>
@@ -741,10 +779,7 @@ export const getMyTicketForEvent = query({
       return null;
     }
 
-    const attendeeIdentifiers = [
-      identity.subject,
-      identity.email?.trim().toLowerCase(),
-    ].filter((value): value is string => Boolean(value));
+    const attendeeIdentifiers = await getTicketOwnerIdentifiers(ctx, identity);
 
     for (const attendeeId of new Set(attendeeIdentifiers)) {
       const ticket = await ctx.db
@@ -824,11 +859,7 @@ export const getTicketDetails = query({
       return null;
     }
 
-    const attendeeIdentifiers = new Set(
-      [identity.subject, identity.email?.trim().toLowerCase()].filter(
-        (value): value is string => Boolean(value),
-      ),
-    );
+    const attendeeIdentifiers = new Set(await getTicketOwnerIdentifiers(ctx, identity));
 
     if (!attendeeIdentifiers.has(String(ticket.userId))) {
       return null;
@@ -933,11 +964,7 @@ export const cancelTicket = mutation({
       throw new Error("Ticket not found.");
     }
 
-    const attendeeIdentifiers = new Set(
-      [identity.subject, identity.email?.trim().toLowerCase()].filter(
-        (value): value is string => Boolean(value),
-      ),
-    );
+    const attendeeIdentifiers = new Set(await getTicketOwnerIdentifiers(ctx, identity));
 
     if (!attendeeIdentifiers.has(String(ticket.userId))) {
       throw new Error("You do not have permission to cancel this ticket.");
