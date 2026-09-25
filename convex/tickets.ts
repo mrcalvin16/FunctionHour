@@ -429,6 +429,7 @@ export const createTicketsAfterPayment = mutation({
           unitPrice: reservation.unitPrice,
           stripeCheckoutSessionId: args.stripeCheckoutSessionId,
           stripePaymentIntentId: args.stripePaymentIntentId,
+          ticketSource: "stripe",
           status: "active",
           checkedIn: false,
           purchasedAt: Date.now(),
@@ -491,6 +492,7 @@ export const createTicketsAfterPayment = mutation({
           unitPrice,
           stripeCheckoutSessionId: args.stripeCheckoutSessionId,
           stripePaymentIntentId: args.stripePaymentIntentId,
+          ticketSource: "stripe",
           status: "active",
           checkedIn: false,
           purchasedAt: Date.now(),
@@ -609,7 +611,10 @@ export const recordTicketRefund = mutation({
 
     await ctx.db.patch(order._id, {
       refundedAmount,
-      netAmount: Math.max(0, ticketProceeds - Math.min(ticketProceeds, refundedAmount)),
+      netAmount: Math.max(
+        0,
+        ticketProceeds - Math.min(ticketProceeds, refundedAmount),
+      ),
       status: fullyRefunded ? "refunded" : "partially_refunded",
       updatedAt: Date.now(),
     });
@@ -829,7 +834,7 @@ export const getTicketDetails = query({
       return null;
     }
 
-    const [event, profileByTokenIdentifier] = await Promise.all([
+    const [event, profileByTokenIdentifier, ticketType] = await Promise.all([
       ctx.db.get(ticket.eventId),
       ctx.db
         .query("users")
@@ -837,6 +842,7 @@ export const getTicketDetails = query({
           q.eq("tokenIdentifier", identity.tokenIdentifier),
         )
         .first(),
+      ticket.ticketTypeId ? ctx.db.get(ticket.ticketTypeId) : null,
     ]);
 
     const profileByClerkId = profileByTokenIdentifier
@@ -857,6 +863,33 @@ export const getTicketDetails = query({
     const currentProfile =
       profileByTokenIdentifier ?? profileByClerkId ?? profileByUserId;
 
+    const organizerId = event?.organizerId ?? event?.userId;
+    const organizerByClerkId = organizerId
+      ? await ctx.db
+          .query("users")
+          .withIndex("by_clerkId", (q) => q.eq("clerkId", organizerId))
+          .first()
+      : null;
+    const organizerByUserId = organizerId
+      ? await ctx.db
+          .query("users")
+          .withIndex("by_userId", (q) => q.eq("userId", organizerId))
+          .first()
+      : null;
+    const organizer = organizerByClerkId ?? organizerByUserId;
+    const organizerName =
+      organizer?.organizerName?.trim() || organizer?.name?.trim();
+    const venueName = event?.venueName?.trim();
+    const sourceName =
+      [organizerName, venueName]
+        .filter(
+          (value, index, values): value is string =>
+            Boolean(value) && values.indexOf(value) === index,
+        )
+        .join(" · ") ||
+      event?.name ||
+      "Event organizer";
+
     let imageUrl = null;
 
     if (event?.imageStorageId) {
@@ -865,8 +898,10 @@ export const getTicketDetails = query({
 
     return {
       ...ticket,
+      unitPrice: ticket.unitPrice ?? ticketType?.price ?? event?.price,
       event,
       imageUrl,
+      sourceName,
       holder: {
         name:
           ticket.buyerName || currentProfile?.name || identity.name || "Guest",
