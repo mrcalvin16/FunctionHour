@@ -283,6 +283,12 @@ html.light ::-webkit-scrollbar-thumb {
   background: rgba(39, 39, 42, 0.25);
 }
 
+/* Keep Clerk's useful sign-in/sign-up action while removing third-party
+   branding from Function Hour authentication surfaces and modals. */
+.cl-footer > :not(.cl-footerAction) {
+  display: none !important;
+}
+
 /* =========================
    REUSABLE COMPONENT STYLES
    ========================= */
