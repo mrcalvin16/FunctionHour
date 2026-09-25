@@ -440,8 +440,11 @@ export const createTicketsAfterPayment = mutation({
         )
         .unique();
 
-      if (!reservation || reservation.status !== "pending") {
-        throw new Error("Checkout reservation is no longer active.");
+      if (
+        !reservation ||
+        (reservation.status !== "pending" && reservation.status !== "released")
+      ) {
+        throw new Error("Checkout reservation is not eligible for fulfillment.");
       }
 
       if (
@@ -452,10 +455,31 @@ export const createTicketsAfterPayment = mutation({
       }
 
       if (
-        reservation.stripeCheckoutSessionId &&
         reservation.stripeCheckoutSessionId !== args.stripeCheckoutSessionId
       ) {
         throw new Error("Checkout session does not match reservation.");
+      }
+
+      if (reservation.status === "released") {
+        // The signed Stripe webhook confirms this exact session was paid. The
+        // reservation cleanup may have returned its inventory before a webhook
+        // retry arrived, so restore the counters while honoring the purchase.
+        console.warn("Fulfilling paid ticket after reservation release", {
+          eventId: args.eventId,
+          reservationId: reservation.reservationId,
+          stripeCheckoutSessionId: args.stripeCheckoutSessionId,
+        });
+        await ctx.db.patch(args.eventId, {
+          ticketsSold: (event.ticketsSold ?? 0) + reservation.quantity,
+        });
+        if (reservation.ticketTypeId) {
+          const ticketType = await ctx.db.get(reservation.ticketTypeId);
+          if (ticketType && ticketType.eventId === args.eventId) {
+            await ctx.db.patch(reservation.ticketTypeId, {
+              sold: (ticketType.sold ?? 0) + reservation.quantity,
+            });
+          }
+        }
       }
 
       for (let i = 0; i < reservation.quantity; i++) {
