@@ -8,7 +8,6 @@ const customerRoutes = [
   "/map",
   "/saved-events",
   "/my-tickets",
-  "/recommendations",
   "/cities",
   "/explore",
   "/organizers",

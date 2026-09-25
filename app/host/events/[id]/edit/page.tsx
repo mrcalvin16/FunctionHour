@@ -8,6 +8,7 @@ import { api } from "@/convex/_generated/api";
 import { useEventCommandCenter } from "@/components/host/events/command-center/EventCommandCenter";
 
 const categories = [
+  "Experience",
   "Party",
   "Music",
   "Nightlife",

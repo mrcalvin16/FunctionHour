@@ -42,7 +42,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
+    <ClerkProvider
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      appearance={{
+        variables: {
+          colorPrimary: "#7c3aed",
+          colorText: "#18181b",
+          colorBackground: "#ffffff",
+          colorInputBackground: "#ffffff",
+          colorInputText: "#18181b",
+          borderRadius: "1rem",
+        },
+      }}
+      localization={{
+        signIn: {
+          start: {
+            title: "Sign in to Function Hour",
+            subtitle: "Welcome back. Sign in to access your tickets and events.",
+          },
+        },
+        signUp: {
+          start: {
+            title: "Join Function Hour",
+            subtitle: "Create your account to discover, save, and host events.",
+          },
+        },
+      }}
+    >
       <html lang="en" className="light" suppressHydrationWarning>
         <head>
           <script
