@@ -128,6 +128,7 @@ export async function POST(req: Request) {
     if (session.metadata?.checkoutType === "ticket") {
       const eventId = session.metadata.eventId;
       const buyerEmail = session.metadata.buyerEmail;
+      const buyerUserId = session.metadata.buyerUserId;
       const buyerName = session.metadata.buyerName || "";
       const reservationId = session.metadata.reservationId;
       const stripePaymentIntentId =
@@ -149,6 +150,7 @@ export async function POST(req: Request) {
         webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
         eventId: eventId as Id<"events">,
         buyerEmail,
+        buyerUserId,
         buyerName,
         stripeCheckoutSessionId: session.id,
         stripePaymentIntentId,
