@@ -51,7 +51,10 @@ export async function POST(request: Request) {
         country: "US",
         email,
         business_profile: { name: user.fullName || undefined, product_description: "Event organizer ticket sales" },
-        capabilities: { transfers: { requested: true } },
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
         metadata: { clerkUserId: user.id, platform: "Function Hour" },
       });
       accountId = account.id;
@@ -63,6 +66,13 @@ export async function POST(request: Request) {
         accountId,
       });
     }
+
+    await stripe.accounts.update(accountId, {
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+    });
 
     if (action === "dashboard") {
       const login = await stripe.accounts.createLoginLink(accountId);
