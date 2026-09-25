@@ -104,3 +104,146 @@ export const saveConnectAccount = mutation({
     });
   },
 });
+
+
+export const getOrganizerPayoutSummary = query({
+  args: { serverSecret: v.string(), clerkId: v.string() },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+    const events = await ctx.db
+      .query("events")
+      .withIndex("by_userId", (q) => q.eq("userId", args.clerkId))
+      .take(101);
+    if (events.length > 100) {
+      throw new Error("Payout history is too large for automatic reconciliation.");
+    }
+
+    let earned = 0;
+    let orderCount = 0;
+    for (const event of events) {
+      for await (const order of ctx.db
+        .query("ticketOrders")
+        .withIndex("by_event_and_paidAt", (q) => q.eq("eventId", event._id))) {
+        orderCount += 1;
+        if (orderCount > 20_000) {
+          throw new Error("Payout history is too large for automatic reconciliation.");
+        }
+        earned += order.netAmount;
+      }
+    }
+
+    const requests = await ctx.db
+      .query("organizerPayoutRequests")
+      .withIndex("by_organizer", (q) => q.eq("organizerId", args.clerkId))
+      .take(10_001);
+    if (requests.length > 10_000) {
+      throw new Error("Payout history is too large for automatic reconciliation.");
+    }
+    const requested = requests.reduce((sum, item) => sum + item.amount, 0);
+    const pendingRequest = requests
+      .filter((item) => item.status === "requested")
+      .sort((a, b) => b.createdAt - a.createdAt)[0];
+    return {
+      earnedAmount: Math.round(earned * 100) / 100,
+      transferredAmount: Math.round(
+        requests
+          .filter((item) => item.status === "transferred")
+          .reduce((sum, item) => sum + item.amount, 0) * 100,
+      ) / 100,
+      requestedAmount: Math.round(requested * 100) / 100,
+      requestableAmount: Math.max(0, Math.round((earned - requested) * 100) / 100),
+      pendingRequest: pendingRequest
+        ? { amount: pendingRequest.amount, createdAt: pendingRequest.createdAt }
+        : null,
+    };
+  },
+});
+
+export const createOrganizerPayoutRequest = mutation({
+  args: {
+    serverSecret: v.string(),
+    clerkId: v.string(),
+    stripeAccountId: v.string(),
+    requestedAmount: v.number(),
+  },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+    const requests = await ctx.db
+      .query("organizerPayoutRequests")
+      .withIndex("by_organizer", (q) => q.eq("organizerId", args.clerkId))
+      .take(10_001);
+    if (requests.length > 10_000) {
+      throw new Error("Payout history is too large for automatic reconciliation.");
+    }
+    const inFlight = requests
+      .filter((item) => item.status === "requested")
+      .sort((a, b) => b.createdAt - a.createdAt)[0];
+    if (inFlight) return { requestId: inFlight._id, amount: inFlight.amount };
+
+    const events = await ctx.db
+      .query("events")
+      .withIndex("by_userId", (q) => q.eq("userId", args.clerkId))
+      .take(101);
+    if (events.length > 100) {
+      throw new Error("Payout history is too large for automatic reconciliation.");
+    }
+
+    let earned = 0;
+    let orderCount = 0;
+    for (const event of events) {
+      for await (const order of ctx.db
+        .query("ticketOrders")
+        .withIndex("by_event_and_paidAt", (q) => q.eq("eventId", event._id))) {
+        orderCount += 1;
+        if (orderCount > 20_000) {
+          throw new Error("Payout history is too large for automatic reconciliation.");
+        }
+        earned += order.netAmount;
+      }
+    }
+
+    const alreadyReserved = requests.reduce((sum, item) => sum + item.amount, 0);
+    const amount = Math.max(
+      0,
+      Math.floor(Math.min(args.requestedAmount, earned - alreadyReserved + Number.EPSILON) * 100) / 100,
+    );
+    if (amount <= 0) throw new Error("There are no eligible ticket funds to request.");
+
+    const now = Date.now();
+    const requestId = await ctx.db.insert("organizerPayoutRequests", {
+      organizerId: args.clerkId,
+      stripeAccountId: args.stripeAccountId,
+      amount,
+      currency: "usd",
+      status: "requested",
+      createdAt: now,
+      updatedAt: now,
+    });
+    return { requestId, amount };
+  },
+});
+
+export const markOrganizerPayoutTransferred = mutation({
+  args: {
+    serverSecret: v.string(),
+    requestId: v.id("organizerPayoutRequests"),
+    stripeTransferId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+    const request = await ctx.db.get(args.requestId);
+    if (!request) throw new Error("Payout request not found.");
+    if (request.status === "transferred") {
+      if (request.stripeTransferId !== args.stripeTransferId) {
+        throw new Error("Payout request was already reconciled to another transfer.");
+      }
+      return true;
+    }
+    await ctx.db.patch(args.requestId, {
+      status: "transferred",
+      stripeTransferId: args.stripeTransferId,
+      updatedAt: Date.now(),
+    });
+    return true;
+  },
+});

@@ -112,6 +112,7 @@ export const getOrganizerAnalytics = query({
         totalRevenue: 0,
         reconciliation: {
           grossAmount: 0,
+          platformFeeAmount: 0,
           refundedAmount: 0,
           netAmount: 0,
           paidOrders: 0,
@@ -1012,6 +1013,8 @@ export const getEventAnalyticsWorkspace = query({
     const reconciliation = orders.reduce(
       (result, order) => ({
         grossAmount: result.grossAmount + order.grossAmount,
+        platformFeeAmount:
+          result.platformFeeAmount + (order.platformFeeAmount ?? 0),
         refundedAmount:
           result.refundedAmount + order.refundedAmount,
         netAmount: result.netAmount + order.netAmount,
@@ -1030,6 +1033,7 @@ export const getEventAnalyticsWorkspace = query({
       }),
       {
         grossAmount: 0,
+        platformFeeAmount: 0,
         refundedAmount: 0,
         netAmount: 0,
         paidOrders: 0,
@@ -1175,6 +1179,8 @@ export const getEventAnalyticsWorkspace = query({
       reconciliation: {
         grossAmount:
           Math.round(reconciliation.grossAmount * 100) / 100,
+        platformFeeAmount:
+          Math.round(reconciliation.platformFeeAmount * 100) / 100,
         refundedAmount:
           Math.round(reconciliation.refundedAmount * 100) / 100,
         netAmount:

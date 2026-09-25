@@ -181,6 +181,22 @@ eventInteractions: defineTable({
     .index("by_stripePaymentIntentId", ["stripePaymentIntentId"])
     .index("by_event_and_paidAt", ["eventId", "paidAt"]),
 
+  organizerPayoutRequests: defineTable({
+    organizerId: v.string(),
+    stripeAccountId: v.string(),
+    amount: v.float64(),
+    currency: v.string(),
+    status: v.union(
+      v.literal("requested"),
+      v.literal("transferred")
+    ),
+    stripeTransferId: v.optional(v.string()),
+    createdAt: v.float64(),
+    updatedAt: v.float64(),
+  })
+    .index("by_organizer", ["organizerId"])
+    .index("by_transfer", ["stripeTransferId"]),
+
   ticketCheckoutReservations: defineTable({
     reservationId: v.string(),
     eventId: v.id("events"),
