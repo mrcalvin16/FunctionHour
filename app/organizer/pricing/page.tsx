@@ -60,12 +60,12 @@ const faqs = [
   {
     question: "What about card processing?",
     answer:
-      "Stripe card-processing costs apply to the payment account separately from Function Hour’s service fee. The checkout total shows the ticket price and Function Hour fee before payment.",
+      "Function Hour creates the payment through Stripe Connect. The organizer receives the ticket price, while Function Hour retains its disclosed service fee. Stripe processing and any applicable taxes are handled within the payment flow.",
   },
   {
-    question: "Are organizer payouts ready?",
+    question: "How do organizer payouts work?",
     answer:
-      "Stripe Connect onboarding is available, but direct transfers to organizer accounts are not yet enabled. Contact Operations before accepting paid orders if you need payout confirmation.",
+      "Connect and verify a Stripe payout account before accepting paid orders. Once Stripe enables both charges and payouts, ticket revenue is routed to that connected account automatically. Bank-deposit timing is controlled by the organizer’s Stripe payout schedule.",
   },
 ];
 
@@ -194,15 +194,15 @@ export default function OrganizerPricingPage() {
           <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5 shadow-[0_20px_70px_rgba(249,115,22,0.07)]  sm:p-6">
             <div className="flex items-center gap-2 text-orange-700">
               <Wallet className="h-4 w-4" />
-              <p className="text-[10px] font-black uppercase tracking-[0.18em]">Payout status</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em]">Payout routing</p>
             </div>
-            <h2 className="mt-4 text-xl font-black">Know before you sell.</h2>
+            <h2 className="mt-4 text-xl font-black">Connect Stripe before you sell.</h2>
             <p className="mt-2 text-sm leading-6 text-zinc-500">
-              Stripe Connect onboarding is available, but direct payouts to organizers are not yet enabled. Contact Operations before accepting paid orders if you need to confirm fund handling.
+              Paid checkout opens only after Stripe confirms that charges and payouts are enabled. At payment, ticket revenue routes to the organizer’s connected account and Function Hour retains its disclosed service fee.
             </p>
-            <a href="mailto:operations@functionhour.com" className="mt-4 inline-flex items-center gap-2 text-xs font-black text-orange-700 hover:text-zinc-950">
-              Contact Operations <ArrowRight className="h-3.5 w-3.5" />
-            </a>
+            <Link href="/host/payouts" className="mt-4 inline-flex items-center gap-2 text-xs font-black text-orange-700 hover:text-zinc-950">
+              Set up payouts <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
 
           <div className="rounded-2xl border border-zinc-200 bg-white p-5  sm:p-6">
