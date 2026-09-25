@@ -10,7 +10,7 @@ export async function sendTransactionalEmail(input: SendEmailInput) {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   const from =
     process.env.TRANSACTIONAL_EMAIL_FROM?.trim() ||
-    "Function Hour <tickets@functionhour.com>";
+    "Function Hour <operations@functionhour.com>";
 
   if (!apiKey) {
     throw new Error("Transactional email is not configured.");
