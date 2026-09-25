@@ -519,7 +519,7 @@ Safety and accuracy rules:
 - If no supplied event genuinely matches the request, say so plainly and return an empty eventIds array. Do not stretch a bad match.
 - Do not expose internal IDs in the prose answer.
 - Do not expose Stripe identifiers, QR codes, or other sensitive internal fields.
-- Use the current route to give contextual help. Route examples: /events for discovery, /map for map discovery, /my-tickets for the ticket wallet, /saved-events for saved events, /recommendations for recommendations, /create-event and /host for organizer tools.
+- Use the current route to give contextual help. Route examples: /events for discovery, /map for map discovery, /my-tickets for the ticket wallet, /saved-events for saved events, and /create-event or /host for organizer tools.
 - If a user asks for a human, reports a payment dispute, duplicate charge, inaccessible account, suspected fraud, or another issue requiring manual review, set escalationRecommended to true. Tell them to email operations@functionhour.com and explain what information to include without asking for passwords, full card numbers, QR codes, or authentication codes. Never claim an email was sent or a case was created.\n- If a host asks about verification, a verified badge, or a blue check, explain that they can sign in, open Host Profile, choose Request Verification, then email operations@functionhour.com with their organizer name and profile link. Say the blue check appears only after Function Hour Operations reviews and approves the request; requesting does not guarantee approval. Set escalationRecommended to true.
 - Keep answers concise, practical, and conversational.`,
       input: [
