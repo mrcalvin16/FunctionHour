@@ -15,6 +15,41 @@ export const getConnectRecord = query({
   },
 });
 
+export const getEventPayoutDestination = query({
+  args: { serverSecret: v.string(), eventId: v.id("events") },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+
+    const event = await ctx.db.get(args.eventId);
+    if (!event) {
+      return {
+        accountId: null,
+        organizerId: null,
+        reason: "event_not_found" as const,
+      };
+    }
+
+    const organizerId = event.organizerId ?? event.userId;
+    const organizer =
+      (await ctx.db
+        .query("users")
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", organizerId))
+        .first()) ??
+      (await ctx.db
+        .query("users")
+        .withIndex("by_userId", (q) => q.eq("userId", organizerId))
+        .first());
+
+    return {
+      accountId: organizer?.stripeConnectAccountId ?? null,
+      organizerId,
+      reason: organizer?.stripeConnectAccountId
+        ? ("ready" as const)
+        : ("not_connected" as const),
+    };
+  },
+});
+
 export const saveConnectAccount = mutation({
   args: {
     serverSecret: v.string(),
