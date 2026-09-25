@@ -165,44 +165,8 @@ export async function POST(req: Request) {
       );
     }
 
-    checkoutStage = "organizer-payout-readiness";
-    const payoutDestination = await convex.query(
-      api.payouts.getEventPayoutDestination,
-      {
-        serverSecret: checkoutSecret,
-        eventId: eventId as Id<"events">,
-      },
-    );
-
-    if (!payoutDestination.accountId) {
-      return NextResponse.json(
-        {
-          error:
-            "Paid checkout is unavailable until this organizer completes payout setup.",
-        },
-        { status: 409 },
-      );
-    }
-
-    const connectedAccount = await getStripeClient().accounts.retrieve(
-      payoutDestination.accountId,
-    );
-
-    if (
-      !connectedAccount.charges_enabled ||
-      !connectedAccount.payouts_enabled
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Paid checkout is unavailable while this organizer’s payout account is being verified.",
-        },
-        { status: 409 },
-      );
-    }
-
-    const payoutAccountId = connectedAccount.id;
-
+    // Paid tickets are charged to Function Hour's Stripe balance.
+    // Organizer payout setup is independent and never blocks a buyer's checkout.
     checkoutStage = "ticket-reservation";
     const reservationId = crypto.randomUUID();
     const reservation = await convex.mutation(
@@ -339,15 +303,10 @@ export async function POST(req: Request) {
         },
         payment_intent_data: {
           receipt_email: buyerEmail,
-          application_fee_amount: platformFeeUnitAmount * quantity,
-          transfer_data: {
-            destination: payoutAccountId,
-          },
           metadata: {
             checkoutType: "ticket",
             eventId,
             reservationId: activeReservationId,
-            payoutAccountId,
           },
         },
         expires_at: Math.floor(reservation.expiresAt / 1000),
