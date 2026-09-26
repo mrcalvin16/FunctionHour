@@ -40,11 +40,18 @@ async function getCurrentUserDoc(ctx: any) {
   };
 }
 
-async function isOperationsAdmin(actor: Awaited<ReturnType<typeof getCurrentUserDoc>>) {
+function isOperationsAdmin(actor: Awaited<ReturnType<typeof getCurrentUserDoc>>) {
   if (!actor) return false;
-  return actor.user?.role === "admin" ||
-    (typeof actor.identity.email === "string" &&
-      actor.identity.email.trim().toLowerCase() === "operations@functionhour.com");
+  if (actor.user?.role === "admin") return true;
+
+  // Clerk's Convex JWT template may omit the email claim. In that case,
+  // use the profile matched to this authenticated subject/token identifier.
+  const identityEmail =
+    typeof actor.identity.email === "string"
+      ? actor.identity.email
+      : undefined;
+  const email = (identityEmail ?? actor.user?.email ?? "").trim().toLowerCase();
+  return email === "operations@functionhour.com";
 }
 
 export const generateOrganizerUploadUrl = mutation({
