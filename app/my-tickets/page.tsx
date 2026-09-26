@@ -72,6 +72,12 @@ export default function MyTicketsPage() {
               Explore
             </Link>
             <Link
+              href="/my-orders"
+              className="inline-flex min-h-11 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-xs font-black text-zinc-300 hover:bg-white/[0.07]"
+            >
+              Orders
+            </Link>
+            <Link
               href="/saved-events"
               className="hidden min-h-11 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-xs font-black text-zinc-300 hover:bg-white/[0.07] sm:inline-flex"
             >
