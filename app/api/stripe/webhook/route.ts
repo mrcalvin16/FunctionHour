@@ -12,11 +12,29 @@ type TicketMetadataLine = {
   quantity?: number;
 };
 
+function safeErrorDetails(error: unknown) {
+  if (error instanceof Error) {
+    return { errorName: error.name, errorMessage: error.message };
+  }
+
+  return { errorName: typeof error, errorMessage: "Non-Error value thrown" };
+}
+
 export async function POST(req: Request) {
   const body = await req.text();
   const signature = req.headers.get("stripe-signature");
+  const requestContext = {
+    environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "unknown",
+    deployment: process.env.VERCEL_URL ?? "unknown",
+    vercelRequestId: req.headers.get("x-vercel-id") ?? "unknown",
+    payloadBytes: Buffer.byteLength(body, "utf8"),
+  };
 
   if (!signature) {
+    console.error(
+      "[stripe.webhook] Request rejected: missing Stripe signature",
+      requestContext,
+    );
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
@@ -24,7 +42,13 @@ export async function POST(req: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
-    console.error("Missing STRIPE_WEBHOOK_SECRET");
+    console.error(
+      "[stripe.webhook] Request rejected: signing secret is not configured",
+      {
+        ...requestContext,
+        signingSecretConfigured: false,
+      },
+    );
     return NextResponse.json(
       { error: "Webhook is not configured" },
       { status: 500 },
@@ -38,9 +62,23 @@ export async function POST(req: Request) {
       webhookSecret,
     );
   } catch (error) {
-    console.error("Webhook signature verification failed:", error);
+    console.error("[stripe.webhook] Signature verification failed", {
+      ...requestContext,
+      ...safeErrorDetails(error),
+      stripeSignatureHeaderPresent: true,
+      stripeSignatureHeaderLength: signature.length,
+      signingSecretConfigured: true,
+      signingSecretHasExpectedPrefix: webhookSecret.startsWith("whsec_"),
+    });
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
+
+  console.info("[stripe.webhook] Signature verified", {
+    ...requestContext,
+    stripeEventId: event.id,
+    stripeEventType: event.type,
+    livemode: event.livemode,
+  });
 
   if (event.type === "checkout.session.completed") {
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -146,44 +184,76 @@ export async function POST(req: Request) {
         );
       }
 
-      await convex.mutation(api.tickets.recordTicketOrder, {
-        webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
-        eventId: eventId as Id<"events">,
-        stripeCheckoutSessionId: session.id,
-        stripePaymentIntentId,
-        buyerUserId,
-        buyerEmail,
-        buyerName,
-        currency: session.currency || "usd",
-        grossAmount: (session.amount_total ?? 0) / 100,
-        platformFeeAmount: Number(session.metadata.platformFeeAmount || 0),
-        quantity: tickets.reduce(
+      const ticketContext = {
+        stripeEventId: event.id,
+        checkoutSessionId: session.id,
+        eventId,
+        paymentIntentId: stripePaymentIntentId ?? "unknown",
+        ticketCount: tickets.reduce(
           (total, line) => total + Math.max(0, Number(line.quantity || 0)),
           0,
         ),
-        paidAt: session.created * 1_000,
-        discountCodeId: session.metadata.discountCodeId
-          ? (session.metadata.discountCodeId as Id<"discountCodes">)
-          : undefined,
-        discountAmount: Number(session.metadata.discountAmount || 0),
-      });
+      };
 
-      await convex.mutation(api.tickets.createTicketsAfterPayment, {
-        webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
-        eventId: eventId as Id<"events">,
-        buyerEmail,
-        buyerUserId,
-        buyerName,
-        stripeCheckoutSessionId: session.id,
-        stripePaymentIntentId,
-        reservationId,
-        tickets: tickets.map((line) => ({
-          ticketTypeId: line.ticketTypeId
-            ? (line.ticketTypeId as Id<"ticketTypes">)
+      try {
+        await convex.mutation(api.tickets.recordTicketOrder, {
+          webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
+          eventId: eventId as Id<"events">,
+          stripeCheckoutSessionId: session.id,
+          stripePaymentIntentId,
+          buyerUserId,
+          buyerEmail,
+          buyerName,
+          currency: session.currency || "usd",
+          grossAmount: (session.amount_total ?? 0) / 100,
+          platformFeeAmount: Number(session.metadata.platformFeeAmount || 0),
+          quantity: ticketContext.ticketCount,
+          paidAt: session.created * 1_000,
+          discountCodeId: session.metadata.discountCodeId
+            ? (session.metadata.discountCodeId as Id<"discountCodes">)
             : undefined,
-          quantity: Number(line.quantity || 1),
-        })),
-      });
+          discountAmount: Number(session.metadata.discountAmount || 0),
+        });
+        console.info(
+          "[stripe.webhook] Ticket order recorded in Convex",
+          ticketContext,
+        );
+      } catch (error) {
+        console.error("[stripe.webhook] Convex ticket order recording failed", {
+          ...ticketContext,
+          ...safeErrorDetails(error),
+        });
+        throw error;
+      }
+
+      try {
+        await convex.mutation(api.tickets.createTicketsAfterPayment, {
+          webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
+          eventId: eventId as Id<"events">,
+          buyerEmail,
+          buyerUserId,
+          buyerName,
+          stripeCheckoutSessionId: session.id,
+          stripePaymentIntentId,
+          reservationId,
+          tickets: tickets.map((line) => ({
+            ticketTypeId: line.ticketTypeId
+              ? (line.ticketTypeId as Id<"ticketTypes">)
+              : undefined,
+            quantity: Number(line.quantity || 1),
+          })),
+        });
+        console.info(
+          "[stripe.webhook] Tickets created in Convex",
+          ticketContext,
+        );
+      } catch (error) {
+        console.error("[stripe.webhook] Convex ticket creation failed", {
+          ...ticketContext,
+          ...safeErrorDetails(error),
+        });
+        throw error;
+      }
 
       try {
         const eventName = session.metadata.eventName || "your event";
