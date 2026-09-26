@@ -27,7 +27,9 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
     return <TicketUnavailable />;
   }
 
-  const qrValue = ticket.qrCode || String(ticket._id);
+  // Check-in accepts ticket IDs. Encoding the ID keeps the QR compact and
+  // avoids exposing the buyer's email in older stored QR tokens.
+  const qrValue = String(ticket._id);
   const shortCode = String(ticket._id).slice(-8).toUpperCase();
   const isRevoked = Boolean(ticket.revokedAt) || ticket.status === "cancelled";
   const eventTime = getEventTime(
@@ -83,11 +85,13 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
               <p className="text-[10px] font-black uppercase tracking-[0.25em] text-orange-400">
                 Function Hour Entry Pass
               </p>
-              <span
-                className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] ${statusClass}`}
-              >
-                {status}
-              </span>
+              {status !== "Ready for entry" ? (
+                <span
+                  className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] ${statusClass}`}
+                >
+                  {status}
+                </span>
+              ) : null}
             </div>
 
             <h1 className="mt-5 text-3xl font-black tracking-[-0.04em] sm:text-5xl">
@@ -152,6 +156,9 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
                 value={qrValue}
                 size={230}
                 level="M"
+                bgColor="#FFFFFF"
+                fgColor="#000000"
+                style={{ display: "block", maxWidth: "100%", height: "auto" }}
                 aria-label={`Entry QR code for ${ticket.event.name}`}
               />
             </div>
