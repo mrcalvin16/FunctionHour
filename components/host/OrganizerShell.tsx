@@ -513,7 +513,7 @@ function SidebarItem({
                   ? "text-white"
                   : item.accent === "orange"
                     ? "text-orange-300"
-                    : "text-zinc-200",
+                    : "text-zinc-800",
               ].join(" ")}
             >
               {item.label}
@@ -523,10 +523,10 @@ function SidebarItem({
               className={[
                 "mt-0.5 block truncate text-[10px]",
                 active
-                  ? "text-violet-100/70"
+                  ? "text-violet-950"
                   : item.accent === "orange"
-                    ? "text-orange-300/60"
-                    : "text-zinc-600",
+                    ? "text-orange-900"
+                    : "text-zinc-700",
               ].join(" ")}
             >
               {item.description}
@@ -551,7 +551,7 @@ function SidebarItem({
     active
       ? "border border-violet-400/30 bg-gradient-to-r from-violet-600/80 to-fuchsia-600/30 shadow-[0_0_28px_rgba(124,58,237,0.18)]"
       : item.soon
-        ? "cursor-default opacity-60"
+        ? "cursor-default"
         : "border border-transparent hover:border-white/[0.06] hover:bg-white/[0.04]",
   ].join(" ");
 

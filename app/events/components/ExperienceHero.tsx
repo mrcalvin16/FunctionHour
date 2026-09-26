@@ -324,7 +324,7 @@ export default function ExperienceHero({
             {universeNodes.map((node) => (
               <div
                 key={node.label}
-                className={`absolute ${node.position} ${node.size} z-10 flex flex-col items-center justify-center rounded-full border border-white/15 ${node.background} text-center shadow-[0_0_35px_rgba(255,255,255,0.08)]`}
+                className={`experience-universe-node absolute ${node.position} ${node.size} z-10 flex flex-col items-center justify-center rounded-full border border-white/15 ${node.background} text-center shadow-[0_0_35px_rgba(255,255,255,0.08)]`}
               >
                 <span className="text-2xl text-white">{node.icon}</span>
                 <span className="mt-2 text-[10px] font-black uppercase tracking-[0.16em] text-white">

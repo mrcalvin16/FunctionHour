@@ -269,10 +269,10 @@ html.light :where(
   color: #ffffff !important;
 }
 
-html.light .theme-toggle {
-  border-color: rgba(39, 39, 42, 0.18) !important;
-  background: rgba(255, 255, 255, 0.9) !important;
-  color: #18181b !important;
+/* These illustrated orbit badges retain white lettering on their saturated surfaces. */
+html.light .experience-universe-node,
+html.light .experience-universe-node span {
+  color: #ffffff !important;
 }
 
 html.light ::-webkit-scrollbar-track {
