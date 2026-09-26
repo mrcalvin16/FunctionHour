@@ -144,6 +144,10 @@ export default function CanvasStage({
               }
             }}
           >
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{ backgroundImage: selectedBackground.backgroundImage }}
+            />
             {imagePreview ? (
               <img
                 src={imagePreview}
@@ -151,12 +155,7 @@ export default function CanvasStage({
                 draggable={false}
                 className="pointer-events-none absolute inset-0 h-full w-full object-cover"
               />
-            ) : (
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{ backgroundImage: selectedBackground.backgroundImage }}
-              />
-            )}
+            ) : null}
             <div
               className="pointer-events-none absolute inset-0 bg-black"
               style={{ opacity: overlayStrength / 100 }}
@@ -211,6 +210,7 @@ export default function CanvasStage({
                             : "center",
                       textAlign: element.align,
                       fontSize: element.fontSize,
+                      fontFamily: element.fontFamily,
                       fontWeight: element.fontWeight,
                       color: element.color,
                       textShadow: element.textShadow

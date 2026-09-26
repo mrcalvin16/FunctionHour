@@ -28,6 +28,7 @@ export type CanvasElement = {
   width: number;
   height: number;
   fontSize: number;
+  fontFamily?: string;
   fontWeight: number;
   color: string;
   align: TextAlign;

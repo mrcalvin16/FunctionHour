@@ -11,6 +11,7 @@ import { toPng } from "html-to-image";
 import ToolPanel from "@/components/host/flyer-studio-v2/ToolPanel";
 import PropertiesPanel from "@/components/host/flyer-studio-v2/PropertiesPanel";
 import CanvasStage from "@/components/host/flyer-studio-v2/CanvasStage";
+import BackgroundEraser from "@/components/host/flyer-studio-v2/BackgroundEraser";
 import {
   CANVAS_WIDTH,
   backgroundPresets,
@@ -60,6 +61,7 @@ export default function FlyerStudioV2Page() {
   const [imagePreview, setImagePreview] = useState("");
   const [imageStorageId, setImageStorageId] = useState<Id<"_storage"> | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isErasing, setIsErasing] = useState(false);
   const storedImageUrl = useQuery(
     api.events.getImageUrl,
     imageStorageId ? { storageId: imageStorageId } : "skip",
@@ -498,10 +500,10 @@ export default function FlyerStudioV2Page() {
     setSelectedElementId(id);
   }
 
-  async function uploadBackground(file: File) {
-    if (!file.type.startsWith("image/") || file.size > 10 * 1024 * 1024) {
+  async function uploadBackground(file: Blob) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 10 * 1024 * 1024) {
       setStatus("Choose a JPG, PNG, or WebP image smaller than 10 MB.");
-      return;
+      throw new Error("Choose a JPG, PNG, or WebP image smaller than 10 MB.");
     }
 
     try {
@@ -520,6 +522,7 @@ export default function FlyerStudioV2Page() {
       setStatus("Background added. Save your draft to keep it.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Upload failed.");
+      throw error;
     } finally {
       setIsUploading(false);
     }
@@ -922,7 +925,7 @@ export default function FlyerStudioV2Page() {
                   onChange={(event) => {
                     const file = event.target.files?.[0];
                     if (!file) return;
-                    void uploadBackground(file);
+                    void uploadBackground(file).catch(() => {});
                     event.target.value = "";
                   }}
                 />
@@ -939,6 +942,16 @@ export default function FlyerStudioV2Page() {
                 >
                   Use event cover as background
                 </button>
+              )}
+              {backgroundImageUrl && (
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <button type="button" onClick={() => setIsErasing(true)} className="rounded-xl border border-zinc-300 bg-white px-3 py-3 text-sm font-bold text-zinc-900 hover:border-violet-500">
+                    Erase part of image
+                  </button>
+                  <button type="button" onClick={() => { setImageStorageId(null); setImagePreview(""); setStatus("Background image removed."); }} className="rounded-xl border border-zinc-300 bg-white px-3 py-3 text-sm font-bold text-zinc-900 hover:border-violet-500">
+                    Remove entire image
+                  </button>
+                </div>
               )}
               {status && <p role="status" className="mt-3 text-xs font-bold text-zinc-700">{status}</p>}
             </ToolPanel>
@@ -1124,6 +1137,13 @@ export default function FlyerStudioV2Page() {
         />
       </div>
 
+      {isErasing && backgroundImageUrl && (
+        <BackgroundEraser
+          imageUrl={backgroundImageUrl}
+          onSave={uploadBackground}
+          onClose={() => setIsErasing(false)}
+        />
+      )}
     </main>
   );
 }

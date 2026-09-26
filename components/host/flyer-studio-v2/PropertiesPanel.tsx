@@ -1,6 +1,19 @@
 import { MIN_HEIGHT, MIN_WIDTH } from "./config";
 import type { CanvasElement, TextAlign } from "./types";
 
+const fontOptions = [
+  { name: "Modern Sans", stack: "Arial, Helvetica, sans-serif" },
+  { name: "Avenir", stack: "'Avenir Next', Avenir, Arial, sans-serif" },
+  { name: "Helvetica", stack: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
+  { name: "Futura", stack: "Futura, 'Trebuchet MS', sans-serif" },
+  { name: "Trebuchet", stack: "'Trebuchet MS', Arial, sans-serif" },
+  { name: "Verdana", stack: "Verdana, Geneva, sans-serif" },
+  { name: "Editorial Serif", stack: "Georgia, 'Times New Roman', serif" },
+  { name: "Baskerville", stack: "Baskerville, 'Times New Roman', serif" },
+  { name: "Bold Display", stack: "Impact, 'Arial Narrow', sans-serif" },
+  { name: "Typewriter", stack: "'Courier New', Courier, monospace" },
+] as const;
+
 export default function PropertiesPanel({
   selectedElement,
   updateElement,
@@ -59,6 +72,21 @@ export default function PropertiesPanel({
               className="mt-2 min-h-24 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-sm outline-none"
             />
           </div>
+
+          <label className="block text-xs font-bold text-white/70">
+            Font
+            <select
+              value={selectedElement.fontFamily ?? fontOptions[0].stack}
+              onChange={(event) => updateElement(selectedElement.id, { fontFamily: event.target.value })}
+              className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
+            >
+              {fontOptions.map((font) => (
+                <option key={font.name} value={font.stack} style={{ fontFamily: font.stack }}>
+                  {font.name}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <div className="grid grid-cols-2 gap-3">
             <label className="text-xs font-bold text-white/50">
