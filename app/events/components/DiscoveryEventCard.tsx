@@ -171,8 +171,8 @@ export default function DiscoveryEventCard({
             <p
               className={`mt-1 text-lg font-black ${
                 priceLabel === "Free"
-                  ? "text-emerald-300"
-                  : "text-white"
+                  ? "text-emerald-700"
+                  : "text-zinc-950"
               }`}
             >
               {priceLabel}
