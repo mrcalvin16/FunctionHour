@@ -201,6 +201,8 @@ export default function EventCheckoutPage({
           ],
           successPath: "/onboarding/attendee",
           cancelPath: `/events/${eventId}/checkout`,
+          buyerName: buyerName.trim(),
+          buyerEmail: buyerEmail.trim(),
           promoCode: discount?.valid ? promoToValidate : undefined,
         }),
       });

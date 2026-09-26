@@ -159,6 +159,7 @@ eventInteractions: defineTable({
     eventId: v.id("events"),
     stripeCheckoutSessionId: v.string(),
     stripePaymentIntentId: v.optional(v.string()),
+    buyerUserId: v.optional(v.string()),
     buyerEmail: v.string(),
     buyerName: v.optional(v.string()),
     currency: v.string(),
@@ -179,6 +180,8 @@ eventInteractions: defineTable({
   })
     .index("by_stripeCheckoutSessionId", ["stripeCheckoutSessionId"])
     .index("by_stripePaymentIntentId", ["stripePaymentIntentId"])
+    .index("by_buyerUserId", ["buyerUserId"])
+    .index("by_buyerEmail", ["buyerEmail"])
     .index("by_event_and_paidAt", ["eventId", "paidAt"]),
 
   organizerPayoutRequests: defineTable({

@@ -581,6 +581,7 @@ export const recordTicketOrder = mutation({
     eventId: v.id("events"),
     stripeCheckoutSessionId: v.string(),
     stripePaymentIntentId: v.optional(v.string()),
+    buyerUserId: v.optional(v.string()),
     buyerEmail: v.string(),
     buyerName: v.optional(v.string()),
     currency: v.string(),
@@ -617,6 +618,7 @@ export const recordTicketOrder = mutation({
       eventId: args.eventId,
       stripeCheckoutSessionId: args.stripeCheckoutSessionId,
       stripePaymentIntentId: args.stripePaymentIntentId,
+      buyerUserId: args.buyerUserId,
       buyerEmail: args.buyerEmail.trim().toLowerCase(),
       buyerName: args.buyerName,
       currency: args.currency.toLowerCase(),
@@ -772,6 +774,62 @@ export const getUserTickets = query({
           ...ticket,
           event,
           imageUrl,
+        };
+      }),
+    );
+  },
+});
+
+export const getMyOrders = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+
+    const identifiers = await getTicketOwnerIdentifiers(ctx, identity);
+    const orderGroups = await Promise.all(
+      identifiers.flatMap((identifier) => [
+        ctx.db
+          .query("ticketOrders")
+          .withIndex("by_buyerUserId", (q) =>
+            q.eq("buyerUserId", identifier),
+          )
+          .take(100),
+        ctx.db
+          .query("ticketOrders")
+          .withIndex("by_buyerEmail", (q) =>
+            q.eq("buyerEmail", identifier),
+          )
+          .take(100),
+      ]),
+    );
+    const orders = [
+      ...new Map(
+        orderGroups
+          .flat()
+          .map((order) => [String(order._id), order]),
+      ).values(),
+    ]
+      .sort((left, right) => right.paidAt - left.paidAt)
+      .slice(0, 100);
+
+    return await Promise.all(
+      orders.map(async (order) => {
+        const [event, tickets] = await Promise.all([
+          ctx.db.get(order.eventId),
+          ctx.db
+            .query("tickets")
+            .withIndex("by_stripeCheckoutSessionId", (q) =>
+              q.eq("stripeCheckoutSessionId", order.stripeCheckoutSessionId),
+            )
+            .take(25),
+        ]);
+
+        return {
+          ...order,
+          eventName: event?.name ?? "Event",
+          eventDate: event?.eventDate,
+          ticketCount: tickets.length,
         };
       }),
     );

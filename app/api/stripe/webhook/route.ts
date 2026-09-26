@@ -146,6 +146,28 @@ export async function POST(req: Request) {
         );
       }
 
+      await convex.mutation(api.tickets.recordTicketOrder, {
+        webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
+        eventId: eventId as Id<"events">,
+        stripeCheckoutSessionId: session.id,
+        stripePaymentIntentId,
+        buyerUserId,
+        buyerEmail,
+        buyerName,
+        currency: session.currency || "usd",
+        grossAmount: (session.amount_total ?? 0) / 100,
+        platformFeeAmount: Number(session.metadata.platformFeeAmount || 0),
+        quantity: tickets.reduce(
+          (total, line) => total + Math.max(0, Number(line.quantity || 0)),
+          0,
+        ),
+        paidAt: session.created * 1_000,
+        discountCodeId: session.metadata.discountCodeId
+          ? (session.metadata.discountCodeId as Id<"discountCodes">)
+          : undefined,
+        discountAmount: Number(session.metadata.discountAmount || 0),
+      });
+
       await convex.mutation(api.tickets.createTicketsAfterPayment, {
         webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
         eventId: eventId as Id<"events">,
@@ -161,27 +183,6 @@ export async function POST(req: Request) {
             : undefined,
           quantity: Number(line.quantity || 1),
         })),
-      });
-
-      await convex.mutation(api.tickets.recordTicketOrder, {
-        webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
-        eventId: eventId as Id<"events">,
-        stripeCheckoutSessionId: session.id,
-        stripePaymentIntentId,
-        buyerEmail,
-        buyerName,
-        currency: session.currency || "usd",
-        grossAmount: (session.amount_total ?? 0) / 100,
-        platformFeeAmount: Number(session.metadata.platformFeeAmount || 0),
-        quantity: tickets.reduce(
-          (total, line) => total + Math.max(0, Number(line.quantity || 0)),
-          0,
-        ),
-        paidAt: session.created * 1_000,
-        discountCodeId: session.metadata.discountCodeId
-          ? (session.metadata.discountCodeId as Id<"discountCodes">)
-          : undefined,
-        discountAmount: Number(session.metadata.discountAmount || 0),
       });
 
       try {
