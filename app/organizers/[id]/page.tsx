@@ -104,12 +104,17 @@ export default function OrganizerProfilePage({
                     </h1>
 
                     {organizer.isVerifiedOrganizer && (
-                      <BadgeCheck
+                      <span
                         role="img"
                         aria-label="Verified organizer"
                         title="Verified organizer"
-                        className="h-7 w-7 shrink-0 fill-blue-500 text-blue-500 stroke-white"
-                      />
+                        className="inline-flex"
+                      >
+                        <BadgeCheck
+                          aria-hidden="true"
+                          className="h-7 w-7 shrink-0 fill-blue-500 text-blue-500 stroke-white"
+                        />
+                      </span>
                     )}
                   </div>
 
