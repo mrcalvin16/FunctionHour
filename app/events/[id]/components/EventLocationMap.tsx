@@ -4,13 +4,22 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 import Link from "next/link";
 import Map, { Marker, NavigationControl } from "react-map-gl/mapbox";
+import { useLocalMapStyle } from "@/lib/useLocalMapStyle";
 
-export default function EventLocationMap({ event }: { event: any }) {
-  const hasCoords =
-    typeof event?.latitude === "number" &&
-    typeof event?.longitude === "number";
+export default function EventLocationMap({ event }: {
+  event: {
+    latitude?: number;
+    longitude?: number;
+    venueName?: string;
+    location?: string;
+    city?: string;
+    state?: string;
+  };
+}) {
+  const { mapStyle } = useLocalMapStyle();
+  const { latitude, longitude } = event;
 
-  if (!hasCoords) {
+  if (typeof latitude !== "number" || typeof longitude !== "number") {
     return null;
   }
 
@@ -35,18 +44,18 @@ export default function EventLocationMap({ event }: { event: any }) {
         <Map
           mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
           initialViewState={{
-            longitude: event.longitude,
-            latitude: event.latitude,
+            longitude,
+            latitude,
             zoom: 13,
           }}
-          mapStyle="mapbox://styles/mapbox/dark-v11"
+          mapStyle={mapStyle}
           scrollZoom={false}
         >
           <NavigationControl position="top-right" />
 
           <Marker
-            longitude={event.longitude}
-            latitude={event.latitude}
+            longitude={longitude}
+            latitude={latitude}
             anchor="bottom"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-black bg-white text-lg font-black text-black shadow-2xl">

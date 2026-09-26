@@ -10,6 +10,7 @@ import Map, {
   type ViewState,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { useLocalMapStyle } from "@/lib/useLocalMapStyle";
 
 export type MapEvent = {
   _id: string;
@@ -98,6 +99,7 @@ export default function MapCanvas({
     "idle" | "loading" | "error"
   >("idle");
   const [mapSupported, setMapSupported] = useState<boolean | null>(null);
+  const { appearance, mapStyle } = useLocalMapStyle();
 
   const visibleEvents = useMemo(
     () => events.filter((event) => matchesTime(event, timeMode)),
@@ -187,11 +189,11 @@ export default function MapCanvas({
   }
 
   if (mapSupported === null) {
-    return <div className="h-full bg-zinc-950" aria-label="Loading map" />;
+    return <div className="h-full bg-zinc-100" aria-label="Loading map" />;
   }
 
   return (
-    <div className="relative h-full overflow-hidden bg-zinc-950">
+    <div className={`relative h-full overflow-hidden ${appearance === "light" ? "bg-zinc-100" : "bg-zinc-950"}`}>
       <Map
         {...viewState}
         onMove={(event) => setViewState(event.viewState)}
@@ -201,7 +203,7 @@ export default function MapCanvas({
           if (/webgl|context/i.test(message)) setMapSupported(false);
         }}
         mapboxAccessToken={mapboxToken}
-        mapStyle="mapbox://styles/mapbox/dark-v11"
+        mapStyle={mapStyle}
         attributionControl={false}
       >
         <NavigationControl position="bottom-right" showCompass={false} />
