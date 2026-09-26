@@ -263,12 +263,40 @@ export const requestOrganizerVerification = mutation({
       throw new Error("You must be signed in.");
     }
 
+    const requestedAt = Date.now();
     await ctx.db.patch(result.user._id, {
       verificationRequested: true,
-      updatedAt: Date.now(),
+      verificationRequestedAt: requestedAt,
+      updatedAt: requestedAt,
     });
 
     return true;
+  },
+});
+
+export const getOrganizerVerificationRequests = query({
+  args: {},
+  handler: async (ctx) => {
+    const actor = await getCurrentUserDoc(ctx);
+    if (!actor?.user || actor.user.role !== "admin") {
+      throw new Error("Only Function Hour Operations admins can review verification requests.");
+    }
+
+    const requests = await ctx.db
+      .query("users")
+      .withIndex("by_verificationRequested", (q) =>
+        q.eq("verificationRequested", true),
+      )
+      .take(100);
+
+    return requests.map((organizer) => ({
+      userId: organizer.userId ?? organizer.clerkId ?? "",
+      organizerName: organizer.organizerName ?? organizer.name ?? "Organizer",
+      email: organizer.email ?? "",
+      website: organizer.website ?? "",
+      instagram: organizer.instagram ?? "",
+      verificationRequestedAt: organizer.verificationRequestedAt,
+    }));
   },
 });
 
