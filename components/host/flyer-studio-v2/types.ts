@@ -1,7 +1,6 @@
 export type SidebarTool =
   | "templates"
   | "uploads"
-  | "ai"
   | "text"
   | "brand"
   | "elements"
@@ -52,6 +51,7 @@ export type FlyerDocument = {
   prompt: string;
   style: string;
   imageUrl: string;
+  imageStorageId?: string;
   overlayStrength: number;
   backgroundPreset?: string;
   elements: CanvasElement[];

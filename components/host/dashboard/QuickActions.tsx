@@ -66,11 +66,11 @@ export default function QuickActions() {
         Shortcuts
       </p>
 
-      <h2 className="mt-2 text-xl font-black tracking-tight">
+      <h2 className="mt-2 text-xl font-black tracking-tight text-zinc-900">
         Quick Actions
       </h2>
 
-      <p className="mt-1 text-xs leading-5 text-zinc-500">
+      <p className="mt-1 text-xs leading-5 text-zinc-700">
         Move directly into your most-used organizer tools.
       </p>
 
@@ -86,16 +86,16 @@ export default function QuickActions() {
               </span>
 
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-black text-white">
+                <span className="block truncate text-sm font-black text-zinc-900">
                   {action.label}
                 </span>
 
-                <span className="mt-1 block truncate text-[10px] text-zinc-500">
+                <span className="mt-1 block truncate text-[10px] text-zinc-700">
                   {action.description}
                 </span>
               </span>
 
-              <span className="text-sm font-black text-zinc-700 transition group-hover:translate-x-0.5 group-hover:text-white">
+              <span className="text-sm font-black text-zinc-800 transition group-hover:translate-x-0.5 group-hover:text-violet-800">
                 →
               </span>
             </>

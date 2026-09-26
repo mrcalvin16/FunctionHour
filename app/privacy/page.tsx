@@ -56,7 +56,7 @@ export default function PrivacyPage() {
           title: "AI-powered features",
           content: (
             <p>
-              When an authorized organizer uses AI Organizer or Flyer Studio,
+              When an authorized organizer uses AI Organizer,
               prompts and relevant event information may be sent to external AI
               service providers to generate the requested result. Authorized event
               questions may include relevant guest information, including VIP guest
@@ -71,8 +71,7 @@ export default function PrivacyPage() {
             <p>
               We use providers that support identity, hosting, databases, payments,
               analytics, communications, and AI features. These may include Clerk,
-              Convex, Stripe, Vercel, OpenAI, and an external image-generation
-              provider. They process information under their applicable terms and
+              Convex, Stripe, Vercel, and OpenAI. They process information under their applicable terms and
               privacy commitments.
             </p>
           ),

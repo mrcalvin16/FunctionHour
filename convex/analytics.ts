@@ -1574,7 +1574,7 @@ export const getOrganizerRecentActivity = query({
       boosts.map(async (boost): Promise<OrganizerActivityItem | null> => {
         const event = await ctx.db.get(boost.eventId);
 
-        if (!event) {
+        if (!event || event.userId !== identity.subject) {
           return null;
         }
 

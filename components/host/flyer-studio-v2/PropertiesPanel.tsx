@@ -31,6 +31,22 @@ export default function PropertiesPanel({
 
       {selectedElement ? (
         <div className="mt-4 space-y-5">
+          <div className="grid grid-cols-2 gap-3">
+            {(["x", "y"] as const).map((axis) => (
+              <label key={axis} className="text-xs font-bold text-white/70">
+                {axis === "x" ? "X position" : "Y position"}
+                <input
+                  type="number"
+                  value={Math.round(selectedElement[axis])}
+                  onChange={(event) => {
+                    const value = Number(event.target.value);
+                    if (Number.isFinite(value)) updateElement(selectedElement.id, { [axis]: value });
+                  }}
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
+                />
+              </label>
+            ))}
+          </div>
           <div>
             <label className="text-xs font-bold text-white/50">Text</label>
             <textarea
@@ -89,7 +105,38 @@ export default function PropertiesPanel({
               }
               className="mt-2 w-full"
             />
+            <input
+              type="number"
+              min={8}
+              max={120}
+              value={selectedElement.fontSize}
+              onChange={(event) => updateElement(selectedElement.id, { fontSize: Math.min(120, Math.max(8, Number(event.target.value) || 8)) })}
+              aria-label="Font size in pixels"
+              className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
+            />
           </div>
+
+          <label className="block text-xs font-bold text-white/70">
+            Letter spacing (px)
+            <input
+              type="number"
+              min={-2}
+              max={20}
+              step={0.5}
+              value={selectedElement.letterSpacing ?? 0}
+              onChange={(event) => updateElement(selectedElement.id, { letterSpacing: Math.min(20, Math.max(-2, Number(event.target.value) || 0)) })}
+              className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
+            />
+          </label>
+
+          <button
+            type="button"
+            aria-pressed={Boolean(selectedElement.uppercase)}
+            onClick={() => updateElement(selectedElement.id, { uppercase: !selectedElement.uppercase })}
+            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"
+          >
+            {selectedElement.uppercase ? "Uppercase on" : "Uppercase off"}
+          </button>
 
           <div className="grid grid-cols-3 gap-2">
             {(["left", "center", "right"] as TextAlign[]).map(

@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
+import type { Doc } from "@/convex/_generated/dataModel";
 import { toPng } from "html-to-image";
 import ToolPanel from "@/components/host/flyer-studio-v2/ToolPanel";
 import PropertiesPanel from "@/components/host/flyer-studio-v2/PropertiesPanel";
@@ -18,7 +20,6 @@ import {
   formats,
   initialElements,
   sidebarTools,
-  styleOptions,
   templates,
 } from "@/components/host/flyer-studio-v2/config";
 import {
@@ -42,7 +43,8 @@ export default function FlyerStudioV2Page() {
   const events = useQuery(
     api.events.getMyEvents,
     isLoaded && isSignedIn ? {} : "skip",
-  ) as any[] | undefined;
+  ) as (Doc<"events"> & { imageUrl: string | null })[] | undefined;
+  const generateUploadUrl = useMutation(api.events.generateUploadUrl);
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const interactionRef = useRef<Interaction | null>(null);
@@ -56,11 +58,13 @@ export default function FlyerStudioV2Page() {
   const [style, setStyle] = useState("Luxury");
   const [format, setFormat] = useState("poster");
   const [imagePreview, setImagePreview] = useState("");
-  const [variations, setVariations] = useState<
-    { id: string; imageUrl: string; caption?: string }[]
-  >([]);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [confirmGeneration, setConfirmGeneration] = useState(false);
+  const [imageStorageId, setImageStorageId] = useState<Id<"_storage"> | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const storedImageUrl = useQuery(
+    api.events.getImageUrl,
+    imageStorageId ? { storageId: imageStorageId } : "skip",
+  );
+  const backgroundImageUrl = imageStorageId ? storedImageUrl ?? "" : imagePreview;
   const [brandColor, setBrandColor] = useState("#8b5cf6");
   const [status, setStatus] = useState("");
   const [overlayStrength, setOverlayStrength] = useState(55);
@@ -138,7 +142,8 @@ export default function FlyerStudioV2Page() {
       setFormat(document.format);
       setPrompt(document.prompt);
       setStyle(document.style);
-      setImagePreview(document.imageUrl);
+      setImageStorageId((document.imageStorageId as Id<"_storage"> | undefined) ?? null);
+      setImagePreview(document.imageStorageId ? "" : document.imageUrl);
       setOverlayStrength(document.overlayStrength);
       setBackgroundPreset(document.backgroundPreset || "aurora");
       resetElements(document.elements);
@@ -148,7 +153,7 @@ export default function FlyerStudioV2Page() {
           return { ...element, text: String(selectedEvent.name).toUpperCase() };
         }
         if (element.id === "venue" && selectedEvent) {
-          const venue = selectedEvent.venue || selectedEvent.city;
+          const venue = selectedEvent.venueName || selectedEvent.city;
           return venue
             ? { ...element, text: String(venue).toUpperCase() }
             : element;
@@ -160,6 +165,7 @@ export default function FlyerStudioV2Page() {
       setPrompt("");
       setStyle("Luxury");
       setImagePreview("");
+      setImageStorageId(null);
       setOverlayStrength(55);
       setBackgroundPreset("aurora");
       resetElements(eventElements);
@@ -187,6 +193,7 @@ export default function FlyerStudioV2Page() {
       prompt,
       style,
       imageUrl: imagePreview,
+      imageStorageId: imageStorageId ?? undefined,
       overlayStrength,
       backgroundPreset,
       elements: cloneElements(elements),
@@ -197,7 +204,7 @@ export default function FlyerStudioV2Page() {
       title: `${eventTitle} Flyer`,
       prompt,
       style,
-      imageUrl: imagePreview,
+      imageUrl: backgroundImageUrl,
     });
   }
 
@@ -225,7 +232,8 @@ export default function FlyerStudioV2Page() {
 
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
         event.preventDefault();
-        event.shiftKey ? redo() : undo();
+        if (event.shiftKey) redo();
+        else undo();
         return;
       }
 
@@ -490,53 +498,30 @@ export default function FlyerStudioV2Page() {
     setSelectedElementId(id);
   }
 
-  async function generateFlyer() {
-    if (!prompt.trim()) {
-      alert("Add a creative prompt first.");
+  async function uploadBackground(file: File) {
+    if (!file.type.startsWith("image/") || file.size > 10 * 1024 * 1024) {
+      setStatus("Choose a JPG, PNG, or WebP image smaller than 10 MB.");
       return;
     }
 
     try {
-      setIsGenerating(true);
-      setStatus("Generating your flyer...");
-      const response = await fetch("/api/ai/generate-flyer", {
+      setIsUploading(true);
+      setStatus("Uploading background…");
+      const uploadUrl = await generateUploadUrl();
+      const response = await fetch(uploadUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          style,
-          format,
-          eventType: selectedEvent?.category || "nightlife",
-          composition: "cinematic",
-          quality: "premium",
-          city: selectedEvent?.city || "New Orleans",
-          eventTitle,
-          venue: selectedEvent?.venue || "",
-          cta:
-            elements.find((element) => element.id === "cta")?.text ||
-            "Get Tickets",
-        }),
+        headers: { "Content-Type": file.type },
+        body: file,
       });
-      const data = await response.json();
-
-      if (!response.ok || !data.success || !data.imageUrl) {
-        throw new Error(data.error || "No image was returned.");
-      }
-
-      setImagePreview(data.imageUrl);
-      setVariations(data.variations || []);
-      setStatus("Flyer generated.");
+      if (!response.ok) throw new Error("The image could not be uploaded.");
+      const { storageId } = (await response.json()) as { storageId: Id<"_storage"> };
+      setImageStorageId(storageId);
+      setImagePreview("");
+      setStatus("Background added. Save your draft to keep it.");
     } catch (error) {
-      console.error(error);
-      setStatus("");
-      alert(
-        error instanceof Error
-          ? error.message
-          : "The flyer could not be generated.",
-      );
+      setStatus(error instanceof Error ? error.message : "Upload failed.");
     } finally {
-      setIsGenerating(false);
-      window.setTimeout(() => setStatus(""), 2500);
+      setIsUploading(false);
     }
   }
 
@@ -817,7 +802,7 @@ export default function FlyerStudioV2Page() {
           </Link>
           <div className="min-w-0">
             <p className="text-sm font-black">Flyer Studio</p>
-            <p className="hidden text-xs text-white/45 sm:block">Edit directly on the canvas · no AI required</p>
+            <p className="hidden text-xs text-white/45 sm:block">Edit, arrange, and export on the canvas</p>
           </div>
         </div>
 
@@ -910,116 +895,52 @@ export default function FlyerStudioV2Page() {
 
           {activeTool === "uploads" && (
             <ToolPanel title="Uploads">
+              <label className="mb-4 block text-xs font-bold text-zinc-800">
+                Event for this flyer
+                <select
+                  value={selectedEventId}
+                  onChange={(event) => setSelectedEventId(event.target.value)}
+                  className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-sm text-zinc-900"
+                >
+                  <option value="">Choose an event</option>
+                  {(events || []).map((event) => (
+                    <option key={event._id} value={event._id}>{event.name}</option>
+                  ))}
+                </select>
+              </label>
               <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/5 p-7 text-center hover:border-violet-400/50">
                 <span className="text-2xl">↑</span>
-                <span className="mt-2 text-sm font-black">Upload media</span>
+                <span className="mt-2 text-sm font-black">{isUploading ? "Uploading…" : "Upload a background"}</span>
                 <span className="mt-1 text-xs text-white/40">
                   JPG, PNG or WebP
                 </span>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={isUploading}
                   className="hidden"
                   onChange={(event) => {
                     const file = event.target.files?.[0];
                     if (!file) return;
-                    setImagePreview(URL.createObjectURL(file));
+                    void uploadBackground(file);
+                    event.target.value = "";
                   }}
                 />
               </label>
-            </ToolPanel>
-          )}
-
-          {activeTool === "ai" && (
-            <ToolPanel title="Optional AI image">
-              <div className="mb-4 rounded-xl border border-amber-300/20 bg-amber-500/[0.08] p-3 text-xs leading-5 text-amber-100/80">
-                Image generation may use credits. Templates, uploads, text edits, and canvas changes do not call the image generator. You’ll confirm before any image is generated.
-              </div>
-              <label className="text-xs font-bold text-white/50">
-                Select event
-              </label>
-              <select
-                value={selectedEventId}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setSelectedEventId(value);
-                  const nextEvent = events?.find((item) => item._id === value);
-                  commitElements((current) =>
-                    current.map((element) => {
-                      if (element.id === "headline" && nextEvent?.name) {
-                        return {
-                          ...element,
-                          text: String(nextEvent.name).toUpperCase(),
-                        };
-                      }
-                      if (
-                        element.id === "venue" &&
-                        (nextEvent?.venue || nextEvent?.city)
-                      ) {
-                        return {
-                          ...element,
-                          text: String(
-                            nextEvent.venue || nextEvent.city,
-                          ).toUpperCase(),
-                        };
-                      }
-                      return element;
-                    }),
-                  );
-                }}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-sm outline-none"
-              >
-                <option value="">No event selected</option>
-                {(events || []).map((event) => (
-                  <option key={event._id} value={event._id}>
-                    {event.name || "Untitled Event"}
-                  </option>
-                ))}
-              </select>
-
-              <label className="mt-5 block text-xs font-bold text-white/50">
-                Prompt
-              </label>
-              <textarea
-                value={prompt}
-                onChange={(event) => setPrompt(event.target.value)}
-                placeholder="Describe the flyer background and atmosphere..."
-                className="mt-2 min-h-36 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-sm outline-none focus:border-violet-400"
-              />
-
-              <label className="mt-5 block text-xs font-bold text-white/50">
-                Style
-              </label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {styleOptions.map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => {
-                      setStyle(option);
-                      updateElement("style", { text: option.toUpperCase() });
-                    }}
-                    className={`rounded-full border px-3 py-2 text-xs font-bold ${style === option ? "border-violet-400 bg-violet-500/20" : "border-white/10 bg-white/5 text-white/55"}`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setConfirmGeneration(true)}
-                disabled={isGenerating || !prompt.trim()}
-                aria-haspopup="dialog"
-                className="mt-5 w-full rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-4 py-3 text-sm font-black disabled:opacity-50"
-              >
-                {isGenerating ? "Generating..." : "Generate image…"}
-              </button>
-              {status && (
-                <p className="mt-3 text-center text-xs font-bold text-white/50">
-                  {status}
-                </p>
+              {selectedEvent?.imageStorageId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageStorageId(selectedEvent.imageStorageId!);
+                    setImagePreview("");
+                    setStatus("Event cover added. Save your draft to keep it.");
+                  }}
+                  className="mt-3 w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-left text-sm font-bold text-zinc-900 hover:border-violet-500"
+                >
+                  Use event cover as background
+                </button>
               )}
+              {status && <p role="status" className="mt-3 text-xs font-bold text-zinc-700">{status}</p>}
             </ToolPanel>
           )}
 
@@ -1118,7 +1039,7 @@ export default function FlyerStudioV2Page() {
           {activeTool === "background" && (
             <ToolPanel title="Background">
               <p className="mb-3 text-xs leading-5 text-white/45">
-                Pick a ready-made gradient. These presets are edited locally and use no AI credits.
+                Pick a gradient, then adjust its overlay strength.
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {backgroundPresets.map((preset) => (
@@ -1139,10 +1060,10 @@ export default function FlyerStudioV2Page() {
                   </button>
                 ))}
               </div>
-              {imagePreview ? (
+              {backgroundImageUrl ? (
                 <button
                   type="button"
-                  onClick={() => setImagePreview("")}
+                  onClick={() => { setImagePreview(""); setImageStorageId(null); }}
                   className="mt-3 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-white/70 hover:bg-white/10"
                 >
                   Remove image and use gradient
@@ -1162,22 +1083,6 @@ export default function FlyerStudioV2Page() {
                 }
                 className="mt-3 w-full"
               />
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {variations.map((variation) => (
-                  <button
-                    key={variation.id}
-                    type="button"
-                    onClick={() => setImagePreview(variation.imageUrl)}
-                    className="aspect-square overflow-hidden rounded-lg border border-white/10"
-                  >
-                    <img
-                      src={variation.imageUrl}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
             </ToolPanel>
           )}
         </aside>
@@ -1190,7 +1095,7 @@ export default function FlyerStudioV2Page() {
           onZoomChange={setZoom}
           canvasHeight={canvasHeight}
           canvasScale={canvasScale}
-          imagePreview={imagePreview}
+          imagePreview={backgroundImageUrl}
           backgroundPreset={backgroundPreset}
           overlayStrength={overlayStrength}
           elements={elements}
@@ -1219,41 +1124,6 @@ export default function FlyerStudioV2Page() {
         />
       </div>
 
-      {confirmGeneration ? (
-        <div className="fixed inset-0 z-[100] grid place-items-center bg-black/75 p-4 backdrop-blur-sm">
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="studio-generation-confirm-title"
-            className="w-full max-w-md rounded-3xl border border-white/10 bg-[#202020] p-6 text-white shadow-2xl sm:p-8"
-          >
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-orange-300">Optional AI image</p>
-            <h2 id="studio-generation-confirm-title" className="mt-3 text-2xl font-black">Generate an image?</h2>
-            <p className="mt-3 text-sm leading-6 text-white/65">
-              This sends a request to the AI image generator and may use credits. Your canvas edits, templates, and uploads stay as they are if you cancel.
-            </p>
-            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={() => setConfirmGeneration(false)}
-                className="rounded-xl border border-white/15 px-4 py-3 text-sm font-bold text-white/80 transition hover:bg-white/10"
-              >
-                Keep editing
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setConfirmGeneration(false);
-                  void generateFlyer();
-                }}
-                className="rounded-xl bg-violet-600 px-4 py-3 text-sm font-black transition hover:bg-violet-500"
-              >
-                Generate image
-              </button>
-            </div>
-          </section>
-        </div>
-      ) : null}
     </main>
   );
 }
