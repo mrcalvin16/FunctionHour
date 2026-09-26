@@ -274,12 +274,17 @@ export default function EventDetailPage({
                       {organizerName}
                     </h2>
                     {organizer?.isVerifiedOrganizer && (
-                      <BadgeCheck
+                      <span
                         role="img"
                         aria-label="Verified organizer"
                         title="Verified organizer"
-                        className="h-6 w-6 shrink-0 fill-blue-500 text-blue-500 stroke-white"
-                      />
+                        className="inline-flex"
+                      >
+                        <BadgeCheck
+                          aria-hidden="true"
+                          className="h-6 w-6 shrink-0 fill-blue-500 text-blue-500 stroke-white"
+                        />
+                      </span>
                     )}
                   </div>
                   {organizer?.bio && (
