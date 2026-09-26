@@ -8,6 +8,7 @@ import { useUser, SignInButton } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import EventLocationPreview from "@/components/events/EventLocationPreview";
 import EventAnnouncements from "@/components/events/EventAnnouncements";
+import { BadgeCheck } from "lucide-react";
 
 import type { Id } from "@/convex/_generated/dataModel";
 import VenueRules from "@/components/functionhour/VenueRules";
@@ -268,22 +269,25 @@ export default function EventDetailPage({
                   <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/40">
                     Hosted By
                   </p>
-                  <h2 className="mt-2 text-2xl font-black tracking-tight">
-                    {organizerName}
-                  </h2>
+                  <div className="mt-2 flex items-center gap-2">
+                    <h2 className="text-2xl font-black tracking-tight">
+                      {organizerName}
+                    </h2>
+                    {organizer?.isVerifiedOrganizer && (
+                      <BadgeCheck
+                        role="img"
+                        aria-label="Verified organizer"
+                        title="Verified organizer"
+                        className="h-6 w-6 shrink-0 fill-blue-500 text-blue-500 stroke-white"
+                      />
+                    )}
+                  </div>
                   {organizer?.bio && (
                     <p className="mt-2 line-clamp-2 max-w-xl text-white/60">
                       {organizer.bio}
                     </p>
                   )}
 
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {organizer?.isVerifiedOrganizer && (
-                      <span className="rounded-full border border-violet-300/20 bg-violet-500/10 px-3 py-1 text-[11px] sm:text-xs font-black text-violet-100">
-                        Verified Organizer
-                      </span>
-                    )}
-                  </div>
                 </div>
 
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 text-xl font-black">
