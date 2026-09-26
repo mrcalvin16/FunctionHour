@@ -101,7 +101,7 @@ export default function RecentActivity({
             Live Operations
           </p>
 
-          <h2 className="mt-2 text-xl font-black tracking-tight">
+          <h2 className="mt-2 text-xl font-black tracking-tight text-zinc-900">
             Recent Activity
           </h2>
         </div>
@@ -125,7 +125,7 @@ export default function RecentActivity({
           </p>
 
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
-            Ticket sales, check-ins, comp tickets, and boosts will appear here automatically.
+            Ticket sales, check-ins, comp tickets, and boosts for your events will appear here automatically.
           </p>
         </div>
       ) : (

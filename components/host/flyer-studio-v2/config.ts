@@ -17,7 +17,6 @@ export const sidebarTools: Array<{
 }> = [
   { id: "templates", label: "Templates", icon: "▦" },
   { id: "uploads", label: "Uploads", icon: "↑" },
-  { id: "ai", label: "AI Images", icon: "✦" },
   { id: "text", label: "Text", icon: "T" },
   { id: "brand", label: "Brand Kit", icon: "◆" },
   { id: "elements", label: "Layers", icon: "○" },
