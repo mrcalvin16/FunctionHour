@@ -1,17 +1,8 @@
-import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import { getStripeClient } from "@/lib/stripe/server";
+import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
 
 export const dynamic = "force-dynamic";
-
-function getAllowedAdminIds() {
-  return new Set(
-    (process.env.SUPPORT_ADMIN_USER_IDS ?? "")
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-  );
-}
 
 function money(amount: number, currency = "usd") {
   return new Intl.NumberFormat("en-US", {
@@ -21,8 +12,7 @@ function money(amount: number, currency = "usd") {
 }
 
 export default async function FinanceAdminPage() {
-  const session = await auth();
-  if (!session.userId || !getAllowedAdminIds().has(session.userId)) {
+  if (!(await hasFunctionHourAdminAccess())) {
     notFound();
   }
 
