@@ -119,6 +119,8 @@ export async function POST(req: Request) {
       successPath,
       cancelPath,
       promoCode,
+      buyerEmail: submittedBuyerEmail,
+      buyerName: submittedBuyerName,
     } = body;
 
     if (!eventId || !Array.isArray(tickets) || tickets.length !== 1) {
@@ -130,16 +132,35 @@ export async function POST(req: Request) {
 
     checkoutStage = "authentication";
     const user = await currentUser();
-    const buyerEmail = user?.primaryEmailAddress?.emailAddress
+    const accountEmail = user?.primaryEmailAddress?.emailAddress
       .trim()
       .toLowerCase();
 
-    if (!user || !buyerEmail) {
+    if (!user || !accountEmail) {
       return NextResponse.json(
         { error: "Please sign in with a verified email before checkout." },
         { status: 401 }
       );
     }
+
+    const buyerEmail = accountEmail;
+    const normalizedSubmittedEmail =
+      typeof submittedBuyerEmail === "string"
+        ? submittedBuyerEmail.trim().toLowerCase()
+        : accountEmail;
+    if (normalizedSubmittedEmail !== accountEmail) {
+      return NextResponse.json(
+        { error: "Use the email on your signed-in account so the ticket stays in the right wallet." },
+        { status: 400 },
+      );
+    }
+    const accountName =
+      user.fullName?.trim() ||
+      [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
+    const buyerName =
+      typeof submittedBuyerName === "string"
+        ? submittedBuyerName.trim().slice(0, 100)
+        : accountName;
 
     const requestedTicket = tickets[0] as CheckoutTicketRequest;
     const quantity = Number(requestedTicket.quantity);
@@ -153,10 +174,6 @@ export async function POST(req: Request) {
 
     checkoutStage = "configuration";
     const convex = getConvexClient();
-    const buyerName =
-      user.fullName?.trim() ||
-      [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
-
     const checkoutSecret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
     if (!checkoutSecret) {
       return NextResponse.json(
