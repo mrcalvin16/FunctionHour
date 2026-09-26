@@ -1,15 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import { getSupportMetrics } from "@/lib/supportObservability";
-
-function getAllowedAdminIds() {
-  return new Set(
-    (process.env.SUPPORT_ADMIN_USER_IDS ?? "")
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-  );
-}
+import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
 
 function MetricCard({
   label,
@@ -40,10 +31,7 @@ function MetricCard({
 export const dynamic = "force-dynamic";
 
 export default async function SupportAdminPage() {
-  const session = await auth();
-  const allowedAdminIds = getAllowedAdminIds();
-
-  if (!session.userId || !allowedAdminIds.has(session.userId)) {
+  if (!(await hasFunctionHourAdminAccess())) {
     notFound();
   }
 
