@@ -183,26 +183,23 @@ export default function ExperienceHero({
         <div className="absolute bottom-[-15rem] left-1/2 h-[28rem] w-[52rem] -translate-x-1/2 rounded-full bg-pink-100/45 blur-[150px]" />
       </div>
 
-      <div className={`relative mx-auto max-w-[1240px] px-5 pb-7 pt-8 sm:px-7 lg:px-8 lg:pb-9 ${presentation === "universe" ? "lg:pt-10" : "lg:pt-9"}`}>
+      <div className={`relative mx-auto max-w-[1240px] px-5 sm:px-7 lg:px-8 ${presentation === "universe" ? "pb-7 pt-8 lg:pb-9 lg:pt-10" : "pb-5 pt-5"}`}>
         <div className={presentation === "universe" ? "grid gap-9 lg:grid-cols-[0.88fr_1.12fr] lg:items-center" : "max-w-4xl"}>
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-3 rounded-full border border-violet-200 bg-white px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.26em] text-violet-800 shadow-sm">
-              <span className="text-violet-700">✦</span>
-              {presentation === "universe" ? "Discover experiences" : "Event directory"}
-            </div>
-
-            <h1 className={`mt-5 font-black tracking-[-0.065em] text-zinc-950 ${presentation === "universe" ? "text-[3.7rem] leading-[0.9] sm:text-[4.7rem] lg:text-[5.25rem]" : "text-4xl leading-tight sm:text-5xl"}`}>
-              {presentation === "universe" ? "Find your" : "Find an"}
-              <span className="mt-1 block bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-400 bg-clip-text text-transparent">
-                {presentation === "universe" ? "next event." : "experience."}
-              </span>
-            </h1>
-
-            <p className="mt-5 max-w-xl text-[15px] leading-7 text-zinc-600 sm:text-base">
-              {presentation === "universe"
-                ? "Search concerts, festivals, nightlife, pop-ups, networking events, and local experiences."
-                : "Browse upcoming events by date, city, or category."}
-            </p>
+            {presentation === "directory" && <h1 className="sr-only">Browse upcoming events</h1>}
+            {presentation === "universe" && <>
+              <div className="inline-flex items-center gap-3 rounded-full border border-violet-200 bg-white px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.26em] text-violet-800 shadow-sm">
+                <span className="text-violet-700">✦</span>
+                Discover experiences
+              </div>
+              <h1 className="mt-5 text-[3.7rem] font-black leading-[0.9] tracking-[-0.065em] text-zinc-950 sm:text-[4.7rem] lg:text-[5.25rem]">
+                Find your
+                <span className="mt-1 block bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-400 bg-clip-text text-transparent">next event.</span>
+              </h1>
+              <p className="mt-5 max-w-xl text-[15px] leading-7 text-zinc-600 sm:text-base">
+                Search concerts, festivals, nightlife, pop-ups, networking events, and local experiences.
+              </p>
+            </>}
 
             {presentation === "universe" && (
               <div aria-label="Function Hour experience universe" className="relative mt-6 h-44 overflow-hidden rounded-[1.7rem] bg-[#181021] text-white lg:hidden">
@@ -220,7 +217,7 @@ export default function ExperienceHero({
               </div>
             )}
 
-            <div className="mt-7 max-w-[620px]">
+            <div className={`max-w-[620px] ${presentation === "universe" ? "mt-7" : "mt-0"}`}>
   <div className="flex h-[68px] items-center rounded-[1.5rem] border border-zinc-200 bg-white p-2 shadow-sm transition focus-within:border-orange-300 focus-within:ring-4 focus-within:ring-orange-100">
     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-50 text-lg text-orange-700">
       🔍
@@ -362,7 +359,7 @@ export default function ExperienceHero({
           </div>}
         </div>
 
-        <div id="event-filters" className="mt-8 scroll-mt-28 overflow-hidden rounded-[1.65rem] border border-zinc-200 bg-white shadow-sm">
+        <div id="event-filters" className={`scroll-mt-28 overflow-hidden rounded-[1.65rem] border border-zinc-200 bg-white shadow-sm ${presentation === "universe" ? "mt-8" : "mt-4"}`}>
           <div className="grid grid-cols-4 gap-1 p-2 sm:grid-cols-6 lg:grid-cols-11">
             {categories.map((item) => {
               const isActive = category === item.label;
