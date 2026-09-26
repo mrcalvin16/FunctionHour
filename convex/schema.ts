@@ -46,6 +46,7 @@ eventInteractions: defineTable({
 
     isOrganizer: v.optional(v.boolean()),
     verificationRequested: v.optional(v.boolean()),
+    verificationRequestedAt: v.optional(v.float64()),
     isVerifiedOrganizer: v.optional(v.boolean()),
 
     avatarStorageId: v.optional(v.id("_storage")),
@@ -59,7 +60,8 @@ eventInteractions: defineTable({
   })
     .index("by_clerkId", ["clerkId"])
     .index("by_userId", ["userId"])
-    .index("by_tokenIdentifier", ["tokenIdentifier"]),
+    .index("by_tokenIdentifier", ["tokenIdentifier"])
+    .index("by_verificationRequested", ["verificationRequested"]),
 
   events: defineTable({
     name: v.string(),
