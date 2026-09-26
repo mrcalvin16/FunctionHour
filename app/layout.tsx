@@ -14,10 +14,19 @@ export const metadata: Metadata = {
   },
   description: "Find events, make plans, and host unforgettable functions near you.",
   applicationName: "Function Hour",
+  appleWebApp: {
+    capable: true,
+    title: "Function Hour",
+    statusBarStyle: "default",
+  },
   icons: {
-    icon: "/function-hour-mark.svg",
-    shortcut: "/function-hour-mark.svg",
-    apple: "/function-hour-mark.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
     type: "website",
