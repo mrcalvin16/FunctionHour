@@ -105,12 +105,15 @@ export default function OrganizerProfilePage({
 
                     {organizer.isVerifiedOrganizer && (
                       <span
-                        aria-label="Verified host"
-                        title="Verified host"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 shadow-sm dark:border-blue-400/30 dark:bg-blue-500/15 dark:text-blue-200"
+                        role="img"
+                        aria-label="Verified organizer"
+                        title="Verified organizer"
+                        className="inline-flex"
                       >
-                        <BadgeCheck className="h-4 w-4" aria-hidden="true" />
-                        Verified host
+                        <BadgeCheck
+                          aria-hidden="true"
+                          className="h-7 w-7 shrink-0 fill-blue-500 text-blue-500 stroke-white"
+                        />
                       </span>
                     )}
                   </div>
