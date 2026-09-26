@@ -129,14 +129,7 @@ export default function TicketWalletList({
                 ? "Checked in"
                 : eventEnded
                   ? "Event ended"
-                  : "Ready";
-            const statusClass = cancelled
-              ? "text-red-300"
-              : ticket.checkedIn
-                ? "text-yellow-300"
-                : eventEnded
-                  ? "text-zinc-400"
-                  : "text-emerald-300";
+                  : null;
 
             return (
               <article
@@ -175,14 +168,11 @@ export default function TicketWalletList({
                   </div>
 
                   <div className="flex shrink-0 flex-col gap-3 md:items-end">
-                    <div className="rounded-2xl border border-zinc-800 bg-black px-5 py-3 text-sm">
-                      <p className="text-[9px] font-black uppercase tracking-[0.18em] text-zinc-600">
-                        Status
-                      </p>
-                      <p className={`mt-1 font-black ${statusClass}`}>
+                    {status ? (
+                      <span className={`text-xs font-bold ${cancelled ? "text-red-300" : ticket.checkedIn ? "text-yellow-300" : "text-zinc-400"}`}>
                         {status}
-                      </p>
-                    </div>
+                      </span>
+                    ) : null}
 
                     <Link
                       href={`/tickets/${ticket._id}`}
