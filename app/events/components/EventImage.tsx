@@ -7,9 +7,11 @@ import { Id } from "@/convex/_generated/dataModel";
 
 type EventImageProps = {
   storageId?: Id<"_storage">;
+  className?: string;
+  alt?: string;
 };
 
-export default function EventImage({ storageId }: EventImageProps) {
+export default function EventImage({ storageId, className = "h-56", alt = "Event image" }: EventImageProps) {
   const imageUrl = useQuery(
     api.events.getImageUrl,
     storageId ? { storageId } : "skip"
@@ -17,7 +19,7 @@ export default function EventImage({ storageId }: EventImageProps) {
 
   if (!storageId) {
     return (
-      <div className="flex h-56 items-center justify-center bg-zinc-900 text-zinc-500">
+      <div className={`flex ${className} items-center justify-center bg-zinc-900 text-zinc-300`}>
         No Image
       </div>
     );
@@ -25,7 +27,7 @@ export default function EventImage({ storageId }: EventImageProps) {
 
   if (imageUrl === undefined) {
     return (
-      <div className="flex h-56 items-center justify-center bg-zinc-900 text-zinc-500">
+      <div className={`flex ${className} items-center justify-center bg-zinc-900 text-zinc-300`}>
         Loading image...
       </div>
     );
@@ -33,17 +35,17 @@ export default function EventImage({ storageId }: EventImageProps) {
 
   if (!imageUrl) {
     return (
-      <div className="flex h-56 items-center justify-center bg-zinc-900 text-zinc-500">
+      <div className={`flex ${className} items-center justify-center bg-zinc-900 text-zinc-300`}>
         Image unavailable
       </div>
     );
   }
 
   return (
-    <div className="relative h-56 w-full overflow-hidden">
+    <div className={`relative ${className} w-full overflow-hidden`}>
       <Image
         src={imageUrl}
-        alt="Event image"
+        alt={alt}
         fill
         className="object-cover transition duration-300 group-hover:scale-105"
       />

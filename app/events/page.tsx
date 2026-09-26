@@ -7,14 +7,14 @@ import type { Id } from "@/convex/_generated/dataModel";
 import DiscoveryNav from "@/components/DiscoveryNav";
 import Footer from "@/components/Footer";
 import ExperienceHero, { type QuickFilter } from "./components/ExperienceHero";
-import TrendingCarousel from "./components/TrendingCarousel";
 import DiscoveryCollections from "./components/DiscoveryCollections";
 import LiveMapSection from "./components/LiveMapSection";
 import FeaturedHosts from "./components/FeaturedHosts";
-import EventGrid from "./components/EventGrid";
+import EventList from "./components/EventList";
 import {
   discoveryScore,
   getEventCategory,
+  getEventTimestamp,
   isEventUpcoming,
   isThisWeekend,
   isTonight,
@@ -104,26 +104,15 @@ export default function EventsPage() {
       .filter((event) => quickFilter === "free" ? Number(event.startingPrice ?? event.price ?? 0) <= 0 : quickFilter === "tonight" ? isTonight(event) : quickFilter === "weekend" ? isThisWeekend(event) : true)
       .filter((event) => matchesCollection(event, activeCollection))
       .sort((a, b) => {
+        const aDate = getEventTimestamp(a);
+        const bDate = getEventTimestamp(b);
+        if (Number.isFinite(aDate) && Number.isFinite(bDate) && aDate !== bDate) return aDate - bDate;
+        if (Number.isFinite(aDate) !== Number.isFinite(bDate)) return Number.isFinite(aDate) ? -1 : 1;
         const scoreDifference = discoveryScore(b) - discoveryScore(a);
         if (scoreDifference !== 0) return scoreDifference;
         return (b.createdAt ?? 0) - (a.createdAt ?? 0);
       });
   }, [activeCollection, category, city, events, myEvents, quickFilter, search, view]);
-
-  const trendingEvents = useMemo(
-    () => displayedEvents.slice(0, Math.min(6, displayedEvents.length)),
-    [displayedEvents],
-  );
-
-  const trendingIds = useMemo(
-    () => new Set(trendingEvents.map((event) => event._id)),
-    [trendingEvents],
-  );
-
-  const gridEvents = useMemo(() => {
-    const withoutTrending = displayedEvents.filter((event) => !trendingIds.has(event._id));
-    return withoutTrending.length > 0 ? withoutTrending : displayedEvents;
-  }, [displayedEvents, trendingIds]);
 
   async function toggleSavedEvent(eventId: Id<"events">) {
     try {
@@ -146,6 +135,7 @@ export default function EventsPage() {
       <DiscoveryNav />
 
       <ExperienceHero
+        presentation="directory"
         search={search}
         setSearch={setSearch}
         category={category}
@@ -160,18 +150,9 @@ export default function EventsPage() {
         setQuickFilter={setQuickFilter}
       />
 
-      {trendingEvents.length > 0 && (
-        <TrendingCarousel
-          city={city}
-          events={trendingEvents}
-          savedEventIds={savedEventIds}
-          onToggleSave={toggleSavedEvent}
-        />
-      )}
-
       {displayedEvents.length > 0 ? (
-        <EventGrid
-          events={gridEvents}
+        <EventList
+          events={displayedEvents}
           savedEventIds={savedEventIds}
           onToggleSave={toggleSavedEvent}
         />
