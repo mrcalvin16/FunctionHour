@@ -40,6 +40,13 @@ async function getCurrentUserDoc(ctx: any) {
   };
 }
 
+async function isOperationsAdmin(actor: Awaited<ReturnType<typeof getCurrentUserDoc>>) {
+  if (!actor) return false;
+  return actor.user?.role === "admin" ||
+    (typeof actor.identity.email === "string" &&
+      actor.identity.email.trim().toLowerCase() === "operations@functionhour.com");
+}
+
 export const generateOrganizerUploadUrl = mutation({
   args: {},
   handler: async (ctx) => {
@@ -278,7 +285,7 @@ export const getOrganizerVerificationRequests = query({
   args: {},
   handler: async (ctx) => {
     const actor = await getCurrentUserDoc(ctx);
-    if (!actor?.user || actor.user.role !== "admin") {
+    if (!(await isOperationsAdmin(actor))) {
       throw new Error("Only Function Hour Operations admins can review verification requests.");
     }
 
@@ -308,7 +315,7 @@ export const setOrganizerVerified = mutation({
 
   handler: async (ctx, args) => {
     const actor = await getCurrentUserDoc(ctx);
-    if (!actor?.user || actor.user.role !== "admin") {
+    if (!(await isOperationsAdmin(actor))) {
       throw new Error("Only Function Hour Operations admins can change host verification.");
     }
 
