@@ -72,7 +72,7 @@ export default function OrganizerProfilePage({
       <section className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/70 shadow-2xl backdrop-blur-xl">
           <div
-            className="relative h-[260px] overflow-hidden sm:h-[340px]"
+            className="organizer-profile-hero relative h-[260px] overflow-hidden sm:h-[340px]"
             style={{
               backgroundImage: organizer.bannerUrl
                 ? `url(${organizer.bannerUrl})`
@@ -118,7 +118,7 @@ export default function OrganizerProfilePage({
                     )}
                   </div>
 
-                  <div className="mt-3 flex flex-wrap gap-3 text-sm text-white/60">
+                  <div className="organizer-profile-counts mt-3 flex flex-wrap gap-3 text-sm text-white/80">
                     <span>
                       {events.length} Event{events.length === 1 ? "" : "s"}
                     </span>
@@ -133,17 +133,6 @@ export default function OrganizerProfilePage({
                 </div>
               </div>
 
-              {organizer.isVerifiedOrganizer && <div className="hidden lg:flex lg:flex-col lg:items-end">
-                <div className="rounded-3xl border border-white/10 bg-black/40 px-6 py-4 backdrop-blur-xl">
-                  <p className="text-xs uppercase tracking-[0.3em] text-white/40">
-                    Organizer Rank
-                  </p>
-
-                  <h2 className="mt-2 text-3xl font-black text-white">
-                    Verified
-                  </h2>
-                </div>
-              </div>}
             </div>
           </div>
 
@@ -175,7 +164,7 @@ export default function OrganizerProfilePage({
               </p>
             )}
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
               <StatCard
                 label="Upcoming Events"
                 value={events.length.toString()}
@@ -186,12 +175,6 @@ export default function OrganizerProfilePage({
                 value={`${followerCount ?? 0}`}
               />
 
-              <StatCard
-                label="Status"
-                value={
-                  organizer.isVerifiedOrganizer ? "Verified" : "Rising"
-                }
-              />
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
