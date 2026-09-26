@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import EventImage from "./EventImage";
-import { formatEventDate, getEventLocation, type DiscoveryEvent } from "../eventPresentation";
+import { formatEventDate, getBuyerPriceLabel, getEventLocation, type DiscoveryEvent } from "../eventPresentation";
 import type { Id } from "@/convex/_generated/dataModel";
 
 type Props = {
@@ -56,7 +56,6 @@ export default function TrendingCarousel({
       <div ref={scrollRef} className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-5 scrollbar-hide sm:-mx-7 sm:px-7 lg:mx-0 lg:px-0">
         {events.map((event) => {
           const isSaved = savedEventIds.includes(event._id);
-          const price = Number(event.startingPrice ?? event.price ?? 0);
 
           return (
             <article key={event._id} className="group min-w-[280px] max-w-[280px] snap-start overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-md sm:min-w-[310px] sm:max-w-[310px]">
@@ -81,7 +80,7 @@ export default function TrendingCarousel({
                 </Link>
                 <p className="mt-3 truncate text-sm text-zinc-600">{getEventLocation(event)}</p>
                 <div className="mt-4 flex items-center justify-between border-t border-zinc-200 pt-4">
-                  <p className="text-lg font-black text-zinc-950">{price > 0 ? `From $${price.toLocaleString()}` : "Free"}</p>
+                  <p className="text-lg font-black text-zinc-950">{getBuyerPriceLabel(event)}</p>
                   <Link href={`/events/${event._id}`} className="rounded-full bg-zinc-950 px-4 py-2 text-xs font-black text-white transition hover:bg-zinc-800">
                     View event
                   </Link>

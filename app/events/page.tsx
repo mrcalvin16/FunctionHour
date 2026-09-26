@@ -14,6 +14,7 @@ import FeaturedHosts from "./components/FeaturedHosts";
 import EventGrid from "./components/EventGrid";
 import {
   discoveryScore,
+  getEventCategory,
   isEventUpcoming,
   isThisWeekend,
   isTonight,
@@ -23,7 +24,7 @@ import {
 
 function eventMatchesCategory(event: DiscoveryEvent, category: string) {
   if (category === "All") return true;
-  const text = [event.category, event.name, event.description]
+  const text = [getEventCategory(event), event.name, event.description]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();

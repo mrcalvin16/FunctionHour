@@ -20,8 +20,7 @@ export default function Footer() {
           <Link href="/refund-policy" className="transition hover:text-zinc-950">Refunds</Link>
           <Link href="/terms" className="transition hover:text-zinc-950">Terms</Link>
           <Link href="/privacy" className="transition hover:text-zinc-950">Privacy</Link>
-          <a href="https://www.eventbrite.com/l/accessibility/" target="_blank" rel="noreferrer" className="transition hover:text-zinc-950">Accessibility</a>
-          <a href="https://www.eventbrite.com/help/en-us/articles/666792/eventbrite-cookie-policy/" target="_blank" rel="noreferrer" className="transition hover:text-zinc-950">Cookies</a>
+          <a href="mailto:support@functionhour.com?subject=Accessibility%20support" className="transition hover:text-zinc-950">Accessibility support</a>
           <PrivacyPreferences />
           <a href="mailto:support@functionhour.com" className="transition hover:text-zinc-950">Support</a>
         </nav>

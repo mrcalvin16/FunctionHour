@@ -2,25 +2,23 @@
 
 import Link from "next/link";
 import EventImage from "./EventImage";
-import { getEventTimestamp } from "../eventPresentation";
+import { getBuyerPriceLabel, getEventCategory, getEventTimestamp, type DiscoveryEvent } from "../eventPresentation";
+
+type CardEvent = DiscoveryEvent & {
+  organizerName?: string;
+  hostName?: string;
+  creatorName?: string;
+  organizer?: { name?: string };
+  formattedDate?: string;
+};
 
 type DiscoveryEventCardProps = {
-  event: any;
+  event: CardEvent;
   isSaved: boolean;
   onToggleSave: () => void;
 };
 
-function getEventCategory(event: any) {
-  return (
-    event.category ||
-    event.eventType ||
-    event.type ||
-    event.tags?.[0] ||
-    "Experience"
-  );
-}
-
-function getOrganizerName(event: any) {
+function getOrganizerName(event: CardEvent) {
   return (
     event.organizerName ||
     event.hostName ||
@@ -30,23 +28,7 @@ function getOrganizerName(event: any) {
   );
 }
 
-function getEventPrice(event: any) {
-  const price = Number(event.startingPrice ?? event.price ?? 0);
-
-  if (!Number.isFinite(price) || price <= 0) {
-    return "Free";
-  }
-
-  const ticketCents = Math.round(price * 100);
-  const serviceFeeCents = Math.round(ticketCents * 0.037) + 178;
-  const totalCents = ticketCents + serviceFeeCents;
-  return `$${(totalCents / 100).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })} incl. fee`;
-}
-
-function getEventSchedule(event: any) {
+function getEventSchedule(event: CardEvent) {
   const timestamp = getEventTimestamp(event);
   if (!Number.isFinite(timestamp)) {
     return { date: event.dateString || event.formattedDate || "Date coming soon", time: "Time TBA" };
@@ -68,7 +50,7 @@ export default function DiscoveryEventCard({
 }: DiscoveryEventCardProps) {
   const category = getEventCategory(event);
   const organizerName = getOrganizerName(event);
-  const priceLabel = getEventPrice(event);
+  const priceLabel = getBuyerPriceLabel(event);
 
   const location =
     event.location ||
