@@ -5,6 +5,9 @@ export type DiscoveryEvent = {
   name?: string;
   description?: string;
   category?: string;
+  eventType?: string;
+  type?: string;
+  tags?: string[];
   location?: string;
   venueName?: string;
   venueAddress?: string;
@@ -25,6 +28,22 @@ export type DiscoveryEvent = {
   imageStorageId?: Id<"_storage">;
   isFeatured?: boolean;
 };
+
+export function getEventCategory(event: DiscoveryEvent) {
+  return event.category?.trim() || event.eventType?.trim() || event.type?.trim() || event.tags?.[0]?.trim() || "Experience";
+}
+
+export function getBuyerPriceLabel(event: Pick<DiscoveryEvent, "startingPrice" | "price">) {
+  const price = Number(event.startingPrice ?? event.price ?? 0);
+  if (!Number.isFinite(price) || price <= 0) return "Free";
+
+  const ticketCents = Math.round(price * 100);
+  const feeCents = Math.round(ticketCents * 0.037) + 178;
+  return `$${((ticketCents + feeCents) / 100).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} incl. fee`;
+}
 
 export function getEventTimestamp(event: DiscoveryEvent) {
   if (Number.isFinite(event.eventDate)) return Number(event.eventDate);

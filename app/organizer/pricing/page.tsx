@@ -196,7 +196,7 @@ export default function OrganizerPricingPage() {
               <Wallet className="h-4 w-4" />
               <p className="text-[10px] font-black uppercase tracking-[0.18em]">Payout routing</p>
             </div>
-            <h2 className="mt-4 text-xl font-black">Connect Stripe before you sell.</h2>
+            <h2 className="mt-4 text-xl font-black">Sell tickets now. Connect Stripe to request payouts.</h2>
             <p className="mt-2 text-sm leading-6 text-zinc-500">
               Paid checkout runs through Function Hour’s Stripe account, so organizer payout setup does not block ticket sales. Eligible organizer proceeds remain tracked in Stripe until the organizer requests a transfer to their connected Stripe account. Organizers are responsible for their own taxes.
             </p>

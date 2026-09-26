@@ -10,10 +10,10 @@ import Footer from "@/components/Footer";
 import ExperienceHero, { type QuickFilter } from "./events/components/ExperienceHero";
 import EventGrid from "./events/components/EventGrid";
 import TrendingCarousel from "./events/components/TrendingCarousel";
-import { discoveryScore, isEventUpcoming, isThisWeekend, isTonight, type DiscoveryEvent } from "./events/eventPresentation";
+import { discoveryScore, getEventCategory, isEventUpcoming, isThisWeekend, isTonight, type DiscoveryEvent } from "./events/eventPresentation";
 
 function matches(event: DiscoveryEvent, search: string, category: string, city: string) {
-  const searchable = [event.name, event.description, event.category, event.location, event.venueName, event.venueAddress, event.city, event.state, event.dateString]
+  const searchable = [event.name, event.description, getEventCategory(event), event.location, event.venueName, event.venueAddress, event.city, event.state, event.dateString]
     .filter(Boolean).join(" ").toLowerCase();
   return (!search.trim() || searchable.includes(search.trim().toLowerCase())) &&
     (category === "All" || searchable.includes(category.toLowerCase())) &&
