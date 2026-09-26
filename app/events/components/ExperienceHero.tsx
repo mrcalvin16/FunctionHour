@@ -16,6 +16,7 @@ import {
   MapPin,
   Search,
 } from "lucide-react";
+import ExperienceUniverse from "./ExperienceUniverse";
 
 type EventsView = "all" | "mine";
 export type QuickFilter = "" | "tonight" | "weekend" | "free";
@@ -48,57 +49,6 @@ const categories = [
   { label: "Food", icon: Utensils },
   { label: "Networking", icon: Handshake },
   { label: "Sports", icon: Trophy },
-];
-
-const universeNodes = [
-  {
-    label: "Music",
-    icon: "♪",
-    position: "left-[16%] top-[3%]",
-    size: "h-[92px] w-[92px]",
-    background:
-      "bg-[radial-gradient(circle_at_35%_30%,rgba(151,88,255,0.75),rgba(51,23,80,0.96)_58%,rgba(10,7,16,1))]",
-  },
-  {
-    label: "Nightlife",
-    icon: "▽",
-    position: "right-[9%] top-[7%]",
-    size: "h-[98px] w-[98px]",
-    background:
-      "bg-[radial-gradient(circle_at_35%_30%,rgba(193,91,58,0.72),rgba(83,36,29,0.96)_58%,rgba(12,7,7,1))]",
-  },
-  {
-    label: "Festivals",
-    icon: "✺",
-    position: "left-[6%] top-[41%]",
-    size: "h-[96px] w-[96px]",
-    background:
-      "bg-[radial-gradient(circle_at_35%_30%,rgba(166,118,45,0.72),rgba(66,44,16,0.96)_58%,rgba(10,8,5,1))]",
-  },
-  {
-    label: "Arts",
-    icon: "◉",
-    position: "right-[22%] top-[48%]",
-    size: "h-[94px] w-[94px]",
-    background:
-      "bg-[radial-gradient(circle_at_35%_30%,rgba(170,78,197,0.74),rgba(74,31,86,0.96)_58%,rgba(10,6,13,1))]",
-  },
-  {
-    label: "Food",
-    icon: "Ψ",
-    position: "left-[28%] bottom-[3%]",
-    size: "h-[94px] w-[94px]",
-    background:
-      "bg-[radial-gradient(circle_at_35%_30%,rgba(164,99,42,0.76),rgba(75,43,17,0.96)_58%,rgba(11,8,5,1))]",
-  },
-  {
-    label: "Networking",
-    icon: "◇",
-    position: "right-[3%] bottom-[3%]",
-    size: "h-[100px] w-[100px]",
-    background:
-      "bg-[radial-gradient(circle_at_35%_30%,rgba(75,101,190,0.75),rgba(31,43,91,0.96)_58%,rgba(7,8,15,1))]",
-  },
 ];
 
 export default function ExperienceHero({
@@ -201,21 +151,7 @@ export default function ExperienceHero({
               </p>
             </>}
 
-            {presentation === "universe" && (
-              <div aria-label="Function Hour experience universe" className="relative mt-6 h-44 overflow-hidden rounded-[1.7rem] bg-[#181021] text-white lg:hidden">
-                <div className="absolute inset-x-[13%] -top-16 h-72 rounded-[50%] border border-violet-400/35" />
-                <div className="absolute inset-x-[25%] -top-8 h-56 rounded-[50%] border border-orange-400/35" />
-                <span className="absolute left-[7%] top-5 grid h-14 w-14 place-items-center rounded-full bg-violet-700 text-xs font-black shadow-[0_0_28px_rgba(139,92,246,.55)]">Music</span>
-                <span className="absolute right-[7%] top-5 grid h-14 w-14 place-items-center rounded-full bg-orange-700 text-xs font-black shadow-[0_0_28px_rgba(249,115,22,.5)]">Food</span>
-                <span className="absolute bottom-3 left-[12%] grid h-14 w-14 place-items-center rounded-full bg-fuchsia-700 text-[10px] font-black shadow-[0_0_28px_rgba(217,70,239,.5)]">Arts</span>
-                <span className="absolute bottom-3 right-[12%] grid h-14 w-14 place-items-center rounded-full bg-indigo-700 text-[9px] font-black shadow-[0_0_28px_rgba(99,102,241,.5)]">People</span>
-                <div className="absolute left-1/2 top-1/2 flex h-28 w-28 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border-[5px] border-[#181021] bg-[radial-gradient(circle_at_35%_25%,#a855f7,#45205f_60%,#17101f)] text-center shadow-[0_0_36px_rgba(168,85,247,.5)]">
-                  <span className="text-[9px] font-black uppercase tracking-widest">Function</span>
-                  <span className="text-lg font-black leading-none">HOUR</span>
-                  <span className="mt-1 text-[8px] font-black uppercase tracking-wide text-orange-200">Universe</span>
-                </div>
-              </div>
-            )}
+            {presentation === "universe" && <div className="mt-5 lg:hidden"><ExperienceUniverse totalEvents={totalEvents} /></div>}
 
             <div className={`max-w-[620px] ${presentation === "universe" ? "mt-7" : "mt-0"}`}>
   <div className="flex h-[68px] items-center rounded-[1.5rem] border border-zinc-200 bg-white p-2 shadow-sm transition focus-within:border-orange-300 focus-within:ring-4 focus-within:ring-orange-100">
@@ -307,56 +243,7 @@ export default function ExperienceHero({
 </div>
           </div>
 
-          {presentation === "universe" && <div className="relative mx-auto hidden h-[380px] w-full max-w-[630px] lg:block">
-            <div className="absolute inset-[7%_3%_3%_4%] rounded-[50%] border border-violet-500/35 [transform:rotate(-9deg)]" />
-            <div className="absolute inset-[14%_3%_8%_2%] rounded-[50%] border border-fuchsia-500/30 [transform:rotate(10deg)]" />
-            <div className="absolute inset-[20%_9%_5%_10%] rounded-[50%] border border-orange-500/25 [transform:rotate(4deg)]" />
-            <div className="absolute inset-[11%_11%_13%_16%] rounded-[50%] border border-violet-500/30 [transform:rotate(-18deg)]" />
-
-            <div className="absolute left-[9%] top-[36%] h-3 w-3 rounded-full bg-violet-500 shadow-[0_0_20px_rgba(139,92,246,1)]" />
-            <div className="absolute right-[9%] top-[24%] h-3 w-3 rounded-full bg-orange-500 shadow-[0_0_20px_rgba(249,115,22,1)]" />
-            <div className="absolute bottom-[17%] left-[20%] h-2.5 w-2.5 rounded-full bg-fuchsia-500 shadow-[0_0_20px_rgba(217,70,239,1)]" />
-
-            <div className="absolute left-1/2 top-1/2 z-20 flex h-[124px] w-[124px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border-[7px] border-black bg-[radial-gradient(circle_at_35%_28%,rgba(184,99,255,0.9),rgba(70,28,77,0.98)_48%,rgba(25,14,14,1)_76%)] text-center shadow-[0_0_75px_rgba(168,85,247,0.35)] sm:h-[150px] sm:w-[150px] sm:border-[9px]">
-              <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-rose-400 text-xl">
-                ✦
-              </div>
-
-              <span className="text-[9px] font-black uppercase tracking-[0.34em] text-zinc-300">
-                Function
-              </span>
-
-              <span className="text-[21px] font-black leading-none text-white">
-                HOUR
-              </span>
-
-              <span className="mt-3 text-[9px] font-black uppercase leading-tight tracking-[0.25em] text-orange-300">
-                Experience
-                <br />
-                Universe
-              </span>
-            </div>
-
-            {universeNodes.map((node) => (
-              <div
-                key={node.label}
-                className={`experience-universe-node absolute ${node.position} ${node.size} z-10 flex scale-[.68] flex-col items-center justify-center rounded-full border border-white/15 ${node.background} text-center shadow-[0_0_35px_rgba(255,255,255,0.08)] sm:scale-90 lg:scale-100`}
-              >
-                <span className="text-2xl text-white">{node.icon}</span>
-                <span className="mt-2 text-[10px] font-black uppercase tracking-[0.16em] text-white">
-                  {node.label}
-                </span>
-              </div>
-            ))}
-
-            <div className="absolute bottom-[1%] right-[4%] z-20 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-700 shadow-sm sm:bottom-[4%] sm:right-[16%]">
-              <span className="text-orange-600">⌖</span>
-              Live around you
-              <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-violet-200">
-                {totalEvents}
-              </span>
-            </div>
-          </div>}
+          {presentation === "universe" && <div className="hidden lg:block"><ExperienceUniverse totalEvents={totalEvents} /></div>}
         </div>
 
         <div id="event-filters" className={`scroll-mt-28 overflow-hidden rounded-[1.65rem] border border-zinc-200 bg-white shadow-sm ${presentation === "universe" ? "mt-8" : "mt-4"}`}>
