@@ -39,6 +39,22 @@ import type {
   SidebarTool,
 } from "@/components/host/flyer-studio-v2/types";
 
+function eventDateLabel(event: Doc<"events">) {
+  const dateOnly = event.dateString?.match(/^\d{4}-\d{2}-\d{2}$/);
+  const timestamp = Number.isFinite(event.eventDate)
+    ? Number(event.eventDate)
+    : dateOnly
+      ? new Date(`${event.dateString}T12:00:00`).getTime()
+      : Date.parse(event.dateString || "");
+  if (!Number.isFinite(timestamp)) return "";
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    ...(dateOnly ? {} : { hour: "numeric", minute: "2-digit" }),
+  }).format(timestamp).toUpperCase();
+}
+
 export default function FlyerStudioV2Page() {
   const { isLoaded, isSignedIn } = useAuth();
   const events = useQuery(
@@ -62,6 +78,8 @@ export default function FlyerStudioV2Page() {
   const [imageStorageId, setImageStorageId] = useState<Id<"_storage"> | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportStatus, setExportStatus] = useState("");
   const storedImageUrl = useQuery(
     api.events.getImageUrl,
     imageStorageId ? { storageId: imageStorageId } : "skip",
@@ -162,6 +180,18 @@ export default function FlyerStudioV2Page() {
         }
         return element;
       });
+      const date = eventDateLabel(selectedEvent);
+      if (date) {
+        eventElements.push({
+          ...initialElements[3],
+          id: "event-date",
+          name: "Event date",
+          text: date,
+          y: 626,
+          width: 430,
+          fontWeight: 700,
+        });
+      }
 
       setFormat("poster");
       setPrompt("");
@@ -419,7 +449,7 @@ export default function FlyerStudioV2Page() {
     commitElements((current) =>
       current.map((element) => {
         if (element.id === "headline") {
-          return { ...element, text: template.name.toUpperCase() };
+          return { ...element, text: (selectedEvent?.name || template.name).toUpperCase() };
         }
         if (element.id === "style") {
           return { ...element, text: template.style.toUpperCase() };
@@ -427,6 +457,54 @@ export default function FlyerStudioV2Page() {
         return element;
       }),
     );
+  }
+
+  function syncEventDetails() {
+    if (!selectedEvent) return;
+    const venue = selectedEvent.venueName ||
+      [selectedEvent.city, selectedEvent.state].filter(Boolean).join(", ") ||
+      selectedEvent.location || "";
+    const date = eventDateLabel(selectedEvent);
+    commitElements((current) => {
+      const updated = current.map((element) => {
+        if (element.id === "headline") return { ...element, text: selectedEvent.name.toUpperCase() };
+        if (element.id === "venue" && venue) return { ...element, text: venue.toUpperCase() };
+        if (element.id === "event-date" && date) return { ...element, text: date };
+        return element;
+      });
+      if (date && !updated.some((element) => element.id === "event-date")) {
+        const venueElement = updated.find((element) => element.id === "venue");
+        updated.push({
+          ...initialElements[3],
+          id: "event-date",
+          name: "Event date",
+          text: date,
+          y: Math.max(0, (venueElement?.y ?? Math.min(668, canvasHeight - 18)) - 42),
+          width: 430,
+          fontWeight: 700,
+        });
+      }
+      return updated;
+    });
+    setStatus("Event title, date, and venue updated. Save your draft to keep the changes.");
+  }
+
+  function changeFormat(nextFormatId: string) {
+    const nextFormat = formats.find((item) => item.id === nextFormatId);
+    if (!nextFormat || nextFormat.id === format) return;
+    const ratio = nextFormat.height / canvasHeight;
+    commitElements((current) => current.map((element) => {
+      const height = Math.min(nextFormat.height, Math.max(MIN_HEIGHT, Math.round(element.height * ratio)));
+      return {
+        ...element,
+        y: Math.min(nextFormat.height - height, Math.max(0, Math.round(element.y * ratio))),
+        height,
+        fontSize: Math.min(120, Math.max(8, Math.round(element.fontSize * ratio))),
+      };
+    }));
+    setFormat(nextFormat.id);
+    setSelectedElementId("");
+    setStatus(`Layout fitted to ${nextFormat.label.toLowerCase()}. Review the text before exporting.`);
   }
 
   function applyBrandColor(color: string) {
@@ -529,16 +607,30 @@ export default function FlyerStudioV2Page() {
   }
 
   async function downloadCanvas() {
-    if (!canvasRef.current) return;
-    const dataUrl = await toPng(canvasRef.current, {
-      cacheBust: true,
-      pixelRatio: 2,
-      backgroundColor: "#000000",
-    });
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = `${eventTitle || "functionhour-flyer"}.png`;
-    link.click();
+    if (!canvasRef.current || isExporting) return;
+    try {
+      setIsExporting(true);
+      setExportStatus("Preparing your flyer…");
+      await document.fonts.ready;
+      const dataUrl = await toPng(canvasRef.current, {
+        cacheBust: true,
+        pixelRatio: 3,
+        width: CANVAS_WIDTH,
+        height: canvasHeight,
+        style: { transform: "none" },
+        filter: (node) => !(node instanceof HTMLElement && node.hasAttribute("data-export-ui")),
+        backgroundColor: "#000000",
+      });
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `${(eventTitle || "functionhour-flyer").replace(/[^a-z0-9_-]+/gi, "-")}-${format}.png`;
+      link.click();
+      setExportStatus(`Downloaded ${CANVAS_WIDTH * 3} × ${canvasHeight * 3} PNG`);
+    } catch {
+      setExportStatus("Export failed. Try again after the background image finishes loading.");
+    } finally {
+      setIsExporting(false);
+    }
   }
 
   function calculateSnappedPosition(
@@ -839,12 +931,14 @@ export default function FlyerStudioV2Page() {
               {saveStatus}
             </span>
           ) : null}
+          {exportStatus && <span role="status" className="shrink-0 text-xs font-bold text-white/70">{exportStatus}</span>}
           <button
             type="button"
-            onClick={downloadCanvas}
-            className="shrink-0 rounded-lg bg-violet-600 px-4 py-2 text-sm font-black hover:bg-violet-500 sm:px-5"
+            onClick={() => void downloadCanvas()}
+            disabled={isExporting}
+            className="shrink-0 rounded-lg bg-violet-600 px-4 py-2 text-sm font-black hover:bg-violet-500 disabled:opacity-50 sm:px-5"
           >
-            Download
+            {isExporting ? "Exporting…" : "Download PNG"}
           </button>
         </div>
       </header>
@@ -911,6 +1005,11 @@ export default function FlyerStudioV2Page() {
                   ))}
                 </select>
               </label>
+              {selectedEvent && (
+                <button type="button" onClick={syncEventDetails} className="mb-4 w-full rounded-xl border border-violet-400/50 bg-violet-500/15 px-4 py-3 text-left text-sm font-bold text-white hover:bg-violet-500/25">
+                  Use event title, date &amp; venue
+                </button>
+              )}
               <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/5 p-7 text-center hover:border-violet-400/50">
                 <span className="text-2xl">↑</span>
                 <span className="mt-2 text-sm font-black">{isUploading ? "Uploading…" : "Upload a background"}</span>
@@ -1103,7 +1202,7 @@ export default function FlyerStudioV2Page() {
         <CanvasStage
           canvasRef={canvasRef}
           format={format}
-          onFormatChange={setFormat}
+          onFormatChange={changeFormat}
           zoom={zoom}
           onZoomChange={setZoom}
           canvasHeight={canvasHeight}

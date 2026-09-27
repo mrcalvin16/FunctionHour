@@ -232,14 +232,15 @@ export default function CanvasStage({
 
                   {isSelected && !isEditing ? (
                     <>
-                      <div className="pointer-events-none absolute inset-0 border-2 border-violet-500" />
-                      <div className="pointer-events-none absolute -top-7 left-0 rounded bg-violet-600 px-2 py-1 text-[10px] font-black text-white">
+                      <div data-export-ui="true" className="pointer-events-none absolute inset-0 border-2 border-violet-500" />
+                      <div data-export-ui="true" className="pointer-events-none absolute -top-7 left-0 rounded bg-violet-600 px-2 py-1 text-[10px] font-black text-white">
                         {Math.round(element.width)} × {Math.round(element.height)}
                       </div>
                       {!element.locked
                         ? resizeHandles.map((handle) => (
                             <button
                               key={handle}
+                              data-export-ui="true"
                               type="button"
                               aria-label={`Resize ${handle}`}
                               onPointerDown={(event) =>
@@ -258,6 +259,7 @@ export default function CanvasStage({
             {guides.map((guide, index) => (
               <div
                 key={`${guide.axis}-${guide.position}-${index}`}
+                data-export-ui="true"
                 className={`pointer-events-none absolute z-[999] bg-cyan-400 ${guide.axis === "x" ? "bottom-0 top-0 w-px" : "left-0 right-0 h-px"}`}
                 style={
                   guide.axis === "x"
