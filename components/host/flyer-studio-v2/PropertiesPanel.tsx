@@ -38,6 +38,25 @@ export default function PropertiesPanel({
   deleteSelected: () => void;
   canvasHeight: number;
 }) {
+  if (selectedElement?.kind === "image" || selectedElement?.kind === "shape") {
+    const isImage = selectedElement.kind === "image";
+    return (
+      <aside className="max-h-[55vh] overflow-y-auto border-t border-white/10 bg-[#1b1b1b] p-4 lg:max-h-none lg:border-l lg:border-t-0">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/60">{isImage ? "Image" : "Shape"}</p>
+        <div className="mt-4 space-y-4">
+          <label className="block text-xs font-bold text-white/70">Opacity
+            <input type="range" min={10} max={100} value={Math.round((selectedElement.opacity ?? 1) * 100)} onChange={(event) => updateElement(selectedElement.id, { opacity: Number(event.target.value) / 100 })} className="mt-2 w-full" />
+          </label>
+          {isImage ? <label className="block text-xs font-bold text-white/70">Image fit
+            <select value={selectedElement.objectFit ?? "cover"} onChange={(event) => updateElement(selectedElement.id, { objectFit: event.target.value as "cover" | "contain" })} className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"><option value="cover">Fill frame</option><option value="contain">Fit inside</option></select>
+          </label> : <><label className="block text-xs font-bold text-white/70">Fill<input type="color" value={selectedElement.background ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { background: event.target.value })} className="mt-2 block h-10 w-full" /></label><button type="button" onClick={() => updateElement(selectedElement.id, { shape: selectedElement.shape === "circle" ? "rectangle" : "circle" })} className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">{selectedElement.shape === "circle" ? "Make rectangle" : "Make circle"}</button></>}
+          <div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => moveLayer("up")} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">Move up</button><button type="button" onClick={() => moveLayer("down")} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">Move down</button><button type="button" onClick={duplicateSelected} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">Duplicate</button><button type="button" onClick={() => updateElement(selectedElement.id, { locked: !selectedElement.locked })} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">{selectedElement.locked ? "Unlock" : "Lock"}</button></div>
+          <button type="button" onClick={deleteSelected} className="w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-300">Delete element</button>
+        </div>
+      </aside>
+    );
+  }
+
   if (selectedElement?.kind === "qr") {
     return (
       <aside className="max-h-[55vh] overflow-y-auto border-t border-white/10 bg-[#1b1b1b] p-4 lg:max-h-none lg:border-l lg:border-t-0">

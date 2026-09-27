@@ -954,6 +954,58 @@ export default function FlyerStudioV2Page() {
     });
   }
 
+  function addShapeElement(shape: "rectangle" | "circle") {
+    const size = shape === "circle" ? 180 : 220;
+    const id = `shape-${Date.now()}`;
+    const element: CanvasElement = {
+      id,
+      kind: "shape",
+      name: shape === "circle" ? "Circle" : "Rectangle",
+      text: "",
+      x: Math.round((CANVAS_WIDTH - size) / 2),
+      y: Math.round((canvasHeight - size) / 2),
+      width: size,
+      height: shape === "circle" ? size : 140,
+      fontSize: 12,
+      fontWeight: 400,
+      color: brandColor,
+      align: "center",
+      background: brandColor,
+      shape,
+      opacity: 1,
+      borderRadius: shape === "circle" ? 9999 : 16,
+    };
+    commitElements((current) => [...current, element]);
+    setSelectedElementId(id);
+  }
+
+  function addImageElement(url: string, name = "Uploaded image") {
+    const id = `image-${Date.now()}`;
+    const width = 260;
+    const height = 220;
+    const element: CanvasElement = {
+      id,
+      kind: "image",
+      name,
+      text: "",
+      imageUrl: url,
+      objectFit: "cover",
+      opacity: 1,
+      x: Math.round((CANVAS_WIDTH - width) / 2),
+      y: Math.round((canvasHeight - height) / 2),
+      width,
+      height,
+      fontSize: 12,
+      fontWeight: 400,
+      color: "#ffffff",
+      align: "center",
+      borderRadius: 16,
+    };
+    commitElements((current) => [...current, element]);
+    setSelectedElementId(id);
+    setActiveTool("elements");
+  }
+
   function deleteSelected() {
     if (!selectedElementId) return;
     commitElements((current) =>
@@ -1120,6 +1172,20 @@ export default function FlyerStudioV2Page() {
                   }}
                 />
               </label>
+              <label className="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-violet-400/40 bg-violet-500/10 p-5 text-center hover:bg-violet-500/15">
+                <span className="text-sm font-black">Add image as movable layer</span>
+                <span className="mt-1 text-xs text-white/50">PNG, JPG or WebP · move, resize and layer it</span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    if (typeof reader.result === "string") addImageElement(reader.result, file.name);
+                  };
+                  reader.readAsDataURL(file);
+                  event.target.value = "";
+                }} />
+              </label>
               {selectedEvent?.imageStorageId && (
                 <button
                   type="button"
@@ -1173,6 +1239,10 @@ export default function FlyerStudioV2Page() {
 
           {activeTool === "elements" && (
             <ToolPanel title="Layers">
+              <div className="mb-4 grid grid-cols-2 gap-2">
+                <button type="button" onClick={() => addShapeElement("rectangle")} className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs font-black hover:bg-white/10">+ Rectangle</button>
+                <button type="button" onClick={() => addShapeElement("circle")} className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs font-black hover:bg-white/10">+ Circle</button>
+              </div>
               <div className="space-y-2">
                 {[...elements].reverse().map((element) => (
                   <button

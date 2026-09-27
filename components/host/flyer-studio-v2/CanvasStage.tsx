@@ -179,10 +179,14 @@ export default function CanvasStage({
                   }}
                   onPointerDown={(event) => onBeginDrag(event, element)}
                   onDoubleClick={(event) => {
-                    if (element.kind !== "qr") onStartInlineEditing(event, element);
+                    if (element.kind === "text" || element.kind === "button") onStartInlineEditing(event, element);
                   }}
                 >
-                  {element.kind === "qr" ? (
+                  {element.kind === "image" && element.imageUrl ? (
+                    <img src={element.imageUrl} alt="" draggable={false} className="pointer-events-none h-full w-full" style={{ objectFit: element.objectFit ?? "cover", opacity: element.opacity ?? 1, borderRadius: element.borderRadius }} />
+                  ) : element.kind === "shape" ? (
+                    <div className="pointer-events-none h-full w-full" style={{ background: element.background ?? element.color, opacity: element.opacity ?? 1, borderRadius: element.shape === "circle" ? "9999px" : element.borderRadius, border: element.borderWidth ? `${element.borderWidth}px solid ${element.borderColor ?? "#ffffff"}` : undefined }} />
+                  ) : element.kind === "qr" ? (
                     <div className="flex h-full w-full items-center justify-center bg-white p-2" aria-label="Ticket QR code">
                       <QRCodeSVG
                         value={element.text}
