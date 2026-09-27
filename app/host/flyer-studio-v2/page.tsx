@@ -137,7 +137,7 @@ export default function FlyerStudioV2Page() {
         return { ...element, imageUrl: url };
       });
       return changed ? next : current;
-    }, false);
+    });
   }, [commitElements, layerImageUrls]);
 
   const selectedEvent = events?.find((event) => event._id === selectedEventId);
