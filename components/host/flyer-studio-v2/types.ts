@@ -4,6 +4,7 @@ export type SidebarTool =
   | "text"
   | "brand"
   | "elements"
+  | "layers"
   | "background";
 
 export type TextAlign = "left" | "center" | "right";

@@ -13,14 +13,14 @@ export const HISTORY_LIMIT = 100;
 export const sidebarTools: Array<{
   id: SidebarTool;
   label: string;
-  icon: string;
 }> = [
-  { id: "templates", label: "Templates", icon: "▦" },
-  { id: "uploads", label: "Uploads", icon: "↑" },
-  { id: "text", label: "Text", icon: "T" },
-  { id: "brand", label: "Brand Kit", icon: "◆" },
-  { id: "elements", label: "Layers", icon: "○" },
-  { id: "background", label: "Background", icon: "▨" },
+  { id: "templates", label: "Templates" },
+  { id: "uploads", label: "Uploads" },
+  { id: "elements", label: "Elements" },
+  { id: "text", label: "Text" },
+  { id: "brand", label: "Brand Kit" },
+  { id: "layers", label: "Layers" },
+  { id: "background", label: "Background" },
 ];
 
 export const templates = [

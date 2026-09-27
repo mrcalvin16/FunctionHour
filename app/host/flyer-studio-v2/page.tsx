@@ -8,6 +8,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { toPng } from "html-to-image";
+import { Box, Circle, ImageUp, Layers3, LayoutTemplate, Palette, Shapes, Square, Type, Upload, WandSparkles } from "lucide-react";
 import ToolPanel from "@/components/host/flyer-studio-v2/ToolPanel";
 import PropertiesPanel from "@/components/host/flyer-studio-v2/PropertiesPanel";
 import CanvasStage from "@/components/host/flyer-studio-v2/CanvasStage";
@@ -39,6 +40,16 @@ import type {
   ResizeHandle,
   SidebarTool,
 } from "@/components/host/flyer-studio-v2/types";
+
+const sidebarIcons: Record<SidebarTool, typeof LayoutTemplate> = {
+  templates: LayoutTemplate,
+  uploads: Upload,
+  elements: Shapes,
+  text: Type,
+  brand: WandSparkles,
+  layers: Layers3,
+  background: Palette,
+};
 
 function eventDateLabel(event: Doc<"events">) {
   const dateOnly = event.dateString?.match(/^\d{4}-\d{2}-\d{2}$/);
@@ -1195,7 +1206,7 @@ export default function FlyerStudioV2Page() {
     };
     commitElements((current) => [...current, element]);
     setSelectedElementId(id);
-    setActiveTool("elements");
+    setActiveTool("layers");
   }
 
   function deleteSelected() {
@@ -1295,7 +1306,9 @@ export default function FlyerStudioV2Page() {
       <div className="grid min-h-[calc(100vh-64px)] grid-cols-1 lg:grid-cols-[76px_300px_minmax(0,1fr)_290px]">
         <aside className="border-b border-white/10 bg-[#171717] py-2 lg:border-b-0 lg:border-r lg:py-3">
           <div className="flex gap-2 overflow-x-auto px-2 lg:block lg:space-y-2">
-            {sidebarTools.map((tool) => (
+            {sidebarTools.map((tool) => {
+              const Icon = sidebarIcons[tool.id];
+              return (
               <button
                 key={tool.id}
                 type="button"
@@ -1306,10 +1319,11 @@ export default function FlyerStudioV2Page() {
                     : "text-white/50 hover:bg-white/10 hover:text-white"
                 }`}
               >
-                <span className="text-xl">{tool.icon}</span>
+                <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
                 {tool.label}
               </button>
-            ))}
+              );
+            })}
           </div>
         </aside>
 
@@ -1455,16 +1469,25 @@ export default function FlyerStudioV2Page() {
           )}
 
           {activeTool === "elements" && (
+            <ToolPanel title="Elements">
+              <p className="mb-4 text-xs leading-5 text-white/45">Add visual building blocks to your flyer. Manage their order, visibility, and grouping in Layers.</p>
+              <div className="grid grid-cols-2 gap-3">
+                <button type="button" onClick={() => addShapeElement("rectangle")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Square className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Rectangle</span><span className="mt-1 block text-[10px] text-white/45">Cards, blocks & panels</span></button>
+                <button type="button" onClick={() => addShapeElement("circle")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Circle className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Circle</span><span className="mt-1 block text-[10px] text-white/45">Badges & accents</span></button>
+                <button type="button" onClick={addTicketQr} disabled={!selectedEvent} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10 disabled:opacity-40"><Box className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Ticket QR</span><span className="mt-1 block text-[10px] text-white/45">Link to this event</span></button>
+                <button type="button" onClick={() => setActiveTool("uploads")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><ImageUp className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Image</span><span className="mt-1 block text-[10px] text-white/45">Upload a movable layer</span></button>
+              </div>
+              <div className="mt-4 rounded-xl border border-dashed border-white/10 p-3 text-[10px] leading-4 text-white/40">Frames, lines, icons and stickers can grow here without crowding the main toolbar.</div>
+            </ToolPanel>
+          )}
+
+          {activeTool === "layers" && (
             <ToolPanel title="Layers">
               <div className="mb-3 rounded-xl border border-white/10 bg-white/5 p-3">
                 <p className="text-xs font-black">{selectedElementIds.length} selected</p>
                 <p className="mt-1 text-[10px] text-white/45">Shift-click layers or canvas objects to select multiple.</p>
                 <div className="mt-3 grid grid-cols-2 gap-2"><button type="button" disabled={selectedElementIds.length < 2} onClick={groupSelected} className="rounded-lg bg-violet-600 px-2 py-2 text-[10px] font-black disabled:opacity-30">Group</button><button type="button" onClick={ungroupSelected} className="rounded-lg border border-white/10 px-2 py-2 text-[10px] font-black">Ungroup</button></div>
                 <div className="mt-2 grid grid-cols-3 gap-1">{(["left","center","right","top","middle","bottom"] as const).map((alignment) => <button key={alignment} type="button" disabled={selectedElementIds.length < 2} onClick={() => alignSelected(alignment)} className="rounded bg-white/5 px-1 py-1 text-[9px] font-bold capitalize text-white/60 disabled:opacity-30">{alignment}</button>)}</div>
-              </div>
-              <div className="mb-4 grid grid-cols-2 gap-2">
-                <button type="button" onClick={() => addShapeElement("rectangle")} className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs font-black hover:bg-white/10">+ Rectangle</button>
-                <button type="button" onClick={() => addShapeElement("circle")} className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs font-black hover:bg-white/10">+ Circle</button>
               </div>
               <div className="space-y-2">
                 {[...elements].reverse().map((element, visualIndex) => {
