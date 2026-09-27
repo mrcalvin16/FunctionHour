@@ -8,7 +8,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { toPng } from "html-to-image";
-import { Box, Circle, Frame, ImageUp, Layers3, LayoutTemplate, Minus, Palette, Shapes, Square, Type, Upload, WandSparkles } from "lucide-react";
+import { Box, CalendarDays, Circle, Frame, ImageUp, Layers3, LayoutTemplate, MapPin, Minus, Music2, Palette, PartyPopper, Shapes, Sparkles, Square, Star, Ticket, Type, Upload, WandSparkles } from "lucide-react";
 import ToolPanel from "@/components/host/flyer-studio-v2/ToolPanel";
 import PropertiesPanel from "@/components/host/flyer-studio-v2/PropertiesPanel";
 import CanvasStage from "@/components/host/flyer-studio-v2/CanvasStage";
@@ -1156,6 +1156,22 @@ export default function FlyerStudioV2Page() {
     }));
   }
 
+  function addIconElement(iconName: string, name: string) {
+    const id = `icon-${iconName}-${Date.now()}`;
+    const element: CanvasElement = { id, kind: "icon", name, text: "", iconName, x: 210, y: Math.round(canvasHeight / 2 - 50), width: 100, height: 100, fontSize: 12, fontWeight: 400, color: brandColor, align: "center", opacity: 1, borderWidth: 2 };
+    commitElements((current) => [...current, element]);
+    setSelectedElementId(id);
+    setSelectedElementIds([id]);
+  }
+
+  function addStickerElement(text: string, stickerStyle: "badge" | "burst" | "pill") {
+    const id = `sticker-${Date.now()}`;
+    const element: CanvasElement = { id, kind: "sticker", name: `${text} sticker`, text, stickerStyle, x: 165, y: Math.round(canvasHeight / 2 - 45), width: 190, height: stickerStyle === "pill" ? 64 : 120, fontSize: stickerStyle === "pill" ? 20 : 24, fontWeight: 900, color: brandColor, background: brandColor, borderColor: "#ffffff", borderWidth: stickerStyle === "badge" ? 2 : 0, align: "center", opacity: 1 };
+    commitElements((current) => [...current, element]);
+    setSelectedElementId(id);
+    setSelectedElementIds([id]);
+  }
+
   function addLineElement() {
     const id = `line-${Date.now()}`;
     const element: CanvasElement = { id, kind: "line", name: "Line", text: "", x: 80, y: Math.round(canvasHeight / 2), width: 360, height: 24, fontSize: 12, fontWeight: 400, color: brandColor, align: "center", opacity: 1, borderWidth: 3, lineStyle: "solid" };
@@ -1496,7 +1512,10 @@ export default function FlyerStudioV2Page() {
                 <button type="button" onClick={addLineElement} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Minus className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Line</span><span className="mt-1 block text-[10px] text-white/45">Dividers & accents</span></button>
                 <button type="button" onClick={() => addFrameElement("rectangle")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Frame className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Frame</span><span className="mt-1 block text-[10px] text-white/45">Editable border frame</span></button>
               </div>
-              <div className="mt-4 rounded-xl border border-dashed border-white/10 p-3 text-[10px] leading-4 text-white/40">Circle frames, icons and stickers are next; creation tools stay here without crowding the main toolbar.</div>
+              <div className="mt-5 border-t border-white/10 pt-4"><p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-white/45">Event icons</p><div className="grid grid-cols-4 gap-2">{[
+                  ["music","Music",Music2],["location","Location",MapPin],["ticket","Ticket",Ticket],["calendar","Date",CalendarDays],["party","Party",PartyPopper],["sparkle","Sparkle",Sparkles],["star","Star",Star],
+                ].map(([key,label,Icon]) => { const IconComponent = Icon as typeof Star; return <button key={String(key)} type="button" title={String(label)} onClick={() => addIconElement(String(key), String(label))} className="flex aspect-square items-center justify-center rounded-xl border border-white/10 bg-white/5 hover:border-violet-400/50 hover:bg-white/10"><IconComponent className="h-5 w-5" /></button>; })}</div></div>
+              <div className="mt-5 border-t border-white/10 pt-4"><p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-white/45">Stickers</p><div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => addStickerElement("VIP", "badge")} className="rounded-xl bg-violet-600 px-3 py-3 text-xs font-black">VIP</button><button type="button" onClick={() => addStickerElement("SOLD OUT", "burst")} className="rounded-xl bg-white/10 px-3 py-3 text-xs font-black">SOLD OUT</button><button type="button" onClick={() => addStickerElement("FREE", "pill")} className="rounded-xl bg-white/10 px-3 py-3 text-xs font-black">FREE</button><button type="button" onClick={() => addStickerElement("21+", "badge")} className="rounded-xl bg-white/10 px-3 py-3 text-xs font-black">21+</button></div></div>
             </ToolPanel>
           )}
 
@@ -1511,7 +1530,7 @@ export default function FlyerStudioV2Page() {
               <div className="space-y-2">
                 {[...elements].reverse().map((element, visualIndex) => {
                   const actualIndex = elements.length - 1 - visualIndex;
-                  const icon = element.kind === "text" ? "T" : element.kind === "button" ? "▣" : element.kind === "image" ? "▧" : element.kind === "shape" ? "●" : element.kind === "line" ? "—" : element.kind === "frame" ? "□" : "QR";
+                  const icon = element.kind === "text" ? "T" : element.kind === "button" ? "▣" : element.kind === "image" ? "▧" : element.kind === "shape" ? "●" : element.kind === "line" ? "—" : element.kind === "frame" ? "□" : element.kind === "icon" ? "✦" : element.kind === "sticker" ? "★" : "QR";
                   return (
                     <div
                       key={element.id}
