@@ -40,6 +40,7 @@ export type CanvasElement = {
   locked?: boolean;
   textShadow?: boolean;
   imageUrl?: string;
+  imageStorageId?: string;
   objectFit?: "cover" | "contain";
   opacity?: number;
   shape?: "rectangle" | "circle";
