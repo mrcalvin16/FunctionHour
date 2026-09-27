@@ -8,7 +8,7 @@ export type SidebarTool =
   | "background";
 
 export type TextAlign = "left" | "center" | "right";
-export type ElementKind = "text" | "button" | "qr" | "image" | "shape" | "line" | "frame";
+export type ElementKind = "text" | "button" | "qr" | "image" | "shape" | "line" | "frame" | "icon" | "sticker";
 export type ResizeHandle =
   | "nw"
   | "n"
@@ -58,6 +58,8 @@ export type CanvasElement = {
   saturation?: number;
   blur?: number;
   groupId?: string;
+  iconName?: string;
+  stickerStyle?: "badge" | "burst" | "pill";
 };
 
 export type Guide = {
