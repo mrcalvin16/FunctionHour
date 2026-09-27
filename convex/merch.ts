@@ -866,7 +866,14 @@ export const getOrganizerWorkspace = query({
           .query("merchVariants")
           .withIndex("by_merchId", (q) => q.eq("merchId", product._id))
           .take(100);
-        products.push({ ...product, eventName: event.name, variants });
+        products.push({
+          ...product,
+          imageUrl: product.imageStorageId
+            ? await ctx.storage.getUrl(product.imageStorageId)
+            : (product.imageUrl ?? null),
+          eventName: event.name,
+          variants,
+        });
       }
     }
     const orders = await ctx.db
@@ -981,7 +988,13 @@ export const getProductEditor = query({
       .query("merchVariants")
       .withIndex("by_merchId", (q) => q.eq("merchId", product._id))
       .take(100);
-    return { ...product, variants };
+    return {
+      ...product,
+      imageUrl: product.imageStorageId
+        ? await ctx.storage.getUrl(product.imageStorageId)
+        : (product.imageUrl ?? null),
+      variants,
+    };
   },
 });
 
@@ -1001,6 +1014,7 @@ export const updateProduct = mutation({
     preorderCutoffAt: v.optional(v.number()),
     featured: v.boolean(),
     limitedDrop: v.boolean(),
+    imageStorageId: v.optional(v.id("_storage")),
     variants: v.array(
       v.object({
         variantId: v.optional(v.id("merchVariants")),
@@ -1027,8 +1041,21 @@ export const updateProduct = mutation({
       throw new Error(
         "Enter valid product details. Inventory cannot be below reserved and sold units.",
       );
+    let imageUpdate = {};
+    if (args.imageStorageId) {
+      const image = await ctx.db.system.get("_storage", args.imageStorageId);
+      if (
+        !image ||
+        !["image/jpeg", "image/png", "image/webp"].includes(image.contentType ?? "") ||
+        image.size > 10 * 1024 * 1024
+      ) throw new Error("Choose a JPG, PNG, or WebP image under 10 MB.");
+      const imageUrl = await ctx.storage.getUrl(args.imageStorageId);
+      if (!imageUrl) throw new Error("Image upload is unavailable. Try again.");
+      imageUpdate = { imageStorageId: args.imageStorageId, imageUrl };
+    }
     const now = Date.now();
     await ctx.db.patch(product._id, {
+      ...imageUpdate,
       name: args.name.trim().slice(0, 120),
       description: args.description?.trim().slice(0, 2_000),
       sku: args.sku.trim().toUpperCase().slice(0, 64),

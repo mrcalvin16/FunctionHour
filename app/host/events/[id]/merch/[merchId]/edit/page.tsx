@@ -21,6 +21,7 @@ export default function EditMerchPage({
   const merch = useQuery(api.merch.getProductEditor, { merchId: merchItemId });
 
   const updateMerch = useMutation(api.merch.updateProduct);
+  const generateUploadUrl = useMutation(api.merch.generateUploadUrl);
   const deleteMerch = useMutation(api.merch.deleteMerch);
 
   const [name, setName] = useState("");
@@ -40,6 +41,8 @@ export default function EditMerchPage({
   const [cutoff, setCutoff] = useState("");
   const [featured, setFeatured] = useState(false);
   const [limitedDrop, setLimitedDrop] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [variants, setVariants] = useState<
     Array<{
       variantId?: Id<"merchVariants">;
@@ -56,6 +59,16 @@ export default function EditMerchPage({
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!image) {
+      setImagePreview("");
+      return;
+    }
+    const url = URL.createObjectURL(image);
+    setImagePreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [image]);
 
   useEffect(() => {
     if (!merch) return;
@@ -122,9 +135,21 @@ export default function EditMerchPage({
 
     try {
       setSaving(true);
+      let imageStorageId: Id<"_storage"> | undefined;
+      if (image) {
+        const uploadUrl = await generateUploadUrl({});
+        const response = await fetch(uploadUrl, {
+          method: "POST",
+          headers: { "Content-Type": image.type },
+          body: image,
+        });
+        if (!response.ok) throw new Error("Image upload failed. Try again.");
+        imageStorageId = (await response.json()).storageId;
+      }
 
       await updateMerch({
         merchId: merchItemId,
+        imageStorageId,
         name: name.trim(),
         description: description.trim(),
         price: Number(price),
@@ -209,7 +234,7 @@ export default function EditMerchPage({
           </p>
           <h1 className="mt-3 text-4xl font-black">Edit Merch</h1>
           <p className="mt-2 text-white/60">
-            Update pricing, inventory, sizes, and availability.
+            Update the image, pricing, inventory, sizes, and availability.
           </p>
         </div>
 
@@ -243,6 +268,51 @@ export default function EditMerchPage({
               onChange={(e) => setDescription(e.target.value)}
               className="mt-2 min-h-28 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
             />
+          </div>
+
+          <div>
+            <label htmlFor="merch-image" className="text-sm font-semibold text-white/70">
+              Product image
+            </label>
+            <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="flex h-36 w-full shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] sm:w-36">
+                {imagePreview || merch.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={imagePreview || merch.imageUrl || ""} alt={`${name || "Product"} preview`} className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-sm font-semibold text-white/60">No image yet</span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <input
+                  id="merch-image"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) {
+                      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 10 * 1024 * 1024) {
+                        setImage(null);
+                        setError("Choose a JPG, PNG, or WebP image under 10 MB.");
+                      } else {
+                        setError("");
+                        setImage(file);
+                      }
+                    }
+                    event.target.value = "";
+                  }}
+                  className="block w-full max-w-full text-sm text-white file:mr-3 file:rounded-full file:border-0 file:bg-white file:px-4 file:py-2 file:font-bold file:text-black"
+                />
+                <p className="mt-2 text-sm text-white/60">
+                  {image ? `${image.name} will replace the image when you save.` : merch.imageUrl ? "Choose a new image to replace the current one." : "Add the image you missed when creating this item."}
+                </p>
+                {image && (
+                  <button type="button" onClick={() => setImage(null)} className="mt-2 text-sm font-bold text-violet-200 underline underline-offset-4">
+                    {merch.imageUrl ? "Keep current image" : "Remove selected image"}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
@@ -465,7 +535,7 @@ export default function EditMerchPage({
           <div className="flex flex-col gap-3 border-t border-white/10 pt-5 sm:flex-row">
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || deleting}
               className="flex-1 rounded-2xl bg-white px-5 py-4 font-black text-black hover:bg-zinc-200 disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save Changes"}
