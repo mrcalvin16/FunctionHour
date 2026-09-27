@@ -51,10 +51,18 @@ export const templates = [
 ];
 
 export const formats = [
-  { id: "poster", label: "Poster", height: 780 },
-  { id: "square", label: "Square", height: 520 },
-  { id: "story", label: "Story", height: 924 },
+  { id: "poster", label: "Poster", height: 780, social: false },
+  { id: "square", label: "Square", height: 520, social: false },
+  { id: "story", label: "Story", height: 924, social: false },
+  { id: "instagram-post", label: "Instagram Post", height: 650, social: true },
+  { id: "instagram-story", label: "Instagram Story", height: 924, social: true },
+  { id: "tiktok", label: "TikTok", height: 924, social: true },
+  { id: "facebook-post", label: "Facebook Post", height: 436, social: true },
+  { id: "x-post", label: "X Post", height: 293, social: true },
+  { id: "event-cover", label: "Function Hour Cover", height: 293, social: true },
 ];
+
+export const socialPackFormats = formats.filter((format) => format.social);
 
 
 export const backgroundPresets = [
