@@ -53,6 +53,7 @@ export type CanvasElement = {
   contrast?: number;
   saturation?: number;
   blur?: number;
+  groupId?: string;
 };
 
 export type Guide = {
