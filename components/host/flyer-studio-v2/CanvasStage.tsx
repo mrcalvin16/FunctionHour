@@ -188,6 +188,10 @@ export default function CanvasStage({
                     <img src={element.imageUrl} alt="" draggable={false} className="pointer-events-none h-full w-full" style={{ objectFit: element.objectFit ?? "cover", opacity: element.opacity ?? 1, borderRadius: element.borderRadius, filter: `brightness(${element.brightness ?? 100}%) contrast(${element.contrast ?? 100}%) saturate(${element.saturation ?? 100}%) blur(${element.blur ?? 0}px)` }} />
                   ) : element.kind === "shape" ? (
                     <div className="pointer-events-none h-full w-full" style={{ background: element.background ?? element.color, opacity: element.opacity ?? 1, borderRadius: element.shape === "circle" ? "9999px" : element.borderRadius, border: element.borderWidth ? `${element.borderWidth}px solid ${element.borderColor ?? "#ffffff"}` : undefined }} />
+                  ) : element.kind === "line" ? (
+                    <div className="pointer-events-none flex h-full w-full items-center"><div className="w-full" style={{ opacity: element.opacity ?? 1, borderTop: `${Math.max(1, element.borderWidth ?? 3)}px ${element.lineStyle ?? "solid"} ${element.color}` }} /></div>
+                  ) : element.kind === "frame" ? (
+                    <div className="pointer-events-none h-full w-full" style={{ opacity: element.opacity ?? 1, border: `${Math.max(1, element.borderWidth ?? 4)}px solid ${element.borderColor ?? element.color}`, borderRadius: element.frameShape === "circle" ? "9999px" : element.borderRadius ?? 16, background: "transparent" }} />
                   ) : element.kind === "qr" ? (
                     <div className="flex h-full w-full items-center justify-center bg-white p-2" aria-label="Ticket QR code">
                       <QRCodeSVG
