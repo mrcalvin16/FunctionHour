@@ -8,7 +8,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { toPng } from "html-to-image";
-import { Box, Circle, ImageUp, Layers3, LayoutTemplate, Palette, Shapes, Square, Type, Upload, WandSparkles } from "lucide-react";
+import { Box, Circle, Frame, ImageUp, Layers3, LayoutTemplate, Minus, Palette, Shapes, Square, Type, Upload, WandSparkles } from "lucide-react";
 import ToolPanel from "@/components/host/flyer-studio-v2/ToolPanel";
 import PropertiesPanel from "@/components/host/flyer-studio-v2/PropertiesPanel";
 import CanvasStage from "@/components/host/flyer-studio-v2/CanvasStage";
@@ -1156,6 +1156,23 @@ export default function FlyerStudioV2Page() {
     }));
   }
 
+  function addLineElement() {
+    const id = `line-${Date.now()}`;
+    const element: CanvasElement = { id, kind: "line", name: "Line", text: "", x: 80, y: Math.round(canvasHeight / 2), width: 360, height: 24, fontSize: 12, fontWeight: 400, color: brandColor, align: "center", opacity: 1, borderWidth: 3, lineStyle: "solid" };
+    commitElements((current) => [...current, element]);
+    setSelectedElementId(id);
+    setSelectedElementIds([id]);
+  }
+
+  function addFrameElement(frameShape: "rectangle" | "circle") {
+    const id = `frame-${Date.now()}`;
+    const size = frameShape === "circle" ? 240 : 300;
+    const element: CanvasElement = { id, kind: "frame", name: frameShape === "circle" ? "Circle frame" : "Frame", text: "", x: Math.round((CANVAS_WIDTH - size) / 2), y: Math.round((canvasHeight - (frameShape === "circle" ? size : 220)) / 2), width: size, height: frameShape === "circle" ? size : 220, fontSize: 12, fontWeight: 400, color: brandColor, align: "center", opacity: 1, borderColor: brandColor, borderWidth: 5, borderRadius: 20, frameShape };
+    commitElements((current) => [...current, element]);
+    setSelectedElementId(id);
+    setSelectedElementIds([id]);
+  }
+
   function addShapeElement(shape: "rectangle" | "circle") {
     const size = shape === "circle" ? 180 : 220;
     const id = `shape-${Date.now()}`;
@@ -1476,8 +1493,10 @@ export default function FlyerStudioV2Page() {
                 <button type="button" onClick={() => addShapeElement("circle")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Circle className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Circle</span><span className="mt-1 block text-[10px] text-white/45">Badges & accents</span></button>
                 <button type="button" onClick={addTicketQr} disabled={!selectedEvent} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10 disabled:opacity-40"><Box className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Ticket QR</span><span className="mt-1 block text-[10px] text-white/45">Link to this event</span></button>
                 <button type="button" onClick={() => setActiveTool("uploads")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><ImageUp className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Image</span><span className="mt-1 block text-[10px] text-white/45">Upload a movable layer</span></button>
+                <button type="button" onClick={addLineElement} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Minus className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Line</span><span className="mt-1 block text-[10px] text-white/45">Dividers & accents</span></button>
+                <button type="button" onClick={() => addFrameElement("rectangle")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Frame className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Frame</span><span className="mt-1 block text-[10px] text-white/45">Editable border frame</span></button>
               </div>
-              <div className="mt-4 rounded-xl border border-dashed border-white/10 p-3 text-[10px] leading-4 text-white/40">Frames, lines, icons and stickers can grow here without crowding the main toolbar.</div>
+              <div className="mt-4 rounded-xl border border-dashed border-white/10 p-3 text-[10px] leading-4 text-white/40">Circle frames, icons and stickers are next; creation tools stay here without crowding the main toolbar.</div>
             </ToolPanel>
           )}
 
@@ -1492,7 +1511,7 @@ export default function FlyerStudioV2Page() {
               <div className="space-y-2">
                 {[...elements].reverse().map((element, visualIndex) => {
                   const actualIndex = elements.length - 1 - visualIndex;
-                  const icon = element.kind === "text" ? "T" : element.kind === "button" ? "▣" : element.kind === "image" ? "▧" : element.kind === "shape" ? "●" : "QR";
+                  const icon = element.kind === "text" ? "T" : element.kind === "button" ? "▣" : element.kind === "image" ? "▧" : element.kind === "shape" ? "●" : element.kind === "line" ? "—" : element.kind === "frame" ? "□" : "QR";
                   return (
                     <div
                       key={element.id}
