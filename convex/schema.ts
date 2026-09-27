@@ -55,6 +55,11 @@ eventInteractions: defineTable({
     bannerStorageId: v.optional(v.id("_storage")),
     bannerUrl: v.optional(v.string()),
 
+    brandPrimaryColor: v.optional(v.string()),
+    brandSecondaryColor: v.optional(v.string()),
+    brandFontFamily: v.optional(v.string()),
+    brandLogoStorageId: v.optional(v.id("_storage")),
+
     stripeConnectAccountId: v.optional(v.string()),
     stripeConnectCreatedAt: v.optional(v.float64()),
   })

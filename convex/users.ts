@@ -233,3 +233,51 @@ export const getOrganizerAccess = query({
     };
   },
 });
+
+
+export const getBrandKit = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    const user = await findCurrentUser(ctx, identity);
+    if (!user) return null;
+    const logoUrl = user.brandLogoStorageId
+      ? await ctx.storage.getUrl(user.brandLogoStorageId)
+      : null;
+    return {
+      primaryColor: user.brandPrimaryColor ?? "#8b5cf6",
+      secondaryColor: user.brandSecondaryColor ?? "#ffffff",
+      fontFamily: user.brandFontFamily ?? "Arial, Helvetica, sans-serif",
+      logoStorageId: user.brandLogoStorageId,
+      logoUrl,
+    };
+  },
+});
+
+export const saveBrandKit = mutation({
+  args: {
+    primaryColor: v.string(),
+    secondaryColor: v.string(),
+    fontFamily: v.string(),
+    logoStorageId: v.optional(v.id("_storage")),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("You must be signed in.");
+    const user = await findCurrentUser(ctx, identity);
+    if (!user) throw new Error("Complete your profile before saving a brand kit.");
+    const colorPattern = /^#[0-9a-fA-F]{6}$/;
+    if (!colorPattern.test(args.primaryColor) || !colorPattern.test(args.secondaryColor)) {
+      throw new Error("Brand colors must be valid hex colors.");
+    }
+    await ctx.db.patch(user._id, {
+      brandPrimaryColor: args.primaryColor,
+      brandSecondaryColor: args.secondaryColor,
+      brandFontFamily: args.fontFamily.slice(0, 200),
+      brandLogoStorageId: args.logoStorageId,
+      updatedAt: Date.now(),
+    });
+    return { success: true };
+  },
+});
