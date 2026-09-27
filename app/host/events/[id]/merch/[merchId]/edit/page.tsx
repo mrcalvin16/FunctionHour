@@ -137,6 +137,14 @@ export default function EditMerchPage({
       setError("A SKU is required. Enter one before saving.");
       return;
     }
+    if (variants.some((variant) =>
+      !variant.name.trim() || !variant.sku.trim() ||
+      !Number.isFinite(Number(variant.price)) || variant.price.trim() === "" || Number(variant.price) < 0 ||
+      !Number.isFinite(Number(variant.inventory)) || variant.inventory.trim() === "" || Number(variant.inventory) < 0
+    )) {
+      setError("Each size or variant needs a name, SKU, price, and valid inventory.");
+      return;
+    }
 
     try {
       setSaving(true);
@@ -188,7 +196,11 @@ export default function EditMerchPage({
       router.push(`/events/${eventId}`);
     } catch (err) {
       console.error(err);
-      setError(err instanceof Error ? err.message : "Unable to update merch.");
+      setError(
+        err && typeof err === "object" && "data" in err && typeof err.data === "string"
+          ? err.data
+          : err instanceof Error ? err.message : "Unable to update merch.",
+      );
     } finally {
       setSaving(false);
     }
