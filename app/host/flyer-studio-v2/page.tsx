@@ -123,6 +123,29 @@ export default function FlyerStudioV2Page() {
     elements.find((element) => element.id === "headline")?.text ||
     "Night Moves";
   const eventTitle = selectedEvent?.name || headline;
+  const eventUrl = selectedEventId
+    ? `https://functionhour.com/events/${selectedEventId}`
+    : "";
+  const eventDetailIssues = useMemo(() => {
+    if (!selectedEvent) return [];
+    const normalized = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
+    const elementText = (id: string) => elements.find((element) => element.id === id && !element.hidden)?.text || "";
+    const venue = selectedEvent.venueName ||
+      [selectedEvent.city, selectedEvent.state].filter(Boolean).join(", ") ||
+      selectedEvent.location || "";
+    const date = eventDateLabel(selectedEvent);
+    const issues: string[] = [];
+    if (normalized(elementText("headline")) !== normalized(selectedEvent.name)) issues.push("Event title differs from the listing");
+    if (venue && normalized(elementText("venue")) !== normalized(venue)) issues.push("Venue or city differs from the listing");
+    if (date && normalized(elementText("event-date")) !== normalized(date)) issues.push("Event date is missing or out of date");
+    if (elements.some((element) => element.kind === "qr" && !element.hidden && element.text !== eventUrl)) issues.push("Ticket QR points to another event");
+    return issues;
+  }, [elements, eventUrl, selectedEvent]);
+  const [exportReviewAcknowledged, setExportReviewAcknowledged] = useState(false);
+
+  useEffect(() => {
+    setExportReviewAcknowledged(false);
+  }, [elements, selectedEventId, selectedEvent?.name, selectedEvent?.venueName, selectedEvent?.city, selectedEvent?.state, selectedEvent?.eventDate, selectedEvent?.dateString]);
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 767px)").matches) {
@@ -173,7 +196,9 @@ export default function FlyerStudioV2Page() {
           return { ...element, text: String(selectedEvent.name).toUpperCase() };
         }
         if (element.id === "venue" && selectedEvent) {
-          const venue = selectedEvent.venueName || selectedEvent.city;
+          const venue = selectedEvent.venueName ||
+            [selectedEvent.city, selectedEvent.state].filter(Boolean).join(", ") ||
+            selectedEvent.location;
           return venue
             ? { ...element, text: String(venue).toUpperCase() }
             : element;
@@ -467,11 +492,26 @@ export default function FlyerStudioV2Page() {
     const date = eventDateLabel(selectedEvent);
     commitElements((current) => {
       const updated = current.map((element) => {
-        if (element.id === "headline") return { ...element, text: selectedEvent.name.toUpperCase() };
-        if (element.id === "venue" && venue) return { ...element, text: venue.toUpperCase() };
-        if (element.id === "event-date" && date) return { ...element, text: date };
+        if (element.id === "headline") return { ...element, text: selectedEvent.name.toUpperCase(), hidden: false };
+        if (element.id === "venue" && venue) return { ...element, text: venue.toUpperCase(), hidden: false };
+        if (element.id === "event-date" && date) return { ...element, text: date, hidden: false };
+        if (element.kind === "qr") return { ...element, text: eventUrl };
         return element;
       });
+      if (!updated.some((element) => element.id === "headline")) {
+        updated.push({
+          ...initialElements[1],
+          text: selectedEvent.name.toUpperCase(),
+          y: Math.round(105 * canvasHeight / formats[0].height),
+        });
+      }
+      if (venue && !updated.some((element) => element.id === "venue")) {
+        updated.push({
+          ...initialElements[3],
+          text: venue.toUpperCase(),
+          y: Math.max(0, canvasHeight - 112),
+        });
+      }
       if (date && !updated.some((element) => element.id === "event-date")) {
         const venueElement = updated.find((element) => element.id === "venue");
         updated.push({
@@ -486,7 +526,34 @@ export default function FlyerStudioV2Page() {
       }
       return updated;
     });
+    setExportStatus("");
     setStatus("Event title, date, and venue updated. Save your draft to keep the changes.");
+  }
+
+  function addTicketQr() {
+    if (!selectedEvent || !eventUrl) return;
+    const existing = elements.find((element) => element.id === "ticket-qr");
+    if (existing) {
+      updateElement(existing.id, { text: eventUrl, hidden: false });
+      setSelectedElementId(existing.id);
+      return;
+    }
+    const size = 132;
+    const qr: CanvasElement = {
+      ...initialElements[5],
+      id: "ticket-qr",
+      kind: "qr",
+      name: "Ticket QR",
+      text: eventUrl,
+      x: CANVAS_WIDTH - size - 34,
+      y: Math.max(24, canvasHeight - size - 108),
+      width: size,
+      height: size,
+      background: "#ffffff",
+    };
+    commitElements((current) => [...current, qr]);
+    setSelectedElementId(qr.id);
+    setStatus("Ticket QR added. Download a flyer and scan it to verify the link.");
   }
 
   function changeFormat(nextFormatId: string) {
@@ -494,11 +561,14 @@ export default function FlyerStudioV2Page() {
     if (!nextFormat || nextFormat.id === format) return;
     const ratio = nextFormat.height / canvasHeight;
     commitElements((current) => current.map((element) => {
-      const height = Math.min(nextFormat.height, Math.max(MIN_HEIGHT, Math.round(element.height * ratio)));
+      const height = Math.min(nextFormat.height, Math.max(element.kind === "qr" ? 96 : MIN_HEIGHT, Math.round(element.height * ratio)));
+      const width = element.kind === "qr" ? height : element.width;
       return {
         ...element,
         y: Math.min(nextFormat.height - height, Math.max(0, Math.round(element.y * ratio))),
         height,
+        width,
+        x: element.kind === "qr" ? Math.min(element.x, CANVAS_WIDTH - width) : element.x,
         fontSize: Math.min(120, Math.max(8, Math.round(element.fontSize * ratio))),
       };
     }));
@@ -608,6 +678,11 @@ export default function FlyerStudioV2Page() {
 
   async function downloadCanvas() {
     if (!canvasRef.current || isExporting) return;
+    if (eventDetailIssues.length && !exportReviewAcknowledged) {
+      setExportReviewAcknowledged(true);
+      setExportStatus("Review the event details below, then choose Export anyway if your wording is intentional.");
+      return;
+    }
     try {
       setIsExporting(true);
       setExportStatus("Preparing your flyer…");
@@ -784,6 +859,12 @@ export default function FlyerStudioV2Page() {
 
     x = Math.max(0, x);
     y = Math.max(0, y);
+    if (start.kind === "qr") {
+      const requestedSize = handle.includes("e") || handle.includes("w") ? width : height;
+      const size = Math.max(96, Math.min(requestedSize, CANVAS_WIDTH - x, canvasHeight - y));
+      width = size;
+      height = size;
+    }
     width = Math.min(width, CANVAS_WIDTH - x);
     height = Math.min(height, canvasHeight - y);
     updateElement(interaction.elementId, { x, y, width, height }, false);
@@ -938,10 +1019,20 @@ export default function FlyerStudioV2Page() {
             disabled={isExporting}
             className="shrink-0 rounded-lg bg-violet-600 px-4 py-2 text-sm font-black hover:bg-violet-500 disabled:opacity-50 sm:px-5"
           >
-            {isExporting ? "Exporting…" : "Download PNG"}
+            {isExporting ? "Exporting…" : exportReviewAcknowledged && eventDetailIssues.length ? "Export anyway" : "Download PNG"}
           </button>
         </div>
       </header>
+
+      {selectedEvent && eventDetailIssues.length > 0 && (
+        <section role="status" className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/30 bg-amber-950/40 px-4 py-3 text-sm text-amber-100">
+          <div>
+            <p className="font-black">Review before sharing</p>
+            <p className="mt-1">{eventDetailIssues.join(" · ")}. Custom wording is okay; check that guests can find the event.</p>
+          </div>
+          <button type="button" onClick={syncEventDetails} className="rounded-lg border border-amber-400/40 px-3 py-2 text-xs font-black hover:bg-amber-400/10">Update from event</button>
+        </section>
+      )}
 
       <div className="grid min-h-[calc(100vh-64px)] grid-cols-1 lg:grid-cols-[76px_300px_minmax(0,1fr)_290px]">
         <aside className="border-b border-white/10 bg-[#171717] py-2 lg:border-b-0 lg:border-r lg:py-3">
@@ -1059,6 +1150,9 @@ export default function FlyerStudioV2Page() {
           {activeTool === "text" && (
             <ToolPanel title="Text">
               <div className="space-y-3">
+                <button type="button" onClick={addTicketQr} disabled={!selectedEvent} className="w-full rounded-xl border border-violet-400/40 bg-violet-500/15 p-4 text-left text-sm font-black text-white hover:bg-violet-500/25 disabled:opacity-50">
+                  Add ticket QR <span className="mt-1 block text-xs font-medium text-white/70">Links directly to this event · select an event first</span>
+                </button>
                 {(["heading", "subheading", "body"] as const).map((kind) => (
                   <button
                     key={kind}
@@ -1233,6 +1327,7 @@ export default function FlyerStudioV2Page() {
           alignToCanvas={alignSelectedToCanvas}
           duplicateSelected={duplicateSelected}
           deleteSelected={deleteSelected}
+          canvasHeight={canvasHeight}
         />
       </div>
 

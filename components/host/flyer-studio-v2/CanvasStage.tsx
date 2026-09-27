@@ -1,4 +1,5 @@
 import type { MutableRefObject } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { backgroundPresets, CANVAS_WIDTH, formats, resizeHandles } from "./config";
 import { resizeHandleClass } from "./editor-utils";
 import type {
@@ -177,11 +178,22 @@ export default function CanvasStage({
                     height: element.height,
                   }}
                   onPointerDown={(event) => onBeginDrag(event, element)}
-                  onDoubleClick={(event) =>
-                    onStartInlineEditing(event, element)
-                  }
+                  onDoubleClick={(event) => {
+                    if (element.kind !== "qr") onStartInlineEditing(event, element);
+                  }}
                 >
-                  <div
+                  {element.kind === "qr" ? (
+                    <div className="flex h-full w-full items-center justify-center bg-white p-2" aria-label="Ticket QR code">
+                      <QRCodeSVG
+                        value={element.text}
+                        size={Math.max(64, Math.min(element.width, element.height) - 16)}
+                        level="M"
+                        bgColor="#ffffff"
+                        fgColor="#000000"
+                        style={{ maxWidth: "100%", maxHeight: "100%" }}
+                      />
+                    </div>
+                  ) : <div
                     data-editable-id={element.id}
                     contentEditable={isEditing}
                     suppressContentEditableWarning
@@ -228,7 +240,7 @@ export default function CanvasStage({
                     }}
                   >
                     {element.text}
-                  </div>
+                  </div>}
 
                   {isSelected && !isEditing ? (
                     <>
