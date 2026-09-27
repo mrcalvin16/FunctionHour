@@ -21,6 +21,7 @@ import {
   formats,
   initialElements,
   sidebarTools,
+  socialPackFormats,
   templates,
 } from "@/components/host/flyer-studio-v2/config";
 import {
@@ -80,6 +81,7 @@ export default function FlyerStudioV2Page() {
   const [isErasing, setIsErasing] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState("");
+  const [socialPackOpen, setSocialPackOpen] = useState(false);
   const storedImageUrl = useQuery(
     api.events.getImageUrl,
     imageStorageId ? { storageId: imageStorageId } : "skip",
@@ -575,6 +577,12 @@ export default function FlyerStudioV2Page() {
     setFormat(nextFormat.id);
     setSelectedElementId("");
     setStatus(`Layout fitted to ${nextFormat.label.toLowerCase()}. Review the text before exporting.`);
+  }
+
+  function createSocialVersion(nextFormatId: string) {
+    changeFormat(nextFormatId);
+    setSocialPackOpen(false);
+    setStatus("Social version created. Review placement, then download or choose another Social Pack size.");
   }
 
   function applyBrandColor(color: string) {
@@ -1095,6 +1103,13 @@ export default function FlyerStudioV2Page() {
           {exportStatus && <span role="status" className="shrink-0 text-xs font-bold text-white/70">{exportStatus}</span>}
           <button
             type="button"
+            onClick={() => setSocialPackOpen(true)}
+            className="shrink-0 rounded-lg border border-violet-400/40 bg-violet-500/15 px-3 py-2 text-sm font-black hover:bg-violet-500/25 sm:px-4"
+          >
+            Create Social Pack
+          </button>
+          <button
+            type="button"
             onClick={() => void downloadCanvas()}
             disabled={isExporting}
             className="shrink-0 rounded-lg bg-violet-600 px-4 py-2 text-sm font-black hover:bg-violet-500 disabled:opacity-50 sm:px-5"
@@ -1434,6 +1449,29 @@ export default function FlyerStudioV2Page() {
           canvasHeight={canvasHeight}
         />
       </div>
+
+      {socialPackOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/75 p-4" onClick={() => setSocialPackOpen(false)}>
+          <section className="w-full max-w-2xl rounded-2xl border border-white/10 bg-[#181818] p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-lg font-black">Create Social Pack</p>
+                <p className="mt-1 text-sm text-white/55">Turn this flyer into a platform-ready version. Function Hour fits the layout; you can fine-tune each version before downloading.</p>
+              </div>
+              <button type="button" onClick={() => setSocialPackOpen(false)} className="rounded-lg border border-white/10 px-3 py-2 text-sm font-black text-white/60">Close</button>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {socialPackFormats.map((item) => (
+                <button key={item.id} type="button" onClick={() => createSocialVersion(item.id)} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-violet-400/60 hover:bg-violet-500/10">
+                  <span className="block text-sm font-black">{item.label}</span>
+                  <span className="mt-1 block text-xs text-white/45">{CANVAS_WIDTH * 3} × {item.height * 3} export</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-4 text-xs leading-5 text-white/40">Tip: download each version after reviewing it. Switching formats uses the editor history, so Undo restores your prior layout.</p>
+          </section>
+        </div>
+      )}
 
       {isErasing && backgroundImageUrl && (
         <BackgroundEraser
