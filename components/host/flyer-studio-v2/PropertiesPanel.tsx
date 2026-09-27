@@ -47,6 +47,25 @@ export default function PropertiesPanel({
           <label className="block text-xs font-bold text-white/70">Opacity
             <input type="range" min={10} max={100} value={Math.round((selectedElement.opacity ?? 1) * 100)} onChange={(event) => updateElement(selectedElement.id, { opacity: Number(event.target.value) / 100 })} className="mt-2 w-full" />
           </label>
+          {isImage ? <div className="space-y-4 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+            {([
+              ["brightness", "Brightness", 0, 200],
+              ["contrast", "Contrast", 0, 200],
+              ["saturation", "Saturation", 0, 200],
+              ["blur", "Blur", 0, 20],
+            ] as const).map(([key, label, min, max]) => (
+              <label key={key} className="block text-xs font-bold text-white/70">{label}
+                <div className="mt-2 flex items-center gap-3">
+                  <input type="range" min={min} max={max} value={selectedElement[key] ?? (key === "blur" ? 0 : 100)} onChange={(event) => updateElement(selectedElement.id, { [key]: Number(event.target.value) })} className="w-full" />
+                  <span className="w-10 text-right text-[11px] text-white/50">{selectedElement[key] ?? (key === "blur" ? 0 : 100)}</span>
+                </div>
+              </label>
+            ))}
+            <label className="block text-xs font-bold text-white/70">Corner radius
+              <input type="range" min={0} max={100} value={selectedElement.borderRadius ?? 0} onChange={(event) => updateElement(selectedElement.id, { borderRadius: Number(event.target.value) })} className="mt-2 w-full" />
+            </label>
+            <button type="button" onClick={() => updateElement(selectedElement.id, { brightness: 100, contrast: 100, saturation: 100, blur: 0, borderRadius: 0, opacity: 1 })} className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">Reset image adjustments</button>
+          </div> : null}
           {isImage ? <label className="block text-xs font-bold text-white/70">Image fit
             <select value={selectedElement.objectFit ?? "cover"} onChange={(event) => updateElement(selectedElement.id, { objectFit: event.target.value as "cover" | "contain" })} className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"><option value="cover">Fill frame</option><option value="contain">Fit inside</option></select>
           </label> : <><label className="block text-xs font-bold text-white/70">Fill<input type="color" value={selectedElement.background ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { background: event.target.value })} className="mt-2 block h-10 w-full" /></label><button type="button" onClick={() => updateElement(selectedElement.id, { shape: selectedElement.shape === "circle" ? "rectangle" : "circle" })} className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">{selectedElement.shape === "circle" ? "Make rectangle" : "Make circle"}</button></>}
@@ -211,6 +230,29 @@ export default function PropertiesPanel({
               className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
             />
           </label>
+
+          <label className="block text-xs font-bold text-white/70">
+            Line spacing
+            <input type="range" min={0.8} max={2} step={0.05} value={selectedElement.lineHeight ?? 1.05} onChange={(event) => updateElement(selectedElement.id, { lineHeight: Number(event.target.value) })} className="mt-2 w-full" />
+          </label>
+
+          <label className="block text-xs font-bold text-white/70">
+            Text opacity
+            <input type="range" min={10} max={100} value={Math.round((selectedElement.opacity ?? 1) * 100)} onChange={(event) => updateElement(selectedElement.id, { opacity: Number(event.target.value) / 100 })} className="mt-2 w-full" />
+          </label>
+
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+            <p className="mb-3 text-xs font-black text-white/70">Outline & effects</p>
+            <label className="block text-xs font-bold text-white/60">Outline width
+              <input type="range" min={0} max={6} step={0.5} value={selectedElement.textStrokeWidth ?? 0} onChange={(event) => updateElement(selectedElement.id, { textStrokeWidth: Number(event.target.value) })} className="mt-2 w-full" />
+            </label>
+            <label className="mt-3 flex items-center justify-between text-xs font-bold text-white/60">Outline color
+              <input type="color" value={selectedElement.textStrokeColor ?? "#000000"} onChange={(event) => updateElement(selectedElement.id, { textStrokeColor: event.target.value })} className="h-8 w-12" />
+            </label>
+            <button type="button" aria-pressed={Boolean(selectedElement.glow)} onClick={() => updateElement(selectedElement.id, { glow: !selectedElement.glow })} className={selectedElement.glow ? "mt-3 w-full rounded-lg border border-violet-400/60 bg-violet-500/20 px-3 py-2 text-xs font-black" : "mt-3 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"}>
+              {selectedElement.glow ? "Glow on" : "Add glow"}
+            </button>
+          </div>
 
           <button
             type="button"
