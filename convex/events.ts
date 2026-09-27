@@ -22,6 +22,14 @@ export const generateUploadUrl = mutation({
   },
 });
 
+export const getImageUrls = query({
+  args: { storageIds: v.array(v.id("_storage")) },
+  handler: async (ctx, args) => {
+    if (args.storageIds.length > 100) throw new Error("Too many image layers.");
+    return await Promise.all(args.storageIds.map(async (storageId) => ({ storageId, url: await ctx.storage.getUrl(storageId) })));
+  },
+});
+
 export const getImageUrl = query({
   args: {
     storageId: v.id("_storage"),
