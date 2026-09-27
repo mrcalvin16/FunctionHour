@@ -183,7 +183,7 @@ export default function CanvasStage({
                   }}
                 >
                   {element.kind === "image" && element.imageUrl ? (
-                    <img src={element.imageUrl} alt="" draggable={false} className="pointer-events-none h-full w-full" style={{ objectFit: element.objectFit ?? "cover", opacity: element.opacity ?? 1, borderRadius: element.borderRadius }} />
+                    <img src={element.imageUrl} alt="" draggable={false} className="pointer-events-none h-full w-full" style={{ objectFit: element.objectFit ?? "cover", opacity: element.opacity ?? 1, borderRadius: element.borderRadius, filter: `brightness(${element.brightness ?? 100}%) contrast(${element.contrast ?? 100}%) saturate(${element.saturation ?? 100}%) blur(${element.blur ?? 0}px)` }} />
                   ) : element.kind === "shape" ? (
                     <div className="pointer-events-none h-full w-full" style={{ background: element.background ?? element.color, opacity: element.opacity ?? 1, borderRadius: element.shape === "circle" ? "9999px" : element.borderRadius, border: element.borderWidth ? `${element.borderWidth}px solid ${element.borderColor ?? "#ffffff"}` : undefined }} />
                   ) : element.kind === "qr" ? (
@@ -229,9 +229,9 @@ export default function CanvasStage({
                       fontFamily: element.fontFamily,
                       fontWeight: element.fontWeight,
                       color: element.color,
-                      textShadow: element.textShadow
-                        ? "0 3px 14px rgba(0,0,0,0.9)"
-                        : undefined,
+                      opacity: element.opacity ?? 1,
+                      WebkitTextStroke: element.textStrokeWidth ? `${element.textStrokeWidth}px ${element.textStrokeColor ?? "#000000"}` : undefined,
+                      textShadow: element.glow ? `0 0 8px ${element.color}, 0 0 20px ${element.color}` : element.textShadow ? "0 3px 14px rgba(0,0,0,0.9)" : undefined,
                       letterSpacing: element.letterSpacing,
                       textTransform: element.uppercase ? "uppercase" : "none",
                       borderRadius: element.borderRadius,
@@ -240,7 +240,7 @@ export default function CanvasStage({
                           ? element.background
                           : undefined,
                       padding: element.kind === "button" ? "0 16px" : undefined,
-                      lineHeight: element.kind === "button" ? 1 : 1.05,
+                      lineHeight: element.kind === "button" ? 1 : (element.lineHeight ?? 1.05),
                     }}
                   >
                     {element.text}

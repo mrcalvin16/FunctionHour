@@ -45,6 +45,14 @@ export type CanvasElement = {
   shape?: "rectangle" | "circle";
   borderColor?: string;
   borderWidth?: number;
+  lineHeight?: number;
+  textStrokeWidth?: number;
+  textStrokeColor?: string;
+  glow?: boolean;
+  brightness?: number;
+  contrast?: number;
+  saturation?: number;
+  blur?: number;
 };
 
 export type Guide = {
