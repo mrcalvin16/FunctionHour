@@ -1,5 +1,6 @@
 import type { MutableRefObject } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import { CalendarDays, MapPin, Music2, PartyPopper, Sparkles, Star, Ticket, type LucideIcon } from "lucide-react";
 import { backgroundPresets, CANVAS_WIDTH, formats, resizeHandles } from "./config";
 import { resizeHandleClass } from "./editor-utils";
 import type {
@@ -7,6 +8,16 @@ import type {
   Guide,
   ResizeHandle,
 } from "./types";
+
+const flyerIcons: Record<string, LucideIcon> = {
+  music: Music2,
+  location: MapPin,
+  ticket: Ticket,
+  calendar: CalendarDays,
+  party: PartyPopper,
+  sparkle: Sparkles,
+  star: Star,
+};
 
 type UpdateElement = (
   id: string,
@@ -192,6 +203,9 @@ export default function CanvasStage({
                     <div className="pointer-events-none flex h-full w-full items-center"><div className="w-full" style={{ opacity: element.opacity ?? 1, borderTop: `${Math.max(1, element.borderWidth ?? 3)}px ${element.lineStyle ?? "solid"} ${element.color}` }} /></div>
                   ) : element.kind === "frame" ? (
                     <div className="pointer-events-none h-full w-full" style={{ opacity: element.opacity ?? 1, border: `${Math.max(1, element.borderWidth ?? 4)}px solid ${element.borderColor ?? element.color}`, borderRadius: element.frameShape === "circle" ? "9999px" : element.borderRadius ?? 16, background: "transparent" }} />
+                  ) : element.kind === "icon" ? (() => { const Icon = flyerIcons[element.iconName ?? "star"] ?? Star; return <div className="pointer-events-none flex h-full w-full items-center justify-center" style={{ opacity: element.opacity ?? 1, color: element.color }}><Icon width="100%" height="100%" strokeWidth={Math.max(1, element.borderWidth ?? 2)} /></div>; })()
+                  : element.kind === "sticker" ? (
+                    <div className={`pointer-events-none flex h-full w-full items-center justify-center px-3 text-center font-black uppercase ${element.stickerStyle === "pill" ? "rounded-full" : element.stickerStyle === "burst" ? "[clip-path:polygon(50%_0%,61%_18%,79%_7%,82%_29%,100%_34%,88%_52%,100%_67%,79%_72%,78%_94%,59%_83%,48%_100%,38%_82%,17%_94%,18%_71%,0%_66%,13%_50%,0%_33%,20%_28%,20%_6%,40%_18%)]" : "rounded-2xl"}`} style={{ background: element.background ?? element.color, color: element.borderColor ?? "#ffffff", opacity: element.opacity ?? 1, fontSize: element.fontSize, border: element.borderWidth ? `${element.borderWidth}px solid ${element.borderColor ?? "#ffffff"}` : undefined }}>{element.text}</div>
                   ) : element.kind === "qr" ? (
                     <div className="flex h-full w-full items-center justify-center bg-white p-2" aria-label="Ticket QR code">
                       <QRCodeSVG
