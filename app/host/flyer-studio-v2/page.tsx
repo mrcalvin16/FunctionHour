@@ -544,17 +544,36 @@ export default function FlyerStudioV2Page() {
   function applyTemplate(template: (typeof templates)[number]) {
     setPrompt(template.prompt);
     setStyle(template.style);
-    commitElements((current) =>
-      current.map((element) => {
-        if (element.id === "headline") {
-          return { ...element, text: (selectedEvent?.name || template.name).toUpperCase() };
-        }
-        if (element.id === "style") {
-          return { ...element, text: template.style.toUpperCase() };
-        }
-        return element;
-      }),
-    );
+    setBackgroundPreset(template.background);
+    setBrandColor(template.accent);
+    const title = (selectedEvent?.name || template.name).toUpperCase();
+    const venue = selectedEvent?.venueName || [selectedEvent?.city, selectedEvent?.state].filter(Boolean).join(", ") || selectedEvent?.location || "YOUR VENUE";
+    const date = selectedEvent ? eventDateLabel(selectedEvent) : "FRI · 9 PM";
+    const layouts: Record<string, { headline: Partial<CanvasElement>; sub: Partial<CanvasElement>; venue: Partial<CanvasElement>; date: Partial<CanvasElement>; cta: Partial<CanvasElement> }> = {
+      minimal: { headline:{x:42,y:130,width:436,height:150,fontSize:54,letterSpacing:-2}, sub:{x:42,y:300,width:330,height:70,fontSize:15}, venue:{x:42,y:650,width:300}, date:{x:42,y:610,width:300}, cta:{x:338,y:674,width:140,height:50,borderRadius:999} },
+      split: { headline:{x:42,y:95,width:300,height:190,fontSize:58,letterSpacing:-3}, sub:{x:42,y:310,width:300,height:75,fontSize:16}, venue:{x:42,y:665,width:260}, date:{x:42,y:625,width:260}, cta:{x:340,y:665,width:138,height:52,borderRadius:12} },
+      stack: { headline:{x:34,y:155,width:452,height:170,fontSize:62,align:"center",letterSpacing:-3}, sub:{x:70,y:345,width:380,height:70,fontSize:16,align:"center"}, venue:{x:80,y:650,width:360,align:"center"}, date:{x:80,y:610,width:360,align:"center"}, cta:{x:180,y:700,width:160,height:48,borderRadius:999} },
+      college: { headline:{x:35,y:135,width:450,height:175,fontSize:60,align:"center",letterSpacing:-2}, sub:{x:65,y:330,width:390,height:65,fontSize:15,align:"center"}, venue:{x:40,y:660,width:280}, date:{x:40,y:620,width:280}, cta:{x:342,y:650,width:140,height:58,borderRadius:6} },
+      sports: { headline:{x:32,y:105,width:456,height:180,fontSize:64,letterSpacing:-4}, sub:{x:35,y:310,width:350,height:70,fontSize:16}, venue:{x:35,y:660,width:300}, date:{x:35,y:615,width:300}, cta:{x:345,y:655,width:140,height:54,borderRadius:4} },
+      poster: { headline:{x:38,y:100,width:444,height:210,fontSize:68,letterSpacing:-4}, sub:{x:42,y:330,width:360,height:70,fontSize:15}, venue:{x:42,y:660,width:290}, date:{x:42,y:620,width:290}, cta:{x:344,y:660,width:136,height:52,borderRadius:8} },
+      editorial: { headline:{x:42,y:120,width:420,height:175,fontSize:58,letterSpacing:-2}, sub:{x:42,y:315,width:350,height:80,fontSize:16}, venue:{x:42,y:660,width:280}, date:{x:42,y:620,width:280}, cta:{x:340,y:665,width:140,height:50,borderRadius:999} },
+    };
+    const layout = layouts[template.layout] || layouts.editorial;
+    const base = cloneElements(initialElements);
+    const byId = (id: string) => base.find((element) => element.id === id)!;
+    const designed: CanvasElement[] = [
+      { ...byId("kicker"), text: template.category.toUpperCase(), color: template.accent, x: 42, y: 48 },
+      { ...byId("headline"), ...layout.headline, text: title, color: "#ffffff" },
+      { ...byId("subheadline"), ...layout.sub, text: template.prompt.split(",")[0] + ".", color: "#ffffff", opacity: .82 },
+      { ...byId("venue"), ...layout.venue, text: String(venue).toUpperCase(), color: "#ffffff" },
+      { ...byId("venue"), id:"event-date", name:"Event date", ...layout.date, text: date || "FRI · 9 PM", color: template.accent, fontWeight:900 },
+      { ...byId("cta"), ...layout.cta, text:"GET TICKETS", background:template.accent, color:"#ffffff" },
+      { id:`template-accent-${Date.now()}`, kind:"shape", name:"Template accent", text:"", x:0, y:0, width:12, height:canvasHeight, fontSize:12, fontWeight:400, color:template.accent, background:template.accent, align:"center", opacity:.95 },
+    ];
+    commitElements(designed);
+    setSelectedElementId("headline");
+    setSelectedElementIds(["headline"]);
+    setStatus(`${template.name} design applied. Customize any element or save the draft.`);
   }
 
   function syncEventDetails() {
@@ -1374,12 +1393,16 @@ export default function FlyerStudioV2Page() {
                     onClick={() => applyTemplate(template)}
                     className="overflow-hidden rounded-xl border border-white/10 bg-black/30 text-left hover:border-violet-400/50"
                   >
-                    <div className="aspect-[4/5] bg-gradient-to-br from-violet-700/50 via-black to-orange-500/30 p-3">
-                      <p className="text-xs font-black">{template.name}</p>
+                    <div className="relative aspect-[4/5] overflow-hidden p-3" style={{ background: `radial-gradient(circle at 80% 15%, ${template.accent}88, transparent 34%), linear-gradient(145deg, #09090b, #18181b 60%, ${template.accent}44)` }}>
+                      <div className="absolute inset-y-0 left-0 w-1.5" style={{ background: template.accent }} />
+                      <p className="text-[8px] font-black uppercase tracking-[0.18em]" style={{ color: template.accent }}>{template.category}</p>
+                      <p className="mt-8 max-w-[90%] text-lg font-black uppercase leading-[.9] tracking-[-0.06em] text-white">{template.name}</p>
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <div className="mb-2 h-px bg-white/25" />
+                        <p className="text-[7px] font-bold uppercase tracking-widest text-white/60">Function Hour · Get Tickets</p>
+                      </div>
                     </div>
-                    <p className="p-2 text-[11px] font-bold text-white/60">
-                      Use template
-                    </p>
+                    <p className="p-2 text-[11px] font-bold text-white/60">Use design</p>
                   </button>
                 ))}
               </div>
