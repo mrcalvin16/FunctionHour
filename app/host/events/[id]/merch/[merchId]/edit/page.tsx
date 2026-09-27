@@ -77,7 +77,8 @@ export default function EditMerchPage({
     setDescription(merch.description ?? "");
     setPrice(String(merch.price ?? 0));
     setInventory(String(merch.inventory ?? 0));
-    setSku(merch.sku ?? "");
+    // Early merchandise records predate SKUs. Give them a stable editable default.
+    setSku(merch.sku || `MERCH-${String(merch._id).slice(-12)}`.toUpperCase());
     setProductType(merch.productType ?? "Apparel");
     setUnitCost(merch.unitCost === undefined ? "" : String(merch.unitCost));
     setShippingFee(
@@ -132,18 +133,28 @@ export default function EditMerchPage({
       setError("Inventory must be 0 or greater.");
       return;
     }
+    if (!sku.trim()) {
+      setError("A SKU is required. Enter one before saving.");
+      return;
+    }
 
     try {
       setSaving(true);
       let imageStorageId: Id<"_storage"> | undefined;
       if (image) {
         const uploadUrl = await generateUploadUrl({});
-        const response = await fetch(uploadUrl, {
+        const response = await fetch("/api/merch/image-upload", {
           method: "POST",
-          headers: { "Content-Type": image.type },
+          headers: {
+            "Content-Type": image.type,
+            "X-Convex-Upload-Url": uploadUrl,
+          },
           body: image,
         });
-        if (!response.ok) throw new Error("Image upload failed. Try again.");
+        if (!response.ok) {
+          const result = await response.json().catch(() => null);
+          throw new Error(result?.error || "Image upload failed. Try again.");
+        }
         imageStorageId = (await response.json()).storageId;
       }
 

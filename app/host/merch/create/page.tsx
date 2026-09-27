@@ -74,12 +74,18 @@ export default function CreateMerchDropPage() {
       let imageStorageId: Id<"_storage"> | undefined;
       if (image) {
         const uploadUrl = await generateUploadUrl({});
-        const response = await fetch(uploadUrl, {
+        const response = await fetch("/api/merch/image-upload", {
           method: "POST",
-          headers: { "Content-Type": image.type },
+          headers: {
+            "Content-Type": image.type,
+            "X-Convex-Upload-Url": uploadUrl,
+          },
           body: image,
         });
-        if (!response.ok) throw new Error("Image upload failed.");
+        if (!response.ok) {
+          const result = await response.json().catch(() => null);
+          throw new Error(result?.error || "Image upload failed. Try again.");
+        }
         imageStorageId = (await response.json()).storageId;
       }
       await createProduct({
