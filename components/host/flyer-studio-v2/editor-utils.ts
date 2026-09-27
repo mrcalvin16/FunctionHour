@@ -72,7 +72,7 @@ function isCanvasElement(value: unknown): value is CanvasElement {
 
   return (
     typeof element.id === "string" &&
-    (element.kind === "text" || element.kind === "button") &&
+    (element.kind === "text" || element.kind === "button" || element.kind === "qr") &&
     typeof element.name === "string" &&
     typeof element.text === "string" &&
     typeof element.x === "number" &&

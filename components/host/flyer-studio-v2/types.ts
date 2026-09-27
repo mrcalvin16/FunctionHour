@@ -7,7 +7,7 @@ export type SidebarTool =
   | "background";
 
 export type TextAlign = "left" | "center" | "right";
-export type ElementKind = "text" | "button";
+export type ElementKind = "text" | "button" | "qr";
 export type ResizeHandle =
   | "nw"
   | "n"

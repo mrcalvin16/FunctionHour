@@ -1,4 +1,4 @@
-import { MIN_HEIGHT, MIN_WIDTH } from "./config";
+import { CANVAS_WIDTH, MIN_HEIGHT, MIN_WIDTH } from "./config";
 import type { CanvasElement, TextAlign } from "./types";
 
 const fontOptions = [
@@ -21,6 +21,7 @@ export default function PropertiesPanel({
   alignToCanvas,
   duplicateSelected,
   deleteSelected,
+  canvasHeight,
 }: {
   selectedElement: CanvasElement | null;
   updateElement: (
@@ -35,7 +36,42 @@ export default function PropertiesPanel({
   ) => void;
   duplicateSelected: () => void;
   deleteSelected: () => void;
+  canvasHeight: number;
 }) {
+  if (selectedElement?.kind === "qr") {
+    return (
+      <aside className="max-h-[55vh] overflow-y-auto border-t border-white/10 bg-[#1b1b1b] p-4 lg:max-h-none lg:border-l lg:border-t-0">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/60">Ticket QR</p>
+        <p className="mt-3 text-sm leading-6 text-white/80">This code opens your event page. Place it on a clear part of the flyer and scan a downloaded copy before printing.</p>
+        <p className="mt-3 break-all rounded-xl border border-white/10 bg-black/30 p-3 text-xs text-white/70">{selectedElement.text}</p>
+        <label className="mt-5 block text-xs font-bold text-white/80">
+          QR size
+          <input
+            type="range"
+            min={96}
+            max={240}
+            value={Math.round(Math.max(selectedElement.width, selectedElement.height))}
+            onChange={(event) => {
+              const size = Number(event.target.value);
+              updateElement(selectedElement.id, {
+                width: size,
+                height: size,
+                x: Math.min(selectedElement.x, CANVAS_WIDTH - size),
+                y: Math.min(selectedElement.y, canvasHeight - size),
+              });
+            }}
+            className="mt-3 w-full"
+          />
+        </label>
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <button type="button" onClick={duplicateSelected} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">Duplicate</button>
+          <button type="button" onClick={() => updateElement(selectedElement.id, { locked: !selectedElement.locked })} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">{selectedElement.locked ? "Unlock" : "Lock"}</button>
+        </div>
+        <button type="button" onClick={deleteSelected} className="mt-4 w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-300">Remove QR</button>
+      </aside>
+    );
+  }
+
   return (
     <aside className="max-h-[55vh] overflow-y-auto border-t border-white/10 bg-[#1b1b1b] p-4 lg:max-h-none lg:border-l lg:border-t-0">
       <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
