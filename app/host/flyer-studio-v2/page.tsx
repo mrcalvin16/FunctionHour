@@ -1384,11 +1384,22 @@ export default function FlyerStudioV2Page() {
                 <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(event) => {
                   const file = event.target.files?.[0];
                   if (!file) return;
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    if (typeof reader.result === "string") addImageElement(reader.result, file.name);
-                  };
-                  reader.readAsDataURL(file);
+                  setIsUploading(true);
+                  void (async () => {
+                    try {
+                      const uploadUrl = await generateUploadUrl();
+                      const response = await fetch(uploadUrl, { method: "POST", headers: { "Content-Type": file.type }, body: file });
+                      if (!response.ok) throw new Error("Image upload failed.");
+                      const result = await response.json() as { storageId: Id<"_storage"> };
+                      const previewUrl = URL.createObjectURL(file);
+                      addImageElement(previewUrl, file.name, result.storageId);
+                      setStatus("Image layer uploaded to secure storage. Save the draft to keep it.");
+                    } catch {
+                      setStatus("Image layer upload failed. Please try again.");
+                    } finally {
+                      setIsUploading(false);
+                    }
+                  })();
                   event.target.value = "";
                 }} />
               </label>
