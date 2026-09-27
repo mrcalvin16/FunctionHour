@@ -11,11 +11,13 @@ import Map, {
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useLocalMapStyle } from "@/lib/useLocalMapStyle";
+import { getBuyerPriceLabel } from "@/app/events/eventPresentation";
 
 export type MapEvent = {
   _id: string;
   name?: string;
   description?: string;
+  category?: string;
   location?: string;
   venueName?: string;
   venueAddress?: string;
@@ -26,6 +28,7 @@ export type MapEvent = {
   dateString?: string;
   eventDate?: number;
   price?: number;
+  startingPrice?: number;
   imageUrl?: string | null;
 };
 
@@ -89,9 +92,11 @@ function matchesTime(event: MapEvent, mode: TimeMode) {
 export default function MapCanvas({
   events = [],
   timeMode,
+  onAvailabilityChange,
 }: {
   events: MapEvent[];
   timeMode: TimeMode;
+  onAvailabilityChange?: (available: boolean | null) => void;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewState, setViewState] = useState<ViewState>(DEFAULT_VIEW);
@@ -119,6 +124,10 @@ export default function MapCanvas({
   const selectedEvent =
     mappedEvents.find((event) => event._id === selectedId) ?? null;
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+  useEffect(() => {
+    onAvailabilityChange?.(!mapboxToken ? false : mapSupported);
+  }, [mapSupported, mapboxToken, onAvailabilityChange]);
 
   useEffect(() => {
     const canvas = document.createElement("canvas");
@@ -264,9 +273,7 @@ export default function MapCanvas({
                 </p>
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <span className="text-sm font-bold">
-                    {Number(selectedEvent.price ?? 0) > 0
-                      ? `From $${Number(selectedEvent.price).toFixed(0)}`
-                      : "Free"}
+                    {getBuyerPriceLabel(selectedEvent)}
                   </span>
                   <Link
                     href={`/events/${selectedEvent._id}`}

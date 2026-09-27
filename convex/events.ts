@@ -183,14 +183,26 @@ export const getMapEvents = query({
 
     return await Promise.all(
       events.map(async (event) => {
-        const imageUrl = event.imageStorageId
-          ? await ctx.storage.getUrl(event.imageStorageId)
-          : null;
+        const [imageUrl, ticketTypes] = await Promise.all([
+          event.imageStorageId
+            ? ctx.storage.getUrl(event.imageStorageId)
+            : Promise.resolve(null),
+          ctx.db.query("ticketTypes")
+            .withIndex("by_event", (q) => q.eq("eventId", event._id))
+            .take(100),
+        ]);
+        const activePrices = ticketTypes
+          .filter((ticketType) => ticketType.isActive !== false)
+          .map((ticketType) => ticketType.price);
+        const startingPrice = activePrices.length > 0
+          ? Math.min(...activePrices)
+          : (event.price ?? 0);
 
         return {
           _id: event._id,
           name: event.name,
           description: event.description,
+          category: event.category,
           location: event.location,
 
           venueName: event.venueName,
@@ -204,6 +216,7 @@ export const getMapEvents = query({
           eventDate: event.eventDate,
 
           price: event.price,
+          startingPrice,
           totalTickets: event.totalTickets,
           ticketsSold: event.ticketsSold,
 

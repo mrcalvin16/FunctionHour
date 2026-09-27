@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import PolicyPage from "@/components/legal/PolicyPage";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Function Hour",
+  title: "Terms of Service",
   description: "Terms governing use of the Function Hour platform.",
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {
