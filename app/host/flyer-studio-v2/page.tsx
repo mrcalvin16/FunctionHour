@@ -954,6 +954,34 @@ export default function FlyerStudioV2Page() {
     });
   }
 
+  function moveLayerTo(elementId: string, targetIndex: number) {
+    commitElements((current) => {
+      const fromIndex = current.findIndex((element) => element.id === elementId);
+      if (fromIndex < 0) return current;
+      const next = cloneElements(current);
+      const [element] = next.splice(fromIndex, 1);
+      next.splice(Math.max(0, Math.min(targetIndex, next.length)), 0, element);
+      return next;
+    });
+  }
+
+  function moveLayerEdge(elementId: string, edge: "front" | "back") {
+    commitElements((current) => {
+      const index = current.findIndex((element) => element.id === elementId);
+      if (index < 0) return current;
+      const next = cloneElements(current);
+      const [element] = next.splice(index, 1);
+      edge === "front" ? next.push(element) : next.unshift(element);
+      return next;
+    });
+  }
+
+  function renameLayer(elementId: string, name: string) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    updateElement(elementId, { name: trimmed });
+  }
+
   function addShapeElement(shape: "rectangle" | "circle") {
     const size = shape === "circle" ? 180 : 220;
     const id = `shape-${Date.now()}`;
@@ -1244,40 +1272,46 @@ export default function FlyerStudioV2Page() {
                 <button type="button" onClick={() => addShapeElement("circle")} className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs font-black hover:bg-white/10">+ Circle</button>
               </div>
               <div className="space-y-2">
-                {[...elements].reverse().map((element) => (
-                  <button
-                    key={element.id}
-                    type="button"
-                    onClick={() => setSelectedElementId(element.id)}
-                    className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left ${selectedElementId === element.id ? "border-violet-400 bg-violet-500/15" : "border-white/10 bg-white/5"}`}
-                  >
-                    <span className="flex-1 truncate text-sm font-bold">
-                      {element.name}
-                    </span>
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        updateElement(element.id, { hidden: !element.hidden });
+                {[...elements].reverse().map((element, visualIndex) => {
+                  const actualIndex = elements.length - 1 - visualIndex;
+                  const icon = element.kind === "text" ? "T" : element.kind === "button" ? "▣" : element.kind === "image" ? "▧" : element.kind === "shape" ? "●" : "QR";
+                  return (
+                    <div
+                      key={element.id}
+                      draggable
+                      onDragStart={(event) => event.dataTransfer.setData("text/plain", element.id)}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        const draggedId = event.dataTransfer.getData("text/plain");
+                        if (draggedId && draggedId !== element.id) moveLayerTo(draggedId, actualIndex);
                       }}
-                      className="rounded px-2 py-1 text-xs text-white/50 hover:bg-white/10"
+                      onClick={() => setSelectedElementId(element.id)}
+                      className={`rounded-xl border p-3 ${selectedElementId === element.id ? "border-violet-400 bg-violet-500/15" : "border-white/10 bg-white/5"}`}
                     >
-                      {element.hidden ? "Show" : "Hide"}
-                    </span>
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        updateElement(element.id, { locked: !element.locked });
-                      }}
-                      className="rounded px-2 py-1 text-xs text-white/50 hover:bg-white/10"
-                    >
-                      {element.locked ? "Unlock" : "Lock"}
-                    </span>
-                  </button>
-                ))}
+                      <div className="flex items-center gap-2">
+                        <span className="cursor-grab text-white/35" title="Drag to reorder">⋮⋮</span>
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/10 text-[10px] font-black text-white/70">{icon}</span>
+                        <input
+                          aria-label={`Rename ${element.name}`}
+                          defaultValue={element.name}
+                          onClick={(event) => event.stopPropagation()}
+                          onBlur={(event) => renameLayer(element.id, event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") event.currentTarget.blur();
+                          }}
+                          className="min-w-0 flex-1 bg-transparent text-sm font-bold text-white outline-none focus:border-b focus:border-violet-400"
+                        />
+                      </div>
+                      <div className="mt-2 grid grid-cols-4 gap-1">
+                        <button type="button" onClick={(event) => { event.stopPropagation(); moveLayerEdge(element.id, "front"); }} className="rounded bg-white/5 px-1 py-1 text-[10px] font-bold text-white/50 hover:bg-white/10">Front</button>
+                        <button type="button" onClick={(event) => { event.stopPropagation(); moveLayerEdge(element.id, "back"); }} className="rounded bg-white/5 px-1 py-1 text-[10px] font-bold text-white/50 hover:bg-white/10">Back</button>
+                        <button type="button" onClick={(event) => { event.stopPropagation(); updateElement(element.id, { hidden: !element.hidden }); }} className="rounded bg-white/5 px-1 py-1 text-[10px] font-bold text-white/50 hover:bg-white/10">{element.hidden ? "Show" : "Hide"}</button>
+                        <button type="button" onClick={(event) => { event.stopPropagation(); updateElement(element.id, { locked: !element.locked }); }} className="rounded bg-white/5 px-1 py-1 text-[10px] font-bold text-white/50 hover:bg-white/10">{element.locked ? "Unlock" : "Lock"}</button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </ToolPanel>
           )}
