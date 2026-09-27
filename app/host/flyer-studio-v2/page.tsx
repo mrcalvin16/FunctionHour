@@ -82,6 +82,7 @@ export default function FlyerStudioV2Page() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState("");
   const [socialPackOpen, setSocialPackOpen] = useState(false);
+  const [designCheckOpen, setDesignCheckOpen] = useState(false);
   const storedImageUrl = useQuery(
     api.events.getImageUrl,
     imageStorageId ? { storageId: imageStorageId } : "skip",
@@ -143,6 +144,40 @@ export default function FlyerStudioV2Page() {
     if (elements.some((element) => element.kind === "qr" && !element.hidden && element.text !== eventUrl)) issues.push("Ticket QR points to another event");
     return issues;
   }, [elements, eventUrl, selectedEvent]);
+  const designChecks = useMemo(() => {
+    const visible = elements.filter((element) => !element.hidden);
+    const issues: Array<{ level: "error" | "warning" | "pass"; label: string }> = [];
+    const hasHeadline = visible.some((element) => element.id === "headline" && element.text.trim());
+    const hasVenue = visible.some((element) => element.id === "venue" && element.text.trim());
+    const hasDate = visible.some((element) => element.id === "event-date" && element.text.trim());
+    const qrs = visible.filter((element) => element.kind === "qr");
+    const ctas = visible.filter((element) => element.kind === "button");
+    const images = visible.filter((element) => element.kind === "image");
+    const fonts = new Set(visible.filter((element) => element.kind === "text" || element.kind === "button").map((element) => element.fontFamily || "default"));
+    issues.push({ level: hasHeadline ? "pass" : "error", label: hasHeadline ? "Event title is present" : "Add an event title" });
+    issues.push({ level: hasDate ? "pass" : "warning", label: hasDate ? "Event date is present" : "Event date is missing" });
+    issues.push({ level: hasVenue ? "pass" : "warning", label: hasVenue ? "Venue/location is present" : "Venue or location is missing" });
+    issues.push({ level: ctas.length ? "pass" : "warning", label: ctas.length ? "Ticket call-to-action is present" : "Consider adding a ticket call-to-action" });
+    if (qrs.length) {
+      const tooSmall = qrs.some((element) => element.width < 110 || element.height < 110);
+      const wrongLink = qrs.some((element) => selectedEventId && element.text !== eventUrl);
+      issues.push({ level: tooSmall ? "warning" : "pass", label: tooSmall ? "Ticket QR may be too small to scan" : "Ticket QR has a scannable canvas size" });
+      if (wrongLink) issues.push({ level: "error", label: "Ticket QR points to a different event" });
+    } else {
+      issues.push({ level: "warning", label: "No ticket QR is included" });
+    }
+    const edgeRisk = visible.some((element) => element.x < 16 || element.y < 16 || element.x + element.width > CANVAS_WIDTH - 16 || element.y + element.height > canvasHeight - 16);
+    issues.push({ level: edgeRisk ? "warning" : "pass", label: edgeRisk ? "Some content is close to the crop/safe-zone edge" : "Content stays inside the basic safe zone" });
+    if (fonts.size > 3) issues.push({ level: "warning", label: `Design uses ${fonts.size} font families; consider simplifying typography` });
+    else issues.push({ level: "pass", label: "Typography uses three or fewer font families" });
+    const lowOpacityText = visible.some((element) => (element.kind === "text" || element.kind === "button") && (element.opacity ?? 1) < 0.55);
+    if (lowOpacityText) issues.push({ level: "warning", label: "Some text has low opacity and may be difficult to read" });
+    const blurredImages = images.some((element) => (element.blur ?? 0) > 4);
+    if (blurredImages) issues.push({ level: "warning", label: "A heavily blurred image layer may reduce clarity" });
+    return issues;
+  }, [canvasHeight, elements, eventUrl, selectedEventId]);
+  const designCheckProblems = designChecks.filter((check) => check.level !== "pass").length;
+
   const [exportReviewAcknowledged, setExportReviewAcknowledged] = useState(false);
 
   useEffect(() => {
@@ -1103,6 +1138,13 @@ export default function FlyerStudioV2Page() {
           {exportStatus && <span role="status" className="shrink-0 text-xs font-bold text-white/70">{exportStatus}</span>}
           <button
             type="button"
+            onClick={() => setDesignCheckOpen(true)}
+            className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-black hover:bg-white/10 sm:px-4"
+          >
+            Design Check{designCheckProblems ? ` · ${designCheckProblems}` : " ✓"}
+          </button>
+          <button
+            type="button"
             onClick={() => setSocialPackOpen(true)}
             className="shrink-0 rounded-lg border border-violet-400/40 bg-violet-500/15 px-3 py-2 text-sm font-black hover:bg-violet-500/25 sm:px-4"
           >
@@ -1449,6 +1491,18 @@ export default function FlyerStudioV2Page() {
           canvasHeight={canvasHeight}
         />
       </div>
+
+      {designCheckOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/75 p-4" onClick={() => setDesignCheckOpen(false)}>
+          <section className="w-full max-w-xl rounded-2xl border border-white/10 bg-[#181818] p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4"><div><p className="text-lg font-black">Design Check</p><p className="mt-1 text-sm text-white/55">{designCheckProblems ? `${designCheckProblems} item${designCheckProblems === 1 ? "" : "s"} to review before sharing.` : "Your flyer passes the current design checks."}</p></div><button type="button" onClick={() => setDesignCheckOpen(false)} className="rounded-lg border border-white/10 px-3 py-2 text-sm font-black text-white/60">Close</button></div>
+            <div className="mt-5 space-y-2">
+              {designChecks.map((check, index) => <div key={index} className={`flex items-start gap-3 rounded-xl border p-3 ${check.level === "error" ? "border-red-500/30 bg-red-500/10" : check.level === "warning" ? "border-amber-500/30 bg-amber-500/10" : "border-emerald-500/20 bg-emerald-500/5"}`}><span className="mt-0.5 text-sm font-black">{check.level === "error" ? "!" : check.level === "warning" ? "△" : "✓"}</span><span className="text-sm font-bold">{check.label}</span></div>)}
+            </div>
+            <p className="mt-4 text-xs leading-5 text-white/40">Design Check is guidance, not a publishing block. Review warnings in context; intentional creative choices can still be exported.</p>
+          </section>
+        </div>
+      )}
 
       {socialPackOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/75 p-4" onClick={() => setSocialPackOpen(false)}>
