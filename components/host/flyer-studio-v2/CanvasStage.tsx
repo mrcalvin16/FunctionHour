@@ -29,6 +29,7 @@ export default function CanvasStage({
   overlayStrength,
   elements,
   selectedElementId,
+  selectedElementIds,
   editingElementId,
   guides,
   onPointerMove,
@@ -52,6 +53,7 @@ export default function CanvasStage({
   overlayStrength: number;
   elements: CanvasElement[];
   selectedElementId: string;
+  selectedElementIds: string[];
   editingElementId: string | null;
   guides: Guide[];
   onPointerMove: (event: React.PointerEvent<HTMLDivElement>) => void;
@@ -115,7 +117,7 @@ export default function CanvasStage({
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-black/10 bg-white/80 px-4 py-2 text-[11px] font-medium text-zinc-600">
         <span><strong className="text-zinc-900">Select</strong> an element</span>
-        <span><strong className="text-zinc-900">Drag</strong> to move</span>
+        <span><strong className="text-zinc-900">Shift-click</strong> to multi-select</span>\n        <span><strong className="text-zinc-900">Drag</strong> to move selected items</span>
         <span><strong className="text-zinc-900">Double-click</strong> text to edit</span>
         <span><strong className="text-zinc-900">Resize handles</strong> adjust size</span>
       </div>
@@ -164,7 +166,7 @@ export default function CanvasStage({
 
             {elements.map((element) => {
               if (element.hidden) return null;
-              const isSelected = selectedElementId === element.id;
+              const isSelected = selectedElementIds.includes(element.id) || selectedElementId === element.id;
               const isEditing = editingElementId === element.id;
 
               return (
