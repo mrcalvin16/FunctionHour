@@ -26,6 +26,7 @@ export default function MapPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [timeMode, setTimeMode] = useState<TimeMode>("all");
+  const [mapAvailable, setMapAvailable] = useState<boolean | null>(null);
 
   const filteredEvents = useMemo(() => {
     if (!events) return [];
@@ -44,9 +45,13 @@ export default function MapPage() {
         .join(" ")
         .toLowerCase();
       if (term && !searchable.includes(term)) return false;
-      if (activeCategory === "Free") return Number(event.price ?? 0) <= 0;
+      if (activeCategory === "Free") return Number(event.startingPrice ?? event.price ?? 0) <= 0;
+      if (activeCategory === "Experience") {
+        return (event.category?.trim() || "Experience").toLowerCase() === "experience";
+      }
       return (
         activeCategory === "All" ||
+        event.category?.toLowerCase().includes(activeCategory.toLowerCase()) ||
         searchable.includes(activeCategory.toLowerCase())
       );
     });
@@ -60,7 +65,7 @@ export default function MapPage() {
 
   return (
     <main className="relative h-[100dvh] overflow-hidden bg-black text-white">
-      <MapCanvas events={filteredEvents} timeMode={timeMode} />
+      <MapCanvas events={filteredEvents} timeMode={timeMode} onAvailabilityChange={setMapAvailable} />
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 p-3 sm:p-5">
         <Link
@@ -83,7 +88,7 @@ export default function MapPage() {
         </a>
       </header>
 
-      <section className="absolute left-3 right-3 top-16 z-20 rounded-3xl border border-white/15 bg-black/85 p-3 shadow-2xl backdrop-blur-2xl sm:left-5 sm:right-auto sm:top-20 sm:w-[390px] sm:p-5">
+      {mapAvailable !== false && <section className="absolute left-3 right-3 top-16 z-20 rounded-3xl border border-white/15 bg-black/85 p-3 shadow-2xl backdrop-blur-2xl sm:left-5 sm:right-auto sm:top-20 sm:w-[390px] sm:p-5">
         <div className="hidden sm:block">
           <p className="text-[10px] font-black uppercase tracking-[0.28em] text-orange-300">
             Explore the city
@@ -157,7 +162,7 @@ export default function MapPage() {
             ? "Loading events…"
             : `${filteredEvents.length} event${filteredEvents.length === 1 ? "" : "s"} match your search`}
         </p>
-      </section>
+      </section>}
     </main>
   );
 }

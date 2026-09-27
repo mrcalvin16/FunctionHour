@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import PolicyPage from "@/components/legal/PolicyPage";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Function Hour",
+  title: "Privacy Policy",
   description: "How Function Hour collects, uses, and protects information.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {

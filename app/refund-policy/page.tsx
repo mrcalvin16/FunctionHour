@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import PolicyPage from "@/components/legal/PolicyPage";
 
 export const metadata: Metadata = {
-  title: "Refund Policy | Function Hour",
+  title: "Refund Policy",
   description: "How ticket refund requests are handled on Function Hour.",
+  alternates: { canonical: "/refund-policy" },
 };
 
 export default function RefundPolicyPage() {
