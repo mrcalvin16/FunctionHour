@@ -111,6 +111,7 @@ export default function FlyerStudioV2Page() {
     canRedo,
   } = useEditorHistory(initialElements);
   const [selectedElementId, setSelectedElementId] = useState("headline");
+  const [selectedElementIds, setSelectedElementIds] = useState<string[]>(["headline"]);
   const [editingElementId, setEditingElementId] = useState<string | null>(null);
   const [guides, setGuides] = useState<Guide[]>([]);
   const {
@@ -874,6 +875,10 @@ export default function FlyerStudioV2Page() {
     event.preventDefault();
     event.stopPropagation();
     event.currentTarget.setPointerCapture(event.pointerId);
+    const shiftSelecting = event.shiftKey;
+    const groupIds = element.groupId ? elements.filter((item) => item.groupId === element.groupId).map((item) => item.id) : [element.id];
+    const nextSelection = shiftSelecting ? Array.from(new Set([...selectedElementIds, ...groupIds])) : (selectedElementIds.includes(element.id) ? selectedElementIds : groupIds);
+    setSelectedElementIds(nextSelection);
     setSelectedElementId(element.id);
     interactionRef.current = {
       mode: "drag",
@@ -921,11 +926,18 @@ export default function FlyerStudioV2Page() {
         start.y + dy,
       );
       setGuides(snapped.guides);
-      updateElement(
-        interaction.elementId,
-        { x: snapped.x, y: snapped.y },
-        false,
-      );
+      const selectedAtStart = selectedElementIds.includes(interaction.elementId) ? selectedElementIds : [interaction.elementId];
+      const anchorStart = interaction.startSnapshot.find((item) => item.id === interaction.elementId) || start;
+      const appliedDx = snapped.x - anchorStart.x;
+      const appliedDy = snapped.y - anchorStart.y;
+      selectedAtStart.forEach((id) => {
+        const original = interaction.startSnapshot.find((item) => item.id === id);
+        if (!original || original.locked) return;
+        updateElement(id, {
+          x: Math.max(0, Math.min(CANVAS_WIDTH - original.width, original.x + appliedDx)),
+          y: Math.max(0, Math.min(canvasHeight - original.height, original.y + appliedDy)),
+        }, false);
+      });
       return;
     }
 
@@ -1069,6 +1081,50 @@ export default function FlyerStudioV2Page() {
     const trimmed = name.trim();
     if (!trimmed) return;
     updateElement(elementId, { name: trimmed });
+  }
+
+  function toggleElementSelection(elementId: string, additive: boolean) {
+    const element = elements.find((item) => item.id === elementId);
+    const relatedIds = element?.groupId ? elements.filter((item) => item.groupId === element.groupId).map((item) => item.id) : [elementId];
+    if (!additive) {
+      setSelectedElementIds(relatedIds);
+      setSelectedElementId(elementId);
+      return;
+    }
+    setSelectedElementIds((current) => current.includes(elementId) ? current.filter((id) => !relatedIds.includes(id)) : Array.from(new Set([...current, ...relatedIds])));
+    setSelectedElementId(elementId);
+  }
+
+  function groupSelected() {
+    if (selectedElementIds.length < 2) return;
+    const groupId = `group-${Date.now()}`;
+    commitElements((current) => current.map((element) => selectedElementIds.includes(element.id) ? { ...element, groupId } : element));
+    setStatus(`Grouped ${selectedElementIds.length} layers.`);
+  }
+
+  function ungroupSelected() {
+    const groups = new Set(elements.filter((element) => selectedElementIds.includes(element.id) && element.groupId).map((element) => element.groupId));
+    if (!groups.size) return;
+    commitElements((current) => current.map((element) => element.groupId && groups.has(element.groupId) ? { ...element, groupId: undefined } : element));
+    setStatus("Group removed.");
+  }
+
+  function alignSelected(alignment: "left" | "center" | "right" | "top" | "middle" | "bottom") {
+    const selected = elements.filter((element) => selectedElementIds.includes(element.id));
+    if (selected.length < 2) return;
+    const left = Math.min(...selected.map((element) => element.x));
+    const right = Math.max(...selected.map((element) => element.x + element.width));
+    const top = Math.min(...selected.map((element) => element.y));
+    const bottom = Math.max(...selected.map((element) => element.y + element.height));
+    commitElements((current) => current.map((element) => {
+      if (!selectedElementIds.includes(element.id) || element.locked) return element;
+      if (alignment === "left") return { ...element, x: left };
+      if (alignment === "center") return { ...element, x: left + (right - left - element.width) / 2 };
+      if (alignment === "right") return { ...element, x: right - element.width };
+      if (alignment === "top") return { ...element, y: top };
+      if (alignment === "middle") return { ...element, y: top + (bottom - top - element.height) / 2 };
+      return { ...element, y: bottom - element.height };
+    }));
   }
 
   function addShapeElement(shape: "rectangle" | "circle") {
@@ -1370,6 +1426,12 @@ export default function FlyerStudioV2Page() {
 
           {activeTool === "elements" && (
             <ToolPanel title="Layers">
+              <div className="mb-3 rounded-xl border border-white/10 bg-white/5 p-3">
+                <p className="text-xs font-black">{selectedElementIds.length} selected</p>
+                <p className="mt-1 text-[10px] text-white/45">Shift-click layers or canvas objects to select multiple.</p>
+                <div className="mt-3 grid grid-cols-2 gap-2"><button type="button" disabled={selectedElementIds.length < 2} onClick={groupSelected} className="rounded-lg bg-violet-600 px-2 py-2 text-[10px] font-black disabled:opacity-30">Group</button><button type="button" onClick={ungroupSelected} className="rounded-lg border border-white/10 px-2 py-2 text-[10px] font-black">Ungroup</button></div>
+                <div className="mt-2 grid grid-cols-3 gap-1">{(["left","center","right","top","middle","bottom"] as const).map((alignment) => <button key={alignment} type="button" disabled={selectedElementIds.length < 2} onClick={() => alignSelected(alignment)} className="rounded bg-white/5 px-1 py-1 text-[9px] font-bold capitalize text-white/60 disabled:opacity-30">{alignment}</button>)}</div>
+              </div>
               <div className="mb-4 grid grid-cols-2 gap-2">
                 <button type="button" onClick={() => addShapeElement("rectangle")} className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs font-black hover:bg-white/10">+ Rectangle</button>
                 <button type="button" onClick={() => addShapeElement("circle")} className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs font-black hover:bg-white/10">+ Circle</button>
@@ -1389,8 +1451,8 @@ export default function FlyerStudioV2Page() {
                         const draggedId = event.dataTransfer.getData("text/plain");
                         if (draggedId && draggedId !== element.id) moveLayerTo(draggedId, actualIndex);
                       }}
-                      onClick={() => setSelectedElementId(element.id)}
-                      className={`rounded-xl border p-3 ${selectedElementId === element.id ? "border-violet-400 bg-violet-500/15" : "border-white/10 bg-white/5"}`}
+                      onClick={(event) => toggleElementSelection(element.id, event.shiftKey)}
+                      className={`rounded-xl border p-3 ${selectedElementIds.includes(element.id) ? "border-violet-400 bg-violet-500/15" : "border-white/10 bg-white/5"}`}
                     >
                       <div className="flex items-center gap-2">
                         <span className="cursor-grab text-white/35" title="Drag to reorder">⋮⋮</span>
@@ -1523,12 +1585,14 @@ export default function FlyerStudioV2Page() {
           overlayStrength={overlayStrength}
           elements={elements}
           selectedElementId={selectedElementId}
+          selectedElementIds={selectedElementIds}
           editingElementId={editingElementId}
           guides={guides}
           onPointerMove={handlePointerMove}
           onInteractionFinish={finishInteraction}
           onClearSelection={() => {
             setSelectedElementId("");
+            setSelectedElementIds([]);
             setEditingElementId(null);
           }}
           onBeginDrag={beginDrag}
