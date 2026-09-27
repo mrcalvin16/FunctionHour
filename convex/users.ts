@@ -242,14 +242,24 @@ export const getBrandKit = query({
     if (!identity) return null;
     const user = await findCurrentUser(ctx, identity);
     if (!user) return null;
-    const logoUrl = user.brandLogoStorageId
-      ? await ctx.storage.getUrl(user.brandLogoStorageId)
-      : null;
+    let logoUrl: string | null = null;
+    if (user.brandLogoStorageId) {
+      try {
+        logoUrl = await ctx.storage.getUrl(user.brandLogoStorageId);
+      } catch {
+        // A deleted or legacy storage reference must never make Flyer Studio unusable.
+        logoUrl = null;
+      }
+    }
+    const validHex = (value: unknown): value is string =>
+      typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value);
     return {
-      primaryColor: user.brandPrimaryColor ?? "#8b5cf6",
-      secondaryColor: user.brandSecondaryColor ?? "#ffffff",
-      fontFamily: user.brandFontFamily ?? "Arial, Helvetica, sans-serif",
-      logoStorageId: user.brandLogoStorageId,
+      primaryColor: validHex(user.brandPrimaryColor) ? user.brandPrimaryColor : "#8b5cf6",
+      secondaryColor: validHex(user.brandSecondaryColor) ? user.brandSecondaryColor : "#ffffff",
+      fontFamily: typeof user.brandFontFamily === "string" && user.brandFontFamily.trim()
+        ? user.brandFontFamily.slice(0, 200)
+        : "Arial, Helvetica, sans-serif",
+      logoStorageId: logoUrl ? user.brandLogoStorageId : undefined,
       logoUrl,
     };
   },
