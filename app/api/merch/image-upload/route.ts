@@ -47,6 +47,13 @@ export async function POST(request: Request) {
   if (!image.byteLength || image.byteLength > MAX_IMAGE_BYTES) {
     return NextResponse.json({ error: "Choose a JPG, PNG, or WebP image under 10 MB." }, { status: 400 });
   }
+  const bytes = new Uint8Array(image, 0, Math.min(image.byteLength, 12));
+  const jpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  const png = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a;
+  const webp = String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" && String.fromCharCode(...bytes.slice(8, 12)) === "WEBP";
+  if (!((contentType === "image/jpeg" && jpeg) || (contentType === "image/png" && png) || (contentType === "image/webp" && webp))) {
+    return NextResponse.json({ error: "The uploaded file is not a valid JPG, PNG, or WebP image." }, { status: 400 });
+  }
 
   try {
     const response = await fetch(uploadUrl, {
