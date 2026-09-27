@@ -63,6 +63,8 @@ export default function FlyerStudioV2Page() {
     isLoaded && isSignedIn ? {} : "skip",
   ) as (Doc<"events"> & { imageUrl: string | null })[] | undefined;
   const generateUploadUrl = useMutation(api.events.generateUploadUrl);
+  const brandKit = useQuery(api.users.getBrandKit, isLoaded && isSignedIn ? {} : "skip");
+  const saveBrandKit = useMutation(api.users.saveBrandKit);
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const interactionRef = useRef<Interaction | null>(null);
@@ -88,6 +90,10 @@ export default function FlyerStudioV2Page() {
   );
   const backgroundImageUrl = imageStorageId ? storedImageUrl ?? "" : imagePreview;
   const [brandColor, setBrandColor] = useState("#8b5cf6");
+  const [brandSecondaryColor, setBrandSecondaryColor] = useState("#ffffff");
+  const [brandFontFamily, setBrandFontFamily] = useState("Arial, Helvetica, sans-serif");
+  const [brandLogoStorageId, setBrandLogoStorageId] = useState<Id<"_storage"> | null>(null);
+  const [brandSaveStatus, setBrandSaveStatus] = useState("");
   const [status, setStatus] = useState("");
   const [overlayStrength, setOverlayStrength] = useState(55);
   const [backgroundPreset, setBackgroundPreset] = useState("aurora");
@@ -583,6 +589,57 @@ export default function FlyerStudioV2Page() {
     changeFormat(nextFormatId);
     setSocialPackOpen(false);
     setStatus("Social version created. Review placement, then download or choose another Social Pack size.");
+  }
+
+  useEffect(() => {
+    if (!brandKit) return;
+    setBrandColor(brandKit.primaryColor);
+    setBrandSecondaryColor(brandKit.secondaryColor);
+    setBrandFontFamily(brandKit.fontFamily);
+    setBrandLogoStorageId((brandKit.logoStorageId as Id<"_storage"> | undefined) ?? null);
+  }, [brandKit]);
+
+  async function saveOrganizerBrandKit() {
+    setBrandSaveStatus("Saving…");
+    try {
+      await saveBrandKit({
+        primaryColor: brandColor,
+        secondaryColor: brandSecondaryColor,
+        fontFamily: brandFontFamily,
+        logoStorageId: brandLogoStorageId ?? undefined,
+      });
+      setBrandSaveStatus("Brand kit saved.");
+    } catch {
+      setBrandSaveStatus("Could not save brand kit.");
+    }
+  }
+
+  function applyOrganizerBrandKit() {
+    commitElements((current) => current.map((element) => {
+      if (element.kind === "text") return { ...element, fontFamily: brandFontFamily };
+      if (element.id === "cta") return { ...element, background: brandColor, color: brandSecondaryColor, fontFamily: brandFontFamily };
+      return element;
+    }));
+    applyBrandColor(brandColor);
+    if (brandKit?.logoUrl && !elements.some((element) => element.id === "brand-logo")) {
+      const logo: CanvasElement = {
+        id: "brand-logo", kind: "image", name: "Brand logo", text: "", imageUrl: brandKit.logoUrl,
+        objectFit: "contain", opacity: 1, x: 390, y: 36, width: 90, height: 70,
+        fontSize: 12, fontWeight: 400, color: "#ffffff", align: "center", borderRadius: 0,
+      };
+      commitElements((current) => [...current, logo]);
+    }
+    setStatus("Organizer brand kit applied.");
+  }
+
+  async function uploadBrandLogo(file: File) {
+    setBrandSaveStatus("Uploading logo…");
+    const uploadUrl = await generateUploadUrl();
+    const response = await fetch(uploadUrl, { method: "POST", headers: { "Content-Type": file.type }, body: file });
+    if (!response.ok) throw new Error("Logo upload failed.");
+    const result = await response.json() as { storageId: Id<"_storage"> };
+    setBrandLogoStorageId(result.storageId);
+    setBrandSaveStatus("Logo uploaded. Save brand kit to keep it.");
   }
 
   function applyBrandColor(color: string) {
@@ -1334,7 +1391,24 @@ export default function FlyerStudioV2Page() {
           {activeTool === "brand" && (
             <ToolPanel title="Brand Kit">
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                <p className="text-sm font-black">Function Hour highlights</p>
+                <p className="text-sm font-black">Organizer Brand Kit</p>
+                <p className="mt-1 text-xs leading-5 text-white/45">Save your logo, colors, and preferred font once, then reuse them across event flyers.</p>
+                {brandKit?.logoUrl ? <img src={brandKit.logoUrl} alt="Organizer logo" className="mt-4 h-16 w-full rounded-xl bg-white/5 object-contain p-2" /> : null}
+                <label className="mt-4 flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/5 p-3 text-xs font-black hover:border-violet-400/50">Upload logo<input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadBrandLogo(file).catch(() => setBrandSaveStatus("Logo upload failed.")); event.target.value = ""; }} /></label>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <label className="text-xs font-bold text-white/60">Primary<input type="color" value={brandColor} onChange={(event) => setBrandColor(event.target.value)} className="mt-2 block h-10 w-full" /></label>
+                  <label className="text-xs font-bold text-white/60">Secondary<input type="color" value={brandSecondaryColor} onChange={(event) => setBrandSecondaryColor(event.target.value)} className="mt-2 block h-10 w-full" /></label>
+                </div>
+                <label className="mt-4 block text-xs font-bold text-white/60">Preferred font
+                  <select value={brandFontFamily} onChange={(event) => setBrandFontFamily(event.target.value)} className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white">
+                    <option value="Arial, Helvetica, sans-serif">Modern Sans</option><option value="'Avenir Next', Avenir, Arial, sans-serif">Avenir</option><option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica</option><option value="Futura, 'Trebuchet MS', sans-serif">Futura</option><option value="Georgia, 'Times New Roman', serif">Editorial Serif</option><option value="Impact, 'Arial Narrow', sans-serif">Bold Display</option>
+                  </select>
+                </label>
+                <div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => void saveOrganizerBrandKit()} className="rounded-xl bg-violet-600 px-3 py-3 text-xs font-black hover:bg-violet-500">Save Brand Kit</button><button type="button" onClick={applyOrganizerBrandKit} className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-xs font-black hover:bg-white/10">Apply to Flyer</button></div>
+                {brandSaveStatus ? <p className="mt-3 text-xs font-bold text-white/50">{brandSaveStatus}</p> : null}
+              </div>
+              <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                <p className="text-sm font-black">Quick accent</p>
                 <p className="mt-1 text-xs leading-5 text-white/45">
                   Choose an accent. It updates the kicker and ticket button on your flyer.
                 </p>
