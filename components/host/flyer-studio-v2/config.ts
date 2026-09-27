@@ -24,30 +24,26 @@ export const sidebarTools: Array<{
 ];
 
 export const templates = [
-  {
-    name: "Luxury Nightlife",
-    style: "Luxury",
-    prompt:
-      "Luxury nightlife party with a stylish crowd, velvet rope exclusivity, cinematic lighting and premium event branding",
-  },
-  {
-    name: "Afrobeats Night",
-    style: "Afrobeats",
-    prompt:
-      "Afrobeats party with premium cultural nightlife energy, dancing crowd, warm luxury lighting and modern editorial styling",
-  },
-  {
-    name: "Rooftop Social",
-    style: "Rooftop",
-    prompt:
-      "Luxury rooftop event with skyline views, champagne atmosphere, elegant guests and cinematic sunset lighting",
-  },
-  {
-    name: "Festival Energy",
-    style: "Festival",
-    prompt:
-      "Large outdoor music festival with stage lights, crowd energy, confetti and premium campaign design",
-  },
+  { name: "Luxury Nightlife", style: "Luxury", category: "Nightlife", prompt: "Luxury nightlife party with a stylish crowd, velvet rope exclusivity, cinematic lighting and premium event branding" },
+  { name: "Afrobeats Night", style: "Afrobeats", category: "Nightlife", prompt: "Afrobeats party with premium cultural nightlife energy, dancing crowd, warm luxury lighting and modern editorial styling" },
+  { name: "Rooftop Social", style: "Rooftop", category: "Social", prompt: "Luxury rooftop event with skyline views, champagne atmosphere, elegant guests and cinematic sunset lighting" },
+  { name: "Festival Energy", style: "Festival", category: "Music", prompt: "Large outdoor music festival with stage lights, crowd energy, confetti and premium campaign design" },
+  { name: "Live in Concert", style: "Festival", category: "Music", prompt: "Headline concert poster with dramatic stage lighting, bold artist-focused composition, crowd silhouettes and premium tour-poster energy" },
+  { name: "Underground Set", style: "Underground", category: "Music", prompt: "Underground DJ event with dark club atmosphere, gritty editorial typography, neon lighting and late-night warehouse energy" },
+  { name: "Sunday Brunch", style: "Rooftop", category: "Food & Social", prompt: "Stylish Sunday brunch and day party with bright natural light, cocktails, elevated food presentation and fashionable social energy" },
+  { name: "Day Party", style: "Festival", category: "Social", prompt: "High-energy daytime party with sunshine, colorful crowd, cocktails, bold modern typography and summer event energy" },
+  { name: "Homecoming", style: "College", category: "College", prompt: "College homecoming celebration with alumni pride, campus energy, bold school-spirit composition and lively crowd atmosphere" },
+  { name: "Greek Night", style: "College", category: "College", prompt: "Polished fraternity and sorority social event with energetic campus nightlife, bold typography and premium promotional design" },
+  { name: "Game Day", style: "College", category: "Sports", prompt: "High-energy game day event with stadium atmosphere, fan excitement, bold athletic typography and dramatic sports-poster composition" },
+  { name: "Watch Party", style: "Underground", category: "Sports", prompt: "Premium sports watch party with large screens, energetic fans, food and drinks, bold matchup graphics and nightlife atmosphere" },
+  { name: "Comedy Night", style: "Luxury", category: "Entertainment", prompt: "Modern comedy show poster with spotlight stage, microphone, confident headline typography and intimate live-show atmosphere" },
+  { name: "Networking Mixer", style: "Luxury", category: "Professional", prompt: "Upscale professional networking mixer with polished guests, modern venue, sophisticated editorial design and premium business-event atmosphere" },
+  { name: "Grand Opening", style: "Luxury", category: "Business", prompt: "Premium grand opening celebration with elegant venue reveal, ribbon-cutting energy, stylish guests and polished launch-event branding" },
+  { name: "Community Fest", style: "Festival", category: "Community", prompt: "Welcoming community festival with families, local vendors, live entertainment, bright outdoor atmosphere and inclusive event branding" },
+  { name: "Art & Culture", style: "Luxury", category: "Culture", prompt: "Contemporary art and culture event with gallery-inspired composition, expressive creative details and refined editorial typography" },
+  { name: "All White Affair", style: "Luxury", category: "Nightlife", prompt: "Elegant all-white party with sophisticated guests, luminous white styling, upscale venue lighting and exclusive nightlife branding" },
+  { name: "Masquerade", style: "Luxury", category: "Experience", prompt: "Opulent masquerade event with dramatic masks, rich cinematic lighting, mysterious luxury atmosphere and ornate editorial styling" },
+  { name: "New Year's Eve", style: "Luxury", category: "Holiday", prompt: "Glamorous New Year's Eve celebration with midnight countdown energy, champagne, metallic sparkle, city nightlife and premium party branding" },
 ];
 
 export const formats = [
@@ -100,6 +96,10 @@ export const styleOptions = [
   "EDM",
   "Afrobeats",
   "College",
+  "Sports",
+  "Professional",
+  "Comedy",
+  "Community",
 ];
 
 export const resizeHandles: ResizeHandle[] = [
