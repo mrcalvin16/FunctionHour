@@ -8,7 +8,7 @@ export type SidebarTool =
   | "background";
 
 export type TextAlign = "left" | "center" | "right";
-export type ElementKind = "text" | "button" | "qr" | "image" | "shape";
+export type ElementKind = "text" | "button" | "qr" | "image" | "shape" | "line" | "frame";
 export type ResizeHandle =
   | "nw"
   | "n"
@@ -45,6 +45,8 @@ export type CanvasElement = {
   objectFit?: "cover" | "contain";
   opacity?: number;
   shape?: "rectangle" | "circle";
+  frameShape?: "rectangle" | "circle";
+  lineStyle?: "solid" | "dashed" | "dotted";
   borderColor?: string;
   borderWidth?: number;
   lineHeight?: number;
