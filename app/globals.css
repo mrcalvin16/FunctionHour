@@ -523,6 +523,10 @@ html.light ::-webkit-scrollbar-thumb {
   padding: 0.25rem 0.6rem;
 }
 
+html.light .functionhour-map-root .fh-map-inverse {
+  color: #ffffff !important;
+}
+
 .functionhour-map-canvas .mapboxgl-ctrl-top-right {
   top: 4.75rem;
   right: 0.75rem;
