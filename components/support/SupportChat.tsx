@@ -267,16 +267,18 @@ export default function SupportChat() {
     void sendMessage(input);
   }
 
+  const isFlyerStudio = pathname?.startsWith("/host/flyer-studio");
+
   const hasAnswered = messages.some(
     (message, index) => index > 0 && message.role === "assistant",
   );
 
   return (
-    <div className="fixed bottom-5 right-5 z-[70] sm:bottom-6 sm:right-6">
+    <div className={`fixed z-[70] ${isFlyerStudio ? "bottom-3 left-3 sm:bottom-4 sm:left-4" : "bottom-5 right-5 sm:bottom-6 sm:right-6"}`}>
       {open ? (
         <section
           aria-label="Chev"
-          className="mb-3 flex h-[min(620px,calc(100vh-7rem))] w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-3xl border border-black/10 bg-white shadow-2xl dark:border-white/10 dark:bg-zinc-950"
+          className={`mb-3 flex h-[min(620px,calc(100vh-7rem))] w-[min(390px,calc(100vw-2rem))] flex-col ${isFlyerStudio ? "origin-bottom-left" : "origin-bottom-right"}` overflow-hidden rounded-3xl border border-black/10 bg-white shadow-2xl dark:border-white/10 dark:bg-zinc-950"
         >
           <header className="flex items-center justify-between border-b border-black/10 px-4 py-3 dark:border-white/10">
             <div className="flex items-center gap-3">
@@ -482,12 +484,12 @@ export default function SupportChat() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="ml-auto flex h-14 items-center gap-2 rounded-full bg-black px-5 text-sm font-semibold text-white shadow-xl transition hover:scale-[1.02] dark:bg-white dark:text-black"
+        className={`flex items-center justify-center gap-2 rounded-full bg-black text-sm font-semibold text-white shadow-xl transition hover:scale-[1.02] dark:bg-white dark:text-black ${isFlyerStudio ? "h-11 w-11 p-0 sm:h-12 sm:w-12" : "ml-auto h-14 px-5"}`}
         aria-expanded={open}
         aria-label={open ? "Close Chev" : "Open Chev"}
       >
         <MessageCircle className="h-5 w-5" aria-hidden="true" />
-        <span>Help</span>
+        <span className={isFlyerStudio ? "sr-only" : undefined}>Help</span>
       </button>
     </div>
   );
