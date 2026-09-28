@@ -278,7 +278,7 @@ export default function SupportChat() {
       {open ? (
         <section
           aria-label="Chev"
-          className={`mb-3 flex h-[min(620px,calc(100vh-7rem))] w-[min(390px,calc(100vw-2rem))] flex-col ${isFlyerStudio ? "origin-bottom-left" : "origin-bottom-right"}` overflow-hidden rounded-3xl border border-black/10 bg-white shadow-2xl dark:border-white/10 dark:bg-zinc-950"
+          className={`mb-3 flex h-[min(620px,calc(100vh-7rem))] w-[min(390px,calc(100vw-2rem))] flex-col ${isFlyerStudio ? "origin-bottom-left" : "origin-bottom-right"} overflow-hidden rounded-3xl border border-black/10 bg-white shadow-2xl dark:border-white/10 dark:bg-zinc-950`}
         >
           <header className="flex items-center justify-between border-b border-black/10 px-4 py-3 dark:border-white/10">
             <div className="flex items-center gap-3">
