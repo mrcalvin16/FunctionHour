@@ -504,6 +504,25 @@ html.light ::-webkit-scrollbar-thumb {
   flex-direction: column;
 }
 
+.functionhour-map-popup .mapboxgl-popup-content {
+  padding: 0;
+  background: #09090b;
+  border-radius: 1rem;
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.4);
+}
+
+.functionhour-map-popup .mapboxgl-popup-tip {
+  border-top-color: #09090b;
+  border-bottom-color: #09090b;
+}
+
+.functionhour-map-popup .mapboxgl-popup-close-button {
+  z-index: 1;
+  color: white;
+  font-size: 1.25rem;
+  padding: 0.25rem 0.6rem;
+}
+
 @media (min-width: 640px) {
   .mobile-stack {
     flex-direction: row;
