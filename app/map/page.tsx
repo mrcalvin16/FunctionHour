@@ -64,7 +64,7 @@ export default function MapPage() {
   };
 
   return (
-    <main className="relative h-[100dvh] overflow-hidden bg-[#f8fafc] text-zinc-950">
+    <main className="functionhour-map-root relative h-[100dvh] overflow-hidden bg-[#f8fafc] text-zinc-950">
       <MapCanvas events={filteredEvents} timeMode={timeMode} onAvailabilityChange={setMapAvailable} />
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 p-3 sm:p-5">
@@ -131,7 +131,7 @@ export default function MapPage() {
               key={category}
               type="button"
               onClick={() => setActiveCategory(category)}
-              className={`min-h-10 shrink-0 rounded-full px-4 text-xs font-black transition ${activeCategory === category ? "bg-violet-700 text-white shadow-md shadow-violet-500/20" : "border border-zinc-200 bg-white text-zinc-700 hover:border-violet-300 hover:bg-violet-50"}`}
+              className={`min-h-10 shrink-0 rounded-full px-4 text-xs font-black transition ${activeCategory === category ? "fh-map-inverse bg-violet-700 text-white shadow-md shadow-violet-500/20" : "border border-zinc-200 bg-white text-zinc-700 hover:border-violet-300 hover:bg-violet-50"}`}
             >
               {category}
             </button>

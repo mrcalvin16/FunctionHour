@@ -255,7 +255,7 @@ export default function MapCanvas({
           <div className="mt-5 max-h-[40dvh] space-y-2 overflow-y-auto text-left">
             {[...visibleEvents].sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0)).map((event, index) => <div key={event._id} className="relative flex gap-3 pb-1">
               {index < visibleEvents.length - 1 && <span aria-hidden="true" className="absolute bottom-[-.5rem] left-[1.05rem] top-5 w-1 bg-gradient-to-b from-violet-600 to-orange-500" />}
-              <span className={`relative z-10 mt-2 grid h-9 w-9 shrink-0 place-items-center rounded-full border-4 border-white text-[10px] font-black text-white shadow-sm ${index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`}>{String(index + 1).padStart(2, "0")}</span>
+              <span className={`fh-map-inverse relative z-10 mt-2 grid h-9 w-9 shrink-0 place-items-center rounded-full border-4 border-white text-[10px] font-black text-white shadow-sm ${index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`}>{String(index + 1).padStart(2, "0")}</span>
               <Link href={`/events/${event._id}`} className="flex min-h-16 flex-1 items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-violet-50/40 p-3 text-sm font-bold text-zinc-950 hover:border-violet-400"><span><span className="block">{event.name || "Untitled event"}</span><span className="block text-xs font-normal text-zinc-600">{locationLabel(event)} · {getBuyerPriceLabel(event)}</span></span><ArrowUpRight className="h-4 w-4 shrink-0 text-violet-700" /></Link>
             </div>)}
             {visibleEvents.length === 0 && <p className="text-center text-sm text-zinc-600">No matching events.</p>}
@@ -263,7 +263,7 @@ export default function MapCanvas({
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a
             href="/events"
-            className="mt-5 inline-flex rounded-full bg-violet-700 px-5 py-3 text-sm font-black text-white"
+            className="fh-map-inverse mt-5 inline-flex rounded-full bg-violet-700 px-5 py-3 text-sm font-black text-white"
           >
             Browse event list
           </a>
@@ -313,7 +313,7 @@ export default function MapCanvas({
                   clickEvent.stopPropagation();
                   focusEvent(event);
                 }}
-                className={`group relative flex min-h-11 items-center gap-2 rounded-full border-[3px] border-white px-3 text-white shadow-[0_5px_20px_rgba(64,30,120,.27)] transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${active ? "bg-violet-700" : "bg-[#e94d28]"}`}
+                className={`fh-map-inverse group relative flex min-h-11 items-center gap-2 rounded-full border-[3px] border-white px-3 text-white shadow-[0_5px_20px_rgba(64,30,120,.27)] transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${active ? "bg-violet-700" : "bg-[#e94d28]"}`}
               >
                 <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20"><MapPin className="h-4 w-4" aria-hidden="true" /></span>
                 <span className="max-w-32 truncate text-xs font-black">{event.name || "Event"}</span>
@@ -358,7 +358,7 @@ export default function MapCanvas({
                   </span>
                   <Link
                     href={`/events/${selectedEvent._id}`}
-                    className="rounded-full bg-violet-700 px-4 py-2 text-xs font-black text-white"
+                    className="fh-map-inverse rounded-full bg-violet-700 px-4 py-2 text-xs font-black text-white"
                   >
                     View event
                   </Link>
@@ -411,7 +411,7 @@ export default function MapCanvas({
               className={`relative z-10 min-w-[220px] max-w-[260px] flex-1 pt-1 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${selectedId === event._id ? "text-violet-800" : "text-zinc-950"}`}
             >
               {index < visibleEvents.length - 1 && <span aria-hidden="true" className={`absolute -right-3 left-5 top-[1.3rem] h-1 ${index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`} />}
-              <span className={`relative z-10 grid h-9 w-9 place-items-center rounded-full border-4 border-white text-xs font-black text-white shadow-md ${selectedId === event._id ? "bg-violet-700 ring-2 ring-violet-300" : index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`}>{String(index + 1).padStart(2, "0")}</span>
+              <span className={`fh-map-inverse relative z-10 grid h-9 w-9 place-items-center rounded-full border-4 border-white text-xs font-black text-white shadow-md ${selectedId === event._id ? "bg-violet-700 ring-2 ring-violet-300" : index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`}>{String(index + 1).padStart(2, "0")}</span>
               <span className={`mt-1 block rounded-2xl border p-3 shadow-sm ${selectedId === event._id ? "border-violet-400 bg-violet-50" : "border-zinc-200 bg-white hover:border-violet-300 hover:bg-violet-50/50"}`}>
                 <span className="block text-[10px] font-black uppercase tracking-[0.1em] text-violet-700">{formatDate(event)}</span>
                 <span className="mt-1 block line-clamp-1 text-sm font-black">{event.name || "Untitled event"}</span>
