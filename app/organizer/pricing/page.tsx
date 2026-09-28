@@ -14,6 +14,7 @@ import {
 
 export const metadata: Metadata = {
   title: "Organizer pricing",
+  alternates: { canonical: "/organizer/pricing" },
   description:
     "Clear, competitive pricing for event organizers. No monthly subscription. 3.7% + $1.78 per paid ticket—one cent below Eventbrite's published per-ticket fee.",
 };

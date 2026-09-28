@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getBuyerPriceLabel } from "@/app/events/eventPresentation";
 import {
   Bot,
   Bookmark,
@@ -91,8 +92,8 @@ function formatLocation(event: EventResult) {
 }
 
 function formatPrice(price: number) {
-  if (!Number.isFinite(price) || price <= 0) return "See pricing";
-  return `From $${price.toFixed(price % 1 === 0 ? 0 : 2)}`;
+  if (!Number.isFinite(price)) return "See pricing";
+  return `From ${getBuyerPriceLabel({ startingPrice: price })}`;
 }
 
 function formatDestination(destination: SupportHandoff["destination"]) {

@@ -14,7 +14,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import VenueRules from "@/components/functionhour/VenueRules";
 import { getEventViewAttribution } from "@/lib/analytics/eventViewAttribution";
 import { getPrivacyPreferences, PRIVACY_PREFERENCES_EVENT } from "@/lib/privacyPreferences";
-import { formatEventDate, isEventUpcoming } from "../eventPresentation";
+import { formatEventDate, getBuyerPriceLabel, isEventUpcoming } from "../eventPresentation";
 
 function EventImage({
   storageId,
@@ -535,16 +535,12 @@ export default function EventDetailPage({
             <div className="mt-3 flex items-end justify-between gap-4">
               <div>
                 <p className="text-sm text-white/45">Starting at</p>
-                <p className="mt-1 text-4xl font-black tracking-[-0.05em]">
-                  {startingPrice === null
-                    ? "—"
-                    : startingPrice > 0
-                      ? `$${startingPrice.toLocaleString()}`
-                      : "Free"}
+                <p className="mt-1 text-2xl font-black tracking-[-0.05em] sm:text-3xl">
+                  {startingPrice === null ? "—" : getBuyerPriceLabel({ startingPrice })}
                 </p>
                 {startingPrice !== null && startingPrice > 0 && (
                   <p className="mt-1 text-[11px] text-white/45">
-                    Plus 3.7% + $1.78 service fee per ticket
+                    Includes the Function Hour service fee
                   </p>
                 )}
               </div>
@@ -581,10 +577,8 @@ export default function EventDetailPage({
                           {soldOut ? "Sold out" : "Available"}
                         </p>
                       </div>
-                      <p className="shrink-0 font-black">
-                        {ticket.price > 0
-                          ? `$${ticket.price.toLocaleString()}`
-                          : "Free"}
+                      <p className="shrink-0 text-sm font-black">
+                        {getBuyerPriceLabel({ startingPrice: ticket.price })}
                       </p>
                     </div>
                   );
@@ -699,15 +693,11 @@ export default function EventDetailPage({
             </p>
 
             <div>
-              <p className="truncate text-2xl font-black text-white">
-                {startingPrice === null
-                  ? "—"
-                  : startingPrice > 0
-                    ? `${startingPrice.toLocaleString()}`
-                    : "Free"}
+              <p className="truncate text-lg font-black text-white">
+                {startingPrice === null ? "—" : getBuyerPriceLabel({ startingPrice })}
               </p>
               {startingPrice !== null && startingPrice > 0 && (
-                <p className="text-[9px] text-white/45">+ $1.78 and 3.7% service fee</p>
+                <p className="text-[9px] text-white/65">Includes service fee</p>
               )}
             </div>
           </div>
