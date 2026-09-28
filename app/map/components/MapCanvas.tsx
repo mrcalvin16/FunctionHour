@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, LocateFixed, MapPin, Sparkles } from "lucide-react";
+import { ArrowUpRight, LocateFixed, MapPin, Route } from "lucide-react";
 import Map, {
+  Layer,
   Marker,
   NavigationControl,
   Popup,
+  Source,
   type MapRef,
   type ViewState,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useLocalMapStyle } from "@/lib/useLocalMapStyle";
 import { getBuyerPriceLabel } from "@/app/events/eventPresentation";
 
 export type MapEvent = {
@@ -121,7 +122,6 @@ export default function MapCanvas({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [lookedUp, setLookedUp] = useState<Record<string, { latitude: number; longitude: number } | null>>({});
   const mapRef = useRef<MapRef>(null);
-  const { appearance, mapStyle } = useLocalMapStyle();
 
   const visibleEvents = useMemo(
     () => events.filter((event) => matchesTime(event, timeMode)),
@@ -135,6 +135,18 @@ export default function MapCanvas({
   [visibleEvents, lookedUp]);
   const selectedEvent =
     mappedEvents.find((event) => event._id === selectedId) ?? null;
+  // A visual discovery line, not a travel route. Its stops follow the date order
+  // shown in the station rail, so the interface reads consistently at any zoom.
+  const eventLine = useMemo(() => ({
+    type: "Feature" as const,
+    properties: {},
+    geometry: {
+      type: "LineString" as const,
+      coordinates: [...mappedEvents]
+        .sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0))
+        .map((event) => [Number(event.longitude), Number(event.latitude)]),
+    },
+  }), [mappedEvents]);
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
   // Older events may have an address but no stored coordinates. Resolve those
@@ -231,23 +243,27 @@ export default function MapCanvas({
 
   if (!mapboxToken || mapSupported === false) {
     return (
-      <div className="flex h-full items-center justify-center overflow-y-auto bg-[radial-gradient(circle_at_75%_20%,#352059,#111018_60%)] p-6">
-        <div className="w-full max-w-xl rounded-3xl border border-orange-400/20 bg-black/65 p-6 text-center">
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-orange-300">
+      <div className="flex h-full items-center justify-center overflow-y-auto bg-[radial-gradient(circle_at_70%_25%,#eee8ff,#f9fafb_55%)] p-6">
+        <div className="w-full max-w-xl rounded-3xl border border-violet-200 bg-white/95 p-6 text-center shadow-xl shadow-violet-100">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-violet-700">
             Map unavailable
           </p>
           <h2 className="mt-3 text-2xl font-black">Explore the event trail</h2>
-          <p className="mt-3 text-sm leading-6 text-zinc-400">
+          <p className="mt-3 text-sm leading-6 text-zinc-600">
             The interactive map is unavailable here. Browse every matching event below.
           </p>
           <div className="mt-5 max-h-[40dvh] space-y-2 overflow-y-auto text-left">
-            {visibleEvents.map((event) => <Link key={event._id} href={`/events/${event._id}`} className="flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3 text-sm font-bold text-white hover:border-orange-300"><span><span className="block">{event.name || "Untitled event"}</span><span className="block text-xs font-normal text-zinc-300">{locationLabel(event)} · {getBuyerPriceLabel(event)}</span></span><ArrowUpRight className="h-4 w-4 shrink-0" /></Link>)}
-            {visibleEvents.length === 0 && <p className="text-center text-sm text-zinc-300">No matching events.</p>}
+            {[...visibleEvents].sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0)).map((event, index) => <div key={event._id} className="relative flex gap-3 pb-1">
+              {index < visibleEvents.length - 1 && <span aria-hidden="true" className="absolute bottom-[-.5rem] left-[1.05rem] top-5 w-1 bg-gradient-to-b from-violet-600 to-orange-500" />}
+              <span className={`relative z-10 mt-2 grid h-9 w-9 shrink-0 place-items-center rounded-full border-4 border-white text-[10px] font-black text-white shadow-sm ${index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`}>{String(index + 1).padStart(2, "0")}</span>
+              <Link href={`/events/${event._id}`} className="flex min-h-16 flex-1 items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-violet-50/40 p-3 text-sm font-bold text-zinc-950 hover:border-violet-400"><span><span className="block">{event.name || "Untitled event"}</span><span className="block text-xs font-normal text-zinc-600">{locationLabel(event)} · {getBuyerPriceLabel(event)}</span></span><ArrowUpRight className="h-4 w-4 shrink-0 text-violet-700" /></Link>
+            </div>)}
+            {visibleEvents.length === 0 && <p className="text-center text-sm text-zinc-600">No matching events.</p>}
           </div>
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a
             href="/events"
-            className="mt-5 inline-flex rounded-full bg-white px-5 py-3 text-sm font-black text-black"
+            className="mt-5 inline-flex rounded-full bg-violet-700 px-5 py-3 text-sm font-black text-white"
           >
             Browse event list
           </a>
@@ -261,7 +277,7 @@ export default function MapCanvas({
   }
 
   return (
-    <div className={`relative h-full overflow-hidden ${appearance === "light" ? "bg-zinc-100" : "bg-zinc-950"}`}>
+    <div className="functionhour-map-canvas relative h-full overflow-hidden bg-[#f8fafc]">
       <Map
         ref={mapRef}
         {...viewState}
@@ -273,10 +289,14 @@ export default function MapCanvas({
           if (/webgl|context/i.test(message)) setMapSupported(false);
         }}
         mapboxAccessToken={mapboxToken}
-        mapStyle={mapStyle}
+        mapStyle="mapbox://styles/mapbox/light-v11"
         attributionControl={false}
       >
-        <NavigationControl position="bottom-right" showCompass={false} />
+        <NavigationControl position="top-right" showCompass={false} />
+        {mappedEvents.length > 1 && <Source id="functionhour-event-line" type="geojson" data={eventLine}>
+          <Layer id="event-line-halo" type="line" paint={{ "line-color": "#ffffff", "line-width": 10, "line-opacity": 0.92 }} layout={{ "line-cap": "round", "line-join": "round" }} />
+          <Layer id="event-line-color" type="line" paint={{ "line-color": "#7c3aed", "line-width": 5, "line-opacity": 0.85, "line-dasharray": [2, 1.3] }} layout={{ "line-cap": "round", "line-join": "round" }} />
+        </Source>}
         {mappedEvents.map((event) => {
           const active = selectedId === event._id;
           return (
@@ -293,7 +313,7 @@ export default function MapCanvas({
                   clickEvent.stopPropagation();
                   focusEvent(event);
                 }}
-                className={`group relative flex min-h-11 items-center gap-2 rounded-full border border-white/70 px-3 text-white shadow-[0_8px_32px_rgba(0,0,0,.38)] transition hover:scale-105 ${active ? "bg-violet-600" : "bg-[#ff5b35]"}`}
+                className={`group relative flex min-h-11 items-center gap-2 rounded-full border-[3px] border-white px-3 text-white shadow-[0_5px_20px_rgba(64,30,120,.27)] transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${active ? "bg-violet-700" : "bg-[#e94d28]"}`}
               >
                 <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20"><MapPin className="h-4 w-4" aria-hidden="true" /></span>
                 <span className="max-w-32 truncate text-xs font-black">{event.name || "Event"}</span>
@@ -313,7 +333,7 @@ export default function MapCanvas({
             onClose={() => setSelectedId(null)}
             maxWidth="320px"
           >
-            <article className="overflow-hidden rounded-2xl bg-zinc-950 text-white">
+            <article className="overflow-hidden rounded-2xl bg-white text-zinc-950">
               {selectedEvent.imageUrl && (
                 <img
                   src={selectedEvent.imageUrl}
@@ -322,23 +342,23 @@ export default function MapCanvas({
                 />
               )}
               <div className="p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-300">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-700">
                   {formatDate(selectedEvent)}
                 </p>
                 <h2 className="mt-2 line-clamp-2 text-lg font-black">
                   {selectedEvent.name || "Untitled event"}
                 </h2>
-                <p className="mt-2 line-clamp-2 text-sm text-zinc-400">
+                <p className="mt-2 line-clamp-2 text-sm text-zinc-600">
                   {locationLabel(selectedEvent)}
                 </p>
-                {selectedEvent.approximateLocation && <p className="mt-1 text-xs text-orange-200">Approximate location · confirm venue on event page</p>}
+                {selectedEvent.approximateLocation && <p className="mt-1 text-xs font-medium text-orange-700">Approximate location · confirm venue on event page</p>}
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <span className="text-sm font-bold">
                     {getBuyerPriceLabel(selectedEvent)}
                   </span>
                   <Link
                     href={`/events/${selectedEvent._id}`}
-                    className="rounded-full bg-white px-4 py-2 text-xs font-black text-black"
+                    className="rounded-full bg-violet-700 px-4 py-2 text-xs font-black text-white"
                   >
                     View event
                   </Link>
@@ -349,15 +369,15 @@ export default function MapCanvas({
         )}
       </Map>
 
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_26%,rgba(255,96,55,.12),transparent_32%),linear-gradient(to_bottom,rgba(20,14,35,.12),transparent_35%)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_26%,rgba(255,96,55,.07),transparent_34%)]" />
 
       <button
         type="button"
         onClick={useMyLocation}
-        className="absolute bottom-44 right-3 z-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-black/85 px-4 text-xs font-black text-white shadow-xl backdrop-blur-xl hover:bg-zinc-900 sm:bottom-44 sm:right-5"
+        className="absolute bottom-48 right-3 z-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-zinc-200 bg-white/95 px-4 text-xs font-black text-zinc-950 shadow-lg backdrop-blur-xl hover:bg-violet-50 sm:bottom-48 sm:right-5"
       >
         <LocateFixed
-          className={`h-4 w-4 ${locationStatus === "loading" ? "animate-pulse text-orange-300" : ""}`}
+          className={`h-4 w-4 ${locationStatus === "loading" ? "animate-pulse text-violet-700" : ""}`}
           aria-hidden="true"
         />
         {locationStatus === "loading"
@@ -368,16 +388,17 @@ export default function MapCanvas({
       </button>
 
       {visibleEvents.length === 0 && (
-        <div className="absolute inset-x-3 bottom-36 z-10 rounded-2xl border border-white/10 bg-black/85 p-4 text-center text-sm text-zinc-300 backdrop-blur-xl sm:bottom-5 sm:left-auto sm:right-5 sm:max-w-sm">
+        <div className="absolute inset-x-3 bottom-36 z-10 rounded-2xl border border-zinc-200 bg-white/95 p-4 text-center text-sm text-zinc-700 shadow-lg backdrop-blur-xl sm:bottom-5 sm:left-auto sm:right-5 sm:max-w-sm">
           No events match these filters. Try another category, date, or location.
         </div>
       )}
 
       {visibleEvents.length > 0 && (
-        <div className="absolute inset-x-0 bottom-0 z-10 border-t border-white/15 bg-[#120f1b]/90 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shadow-[0_-18px_60px_rgba(25,15,40,.35)] backdrop-blur-xl sm:px-5">
-          <div className="mb-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-orange-200"><Sparkles className="h-3.5 w-3.5" /> The event trail <span className="ml-auto text-zinc-300">{visibleEvents.length} found</span></div>
-          <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
-          {visibleEvents.map((event) => (
+        <section aria-label="Event line stops" className="absolute inset-x-0 bottom-0 z-10 border-t border-violet-200 bg-white/95 px-3 pb-[max(.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-16px_50px_rgba(72,41,120,.12)] backdrop-blur-xl sm:px-5">
+          <div className="mb-1 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.17em] text-violet-700"><Route className="h-4 w-4" /> The event line <span className="ml-auto text-zinc-600">{visibleEvents.length} stop{visibleEvents.length === 1 ? "" : "s"}</span></div>
+          <p className="mb-2 text-[10px] text-zinc-600">A way to explore events · not travel directions</p>
+          <div className="relative flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
+          {[...visibleEvents].sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0)).map((event, index) => (
             <button
               key={event._id}
               type="button"
@@ -386,22 +407,21 @@ export default function MapCanvas({
                 if (mapped) focusEvent(mapped);
                 else window.location.assign(`/events/${event._id}`);
               }}
-              className={`min-w-[220px] max-w-[260px] flex-1 rounded-2xl border p-3 text-left transition hover:border-orange-300 ${selectedId === event._id ? "border-orange-400 bg-orange-500/20" : "border-white/15 bg-white/[0.07]"}`}
+              aria-label={`Stop ${index + 1}: ${event.name || "Untitled event"}, ${locationLabel(event)}`}
+              className={`relative z-10 min-w-[220px] max-w-[260px] flex-1 pt-1 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${selectedId === event._id ? "text-violet-800" : "text-zinc-950"}`}
             >
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-orange-300">
-                {formatDate(event)}
-              </p>
-              <p className="mt-1 line-clamp-1 font-black text-white">
-                {event.name || "Untitled event"}
-              </p>
-              <p className="mt-1 line-clamp-1 text-xs text-zinc-400">
-                {locationLabel(event)}
-              </p>
-              <p className="mt-2 flex items-center justify-between text-xs font-bold text-white"><span>{getBuyerPriceLabel(event)}</span><span className="flex items-center text-orange-200">{mappedEvents.some((item) => item._id === event._id) ? "Show pin" : "View event"}<ArrowUpRight className="ml-1 h-3 w-3" /></span></p>
+              {index < visibleEvents.length - 1 && <span aria-hidden="true" className={`absolute -right-3 left-5 top-[1.3rem] h-1 ${index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`} />}
+              <span className={`relative z-10 grid h-9 w-9 place-items-center rounded-full border-4 border-white text-xs font-black text-white shadow-md ${selectedId === event._id ? "bg-violet-700 ring-2 ring-violet-300" : index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`}>{String(index + 1).padStart(2, "0")}</span>
+              <span className={`mt-1 block rounded-2xl border p-3 shadow-sm ${selectedId === event._id ? "border-violet-400 bg-violet-50" : "border-zinc-200 bg-white hover:border-violet-300 hover:bg-violet-50/50"}`}>
+                <span className="block text-[10px] font-black uppercase tracking-[0.1em] text-violet-700">{formatDate(event)}</span>
+                <span className="mt-1 block line-clamp-1 text-sm font-black">{event.name || "Untitled event"}</span>
+                <span className="mt-1 block line-clamp-1 text-xs text-zinc-600">{locationLabel(event)}</span>
+                <span className="mt-2 flex items-center justify-between text-xs font-bold"><span>{getBuyerPriceLabel(event)}</span><span className="flex items-center text-violet-700">{mappedEvents.some((item) => item._id === event._id) ? "Show stop" : "View event"}<ArrowUpRight className="ml-1 h-3 w-3" /></span></span>
+              </span>
             </button>
           ))}
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

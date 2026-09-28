@@ -506,21 +506,33 @@ html.light ::-webkit-scrollbar-thumb {
 
 .functionhour-map-popup .mapboxgl-popup-content {
   padding: 0;
-  background: #09090b;
+  background: #ffffff;
   border-radius: 1rem;
-  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 18px 54px rgba(72, 41, 120, 0.22);
 }
 
 .functionhour-map-popup .mapboxgl-popup-tip {
-  border-top-color: #09090b;
-  border-bottom-color: #09090b;
+  border-top-color: #ffffff;
+  border-bottom-color: #ffffff;
 }
 
 .functionhour-map-popup .mapboxgl-popup-close-button {
   z-index: 1;
-  color: white;
+  color: #18181b;
   font-size: 1.25rem;
   padding: 0.25rem 0.6rem;
+}
+
+.functionhour-map-canvas .mapboxgl-ctrl-top-right {
+  top: 4.75rem;
+  right: 0.75rem;
+}
+
+.functionhour-map-canvas .mapboxgl-ctrl-group {
+  border: 1px solid #e4e4e7;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(72, 41, 120, 0.12);
 }
 
 @media (min-width: 640px) {
