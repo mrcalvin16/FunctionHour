@@ -112,7 +112,7 @@ export default function DiscoveryEventCard({
         </button>
 
         <div className="pointer-events-none absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
-          <div className="max-w-[72%] rounded-xl border border-white/20 bg-black/85 px-3 py-2 text-white shadow-lg ">
+          <div className="discovery-event-schedule max-w-[72%] rounded-xl border border-white/20 bg-black/85 px-3 py-2 text-white shadow-lg ">
             <p className="truncate text-xs font-black leading-4">{schedule.date}</p>
             <p className="mt-1 text-xs font-black leading-4 text-white">{schedule.time}</p>
           </div>
