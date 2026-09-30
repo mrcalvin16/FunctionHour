@@ -42,7 +42,7 @@ export function getBuyerPriceLabel(event: Pick<DiscoveryEvent, "startingPrice" |
   return `$${((ticketCents + feeCents) / 100).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })} incl. fee`;
+  })}`;
 }
 
 export function getFromPriceLabel(event: Pick<DiscoveryEvent, "startingPrice" | "price">) {
