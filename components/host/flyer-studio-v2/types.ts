@@ -5,10 +5,12 @@ export type SidebarTool =
   | "brand"
   | "elements"
   | "layers"
+  | "history"
   | "background";
 
 export type TextAlign = "left" | "center" | "right";
-export type ElementKind = "text" | "button" | "qr" | "image" | "shape" | "line" | "frame" | "icon" | "sticker";
+export type ElementKind = "text" | "button" | "qr" | "image" | "shape" | "line" | "frame" | "icon" | "sticker" | "adjustment";
+export type BlendMode = "normal" | "multiply" | "screen" | "overlay" | "soft-light" | "difference" | "color";
 export type ResizeHandle =
   | "nw"
   | "n"
@@ -44,6 +46,7 @@ export type CanvasElement = {
   imageStorageId?: string;
   objectFit?: "cover" | "contain";
   opacity?: number;
+  blendMode?: BlendMode;
   shape?: "rectangle" | "circle";
   frameShape?: "rectangle" | "circle";
   lineStyle?: "solid" | "dashed" | "dotted";

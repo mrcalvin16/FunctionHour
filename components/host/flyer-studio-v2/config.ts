@@ -20,6 +20,7 @@ export const sidebarTools: Array<{
   { id: "text", label: "Text" },
   { id: "brand", label: "Brand Kit" },
   { id: "layers", label: "Layers" },
+  { id: "history", label: "History" },
   { id: "background", label: "Background" },
 ];
 

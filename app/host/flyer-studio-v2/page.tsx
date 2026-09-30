@@ -8,7 +8,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { toPng } from "html-to-image";
-import { Box, CalendarDays, Circle, Frame, ImageUp, Layers3, LayoutTemplate, MapPin, Minus, Music2, Palette, PartyPopper, Shapes, Sparkles, Square, Star, Ticket, Type, Upload, WandSparkles } from "lucide-react";
+import { Box, CalendarDays, Circle, Frame, History, ImageUp, Layers3, LayoutTemplate, MapPin, Minus, Music2, Palette, PartyPopper, Shapes, Sparkles, Square, Star, Ticket, Type, Upload, WandSparkles } from "lucide-react";
 import ToolPanel from "@/components/host/flyer-studio-v2/ToolPanel";
 import PropertiesPanel from "@/components/host/flyer-studio-v2/PropertiesPanel";
 import CanvasStage from "@/components/host/flyer-studio-v2/CanvasStage";
@@ -48,6 +48,7 @@ const sidebarIcons: Record<SidebarTool, typeof LayoutTemplate> = {
   text: Type,
   brand: WandSparkles,
   layers: Layers3,
+  history: History,
   background: Palette,
 };
 
@@ -82,6 +83,7 @@ export default function FlyerStudioV2Page() {
   const editingStartRef = useRef<CanvasElement[] | null>(null);
   const clipboardRef = useRef<CanvasElement | null>(null);
   const loadedEventIdRef = useRef("");
+  const previousCanvasToolRef = useRef<"select" | "marquee" | "hand" | null>(null);
 
   const [activeTool, setActiveTool] = useState<SidebarTool>("templates");
   const [selectedEventId, setSelectedEventId] = useState("");
@@ -92,6 +94,8 @@ export default function FlyerStudioV2Page() {
   const [imageStorageId, setImageStorageId] = useState<Id<"_storage"> | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
+  const [retouchElementId, setRetouchElementId] = useState<string | null>(null);
+  const [canvasTool, setCanvasTool] = useState<"select" | "marquee" | "hand">("select");
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState("");
   const [socialPackOpen, setSocialPackOpen] = useState(false);
@@ -120,6 +124,9 @@ export default function FlyerStudioV2Page() {
     resetElements,
     canUndo,
     canRedo,
+    historySteps,
+    historyVersion,
+    jumpToHistory,
   } = useEditorHistory(initialElements);
   const [selectedElementId, setSelectedElementId] = useState("headline");
   const [selectedElementIds, setSelectedElementIds] = useState<string[]>(["headline"]);
@@ -352,6 +359,7 @@ export default function FlyerStudioV2Page() {
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
+      if (isErasing) return;
       const target = event.target as HTMLElement | null;
       const isTyping =
         target?.tagName === "INPUT" ||
@@ -466,9 +474,28 @@ export default function FlyerStudioV2Page() {
       if (event.key === "Escape") {
         event.preventDefault();
         setSelectedElementId("");
+        setSelectedElementIds([]);
         setEditingElementId(null);
         setGuides([]);
         return;
+      }
+
+      if (!event.metaKey && !event.ctrlKey && !event.altKey) {
+        if (event.code === "Space") {
+          event.preventDefault();
+          if (!event.repeat && previousCanvasToolRef.current === null) {
+            previousCanvasToolRef.current = canvasTool;
+            setCanvasTool("hand");
+          }
+          return;
+        }
+        const key = event.key.toLowerCase();
+        if (key === "v" || key === "m" || key === "h") {
+          setCanvasTool(key === "v" ? "select" : key === "m" ? "marquee" : "hand");
+          return;
+        }
+        if (event.key === "+" || event.key === "=") setZoom((value) => Math.min(250, value + 10));
+        if (event.key === "-" || event.key === "_") setZoom((value) => Math.max(25, value - 10));
       }
 
       // Arrow keys move the selected element by 1px.
@@ -537,9 +564,16 @@ export default function FlyerStudioV2Page() {
       }
     }
 
+    function handleKeyUp(event: KeyboardEvent) {
+      if (event.code === "Space" && previousCanvasToolRef.current !== null) {
+        setCanvasTool(previousCanvasToolRef.current);
+        previousCanvasToolRef.current = null;
+      }
+    }
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [canvasHeight, commitElements, elements, redo, selectedElementId, undo]);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => { window.removeEventListener("keydown", handleKeyDown); window.removeEventListener("keyup", handleKeyUp); };
+  }, [canvasHeight, canvasTool, commitElements, elements, isErasing, redo, selectedElementId, undo]);
 
   function applyTemplate(template: (typeof templates)[number]) {
     setPrompt(template.prompt);
@@ -812,6 +846,49 @@ export default function FlyerStudioV2Page() {
     } finally {
       setIsUploading(false);
     }
+  }
+
+  async function saveRetouchedImage(file: Blob) {
+    if (!retouchElementId) return uploadBackground(file);
+    if (file.size > 10 * 1024 * 1024) throw new Error("Edited image must be under 10 MB.");
+    setIsUploading(true);
+    try {
+      const uploadUrl = await generateUploadUrl();
+      const response = await fetch(uploadUrl, { method: "POST", headers: { "Content-Type": file.type }, body: file });
+      if (!response.ok) throw new Error("Could not upload the edited layer.");
+      const { storageId } = await response.json() as { storageId: Id<"_storage"> };
+      updateElement(retouchElementId, { imageStorageId: storageId, imageUrl: URL.createObjectURL(file) });
+      setStatus("Image edit applied. Save your draft to keep it.");
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  function addAdjustmentLayer() {
+    const id = `adjustment-${Date.now()}`;
+    commitElements((current) => [...current, {
+      id, kind: "adjustment", name: `Adjustment ${current.filter((element) => element.kind === "adjustment").length + 1}`,
+      text: "", x: 0, y: 0, width: CANVAS_WIDTH, height: canvasHeight,
+      fontSize: 12, fontWeight: 400, color: "#ffffff", align: "left",
+      brightness: 100, contrast: 100, saturation: 100, blur: 0, opacity: 1, blendMode: "normal",
+    }]);
+    setSelectedElementId(id);
+    setSelectedElementIds([id]);
+    setActiveTool("layers");
+  }
+
+  function marqueeSelect(rect: { x: number; y: number; width: number; height: number }) {
+    if (rect.width < 4 && rect.height < 4) {
+      setSelectedElementId("");
+      setSelectedElementIds([]);
+      return;
+    }
+    const ids = elements.filter((element) => !element.hidden && !element.locked &&
+      element.x < rect.x + rect.width && element.x + element.width > rect.x &&
+      element.y < rect.y + rect.height && element.y + element.height > rect.y).map((element) => element.id);
+    setSelectedElementIds(ids);
+    setSelectedElementId(ids.at(-1) ?? "");
+    setActiveTool("layers");
   }
 
   async function downloadCanvas() {
@@ -1120,7 +1197,8 @@ export default function FlyerStudioV2Page() {
       if (index < 0) return current;
       const next = cloneElements(current);
       const [element] = next.splice(index, 1);
-      edge === "front" ? next.push(element) : next.unshift(element);
+      if (edge === "front") next.push(element);
+      else next.unshift(element);
       return next;
     });
   }
@@ -1488,8 +1566,8 @@ export default function FlyerStudioV2Page() {
               )}
               {backgroundImageUrl && (
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  <button type="button" onClick={() => setIsErasing(true)} className="rounded-xl border border-zinc-300 bg-white px-3 py-3 text-sm font-bold text-zinc-900 hover:border-violet-500">
-                    Erase part of image
+                  <button type="button" onClick={() => { setRetouchElementId(null); setIsErasing(true); }} className="rounded-xl border border-zinc-300 bg-white px-3 py-3 text-sm font-bold text-zinc-900 hover:border-violet-500">
+                    Retouch background
                   </button>
                   <button type="button" onClick={() => { setImageStorageId(null); setImagePreview(""); setStatus("Background image removed."); }} className="rounded-xl border border-zinc-300 bg-white px-3 py-3 text-sm font-bold text-zinc-900 hover:border-violet-500">
                     Remove entire image
@@ -1534,6 +1612,7 @@ export default function FlyerStudioV2Page() {
                 <button type="button" onClick={() => setActiveTool("uploads")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><ImageUp className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Image</span><span className="mt-1 block text-[10px] text-white/45">Upload a movable layer</span></button>
                 <button type="button" onClick={addLineElement} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Minus className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Line</span><span className="mt-1 block text-[10px] text-white/45">Dividers & accents</span></button>
                 <button type="button" onClick={() => addFrameElement("rectangle")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Frame className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Frame</span><span className="mt-1 block text-[10px] text-white/45">Editable border frame</span></button>
+                <button type="button" onClick={addAdjustmentLayer} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Palette className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Adjustment layer</span><span className="mt-1 block text-[10px] text-white/60">Stack color and light effects</span></button>
               </div>
               <div className="mt-5 border-t border-white/10 pt-4"><p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-white/45">Event icons</p><div className="grid grid-cols-4 gap-2">{[
                   ["music","Music",Music2],["location","Location",MapPin],["ticket","Ticket",Ticket],["calendar","Date",CalendarDays],["party","Party",PartyPopper],["sparkle","Sparkle",Sparkles],["star","Star",Star],
@@ -1553,7 +1632,7 @@ export default function FlyerStudioV2Page() {
               <div className="space-y-2">
                 {[...elements].reverse().map((element, visualIndex) => {
                   const actualIndex = elements.length - 1 - visualIndex;
-                  const icon = element.kind === "text" ? "T" : element.kind === "button" ? "▣" : element.kind === "image" ? "▧" : element.kind === "shape" ? "●" : element.kind === "line" ? "—" : element.kind === "frame" ? "□" : element.kind === "icon" ? "✦" : element.kind === "sticker" ? "★" : "QR";
+                  const icon = element.kind === "text" ? "T" : element.kind === "button" ? "▣" : element.kind === "image" ? "▧" : element.kind === "adjustment" ? "◒" : element.kind === "shape" ? "●" : element.kind === "line" ? "—" : element.kind === "frame" ? "□" : element.kind === "icon" ? "✦" : element.kind === "sticker" ? "★" : "QR";
                   return (
                     <div
                       key={element.id}
@@ -1591,6 +1670,19 @@ export default function FlyerStudioV2Page() {
                     </div>
                   );
                 })}
+              </div>
+            </ToolPanel>
+          )}
+
+          {activeTool === "history" && (
+            <ToolPanel title="History">
+              <p className="mb-3 text-xs leading-5 text-white/70">Step back through edits. Select a snapshot to restore it; new edits then begin from that point.</p>
+              <div className="mb-3 grid grid-cols-2 gap-2">
+                <button type="button" onClick={undo} disabled={!canUndo} className="rounded-lg border border-white/20 px-3 py-2 text-xs font-bold disabled:opacity-40">Undo</button>
+                <button type="button" onClick={redo} disabled={!canRedo} className="rounded-lg border border-white/20 px-3 py-2 text-xs font-bold disabled:opacity-40">Redo</button>
+              </div>
+              <div className="max-h-72 space-y-1 overflow-auto" data-history-version={historyVersion}>
+                {historySteps.map((step) => <button key={step.index} type="button" aria-current={step.current ? "step" : undefined} onClick={() => jumpToHistory(step.index)} className={`block w-full rounded-lg border p-2 text-left text-xs font-medium hover:border-violet-400 ${step.current ? "border-violet-400 bg-violet-500/20 text-white" : "border-white/10 bg-white/5 text-white/80"}`}>{step.current ? "Current" : `Step ${step.index + 1}`} · {step.layerCount} layers</button>)}
               </div>
             </ToolPanel>
           )}
@@ -1692,6 +1784,9 @@ export default function FlyerStudioV2Page() {
           onFormatChange={changeFormat}
           zoom={zoom}
           onZoomChange={setZoom}
+          canvasTool={canvasTool}
+          onCanvasToolChange={setCanvasTool}
+          onMarqueeSelect={marqueeSelect}
           canvasHeight={canvasHeight}
           canvasScale={canvasScale}
           imagePreview={backgroundImageUrl}
@@ -1723,6 +1818,7 @@ export default function FlyerStudioV2Page() {
           duplicateSelected={duplicateSelected}
           deleteSelected={deleteSelected}
           canvasHeight={canvasHeight}
+          onEditImage={(id) => { setRetouchElementId(id); setIsErasing(true); }}
         />
       </div>
 
@@ -1761,11 +1857,11 @@ export default function FlyerStudioV2Page() {
         </div>
       )}
 
-      {isErasing && backgroundImageUrl && (
+      {isErasing && (retouchElementId ? elements.find((element) => element.id === retouchElementId)?.imageUrl : backgroundImageUrl) && (
         <BackgroundEraser
-          imageUrl={backgroundImageUrl}
-          onSave={uploadBackground}
-          onClose={() => setIsErasing(false)}
+          imageUrl={(retouchElementId ? elements.find((element) => element.id === retouchElementId)?.imageUrl : backgroundImageUrl)!}
+          onSave={saveRetouchedImage}
+          onClose={() => { setIsErasing(false); setRetouchElementId(null); }}
         />
       )}
     </main>
