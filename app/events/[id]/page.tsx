@@ -14,7 +14,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import VenueRules from "@/components/functionhour/VenueRules";
 import { getEventViewAttribution } from "@/lib/analytics/eventViewAttribution";
 import { getPrivacyPreferences, PRIVACY_PREFERENCES_EVENT } from "@/lib/privacyPreferences";
-import { formatEventDate, getBuyerPriceLabel, isEventUpcoming } from "../eventPresentation";
+import { formatEventDate, getBuyerPriceLabel, getFromPriceLabel, isEventUpcoming } from "../eventPresentation";
 
 function EventImage({
   storageId,
@@ -534,13 +534,13 @@ export default function EventDetailPage({
 
             <div className="mt-3 flex items-end justify-between gap-4">
               <div>
-                <p className="text-sm text-white/45">Starting at</p>
+                <p className="text-sm text-white/70">Tickets</p>
                 <p className="mt-1 text-2xl font-black tracking-[-0.05em] sm:text-3xl">
-                  {startingPrice === null ? "—" : getBuyerPriceLabel({ startingPrice })}
+                  {startingPrice === null ? "—" : getFromPriceLabel({ startingPrice })}
                 </p>
                 {startingPrice !== null && startingPrice > 0 && (
                   <p className="mt-1 text-[11px] text-white/45">
-                    Includes the Function Hour service fee
+                    Price includes the Function Hour service fee
                   </p>
                 )}
               </div>
@@ -689,12 +689,12 @@ export default function EventDetailPage({
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/45">
-              Starting at
+              Tickets
             </p>
 
             <div>
               <p className="truncate text-lg font-black text-white">
-                {startingPrice === null ? "—" : getBuyerPriceLabel({ startingPrice })}
+                {startingPrice === null ? "—" : getFromPriceLabel({ startingPrice })}
               </p>
               {startingPrice !== null && startingPrice > 0 && (
                 <p className="text-[9px] text-white/65">Includes service fee</p>

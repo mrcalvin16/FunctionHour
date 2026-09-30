@@ -13,7 +13,7 @@ import Map, {
   type ViewState,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { getBuyerPriceLabel } from "@/app/events/eventPresentation";
+import { getFromPriceLabel } from "@/app/events/eventPresentation";
 
 export type MapEvent = {
   _id: string;
@@ -256,7 +256,7 @@ export default function MapCanvas({
             {[...visibleEvents].sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0)).map((event, index) => <div key={event._id} className="relative flex gap-3 pb-1">
               {index < visibleEvents.length - 1 && <span aria-hidden="true" className="absolute bottom-[-.5rem] left-[1.05rem] top-5 w-1 bg-gradient-to-b from-violet-600 to-orange-500" />}
               <span className={`fh-map-inverse relative z-10 mt-2 grid h-9 w-9 shrink-0 place-items-center rounded-full border-4 border-white text-[10px] font-black text-white shadow-sm ${index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`}>{String(index + 1).padStart(2, "0")}</span>
-              <Link href={`/events/${event._id}`} className="flex min-h-16 flex-1 items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-violet-50/40 p-3 text-sm font-bold text-zinc-950 hover:border-violet-400"><span><span className="block">{event.name || "Untitled event"}</span><span className="block text-xs font-normal text-zinc-600">{locationLabel(event)} · {getBuyerPriceLabel(event)}</span></span><ArrowUpRight className="h-4 w-4 shrink-0 text-violet-700" /></Link>
+              <Link href={`/events/${event._id}`} className="flex min-h-16 flex-1 items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-violet-50/40 p-3 text-sm font-bold text-zinc-950 hover:border-violet-400"><span><span className="block">{event.name || "Untitled event"}</span><span className="block text-xs font-normal text-zinc-600">{locationLabel(event)} · {getFromPriceLabel(event)}</span></span><ArrowUpRight className="h-4 w-4 shrink-0 text-violet-700" /></Link>
             </div>)}
             {visibleEvents.length === 0 && <p className="text-center text-sm text-zinc-600">No matching events.</p>}
           </div>
@@ -354,7 +354,7 @@ export default function MapCanvas({
                 {selectedEvent.approximateLocation && <p className="mt-1 text-xs font-medium text-orange-700">Approximate location · confirm venue on event page</p>}
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <span className="text-sm font-bold">
-                    {getBuyerPriceLabel(selectedEvent)}
+                    {getFromPriceLabel(selectedEvent)}
                   </span>
                   <Link
                     href={`/events/${selectedEvent._id}`}
@@ -416,7 +416,7 @@ export default function MapCanvas({
                 <span className="block text-[10px] font-black uppercase tracking-[0.1em] text-violet-700">{formatDate(event)}</span>
                 <span className="mt-1 block line-clamp-1 text-sm font-black">{event.name || "Untitled event"}</span>
                 <span className="mt-1 block line-clamp-1 text-xs text-zinc-600">{locationLabel(event)}</span>
-                <span className="mt-2 flex items-center justify-between text-xs font-bold"><span>{getBuyerPriceLabel(event)}</span><span className="flex items-center text-violet-700">{mappedEvents.some((item) => item._id === event._id) ? "Show stop" : "View event"}<ArrowUpRight className="ml-1 h-3 w-3" /></span></span>
+                <span className="mt-2 flex items-center justify-between text-xs font-bold"><span>{getFromPriceLabel(event)}</span><span className="flex items-center text-violet-700">{mappedEvents.some((item) => item._id === event._id) ? "Show stop" : "View event"}<ArrowUpRight className="ml-1 h-3 w-3" /></span></span>
               </span>
             </button>
           ))}

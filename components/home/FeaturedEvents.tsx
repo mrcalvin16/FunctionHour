@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useStorageUrl } from "@/lib/utils";
+import { getFromPriceLabel, type DiscoveryEvent } from "@/app/events/eventPresentation";
 
 export default function FeaturedEvents() {
   const events = useQuery(api.events.getAll);
@@ -29,12 +30,12 @@ export default function FeaturedEvents() {
 
   return (
     <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {featuredEvents.map((event: any) => <FeaturedEventCard key={event._id} event={event} />)}
+      {featuredEvents.map((event) => <FeaturedEventCard key={event._id} event={event} />)}
     </div>
   );
 }
 
-function FeaturedEventCard({ event }: { event: any }) {
+function FeaturedEventCard({ event }: { event: DiscoveryEvent }) {
   const imageUrl = useStorageUrl(event.imageStorageId);
 
   return (
@@ -50,8 +51,8 @@ function FeaturedEventCard({ event }: { event: any }) {
       </div>
       <div className="flex items-center justify-between gap-4 p-5">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-white/35">Starting at</p>
-          <p className="mt-1 text-xl font-black">${event.price ?? 0}</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-white/70">Tickets</p>
+          <p className="mt-1 text-xl font-black">{getFromPriceLabel(event)}</p>
         </div>
         <span className="rounded-full bg-white px-5 py-2.5 text-sm font-black text-black transition group-hover:bg-orange-300">View Event</span>
       </div>
