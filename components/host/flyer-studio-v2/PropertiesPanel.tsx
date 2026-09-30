@@ -1,5 +1,20 @@
 import { CANVAS_WIDTH, MIN_HEIGHT, MIN_WIDTH } from "./config";
-import type { CanvasElement, TextAlign } from "./types";
+import type { BlendMode, CanvasElement, TextAlign } from "./types";
+
+const blendModes: { value: BlendMode; label: string }[] = [
+  { value: "normal", label: "Normal" }, { value: "multiply", label: "Multiply" },
+  { value: "screen", label: "Screen" }, { value: "overlay", label: "Overlay" },
+  { value: "soft-light", label: "Soft light" }, { value: "difference", label: "Difference" },
+  { value: "color", label: "Color" },
+];
+
+function BlendControl({ element, update }: { element: CanvasElement; update: (id: string, patch: Partial<CanvasElement>) => void }) {
+  return <label className="block text-xs font-bold text-white/80">Blending mode
+    <select value={element.blendMode ?? "normal"} onChange={(event) => update(element.id, { blendMode: event.target.value as BlendMode })} className="mt-2 w-full rounded-lg border border-white/20 bg-zinc-900 p-2 text-white">
+      {blendModes.map((mode) => <option key={mode.value} value={mode.value}>{mode.label}</option>)}
+    </select>
+  </label>;
+}
 
 const fontOptions = [
   { name: "Modern Sans", stack: "Arial, Helvetica, sans-serif" },
@@ -22,6 +37,7 @@ export default function PropertiesPanel({
   duplicateSelected,
   deleteSelected,
   canvasHeight,
+  onEditImage,
 }: {
   selectedElement: CanvasElement | null;
   updateElement: (
@@ -37,7 +53,25 @@ export default function PropertiesPanel({
   duplicateSelected: () => void;
   deleteSelected: () => void;
   canvasHeight: number;
+  onEditImage: (id: string) => void;
 }) {
+  if (selectedElement?.kind === "adjustment") return (
+    <aside className="max-h-[55vh] overflow-y-auto border-t border-white/10 bg-[#1b1b1b] p-4 lg:max-h-none lg:border-l lg:border-t-0">
+      <h2 className="text-sm font-black">Adjustment layer</h2>
+      <p className="mt-2 text-xs leading-5 text-white/70">Changes the image and layers beneath it within this layer’s bounds. Stack layers for combined effects.</p>
+      <div className="mt-5 space-y-5">
+        {([ ["brightness", "Brightness", 0, 200], ["contrast", "Contrast", 0, 200], ["saturation", "Saturation", 0, 200], ["blur", "Blur", 0, 20] ] as const).map(([key, label, min, max]) => <label key={key} className="block text-xs font-bold text-white/80">{label} · {selectedElement[key] ?? (key === "blur" ? 0 : 100)}
+          <input type="range" min={min} max={max} value={selectedElement[key] ?? (key === "blur" ? 0 : 100)} onChange={(event) => updateElement(selectedElement.id, { [key]: Number(event.target.value) })} className="mt-2 w-full" />
+        </label>)}
+        <BlendControl element={selectedElement} update={updateElement} />
+        <label className="block text-xs font-bold text-white/80">Strength · {Math.round((selectedElement.opacity ?? 1) * 100)}%
+          <input type="range" min={0} max={100} value={Math.round((selectedElement.opacity ?? 1) * 100)} onChange={(event) => updateElement(selectedElement.id, { opacity: Number(event.target.value) / 100 })} className="mt-2 w-full" />
+        </label>
+        <button type="button" onClick={duplicateSelected} className="w-full rounded-lg border border-white/20 px-3 py-2 text-xs font-bold">Duplicate adjustment</button>
+        <button type="button" onClick={deleteSelected} className="w-full rounded-lg border border-red-500/40 px-3 py-2 text-xs font-bold text-red-200">Delete adjustment</button>
+      </div>
+    </aside>
+  );
   if (selectedElement?.kind === "image" || selectedElement?.kind === "shape" || selectedElement?.kind === "line" || selectedElement?.kind === "frame" || selectedElement?.kind === "icon" || selectedElement?.kind === "sticker") {
     const isImage = selectedElement.kind === "image";
     const isLine = selectedElement.kind === "line";
@@ -51,6 +85,8 @@ export default function PropertiesPanel({
           <label className="block text-xs font-bold text-white/70">Opacity
             <input type="range" min={10} max={100} value={Math.round((selectedElement.opacity ?? 1) * 100)} onChange={(event) => updateElement(selectedElement.id, { opacity: Number(event.target.value) / 100 })} className="mt-2 w-full" />
           </label>
+          <BlendControl element={selectedElement} update={updateElement} />
+          {isImage && <button type="button" onClick={() => onEditImage(selectedElement.id)} className="w-full rounded-lg bg-violet-600 px-3 py-3 text-xs font-black text-white">Retouch image · remove, heal, erase</button>}
           {isImage ? <div className="space-y-4 rounded-xl border border-white/10 bg-white/[0.03] p-3">
             {([
               ["brightness", "Brightness", 0, 200],
@@ -248,6 +284,7 @@ export default function PropertiesPanel({
             Text opacity
             <input type="range" min={10} max={100} value={Math.round((selectedElement.opacity ?? 1) * 100)} onChange={(event) => updateElement(selectedElement.id, { opacity: Number(event.target.value) / 100 })} className="mt-2 w-full" />
           </label>
+          <BlendControl element={selectedElement} update={updateElement} />
 
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
             <p className="mb-3 text-xs font-black text-white/70">Outline & effects</p>

@@ -19,7 +19,7 @@ export function useEditorHistory(initialElements: CanvasElement[]) {
   const pastRef = useRef<CanvasElement[][]>([]);
   const futureRef = useRef<CanvasElement[][]>([]);
   const [elements, setElements] = useState<CanvasElement[]>(initialElements);
-  const [, setHistoryVersion] = useState(0);
+  const [historyVersion, setHistoryVersion] = useState(0);
 
   const remember = useCallback((snapshot: CanvasElement[]) => {
     pastRef.current.push(cloneElements(snapshot));
@@ -110,6 +110,16 @@ export function useEditorHistory(initialElements: CanvasElement[]) {
     setHistoryVersion((value) => value + 1);
   }, []);
 
+  const jumpToHistory = useCallback((index: number) => {
+    const timeline = [...pastRef.current, cloneElements(elements), ...futureRef.current.slice().reverse()];
+    if (index < 0 || index >= timeline.length || index === pastRef.current.length) return;
+    const selected = timeline[index];
+    pastRef.current = timeline.slice(0, index).map(cloneElements);
+    futureRef.current = timeline.slice(index + 1).reverse().map(cloneElements);
+    setElements(cloneElements(selected));
+    setHistoryVersion((value) => value + 1);
+  }, [elements]);
+
   return {
     elements,
     setElements: setElements as Dispatch<SetStateAction<CanvasElement[]>>,
@@ -121,5 +131,8 @@ export function useEditorHistory(initialElements: CanvasElement[]) {
     resetElements,
     canUndo: pastRef.current.length > 0,
     canRedo: futureRef.current.length > 0,
+    historySteps: [...pastRef.current, elements, ...futureRef.current.slice().reverse()].map((snapshot, index) => ({ index, layerCount: snapshot.length, current: index === pastRef.current.length })),
+    historyVersion,
+    jumpToHistory,
   };
 }

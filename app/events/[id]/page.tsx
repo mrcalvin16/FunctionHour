@@ -459,7 +459,7 @@ export default function EventDetailPage({
                     {canManageEvent && (
                       <Link
                         href={`/events/${event._id}/add-merch`}
-                        className="rounded-2xl border border-orange-300/25 bg-orange-500/10 px-5 min-h-11 py-3.5 sm:py-3 text-sm font-black text-orange-100 hover:bg-orange-500/20"
+                        className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white bg-white px-5 py-3.5 text-sm font-black text-zinc-950 shadow-sm transition hover:bg-zinc-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:py-3"
                       >
                         Add Merch →
                       </Link>

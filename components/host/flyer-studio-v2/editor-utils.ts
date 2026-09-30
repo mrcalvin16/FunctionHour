@@ -72,7 +72,7 @@ function isCanvasElement(value: unknown): value is CanvasElement {
 
   return (
     typeof element.id === "string" &&
-    (element.kind === "text" || element.kind === "button" || element.kind === "qr") &&
+    (["text", "button", "qr", "image", "shape", "line", "frame", "icon", "sticker", "adjustment"] as string[]).includes(element.kind ?? "") &&
     typeof element.name === "string" &&
     typeof element.text === "string" &&
     typeof element.x === "number" &&

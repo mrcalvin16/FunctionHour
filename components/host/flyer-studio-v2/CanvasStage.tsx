@@ -1,4 +1,4 @@
-import type { MutableRefObject } from "react";
+import { useRef, useState, type MutableRefObject } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { CalendarDays, MapPin, Music2, PartyPopper, Sparkles, Star, Ticket, type LucideIcon } from "lucide-react";
 import { backgroundPresets, CANVAS_WIDTH, formats, resizeHandles } from "./config";
@@ -33,6 +33,9 @@ export default function CanvasStage({
   onFormatChange,
   zoom,
   onZoomChange,
+  canvasTool,
+  onCanvasToolChange,
+  onMarqueeSelect,
   canvasHeight,
   canvasScale,
   imagePreview,
@@ -57,6 +60,9 @@ export default function CanvasStage({
   onFormatChange: (format: string) => void;
   zoom: number;
   onZoomChange: (zoom: number) => void;
+  canvasTool: "select" | "marquee" | "hand";
+  onCanvasToolChange: (tool: "select" | "marquee" | "hand") => void;
+  onMarqueeSelect: (rect: { x: number; y: number; width: number; height: number }) => void;
   canvasHeight: number;
   canvasScale: number;
   imagePreview: string;
@@ -86,6 +92,14 @@ export default function CanvasStage({
   onFinishInlineEditing: () => void;
   updateElement: UpdateElement;
 }) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const panRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
+  const marqueeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [marquee, setMarquee] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  function canvasPoint(event: React.PointerEvent<HTMLDivElement>) {
+    const bounds = canvasRef.current?.getBoundingClientRect();
+    return { x: Math.max(0, Math.min(CANVAS_WIDTH, (event.clientX - (bounds?.left ?? 0)) / canvasScale)), y: Math.max(0, Math.min(canvasHeight, (event.clientY - (bounds?.top ?? 0)) / canvasScale)) };
+  }
   const selectedBackground =
     backgroundPresets.find((preset) => preset.id === backgroundPreset) ||
     backgroundPresets[0];
@@ -106,9 +120,12 @@ export default function CanvasStage({
           ))}
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {(["select", "marquee", "hand"] as const).map((tool) => (
+            <button key={tool} type="button" aria-pressed={canvasTool === tool} onClick={() => onCanvasToolChange(tool)} className={`rounded-lg border px-2 py-2 text-xs font-black capitalize ${canvasTool === tool ? "border-violet-600 bg-violet-600 text-white" : "border-black/10 bg-white text-zinc-900"}`}>{tool === "marquee" ? "Select area" : tool}</button>
+          ))}
           <button
             type="button"
-            onClick={() => onZoomChange(Math.max(40, zoom - 5))}
+            onClick={() => onZoomChange(Math.max(25, zoom - 5))}
             className="rounded-lg border border-black/10 px-3 py-2 text-sm font-black"
           >
             −
@@ -116,9 +133,10 @@ export default function CanvasStage({
           <span className="min-w-12 text-center text-xs font-black">
             {zoom}%
           </span>
+          <input aria-label="Scrub canvas zoom" type="range" min={25} max={250} value={zoom} onChange={(event) => onZoomChange(Number(event.target.value))} className="w-16 accent-violet-600 sm:w-24" />
           <button
             type="button"
-            onClick={() => onZoomChange(Math.min(120, zoom + 5))}
+            onClick={() => onZoomChange(Math.min(250, zoom + 5))}
             className="rounded-lg border border-black/10 px-3 py-2 text-sm font-black"
           >
             +
@@ -128,14 +146,22 @@ export default function CanvasStage({
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-black/10 bg-white/80 px-4 py-2 text-[11px] font-medium text-zinc-600">
         <span><strong className="text-zinc-900">Select</strong> an element</span>
-        <span><strong className="text-zinc-900">Shift-click</strong> to multi-select</span>\n        <span><strong className="text-zinc-900">Drag</strong> to move selected items</span>
+        <span><strong className="text-zinc-900">Shift-click</strong> to multi-select</span>
+        <span><strong className="text-zinc-900">Drag</strong> to move selected items</span>
+        <span><strong className="text-zinc-900">Space + drag</strong> to pan · <strong className="text-zinc-900">Ctrl/⌘ + wheel</strong> to zoom</span>
         <span><strong className="text-zinc-900">Double-click</strong> text to edit</span>
         <span><strong className="text-zinc-900">Resize handles</strong> adjust size</span>
       </div>
 
-      <div className="flex flex-1 items-start justify-center overflow-auto p-4 sm:p-8 lg:p-12">
+      <div ref={viewportRef} className={`flex flex-1 items-start overflow-auto p-4 sm:p-8 lg:p-12 ${canvasTool === "hand" ? "cursor-grab active:cursor-grabbing" : ""}`}
+        onPointerDown={(event) => { if (canvasTool !== "hand" || !viewportRef.current) return; panRef.current = { x: event.clientX, y: event.clientY, left: viewportRef.current.scrollLeft, top: viewportRef.current.scrollTop }; event.currentTarget.setPointerCapture(event.pointerId); event.preventDefault(); }}
+        onPointerMove={(event) => { if (!panRef.current || !viewportRef.current) return; viewportRef.current.scrollLeft = panRef.current.left - event.clientX + panRef.current.x; viewportRef.current.scrollTop = panRef.current.top - event.clientY + panRef.current.y; }}
+        onPointerUp={() => { panRef.current = null; }}
+        onPointerCancel={() => { panRef.current = null; }}
+        onWheel={(event) => { if (event.ctrlKey || event.metaKey || event.altKey) { event.preventDefault(); onZoomChange(Math.min(250, Math.max(25, zoom - Math.sign(event.deltaY) * 5))); } }}
+      >
         <div
-          className="relative shrink-0"
+          className="relative m-auto shrink-0"
           style={{
             width: CANVAS_WIDTH * canvasScale,
             height: canvasHeight * canvasScale,
@@ -189,13 +215,16 @@ export default function CanvasStage({
                     top: element.y,
                     width: element.width,
                     height: element.height,
+                    mixBlendMode: element.blendMode === "normal" ? undefined : element.blendMode,
                   }}
                   onPointerDown={(event) => onBeginDrag(event, element)}
                   onDoubleClick={(event) => {
                     if (element.kind === "text" || element.kind === "button") onStartInlineEditing(event, element);
                   }}
                 >
-                  {element.kind === "image" && element.imageUrl ? (
+                  {element.kind === "adjustment" ? (
+                    <div className="pointer-events-none h-full w-full" style={{ backdropFilter: `brightness(${element.brightness ?? 100}%) contrast(${element.contrast ?? 100}%) saturate(${element.saturation ?? 100}%) blur(${element.blur ?? 0}px)`, background: element.background ?? "transparent", opacity: element.opacity ?? 1 }} />
+                  ) : element.kind === "image" && element.imageUrl ? (
                     <img src={element.imageUrl} alt="" draggable={false} className="pointer-events-none h-full w-full" style={{ objectFit: element.objectFit ?? "cover", opacity: element.opacity ?? 1, borderRadius: element.borderRadius, filter: `brightness(${element.brightness ?? 100}%) contrast(${element.contrast ?? 100}%) saturate(${element.saturation ?? 100}%) blur(${element.blur ?? 0}px)` }} />
                   ) : element.kind === "shape" ? (
                     <div className="pointer-events-none h-full w-full" style={{ background: element.background ?? element.color, opacity: element.opacity ?? 1, borderRadius: element.shape === "circle" ? "9999px" : element.borderRadius, border: element.borderWidth ? `${element.borderWidth}px solid ${element.borderColor ?? "#ffffff"}` : undefined }} />
@@ -291,6 +320,16 @@ export default function CanvasStage({
                 </div>
               );
             })}
+
+            {canvasTool !== "select" && (
+              <div data-export-ui="true" className={`absolute inset-0 z-[998] touch-none ${canvasTool === "hand" ? "cursor-grab" : "cursor-crosshair"}`}
+                onPointerDown={(event) => { if (canvasTool !== "marquee") return; const start = canvasPoint(event); marqueeStartRef.current = start; setMarquee({ ...start, width: 0, height: 0 }); event.currentTarget.setPointerCapture(event.pointerId); }}
+                onPointerMove={(event) => { if (!marqueeStartRef.current) return; const start = marqueeStartRef.current; const point = canvasPoint(event); setMarquee({ x: Math.min(start.x, point.x), y: Math.min(start.y, point.y), width: Math.abs(point.x - start.x), height: Math.abs(point.y - start.y) }); }}
+                onPointerUp={(event) => { if (!marqueeStartRef.current) return; const start = marqueeStartRef.current; const point = canvasPoint(event); const rect = { x: Math.min(start.x, point.x), y: Math.min(start.y, point.y), width: Math.abs(point.x - start.x), height: Math.abs(point.y - start.y) }; onMarqueeSelect(rect); marqueeStartRef.current = null; setMarquee(null); }}
+                onPointerCancel={() => { marqueeStartRef.current = null; setMarquee(null); }}
+              />
+            )}
+            {marquee && <div data-export-ui="true" className="pointer-events-none absolute z-[999] border-2 border-dashed border-violet-500 bg-violet-500/20" style={{ left: marquee.x, top: marquee.y, width: marquee.width, height: marquee.height }} />}
 
             {guides.map((guide, index) => (
               <div
