@@ -30,7 +30,6 @@ type ExperienceHeroProps = {
   setCity: Dispatch<SetStateAction<string>>;
   view: EventsView;
   setView: Dispatch<SetStateAction<EventsView>>;
-  totalEvents: number;
   events: Array<{ city?: string; state?: string; location?: string }>;
   quickFilter: QuickFilter;
   setQuickFilter: Dispatch<SetStateAction<QuickFilter>>;
@@ -60,7 +59,6 @@ export default function ExperienceHero({
   setCity,
   view,
   setView,
-  totalEvents,
   events,
   quickFilter,
   setQuickFilter,
@@ -151,7 +149,7 @@ export default function ExperienceHero({
               </p>
             </>}
 
-            {presentation === "universe" && <div className="mt-5 lg:hidden"><ExperienceUniverse totalEvents={totalEvents} /></div>}
+            {presentation === "universe" && <div className="mt-5 lg:hidden"><ExperienceUniverse /></div>}
 
             <div className={`max-w-[620px] ${presentation === "universe" ? "mt-7" : "mt-0"}`}>
   <div className="flex h-[68px] items-center rounded-[1.5rem] border border-zinc-200 bg-white p-2 shadow-sm transition focus-within:border-orange-300 focus-within:ring-4 focus-within:ring-orange-100">
@@ -243,7 +241,7 @@ export default function ExperienceHero({
 </div>
           </div>
 
-          {presentation === "universe" && <div className="hidden lg:block"><ExperienceUniverse totalEvents={totalEvents} /></div>}
+          {presentation === "universe" && <div className="hidden lg:block"><ExperienceUniverse /></div>}
         </div>
 
         <div id="event-filters" className={`scroll-mt-28 overflow-hidden rounded-[1.65rem] border border-zinc-200 bg-white shadow-sm ${presentation === "universe" ? "mt-8" : "mt-4"}`}>

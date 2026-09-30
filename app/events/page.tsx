@@ -144,7 +144,6 @@ export default function EventsPage() {
         setCity={setCity}
         view={view}
         setView={setView}
-        totalEvents={displayedEvents.length}
         events={((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event))}
         quickFilter={quickFilter}
         setQuickFilter={setQuickFilter}
