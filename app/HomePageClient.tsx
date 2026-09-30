@@ -7,7 +7,6 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import DiscoveryNav from "@/components/DiscoveryNav";
 import Footer from "@/components/Footer";
-import HomePrivacyOptOut from "@/components/privacy/HomePrivacyOptOut";
 import ExperienceHero, { type QuickFilter } from "./events/components/ExperienceHero";
 import EventGrid from "./events/components/EventGrid";
 import TrendingCarousel from "./events/components/TrendingCarousel";
@@ -73,8 +72,7 @@ export default function HomePage() {
         <p className="mx-auto mt-3 max-w-xl text-zinc-600">Explore collections, hosts, the live map, and every Function Hour event.</p>
         <Link href="/events" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-gradient-to-r from-violet-600 to-orange-600 px-7 font-black text-white">Open all events →</Link>
       </section>
-      <HomePrivacyOptOut />
-      <Footer />
+      <Footer homePrivacyOptOut />
     </main>
   );
 }

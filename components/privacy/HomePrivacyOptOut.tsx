@@ -30,10 +30,10 @@ export default function HomePrivacyOptOut() {
   }
 
   return (
-    <section aria-labelledby="home-privacy-title" className="mx-auto max-w-7xl px-5 py-12 sm:px-7">
-      <form onSubmit={save} className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
+    <section aria-labelledby="home-privacy-title" className="mx-auto max-w-7xl border-b border-zinc-200 px-6 py-8">
+      <form onSubmit={save}>
         <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-700">Your data, your choice</p>
-        <h2 id="home-privacy-title" className="mt-2 text-2xl font-black text-zinc-950">Opt out of optional data sharing</h2>
+        <h2 id="home-privacy-title" className="mt-2 text-xl font-black text-zinc-950">Opt out of optional data sharing</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-700">
           Check the box to turn off optional event-view analytics in this browser. Essential account, ticket, payment, and security processing will continue.
         </p>

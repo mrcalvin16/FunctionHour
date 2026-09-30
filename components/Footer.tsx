@@ -1,9 +1,11 @@
 import Link from "next/link";
 import PrivacyPreferences from "@/components/privacy/PrivacyPreferences";
+import HomePrivacyOptOut from "@/components/privacy/HomePrivacyOptOut";
 
-export default function Footer() {
+export default function Footer({ homePrivacyOptOut = false }: { homePrivacyOptOut?: boolean }) {
   return (
-    <footer className="mt-20 border-t border-zinc-200 bg-white">
+    <footer className={`${homePrivacyOptOut ? "mt-0" : "mt-20"} border-t border-zinc-200 bg-white`}>
+      {homePrivacyOptOut && <HomePrivacyOptOut />}
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 px-6 py-10 text-center sm:flex-row sm:text-left">
         <div>
           <p className="font-black tracking-[0.2em] text-zinc-950">
