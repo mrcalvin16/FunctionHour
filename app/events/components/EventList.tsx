@@ -5,7 +5,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import EventImage from "./EventImage";
 import {
   formatEventDate,
-  getBuyerPriceLabel,
+  getFromPriceLabel,
   getEventCategory,
   getEventLocation,
   getEventTimestamp,
@@ -42,7 +42,7 @@ export default function EventList({
             const timestamp = getEventTimestamp(event);
             const hasDate = Number.isFinite(timestamp);
             const date = hasDate ? new Date(timestamp) : null;
-            const price = getBuyerPriceLabel(event);
+            const price = getFromPriceLabel(event);
             const isSaved = savedEventIds.includes(event._id);
             const href = `/events/${event._id}`;
 

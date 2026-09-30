@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import EventImage from "./EventImage";
-import { getBuyerPriceLabel, getEventCategory, getEventTimestamp, type DiscoveryEvent } from "../eventPresentation";
+import { getFromPriceLabel, getEventCategory, getEventTimestamp, type DiscoveryEvent } from "../eventPresentation";
 
 type CardEvent = DiscoveryEvent & {
   organizerName?: string;
@@ -50,7 +50,7 @@ export default function DiscoveryEventCard({
 }: DiscoveryEventCardProps) {
   const category = getEventCategory(event);
   const organizerName = getOrganizerName(event);
-  const priceLabel = getBuyerPriceLabel(event);
+  const priceLabel = getFromPriceLabel(event);
 
   const location =
     event.location ||
@@ -165,7 +165,7 @@ export default function DiscoveryEventCard({
         <div className="mt-5 flex items-center justify-between gap-4 border-t border-zinc-200 pt-5">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-600">
-              Starting at
+              Tickets
             </p>
 
             <p

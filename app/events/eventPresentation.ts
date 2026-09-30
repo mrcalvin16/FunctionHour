@@ -45,6 +45,11 @@ export function getBuyerPriceLabel(event: Pick<DiscoveryEvent, "startingPrice" |
   })} incl. fee`;
 }
 
+export function getFromPriceLabel(event: Pick<DiscoveryEvent, "startingPrice" | "price">) {
+  const price = getBuyerPriceLabel(event);
+  return price === "Free" ? price : `From ${price}`;
+}
+
 export function getEventTimestamp(event: DiscoveryEvent) {
   if (Number.isFinite(event.eventDate)) return Number(event.eventDate);
   if (!event.dateString) return NaN;

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import EventImage from "@/components/events/EventImage";
-import { formatEventDate, getBuyerPriceLabel } from "@/app/events/eventPresentation";
+import { formatEventDate, getFromPriceLabel } from "@/app/events/eventPresentation";
 import { BadgeCheck } from "lucide-react";
 
 export default function OrganizerProfilePage({
@@ -278,7 +278,7 @@ export default function OrganizerProfilePage({
 
                   <div className="mt-6 flex items-center justify-between">
                     <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-black">
-                      {getBuyerPriceLabel(event)}
+                      {getFromPriceLabel(event)}
                     </div>
 
                     <div className="text-sm font-bold text-violet-200 transition group-hover:text-white">

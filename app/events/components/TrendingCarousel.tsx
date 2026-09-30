@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import EventImage from "./EventImage";
-import { formatEventDate, getBuyerPriceLabel, getEventLocation, type DiscoveryEvent } from "../eventPresentation";
+import { formatEventDate, getFromPriceLabel, getEventLocation, type DiscoveryEvent } from "../eventPresentation";
 import type { Id } from "@/convex/_generated/dataModel";
 
 type Props = {
@@ -80,7 +80,7 @@ export default function TrendingCarousel({
                 </Link>
                 <p className="mt-3 truncate text-sm text-zinc-600">{getEventLocation(event)}</p>
                 <div className="mt-4 flex items-center justify-between border-t border-zinc-200 pt-4">
-                  <p className="text-lg font-black text-zinc-950">{getBuyerPriceLabel(event)}</p>
+                  <p className="text-lg font-black text-zinc-950">{getFromPriceLabel(event)}</p>
                   <Link href={`/events/${event._id}`} className="rounded-full bg-zinc-950 px-4 py-2 text-xs font-black text-white transition hover:bg-zinc-800">
                     View event
                   </Link>
