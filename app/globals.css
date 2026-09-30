@@ -275,6 +275,21 @@ html.light .experience-universe-node span {
   color: #ffffff !important;
 }
 
+/* The center globe and event date badges stay dark in the light interface.
+   The generic light-mode text override must not darken their lettering. */
+html.light .experience-universe-core,
+html.light .experience-universe-core span,
+html.light .experience-universe-core > div,
+html.light .discovery-event-schedule,
+html.light .discovery-event-schedule p {
+  color: #ffffff !important;
+}
+
+html.light .discovery-event-schedule {
+  background-color: rgba(24, 18, 38, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
 /* Profile banners remain dark in the light UI; keep names and counts readable. */
 html.light .organizer-profile-hero h1,
 html.light .organizer-profile-counts,

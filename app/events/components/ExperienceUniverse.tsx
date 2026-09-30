@@ -20,7 +20,7 @@ export default function ExperienceUniverse({ totalEvents }: { totalEvents: numbe
         <div className="absolute right-[9%] top-[24%] h-3 w-3 rounded-full bg-orange-500 shadow-[0_0_20px_rgba(249,115,22,1)]" />
         <div className="absolute bottom-[17%] left-[20%] h-2.5 w-2.5 rounded-full bg-fuchsia-500 shadow-[0_0_20px_rgba(217,70,239,1)]" />
 
-        <div className="absolute left-1/2 top-1/2 z-20 flex h-[112px] w-[112px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border-2 border-white/70 bg-[radial-gradient(circle_at_35%_28%,#9452c8,#64378d_55%,#46256f)] text-center text-white shadow-[0_0_75px_rgba(168,85,247,0.35)] ring-[5px] ring-violet-400/25 sm:h-[130px] sm:w-[130px] lg:h-[150px] lg:w-[150px]">
+        <div className="experience-universe-core absolute left-1/2 top-1/2 z-20 flex h-[112px] w-[112px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border-2 border-white/70 bg-[radial-gradient(circle_at_35%_28%,#9452c8,#64378d_55%,#46256f)] text-center text-white shadow-[0_0_75px_rgba(168,85,247,0.35)] ring-[5px] ring-violet-400/25 sm:h-[130px] sm:w-[130px] lg:h-[150px] lg:w-[150px]">
           <div className="mb-1 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-rose-400 text-lg text-white lg:mb-2 lg:h-9 lg:w-9 lg:text-xl">✦</div>
           <span className="text-[8px] font-black uppercase tracking-[0.25em] text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.7)] lg:text-[9px] lg:tracking-[0.34em]">Function</span>
           <span className="text-[18px] font-black leading-none text-white lg:text-[21px]">HOUR</span>
