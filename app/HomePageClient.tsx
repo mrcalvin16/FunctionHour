@@ -48,7 +48,7 @@ export default function HomePage() {
     <main className="safe-x min-h-screen overflow-x-hidden bg-[#fffaf7] text-zinc-950">
       <DiscoveryNav />
 
-      <ExperienceHero search={search} setSearch={setSearch} category={category} setCategory={setCategory} city={city} setCity={setCity} view={view} setView={setView} totalEvents={displayedEvents.length} events={((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event))} quickFilter={quickFilter} setQuickFilter={setQuickFilter} />
+      <ExperienceHero search={search} setSearch={setSearch} category={category} setCategory={setCategory} city={city} setCity={setCity} view={view} setView={setView} events={((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event))} quickFilter={quickFilter} setQuickFilter={setQuickFilter} />
 
       {events === undefined ? (
         <section className="mx-auto max-w-[1240px] px-5 py-20 text-center text-zinc-600">Loading events…</section>

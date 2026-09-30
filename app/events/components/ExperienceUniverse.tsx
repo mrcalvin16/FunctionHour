@@ -7,7 +7,7 @@ const universeNodes = [
   { label: "Networking", icon: "◇", position: "bottom-[1%] right-0 lg:bottom-[3%] lg:right-[3%]", size: "h-[72px] w-[72px] lg:h-[100px] lg:w-[100px]", background: "bg-[radial-gradient(circle_at_35%_30%,rgba(75,101,190,0.75),rgba(31,43,91,0.96)_58%,rgba(7,8,15,1))]" },
 ];
 
-export default function ExperienceUniverse({ totalEvents }: { totalEvents: number }) {
+export default function ExperienceUniverse() {
   return (
     <div role="img" aria-label="Function Hour experience universe: Music, Nightlife, Festivals, Arts, Food, and Networking" className="relative mx-auto h-[270px] w-full max-w-[630px] sm:h-[320px] lg:h-[380px]">
       <div className="absolute inset-0">
@@ -34,11 +34,6 @@ export default function ExperienceUniverse({ totalEvents }: { totalEvents: numbe
           </div>
         ))}
 
-        <div className="absolute bottom-[1%] right-[12%] z-20 hidden items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-700 shadow-sm sm:inline-flex lg:bottom-[4%] lg:right-[16%]">
-          <span className="text-orange-600">⌖</span>
-          Live around you
-          <span className="rounded-full bg-violet-100 px-2 py-0.5 text-violet-800">{totalEvents}</span>
-        </div>
       </div>
     </div>
   );
