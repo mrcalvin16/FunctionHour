@@ -1,3 +1,4 @@
+// SECURITY: ticket status validation
 import { v } from "convex/values";
 import {
   mutation,
