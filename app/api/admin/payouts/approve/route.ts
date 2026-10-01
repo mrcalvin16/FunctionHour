@@ -1,17 +1,18 @@
-
 import { NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
 import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
-import { getStripeClient } from "@/lib/stripe/server";
-import { getConvexClient } from "@/lib/convex";
 import { api } from "@/convex/_generated/api";
+import { getConvexClient } from "@/lib/convex";
+import { getStripeClient } from "@/lib/stripe/server";
+
+export const dynamic = "force-dynamic";
 
 
 export async function POST(request: Request) {
-
   try {
 
-    if (!(await hasFunctionHourAdminAccess())) {
+    const isAdmin = await hasFunctionHourAdminAccess();
+
+    if (!isAdmin) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 403 }
@@ -19,11 +20,13 @@ export async function POST(request: Request) {
     }
 
 
-    const user = await currentUser();
-
     const body = await request.json();
 
-    const { requestId, stripeAccountId, amount } = body;
+    const {
+      requestId,
+      stripeAccountId,
+      amount
+    } = body;
 
 
     if (!requestId || !stripeAccountId || !amount) {
@@ -34,26 +37,18 @@ export async function POST(request: Request) {
     }
 
 
-    const stripe = getStripeClient();
-
-
-    const transfer =
-      await stripe.transfers.create(
-        {
-          amount: Math.round(amount * 100),
-          currency: "usd",
-          destination: stripeAccountId,
-          transfer_group:
-            `functionhour-admin-payout-${requestId}`,
-          metadata: {
-            payoutRequestId: requestId,
-          },
-        },
-        {
-          idempotencyKey:
-            `functionhour-admin-payout-${requestId}`,
+    const transfer = await getStripeClient()
+      .transfers
+      .create({
+        amount: Math.round(amount * 100),
+        currency: "usd",
+        destination: stripeAccountId,
+        transfer_group: `functionhour-admin-approved-${requestId}`,
+        metadata: {
+          payoutRequestId: requestId,
+          approvedBy: "Function Hour Admin"
         }
-      );
+      });
 
 
     const secret =
@@ -73,7 +68,7 @@ export async function POST(request: Request) {
       {
         serverSecret: secret,
         requestId,
-        stripeTransferId: transfer.id,
+        stripeTransferId: transfer.id
       }
     );
 
@@ -86,7 +81,11 @@ export async function POST(request: Request) {
 
   } catch(error){
 
-    console.error(error);
+    console.error(
+      "Admin payout approval failed",
+      error
+    );
+
 
     return NextResponse.json(
       {
@@ -98,4 +97,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
