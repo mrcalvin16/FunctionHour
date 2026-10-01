@@ -141,6 +141,62 @@ export default async function FinanceAdminPage() {
       </section>
 
 
+
+      <section className="mt-8 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+
+        <h2 className="text-lg font-semibold text-zinc-950">
+          Finance reconciliation
+        </h2>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+
+          <div className="rounded-xl border p-4">
+            <p className="text-xs uppercase text-zinc-500">
+              Pending payouts
+            </p>
+            <p className="mt-2 text-2xl font-semibold">
+              {payoutRequests.filter(
+                (p) => p.status === "requested"
+              ).length}
+            </p>
+          </div>
+
+
+          <div className="rounded-xl border p-4">
+            <p className="text-xs uppercase text-zinc-500">
+              Approved transfers
+            </p>
+
+            <p className="mt-2 text-2xl font-semibold">
+              {payoutRequests.filter(
+                (p) => p.status === "transferred"
+              ).length}
+            </p>
+          </div>
+
+
+          <div className="rounded-xl border p-4">
+            <p className="text-xs uppercase text-zinc-500">
+              Operational status
+            </p>
+
+            <p className="mt-2 text-2xl font-semibold">
+              Healthy
+            </p>
+          </div>
+
+        </div>
+
+
+        <p className="mt-5 text-sm text-zinc-600">
+          Stripe remains the source of truth for funds.
+          Function Hour tracks operational reconciliation,
+          payout approvals, transfers, refunds, and disputes.
+        </p>
+
+      </section>
+
+
       <section className="mt-8 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-zinc-950">Settlement rules</h2>
         <ul className="mt-4 space-y-2 text-sm leading-6 text-zinc-600">
