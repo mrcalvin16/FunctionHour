@@ -65,7 +65,7 @@ export default function MapPage() {
 
   return (
     <main className="functionhour-map-root relative h-[100dvh] overflow-hidden bg-[#f8fafc] text-zinc-950">
-      <MapCanvas events={filteredEvents} timeMode={timeMode} onAvailabilityChange={setMapAvailable} />
+      <MapCanvas loading={events === undefined} events={filteredEvents} timeMode={timeMode} onAvailabilityChange={setMapAvailable} />
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 p-3 sm:p-5">
         <Link
