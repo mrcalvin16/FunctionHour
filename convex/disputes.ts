@@ -4,37 +4,43 @@ import { v } from "convex/values";
 
 
 function assertServerSecret(secret:string){
+
   const expected =
     process.env.STRIPE_WEBHOOK_SHARED_SECRET;
 
   if(!expected || secret !== expected){
     throw new Error("Unauthorized");
   }
+
 }
 
 
-export const createOrUpdateStripeDispute = mutation({
+export const upsertDispute = mutation({
 
   args:{
+
     serverSecret:v.string(),
 
     stripeDisputeId:v.string(),
+
     paymentIntentId:v.optional(v.string()),
+
     chargeId:v.optional(v.string()),
 
     amount:v.float64(),
+
     currency:v.string(),
 
+    reason:v.optional(v.string()),
+
     status:v.union(
-      v.literal("warning"),
       v.literal("needs_response"),
       v.literal("under_review"),
       v.literal("won"),
       v.literal("lost"),
       v.literal("closed")
-    ),
+    )
 
-    reason:v.optional(v.string())
   },
 
 
@@ -47,7 +53,7 @@ export const createOrUpdateStripeDispute = mutation({
       await ctx.db
       .query("stripeDisputes")
       .withIndex(
-        "by_stripeDisputeId",
+        "by_dispute_id",
         q=>q.eq(
           "stripeDisputeId",
           args.stripeDisputeId
@@ -71,23 +77,32 @@ export const createOrUpdateStripeDispute = mutation({
       );
 
       return existing._id;
+
     }
 
 
     return await ctx.db.insert(
       "stripeDisputes",
       {
-        ...args,
+        stripeDisputeId:args.stripeDisputeId,
+        paymentIntentId:args.paymentIntentId,
+        chargeId:args.chargeId,
+        amount:args.amount,
+        currency:args.currency,
+        reason:args.reason,
+        status:args.status,
         createdAt:now,
         updatedAt:now
       }
     );
+
   }
 
 });
 
 
-export const getStripeDisputes = query({
+
+export const getDisputes = query({
 
   args:{
     serverSecret:v.string()
@@ -97,6 +112,7 @@ export const getStripeDisputes = query({
   handler:async(ctx,args)=>{
 
     assertServerSecret(args.serverSecret);
+
 
     return await ctx.db
       .query("stripeDisputes")
