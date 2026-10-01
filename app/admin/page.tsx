@@ -27,6 +27,12 @@ export default function AdminPage() {
       href: "/admin/support",
       action: "Open support requests",
     },
+    {
+      title: "System health",
+      description: "Check Stripe, Convex, fulfillment, support intake, and payout queues for operational issues.",
+      href: "/admin/health",
+      action: "Run health checks",
+    },
   ];
 
   return (
@@ -37,7 +43,7 @@ export default function AdminPage() {
         Choose an operations area. Finance and verification use live data from their respective services.
       </p>
       <OrderRecoveryDesk compact />
-      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sections.map((section) => (
           <section key={section.href} className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-zinc-950">{section.title}</h2>
