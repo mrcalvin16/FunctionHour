@@ -53,7 +53,7 @@ export const upsertDispute = mutation({
       await ctx.db
       .query("stripeDisputes")
       .withIndex(
-        "by_dispute_id",
+        "by_stripeDisputeId",
         q=>q.eq(
           "stripeDisputeId",
           args.stripeDisputeId
