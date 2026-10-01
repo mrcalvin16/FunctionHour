@@ -326,3 +326,27 @@ export const markOrganizerPayoutTransferred = mutation({
     return true;
   },
 });
+
+
+export const getPendingPayoutRequests = query({
+  args: {
+    serverSecret: v.string(),
+  },
+
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+
+    const requests = await ctx.db
+      .query("organizerPayoutRequests")
+      .order("desc")
+      .take(100);
+
+    return requests.filter(
+      (request) =>
+        request.status === "requested" ||
+        request.status === "approved" ||
+        request.status === "processing"
+    );
+  },
+});
+
