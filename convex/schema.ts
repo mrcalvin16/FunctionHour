@@ -216,6 +216,32 @@ eventInteractions: defineTable({
 
   
 
+  
+
+  adminActions: defineTable({
+
+    adminId: v.string(),
+
+    action: v.string(),
+
+    resourceType: v.string(),
+
+    resourceId: v.string(),
+
+    status: v.union(
+      v.literal("success"),
+      v.literal("failed")
+    ),
+
+    metadata: v.optional(v.string()),
+
+    createdAt: v.float64(),
+
+  })
+    .index("by_admin", ["adminId"])
+    .index("by_resource", ["resourceType", "resourceId"]),
+
+
   stripeDisputes: defineTable({
     stripeDisputeId: v.string(),
     paymentIntentId: v.optional(v.string()),
