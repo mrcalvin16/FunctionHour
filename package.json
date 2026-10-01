@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test:security": "node --test convex/ticketAdmission.test.mjs lib/payoutApproval.test.mjs lib/ticketRecovery.test.mjs",
+    "test:security": "node --test convex/ticketAdmission.test.mjs lib/payoutApproval.test.mjs lib/payoutReconciliation.test.mjs lib/ticketRecovery.test.mjs",
     "lint": "eslint ."
   },
   "dependencies": {
