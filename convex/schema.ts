@@ -219,6 +219,23 @@ eventInteractions: defineTable({
     resetAt: v.number(),
   }).index("by_key", ["key"]),
 
+  supportRequests: defineTable({
+    category: v.union(
+      v.literal("ticket_help"), v.literal("refund"), v.literal("report_event"),
+      v.literal("payment"), v.literal("merch"), v.literal("account"), v.literal("other"),
+    ),
+    email: v.string(),
+    name: v.optional(v.string()),
+    message: v.string(),
+    eventUrl: v.optional(v.string()),
+    pagePath: v.string(),
+    status: v.union(v.literal("new"), v.literal("in_progress"), v.literal("resolved")),
+    notificationStatus: v.union(v.literal("pending"), v.literal("delivered"), v.literal("failed")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_createdAt", ["createdAt"])
+    .index("by_status_and_createdAt", ["status", "createdAt"]),
+
   ticketCheckoutReservations: defineTable({
     reservationId: v.string(),
     eventId: v.id("events"),

@@ -1,0 +1,42 @@
+{
+  "refund": {
+    "text": "Refunds follow the policy displayed on the event page. Review the Refund Policy and your event's terms. If you need a decision or help with a charge, send Operations a request below; submitting does not guarantee a refund.",
+    "links": [{ "label": "Refund Policy", "href": "/refund-policy" }, { "label": "My Orders", "href": "/my-orders" }],
+    "requestHelp": true
+  },
+  "report": {
+    "text": "You can report an event or organizer directly to Function Hour Operations. Include the event link and what happened; please avoid sharing passwords, authentication codes, or payment details.",
+    "links": [{ "label": "Browse Events", "href": "/events" }],
+    "requestHelp": true
+  },
+  "merch": {
+    "text": "Open My Merch Orders to check an order's fulfillment status. If you cannot find it or need help with delivery, send Operations a request below.",
+    "links": [{ "label": "My Merch Orders", "href": "/my-merch-orders" }],
+    "requestHelp": true
+  },
+  "payment": {
+    "text": "For a payment or duplicate charge, check My Orders and send Operations a request with the event name and purchase email. Never provide your full card number or sign-in code.",
+    "links": [{ "label": "My Orders", "href": "/my-orders" }],
+    "requestHelp": true
+  },
+  "ticket": {
+    "text": "Sign in with the email used at checkout, then open My Tickets or My Orders. If a paid order is missing, send Operations the event name and purchase email below. Do not send your QR code or full card number.",
+    "links": [{ "label": "My Tickets", "href": "/my-tickets" }, { "label": "My Orders", "href": "/my-orders" }],
+    "requestHelp": true
+  },
+  "account": {
+    "text": "Sign in using your purchase email. If you still cannot reach your account, send Operations a request below without sharing your password or a verification code.",
+    "links": [{ "label": "Sign in", "href": "/sign-in" }],
+    "requestHelp": true
+  },
+  "discovery": {
+    "text": "The Events directory and Map show current Function Hour listings. Open an event for its latest details, tickets, venue, and organizer policy.",
+    "links": [{ "label": "Browse Events", "href": "/events" }, { "label": "Open Map", "href": "/map" }],
+    "requestHelp": false
+  },
+  "general": {
+    "text": "I can point you to Function Hour pages or help you contact Operations. Choose a topic below, or send a support request if the site does not answer your question.",
+    "links": [{ "label": "Browse Events", "href": "/events" }, { "label": "Privacy", "href": "/privacy" }],
+    "requestHelp": true
+  }
+}
