@@ -106,10 +106,12 @@ function matchesTime(event: MapEvent, mode: TimeMode) {
 
 export default function MapCanvas({
   events = [],
+  loading = false,
   timeMode,
   onAvailabilityChange,
 }: {
   events: MapEvent[];
+  loading?: boolean;
   timeMode: TimeMode;
   onAvailabilityChange?: (available: boolean | null) => void;
 }) {
@@ -258,7 +260,8 @@ export default function MapCanvas({
               <span className={`fh-map-inverse relative z-10 mt-2 grid h-9 w-9 shrink-0 place-items-center rounded-full border-4 border-white text-[10px] font-black text-white shadow-sm ${index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`}>{String(index + 1).padStart(2, "0")}</span>
               <Link href={`/events/${event._id}`} className="flex min-h-16 flex-1 items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-violet-50/40 p-3 text-sm font-bold text-zinc-950 hover:border-violet-400"><span><span className="block">{event.name || "Untitled event"}</span><span className="block text-xs font-normal text-zinc-600">{locationLabel(event)} · {getFromPriceLabel(event)}</span></span><ArrowUpRight className="h-4 w-4 shrink-0 text-violet-700" /></Link>
             </div>)}
-            {visibleEvents.length === 0 && <p className="text-center text-sm text-zinc-600">No matching events.</p>}
+            {loading && <p role="status" className="text-center text-sm text-zinc-700">Loading upcoming events…</p>}
+            {!loading && visibleEvents.length === 0 && <p className="text-center text-sm text-zinc-600">No events are available for this selection. Browse the event directory for all upcoming events.</p>}
           </div>
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a
@@ -387,7 +390,7 @@ export default function MapCanvas({
             : "Near me"}
       </button>
 
-      {visibleEvents.length === 0 && (
+      {!loading && visibleEvents.length === 0 && (
         <div className="absolute inset-x-3 bottom-36 z-10 rounded-2xl border border-zinc-200 bg-white/95 p-4 text-center text-sm text-zinc-700 shadow-lg backdrop-blur-xl sm:bottom-5 sm:left-auto sm:right-5 sm:max-w-sm">
           No events match these filters. Try another category, date, or location.
         </div>
