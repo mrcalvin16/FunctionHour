@@ -1,24 +1,83 @@
+
 import { auth, currentUser } from "@clerk/nextjs/server";
+import {
+getAdminUserIds,
+isAdminEmail
+} from "./adminConfig";
 
-const OPERATIONS_EMAIL = "operations@functionhour.com";
 
-function getAllowedAdminIds() {
-  return new Set(
-    (process.env.SUPPORT_ADMIN_USER_IDS ?? "")
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-  );
+export async function hasFunctionHourAdminAccess(){
+
+const session = await auth();
+
+
+if(!session.userId){
+
+console.log(
+"ADMIN ACCESS DENIED: no session"
+);
+
+return false;
+
 }
 
-export async function hasFunctionHourAdminAccess() {
-  const session = await auth();
-  if (!session.userId) return false;
-  if (getAllowedAdminIds().has(session.userId)) return true;
 
-  const user = await currentUser();
-  const primaryEmail = user?.primaryEmailAddress;
-  return user?.id === session.userId &&
-    primaryEmail?.verification?.status === "verified" &&
-    primaryEmail.emailAddress.trim().toLowerCase() === OPERATIONS_EMAIL;
+const allowedIds =
+getAdminUserIds();
+
+
+if(
+allowedIds.includes(session.userId)
+){
+
+console.log(
+"ADMIN ACCESS GRANTED: user id"
+);
+
+return true;
+
 }
+
+
+
+const user =
+await currentUser();
+
+
+const email =
+user?.primaryEmailAddress
+?.emailAddress;
+
+
+if(
+isAdminEmail(email)
+&&
+user?.primaryEmailAddress
+?.verification
+?.status==="verified"
+){
+
+console.log(
+"ADMIN ACCESS GRANTED: email"
+);
+
+return true;
+
+}
+
+
+
+console.log(
+"ADMIN ACCESS DENIED:",
+{
+userId:session.userId,
+email
+}
+);
+
+
+return false;
+
+
+}
+
