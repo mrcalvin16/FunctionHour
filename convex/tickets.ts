@@ -672,6 +672,77 @@ export const getPaidOrdersMissingTickets = query({
   },
 });
 
+// Operations compares Stripe's completed sessions with these records. A
+// checkout can be paid even when its webhook has not created an order yet.
+export const getAdminOrderRecords = query({
+  args: { serverSecret: v.string(), sessionIds: v.array(v.string()) },
+  handler: async (ctx, args) => {
+    requireCheckoutSecret(args.serverSecret);
+    if (args.sessionIds.length > 100) throw new Error("Too many sessions.");
+    return Promise.all(args.sessionIds.map(async (sessionId) => {
+      const [order, tickets, actions] = await Promise.all([
+        ctx.db.query("ticketOrders")
+          .withIndex("by_stripeCheckoutSessionId", (q) => q.eq("stripeCheckoutSessionId", sessionId))
+          .unique(),
+        ctx.db.query("tickets")
+          .withIndex("by_stripeCheckoutSessionId", (q) => q.eq("stripeCheckoutSessionId", sessionId))
+          .take(30),
+        ctx.db.query("ticketRecoveryActions")
+          .withIndex("by_sessionId", (q) => q.eq("sessionId", sessionId))
+          .order("desc").take(3),
+      ]);
+      return {
+        sessionId,
+        order: order && {
+          id: order._id, status: order.status, paidAt: order.paidAt,
+          refundedAmount: order.refundedAmount, disputeStatus: order.disputeStatus,
+        },
+        ticketCount: tickets.length,
+        activeTicketCount: tickets.filter((ticket) => ticket.status === "active").length,
+        recoveryActions: actions.map((action) => ({
+          status: action.status, reviewedBy: action.reviewedBy,
+          createdAt: action.createdAt, emailStatus: action.emailStatus,
+        })),
+      };
+    }));
+  },
+});
+
+export const beginAdminTicketRecovery = mutation({
+  args: {
+    serverSecret: v.string(), sessionId: v.string(), reviewedBy: v.string(),
+    beforeOrderRecorded: v.boolean(), beforeTicketCount: v.number(),
+  },
+  handler: async (ctx, args) => {
+    requireCheckoutSecret(args.serverSecret);
+    const now = Date.now();
+    return ctx.db.insert("ticketRecoveryActions", {
+      sessionId: args.sessionId, reviewedBy: args.reviewedBy,
+      beforeOrderRecorded: args.beforeOrderRecorded,
+      beforeTicketCount: args.beforeTicketCount,
+      status: "started", createdAt: now, updatedAt: now,
+    });
+  },
+});
+
+export const finishAdminTicketRecovery = mutation({
+  args: {
+    serverSecret: v.string(), actionId: v.id("ticketRecoveryActions"),
+    status: v.union(v.literal("completed"), v.literal("failed")),
+    afterTicketCount: v.optional(v.number()),
+    emailStatus: v.optional(v.union(v.literal("accepted"), v.literal("failed"), v.literal("skipped"))),
+  },
+  handler: async (ctx, args) => {
+    requireCheckoutSecret(args.serverSecret);
+    const action = await ctx.db.get(args.actionId);
+    if (!action || action.status !== "started") throw new Error("Recovery action is no longer pending.");
+    await ctx.db.patch(args.actionId, {
+      status: args.status, afterTicketCount: args.afterTicketCount,
+      emailStatus: args.emailStatus, updatedAt: Date.now(),
+    });
+  },
+});
+
 export const recordTicketDispute = mutation({
   args: {
     webhookSecret: v.string(),

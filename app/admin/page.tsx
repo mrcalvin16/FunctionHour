@@ -1,7 +1,14 @@
 import Link from "next/link";
+import OrderRecoveryDesk from "@/components/admin/OrderRecoveryDesk";
 
 export default function AdminPage() {
   const sections = [
+    {
+      title: "Orders & ticket recovery",
+      description: "Find paid checkouts, inspect fulfillment, and recover missing orders or passes.",
+      href: "/admin/orders",
+      action: "Open order desk",
+    },
     {
       title: "Finance and payouts",
       description: "Review the live Stripe balance, organizer payout requests, and paid orders missing tickets.",
@@ -29,7 +36,8 @@ export default function AdminPage() {
       <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-700">
         Choose an operations area. Finance and verification use live data from their respective services.
       </p>
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <OrderRecoveryDesk compact />
+      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {sections.map((section) => (
           <section key={section.href} className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-zinc-950">{section.title}</h2>
