@@ -6,6 +6,7 @@ import { getConvexClient } from "@/lib/convex";
 import { getStripeClient } from "@/lib/stripe/server";
 import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
 import { payoutApprovalBlockReason } from "@/lib/payoutApproval";
+import { transferMatchesPayout } from "@/lib/payoutReconciliation";
 
 export const dynamic = "force-dynamic";
 
@@ -63,9 +64,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "A processing request and valid Stripe transfer ID are required." }, { status: 400 });
       }
       const transfer = await getStripeClient().transfers.retrieve(transferId);
-      if (transfer.destination !== payout.stripeAccountId ||
-          transfer.amount !== Math.round(payout.amount * 100) ||
-          transfer.currency !== "usd" || transfer.metadata?.payoutRequestId !== String(id)) {
+      if (!transferMatchesPayout(transfer, {
+        requestId: String(id), stripeAccountId: payout.stripeAccountId,
+        amount: payout.amount, currency: payout.currency,
+      })) {
         return NextResponse.json({ error: "Transfer does not match this request." }, { status: 409 });
       }
       await convex.mutation(api.payouts.markOrganizerPayoutTransferred, {
