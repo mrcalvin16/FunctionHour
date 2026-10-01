@@ -192,6 +192,20 @@ eventInteractions: defineTable({
     .index("by_buyerEmail", ["buyerEmail"])
     .index("by_event_and_paidAt", ["eventId", "paidAt"]),
 
+  ticketRecoveryActions: defineTable({
+    sessionId: v.string(),
+    reviewedBy: v.string(),
+    beforeOrderRecorded: v.boolean(),
+    beforeTicketCount: v.number(),
+    afterTicketCount: v.optional(v.number()),
+    status: v.union(v.literal("started"), v.literal("completed"), v.literal("failed")),
+    emailStatus: v.optional(v.union(v.literal("accepted"), v.literal("failed"), v.literal("skipped"))),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_sessionId", ["sessionId"])
+    .index("by_createdAt", ["createdAt"]),
+
   organizerPayoutRequests: defineTable({
     organizerId: v.string(),
     stripeAccountId: v.string(),
