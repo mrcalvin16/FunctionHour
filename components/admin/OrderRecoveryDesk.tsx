@@ -48,7 +48,11 @@ export default function OrderRecoveryDesk({ compact = false }: { compact?: boole
     } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { void refresh(""); }, [refresh]);
+  useEffect(() => {
+    const initialSearch = new URLSearchParams(window.location.search).get("q")?.trim() || "";
+    setSearch(initialSearch);
+    void refresh(initialSearch);
+  }, [refresh]);
 
   async function recover(row: OrderRow) {
     setBusy(true);

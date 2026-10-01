@@ -34,15 +34,35 @@ http.route({
 });
 
 http.route({
-  path: "/support/requests/status", method: "POST",
+  path: "/support/requests/activity", method: "POST",
   handler: httpAction(async (ctx, request) => {
     if (!authorized(request)) return new Response("Forbidden", { status: 403 });
     try {
-      const input = await request.json() as { id: Id<"supportRequests">; status: "new" | "in_progress" | "resolved" };
-      await ctx.runMutation(internal.supportRequests.setStatus, input);
+      const input = await request.json() as { id: Id<"supportRequests"> };
+      const result = await ctx.runQuery(internal.supportRequests.getActivity, input);
+      return Response.json(result, { headers: { "Cache-Control": "no-store" } });
+    } catch {
+      return Response.json({ error: "Unable to load case activity." }, { status: 400 });
+    }
+  }),
+});
+
+http.route({
+  path: "/support/requests/case", method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    if (!authorized(request)) return new Response("Forbidden", { status: 403 });
+    try {
+      const input = await request.json() as {
+        id: Id<"supportRequests">; actorId: string;
+        action: "claim" | "release" | "priority" | "status" | "note" | "follow_up" | "reply_recorded";
+        status?: "new" | "in_progress" | "resolved";
+        priority?: "standard" | "urgent";
+        note?: string; followUpAt?: number;
+      };
+      await ctx.runMutation(internal.supportRequests.updateCase, input);
       return Response.json({ ok: true });
     } catch {
-      return Response.json({ error: "Unable to update request." }, { status: 400 });
+      return Response.json({ error: "Unable to update case." }, { status: 400 });
     }
   }),
 });
