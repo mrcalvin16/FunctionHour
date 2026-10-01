@@ -15,7 +15,6 @@ export async function GET() {
         openaiConfigured: hasOpenAIKey,
         convexConfigured: hasConvexUrl,
         supportModelConfigured: Boolean(process.env.OPENAI_SUPPORT_MODEL?.trim()),
-        adminAllowlistConfigured: Boolean(process.env.SUPPORT_ADMIN_USER_IDS?.trim()),
       },
       version:
         process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ?? "development",

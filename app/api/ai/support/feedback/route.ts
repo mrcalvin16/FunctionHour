@@ -14,7 +14,7 @@ const feedbackSchema = z.object({
 export async function POST(request: Request) {
   try {
     const session = await auth();
-    const rateLimit = checkRateLimit(
+    const rateLimit = await checkRateLimit(
       "support-feedback",
       getClientKey(request, session.userId),
       { limit: 30, windowMs: 60_000 },

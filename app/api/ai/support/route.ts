@@ -375,7 +375,7 @@ export async function POST(request: Request) {
 
   try {
     const session = await auth();
-    const rateLimit = checkRateLimit(
+    const rateLimit = await checkRateLimit(
       "support-chat",
       getClientKey(request, session.userId),
       { limit: 20, windowMs: 60_000 },

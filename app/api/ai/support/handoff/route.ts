@@ -81,7 +81,7 @@ const responseFormat = {
 export async function POST(request: Request) {
   try {
     const session = await auth();
-    const rateLimit = checkRateLimit(
+    const rateLimit = await checkRateLimit(
       "support-handoff",
       getClientKey(request, session.userId),
       { limit: 6, windowMs: 60_000 },

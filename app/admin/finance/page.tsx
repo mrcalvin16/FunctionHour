@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getStripeClient } from "@/lib/stripe/server";
 import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
+import PayoutRequestReview from "@/components/admin/PayoutRequestReview";
 
 export const dynamic = "force-dynamic";
 
@@ -64,11 +65,13 @@ export default async function FinanceAdminPage() {
         <Metric label="Disputes / adjustments" value={money(totals.disputes, currency)} />
       </section>
 
+      <PayoutRequestReview />
+
       <section className="mt-8 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-zinc-950">Settlement rules</h2>
         <ul className="mt-4 space-y-2 text-sm leading-6 text-zinc-600">
           <li>• Paid ticket charges land on Function Hour’s Stripe balance; organizer payout setup does not block checkout.</li>
-          <li>• Organizers can request their available net ticket proceeds to be transferred to their connected Stripe account.</li>
+          <li>• Organizers can request their available net ticket proceeds; Operations reviews each request before a transfer.</li>
           <li>• Organizers remain responsible for event taxes and event-level obligations.</li>
           <li>• Refunds, disputes, and transfers remain visible to Operations for reconciliation.</li>
           <li>• Organizers remain responsible for their tax reporting and payments.</li>
