@@ -251,6 +251,39 @@ export const getPendingPayoutRequests = query({
   },
 });
 
+// The operations ledger includes completed and declined requests, not only the
+// actionable queue. Keep this bounded; an exact request ID can still be opened
+// through getPayoutRequestForReview when it ages out of the recent window.
+export const getAdminPayoutLedger = query({
+  args: { serverSecret: v.string() },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+    const requests = await ctx.db.query("organizerPayoutRequests").order("desc").take(200);
+    const organizers = new Map<string, { name: string | null; email: string | null }>();
+    for (const organizerId of new Set(requests.map((request) => request.organizerId))) {
+      const user = (await ctx.db.query("users")
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", organizerId)).first()) ??
+        (await ctx.db.query("users")
+          .withIndex("by_userId", (q) => q.eq("userId", organizerId)).first());
+      organizers.set(organizerId, { name: user?.name ?? null, email: user?.email ?? null });
+    }
+    return requests.map((request) => ({
+      requestId: request._id,
+      organizerId: request.organizerId,
+      organizer: organizers.get(request.organizerId) ?? { name: null, email: null },
+      stripeAccountId: request.stripeAccountId,
+      stripeTransferId: request.stripeTransferId ?? null,
+      amount: request.amount,
+      currency: request.currency,
+      status: request.status,
+      reviewedBy: request.reviewedBy ?? null,
+      reviewNote: request.reviewNote ?? null,
+      createdAt: request.createdAt,
+      updatedAt: request.updatedAt,
+    }));
+  },
+});
+
 export const beginOrganizerPayoutTransfer = mutation({
   args: {
     serverSecret: v.string(), requestId: v.id("organizerPayoutRequests"), reviewedBy: v.string(),
