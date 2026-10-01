@@ -15,10 +15,10 @@ export default function AdminPage() {
       action: "Review requests",
     },
     {
-      title: "Support health",
-      description: "Inspect current support assistant activity and failures on this application instance.",
+      title: "Support requests",
+      description: "Review visitor ticket, refund, payment, account, and event reports sent through Chev.",
       href: "/admin/support",
-      action: "Open support health",
+      action: "Open support requests",
     },
   ];
 

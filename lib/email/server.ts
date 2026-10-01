@@ -1,5 +1,6 @@
 type SendEmailInput = {
   to: string;
+  replyTo?: string;
   subject: string;
   html: string;
   text: string;
@@ -28,7 +29,7 @@ export async function sendTransactionalEmail(input: SendEmailInput) {
     body: JSON.stringify({
       from,
       to: [input.to],
-      reply_to: "operations@functionhour.com",
+      reply_to: input.replyTo || "operations@functionhour.com",
       subject: input.subject,
       html: input.html,
       text: input.text,

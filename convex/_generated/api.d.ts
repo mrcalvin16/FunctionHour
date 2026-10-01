@@ -29,6 +29,7 @@ import type * as payouts from "../payouts.js";
 import type * as ranking from "../ranking.js";
 import type * as savedEvents from "../savedEvents.js";
 import type * as supportRateLimits from "../supportRateLimits.js";
+import type * as supportRequests from "../supportRequests.js";
 import type * as seedMapCoordinates from "../seedMapCoordinates.js";
 import type * as ticketAddOns from "../ticketAddOns.js";
 import type * as ticketTypes from "../ticketTypes.js";
@@ -64,6 +65,7 @@ declare const fullApi: ApiFromModules<{
   ranking: typeof ranking;
   savedEvents: typeof savedEvents;
   supportRateLimits: typeof supportRateLimits;
+  supportRequests: typeof supportRequests;
   seedMapCoordinates: typeof seedMapCoordinates;
   ticketAddOns: typeof ticketAddOns;
   ticketTypes: typeof ticketTypes;
