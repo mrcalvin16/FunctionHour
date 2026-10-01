@@ -47,6 +47,7 @@ export default async function FinanceAdminPage() {
         <a href="/admin/organizer-verification" className="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700">
           Review organizer verification
         </a>
+        <a href="/admin/payouts" className="ml-3 mt-4 inline-flex rounded-xl border border-violet-300 px-4 py-2 text-xs font-semibold text-violet-800 hover:bg-violet-50">View payout ledger</a>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">
           Stripe is the source of truth for funds. Function Hour can display this balance and reconcile transfers, fees, refunds, and disputes, but does not hold money in the application database.
         </p>
@@ -65,7 +66,7 @@ export default async function FinanceAdminPage() {
         <Metric label="Disputes / adjustments" value={money(totals.disputes, currency)} />
       </section>
 
-      <PayoutRequestReview />
+      <div id="payout-requests"><PayoutRequestReview /></div>
 
       <section className="mt-8 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-zinc-950">Settlement rules</h2>

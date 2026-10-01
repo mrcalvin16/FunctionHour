@@ -11,9 +11,9 @@ export default function AdminPage() {
     },
     {
       title: "Finance and payouts",
-      description: "Review the live Stripe balance, organizer payout requests, and paid orders missing tickets.",
-      href: "/admin/finance",
-      action: "Open finance",
+      description: "Review payout history, Stripe transfers, and organizer proceeds. Finance holds the approval queue.",
+      href: "/admin/payouts",
+      action: "Open payout ledger",
     },
     {
       title: "Organizer verification",
