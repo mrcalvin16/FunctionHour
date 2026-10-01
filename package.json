@@ -8,7 +8,9 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "qa:production": "bash scripts/qa/production-smoke.sh"
+    "qa:production": "bash scripts/qa/production-smoke.sh",
+    "qa:launch": "bash scripts/qa/launch-final-check.sh",
+    "qa:business": "bash scripts/qa/business-smoke.sh"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.39.6",
