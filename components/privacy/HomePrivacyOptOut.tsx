@@ -30,14 +30,14 @@ export default function HomePrivacyOptOut() {
   }
 
   return (
-    <section aria-labelledby="home-privacy-title" className="mx-auto max-w-7xl border-b border-zinc-200 px-6 py-8">
+    <section aria-labelledby="home-privacy-title">
       <form onSubmit={save}>
         <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-700">Your data, your choice</p>
-        <h2 id="home-privacy-title" className="mt-2 text-xl font-black text-zinc-950">Opt out of optional data sharing</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-700">
+        <h2 id="home-privacy-title" className="mt-2 text-lg font-black text-zinc-950">Opt out of optional data sharing</h2>
+        <p className="mt-2 text-sm leading-6 text-zinc-700">
           Check the box to turn off optional event-view analytics in this browser. Essential account, ticket, payment, and security processing will continue.
         </p>
-        <label className="mt-5 flex cursor-pointer items-start gap-3 text-sm font-semibold text-zinc-950">
+        <label className="mt-4 flex cursor-pointer items-start gap-3 text-sm font-semibold text-zinc-950">
           <input
             type="checkbox"
             checked={optedOut}
@@ -46,13 +46,13 @@ export default function HomePrivacyOptOut() {
           />
           Do not sell or share my personal information
         </label>
-        <div className="mt-5 flex flex-wrap items-center gap-4">
+        <div className="mt-4 flex flex-wrap items-center gap-4">
           <button type="submit" className="min-h-11 rounded-full bg-zinc-950 px-6 text-sm font-black text-white hover:bg-zinc-800">
             Save my choice
           </button>
           <p role="status" className="text-sm font-semibold text-zinc-700">{message}</p>
         </div>
-        <p className="mt-4 max-w-2xl text-xs leading-5 text-zinc-600">
+        <p className="mt-3 text-xs leading-5 text-zinc-600">
           This browser choice affects future optional analytics here. For an account-level data request, see our <a href="/privacy" className="font-bold text-violet-700 underline underline-offset-2">Privacy Policy</a>.
         </p>
       </form>
