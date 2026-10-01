@@ -13,7 +13,6 @@ export default function VenueRules({
   dressCode,
   parking,
   entryPolicy,
-  refundPolicy,
   reEntry,
   isVerified = false,
 }: VenueRulesProps) {
@@ -22,7 +21,6 @@ export default function VenueRules({
     { label: "Dress Code", value: dressCode },
     { label: "Parking", value: parking },
     { label: "Entry Policy", value: entryPolicy },
-    { label: "Refunds", value: refundPolicy },
     { label: "Re-entry", value: reEntry },
   ].filter((rule): rule is { label: string; value: string } =>
     Boolean(rule.value),
