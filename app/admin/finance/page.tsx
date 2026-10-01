@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { getStripeClient } from "@/lib/stripe/server";
 import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
+import { api } from "@/convex/_generated/api";
+import { getConvexClient } from "@/lib/convex";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +19,20 @@ export default async function FinanceAdminPage() {
   }
 
   const stripe = getStripeClient();
-  const [balance, transactions] = await Promise.all([
+  const secret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
+
+  if (!secret) {
+    throw new Error("Missing payout configuration");
+  }
+
+  const convex = getConvexClient();
+
+  const [balance, transactions, payoutRequests] = await Promise.all([
     stripe.balance.retrieve(),
     stripe.balanceTransactions.list({ limit: 100 }),
+    convex.query(api.payouts.getPendingPayoutRequests, {
+      serverSecret: secret,
+    }),
   ]);
 
   const currency = balance.available[0]?.currency ?? balance.pending[0]?.currency ?? "usd";
@@ -63,6 +76,70 @@ export default async function FinanceAdminPage() {
         <Metric label="Refunds" value={money(totals.refunds, currency)} />
         <Metric label="Disputes / adjustments" value={money(totals.disputes, currency)} />
       </section>
+
+      <section className="mt-8 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+        <h2 className="text-lg font-semibold text-zinc-950">
+          Organizer payout requests
+        </h2>
+
+        {payoutRequests.length === 0 ? (
+          <p className="mt-4 text-sm text-zinc-500">
+            No pending payout requests.
+          </p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {payoutRequests.map((request) => (
+              <div
+                key={request._id}
+                className="flex items-center justify-between rounded-xl border border-black/10 p-4"
+              >
+                <div>
+                  <p className="font-medium text-zinc-950">
+                    Organizer payout
+                  </p>
+                  <p className="text-sm text-zinc-500">
+                    ${request.amount.toFixed(2)} · {request.status}
+                  </p>
+                </div>
+
+                {request.status === "requested" ? (
+                  <form
+                    action={async () => {
+                      "use server";
+
+                      await fetch(
+                        `${process.env.NEXT_PUBLIC_APP_URL}/api/admin/payouts/approve`,
+                        {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({
+                            requestId: request._id,
+                            stripeAccountId: request.stripeAccountId,
+                            amount: request.amount,
+                          }),
+                        }
+                      );
+                    }}
+                  >
+                    <button
+                      className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+                    >
+                      Approve
+                    </button>
+                  </form>
+                ) : (
+                  <span className="text-sm text-zinc-500">
+                    {request.status}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
 
       <section className="mt-8 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-zinc-950">Settlement rules</h2>
