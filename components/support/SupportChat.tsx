@@ -22,6 +22,7 @@ export default function SupportChat() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [submissionFailed, setSubmissionFailed] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   function ask(value: string) {
     if (!value.trim()) return;
@@ -48,11 +49,9 @@ export default function SupportChat() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Unable to submit your request.");
-      setNotice(result.reference
-        ? `Request received. Reference: ${result.reference}. Operations can review it in the admin portal.`
-        : "Request received.");
       setMessage("");
       setShowForm(false);
+      setSubmitted(true);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Unable to submit your request.");
       setSubmissionFailed(true);
@@ -71,6 +70,13 @@ export default function SupportChat() {
             <button type="button" onClick={() => setOpen(false)} aria-label="Close Chev" className="rounded-full p-2 hover:bg-zinc-100"><X size={20} /></button>
           </header>
           <div className="flex-1 space-y-4 overflow-y-auto p-4">
+            {submitted ? (
+              <div role="status" className="rounded-2xl border border-violet-200 bg-violet-50 p-5 text-sm leading-6">
+                <h3 className="text-xl font-bold text-zinc-950">Thank you! Your request was sent.</h3>
+                <p className="mt-3 text-zinc-800">We’ll follow up by email at <strong>{email}</strong>. We aim to respond within 2 business days; timing may vary with request volume.</p>
+                <button type="button" onClick={() => { setSubmitted(false); setAnswer(null); setQuestion(""); }} className="mt-5 font-bold text-violet-800 underline underline-offset-2">Back to help</button>
+              </div>
+            ) : <>
             <p className="rounded-2xl bg-violet-50 p-3 text-sm leading-6">Hi! I use Function Hour’s help pages to answer common questions. For account, payment, ticket, refund, or safety issues, you can send a request to Operations.</p>
             {!showForm && (
               <>
@@ -104,6 +110,7 @@ export default function SupportChat() {
               <p>{notice}</p>
               {submissionFailed && <a href="mailto:operations@functionhour.com?subject=Function%20Hour%20support" className="mt-2 inline-block font-bold text-violet-800 underline underline-offset-2">Email Operations directly</a>}
             </div>}
+            </>}
           </div>
         </section>
       )}
