@@ -1,4 +1,4 @@
-const siteUrl = () => {
+export const supportSiteUrl = () => {
   const explicit = process.env.NEXT_PUBLIC_CONVEX_SITE_URL;
   const cloud = process.env.NEXT_PUBLIC_CONVEX_URL;
   if (explicit) return explicit;
@@ -9,7 +9,7 @@ const siteUrl = () => {
 export async function supportStore(path: string, method: "GET" | "POST", body?: unknown) {
   const secret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
   if (!secret) throw new Error("Support storage is not configured.");
-  const response = await fetch(new URL(path, siteUrl()), {
+  const response = await fetch(new URL(path, supportSiteUrl()), {
     method,
     headers: {
       "x-functionhour-internal-secret": secret,

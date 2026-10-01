@@ -297,6 +297,20 @@ html.light .organizer-profile-counts span {
   color: #ffffff !important;
 }
 
+/* The broad light-mode text override also matches support buttons. Keep
+   lettering white on their saturated surfaces in every theme. */
+.chev-support .chev-primary-action,
+html.light .chev-support .chev-primary-action,
+.chev-support .chev-launcher,
+html.light .chev-support .chev-launcher {
+  color: #ffffff !important;
+}
+
+.chev-launcher {
+  background: linear-gradient(125deg, #4c1d95 0%, #6d28d9 58%, #c2410c 130%);
+  box-shadow: 0 10px 28px rgba(76, 29, 149, 0.3), 0 2px 8px rgba(24, 24, 27, 0.15);
+}
+
 html.light ::-webkit-scrollbar-track {
   background: #f4f4f5;
 }

@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageCircle, Send, X } from "lucide-react";
+import { MessageCircle, Send, Sparkles, X } from "lucide-react";
 import { answerSupportQuestion, supportCategories, type SupportCategory } from "@/lib/supportFaq";
 
 const questions = ["Where are my tickets?", "How do refunds work?", "Report an event", "Where are my merch orders?"];
@@ -21,6 +21,7 @@ export default function SupportChat() {
   const [website, setWebsite] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  const [submissionFailed, setSubmissionFailed] = useState(false);
 
   function ask(value: string) {
     if (!value.trim()) return;
@@ -38,6 +39,7 @@ export default function SupportChat() {
     if (busy) return;
     setBusy(true);
     setNotice("");
+    setSubmissionFailed(false);
     try {
       const response = await fetch("/api/support/requests", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -53,6 +55,7 @@ export default function SupportChat() {
       setShowForm(false);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Unable to submit your request.");
+      setSubmissionFailed(true);
     } finally {
       setBusy(false);
     }
@@ -60,7 +63,7 @@ export default function SupportChat() {
 
   const isFlyerStudio = pathname?.startsWith("/host/flyer-studio");
   return (
-    <div className={`fixed z-[70] ${isFlyerStudio ? "bottom-3 left-3" : "bottom-5 right-5"}`}>
+    <div className={`chev-support fixed z-[70] ${isFlyerStudio ? "bottom-3 left-3" : "bottom-5 right-5"}`}>
       {open && (
         <section aria-label="Chev support" className="mb-3 flex h-[min(620px,calc(100vh-7rem))] w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white text-zinc-950 shadow-2xl">
           <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
@@ -84,7 +87,7 @@ export default function SupportChat() {
                   <input id="chev-question" value={question} onChange={(event) => { setQuestion(event.target.value); setAnswer(null); }} maxLength={300} placeholder="Ask a question" className="min-w-0 flex-1 rounded-xl border border-zinc-300 px-3 py-2 text-sm" />
                   <button type="submit" aria-label="Ask" className="rounded-xl bg-zinc-950 px-3 text-white"><Send size={16} /></button>
                 </form>
-                <button type="button" onClick={() => { setShowForm(true); setNotice(""); }} className="w-full rounded-xl bg-violet-700 px-4 py-3 text-sm font-bold text-white hover:bg-violet-800">Contact Operations</button>
+                <button type="button" onClick={() => { setShowForm(true); setNotice(""); setSubmissionFailed(false); }} className="chev-primary-action w-full rounded-xl bg-violet-700 px-4 py-3 text-sm font-bold text-white hover:bg-violet-800">Contact Operations</button>
               </>
             )}
             {showForm && <form onSubmit={submit} className="space-y-3 text-sm">
@@ -95,13 +98,19 @@ export default function SupportChat() {
               <label className="block font-semibold">Email for a reply<input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} maxLength={254} className="mt-1 w-full rounded-xl border border-zinc-300 p-3" /></label>
               <label className="block font-semibold">What happened?<textarea required minLength={10} maxLength={2000} rows={4} value={message} onChange={(event) => setMessage(event.target.value)} className="mt-1 w-full rounded-xl border border-zinc-300 p-3" /></label>
               <label className="sr-only">Website<input tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} /></label>
-              <div className="flex gap-2"><button type="button" onClick={() => setShowForm(false)} className="rounded-xl border border-zinc-300 px-4 py-3 font-semibold">Back</button><button type="submit" disabled={busy} className="flex-1 rounded-xl bg-violet-700 px-4 py-3 font-bold text-white disabled:opacity-50">{busy ? "Sending…" : "Send request"}</button></div>
+              <div className="flex gap-2"><button type="button" onClick={() => setShowForm(false)} className="rounded-xl border border-zinc-300 px-4 py-3 font-semibold">Back</button><button type="submit" disabled={busy} className="chev-primary-action flex-1 rounded-xl bg-violet-700 px-4 py-3 font-bold text-white disabled:opacity-50">{busy ? "Sending…" : "Send request"}</button></div>
             </form>}
-            {notice && <p role="status" className="rounded-xl bg-zinc-100 p-3 text-sm font-semibold text-zinc-950">{notice}</p>}
+            {notice && <div role="status" className="rounded-xl bg-zinc-100 p-3 text-sm font-semibold text-zinc-950">
+              <p>{notice}</p>
+              {submissionFailed && <a href="mailto:operations@functionhour.com?subject=Function%20Hour%20support" className="mt-2 inline-block font-bold text-violet-800 underline underline-offset-2">Email Operations directly</a>}
+            </div>}
           </div>
         </section>
       )}
-      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Close Chev" : "Open Chev"} className="ml-auto flex min-h-12 items-center gap-2 rounded-full bg-zinc-950 px-5 text-sm font-semibold text-white shadow-xl"><MessageCircle size={20} /><span>Help</span></button>
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Close Chev" : "Open Chev"} className="chev-launcher ml-auto flex min-h-14 items-center gap-3 rounded-full px-4 py-2 pr-6 text-sm font-bold text-white shadow-xl transition-transform duration-200 hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">
+        <span className="relative grid h-9 w-9 place-items-center rounded-full bg-white/20 ring-1 ring-white/35"><MessageCircle size={20} strokeWidth={2.2} /><Sparkles size={10} className="absolute -right-1 -top-1 text-amber-200" aria-hidden="true" /></span>
+        <span>Help</span>
+      </button>
     </div>
   );
 }
