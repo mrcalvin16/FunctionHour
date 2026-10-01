@@ -26,8 +26,8 @@ export default function DiscoveryNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 shadow-sm">
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6" aria-label="Main navigation">
-        <Link href="/" className="shrink-0 text-xl font-extrabold tracking-[0.02em] sm:text-2xl" aria-label="Function Hour home">
-          <span className="text-zinc-950">FUNCTION</span><span className="bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">HOUR</span>
+        <Link href="/" className="flex h-10 w-[154px] shrink-0 items-center" aria-label="Function Hour home">
+          <img src="/function-hour-logo.svg" alt="Function Hour" className="h-full w-full object-contain object-left" />
         </Link>
 
         <div className="hidden items-center gap-2 lg:flex">

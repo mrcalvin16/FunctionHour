@@ -6,27 +6,24 @@ import OrganizerPortalLink from "@/components/OrganizerPortalLink";
 
 export default function Header() {
   return (
-    <header className="border-b border-white/10 bg-black sticky top-0 z-50">
+    <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2 text-xl font-black text-white" aria-label="Function Hour home">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-orange-500 to-fuchsia-600 text-xs font-black tracking-[-0.08em] shadow-[0_0_24px_rgba(249,115,22,0.28)]">
-            FH
-          </span>
-          <span>Function<span className="bg-gradient-to-r from-orange-400 to-fuchsia-500 bg-clip-text text-transparent">Hour</span></span>
+        <Link href="/" className="flex h-10 w-[154px] items-center" aria-label="Function Hour home">
+          <img src="/function-hour-logo.svg" alt="Function Hour" className="h-full w-full object-contain object-left" />
         </Link>
 
         <div className="flex items-center gap-4">
-          <Link href="/my-tickets" className="text-zinc-300 hover:text-white">My Tickets</Link>
+          <Link href="/my-tickets" className="text-zinc-700 hover:text-zinc-950">My Tickets</Link>
           <OrganizerPortalLink
             organizerLabel="Create Event"
             attendeeLabel="Create Event"
             organizerHref="/host/create"
-            className="text-zinc-300 hover:text-white"
+            className="text-zinc-700 hover:text-zinc-950"
           />
 
           <SignedOut>
             <SignInButton>
-              <button className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl font-bold text-white">
+              <button className="rounded-xl bg-violet-700 px-4 py-2 font-bold text-white hover:bg-violet-800">
                 Sign In
               </button>
             </SignInButton>

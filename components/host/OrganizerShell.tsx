@@ -397,19 +397,7 @@ function Sidebar({
               collapsed ? "text-center text-xl" : "text-[24px]",
             ].join(" ")}
           >
-            {collapsed ? (
-              <span className="bg-gradient-to-r from-violet-400 to-orange-400 bg-clip-text text-transparent">
-                FH
-              </span>
-            ) : (
-              <>
-                <span className="text-white">FUNCTION</span>
-
-                <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-orange-400 bg-clip-text text-transparent">
-                  HOUR
-                </span>
-              </>
-            )}
+            <img src="/function-hour-logo.svg" alt="Function Hour" className={collapsed ? "mx-auto h-9 w-9 object-contain" : "h-10 w-full object-contain object-left"} />
           </div>
 
           {!collapsed && (
