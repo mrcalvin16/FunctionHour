@@ -8,7 +8,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <Link href="/" className="flex h-10 w-[154px] items-center" aria-label="Function Hour home">
+        <Link href="/" className="flex h-16 w-[220px] items-center" aria-label="Function Hour home">
           <img src="/function-hour-logo.svg" alt="Function Hour" className="h-full w-full object-contain object-left" />
         </Link>
 
