@@ -1,11 +1,10 @@
 import Link from "next/link";
 import PrivacyPreferences from "@/components/privacy/PrivacyPreferences";
-import HomePrivacyOptOut from "@/components/privacy/HomePrivacyOptOut";
 
 export default function Footer({ homePrivacyOptOut = false }: { homePrivacyOptOut?: boolean }) {
   return (
     <footer className={`${homePrivacyOptOut ? "mt-0" : "mt-20"} border-t border-zinc-200 bg-white`}>
-      <div className={`mx-auto grid max-w-7xl gap-9 px-6 py-10 text-left ${homePrivacyOptOut ? "md:grid-cols-2 xl:grid-cols-[minmax(11rem,1fr)_minmax(18rem,1.4fr)_minmax(18rem,1.5fr)]" : "sm:grid-cols-[auto_1fr] sm:items-start"}`}>
+      <div className="mx-auto grid max-w-7xl gap-9 px-6 py-10 text-left sm:grid-cols-[auto_1fr] sm:items-start">
         <div>
           <p className="font-black tracking-[0.2em] text-zinc-950">
             FUNCTION<span className="bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">HOUR</span>
@@ -25,7 +24,6 @@ export default function Footer({ homePrivacyOptOut = false }: { homePrivacyOptOu
           <PrivacyPreferences />
           <a href="mailto:operations@functionhour.com" className="transition hover:text-zinc-950">Support</a>
         </nav>
-        {homePrivacyOptOut && <div className="md:col-span-2 xl:col-span-1"><HomePrivacyOptOut /></div>}
       </div>
     </footer>
   );
