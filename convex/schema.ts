@@ -214,6 +214,34 @@ eventInteractions: defineTable({
     .index("by_organizer", ["organizerId"])
     .index("by_transfer", ["stripeTransferId"]),
 
+  
+
+  stripeDisputes: defineTable({
+    stripeDisputeId: v.string(),
+    paymentIntentId: v.optional(v.string()),
+    chargeId: v.optional(v.string()),
+    orderId: v.optional(v.id("ticketOrders")),
+    eventId: v.optional(v.id("events")),
+    organizerId: v.optional(v.string()),
+    amount: v.float64(),
+    currency: v.string(),
+    status: v.union(
+      v.literal("warning"),
+      v.literal("needs_response"),
+      v.literal("under_review"),
+      v.literal("won"),
+      v.literal("lost"),
+      v.literal("closed")
+    ),
+    reason: v.optional(v.string()),
+    createdAt: v.float64(),
+    updatedAt: v.float64(),
+  })
+    .index("by_stripeDisputeId", ["stripeDisputeId"])
+    .index("by_status", ["status"])
+    .index("by_paymentIntentId", ["paymentIntentId"]),
+
+
   ticketCheckoutReservations: defineTable({
     reservationId: v.string(),
     eventId: v.id("events"),
