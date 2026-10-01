@@ -10,7 +10,7 @@ import {
 
 type DialogMode = "manage" | "opt-out";
 
-const linkClassName = "cursor-pointer border-0 bg-transparent p-0 text-left text-zinc-400 transition hover:text-white";
+const linkClassName = "cursor-pointer border-0 bg-transparent p-0 text-left text-zinc-700 transition hover:text-zinc-950";
 
 export default function PrivacyPreferences() {
   const [open, setOpen] = useState(false);
@@ -67,7 +67,7 @@ export default function PrivacyPreferences() {
         Do Not Sell or Share My Personal Information
       </button>
       {savedMessage && (
-        <span role="status" className="basis-full text-xs text-emerald-300">{savedMessage}</span>
+        <span role="status" className="basis-full text-xs text-emerald-700">{savedMessage}</span>
       )}
 
       {open && (
