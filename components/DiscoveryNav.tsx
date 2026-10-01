@@ -26,7 +26,7 @@ export default function DiscoveryNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/95 shadow-sm">
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6" aria-label="Main navigation">
-        <Link href="/" className="flex h-10 w-[154px] shrink-0 items-center" aria-label="Function Hour home">
+        <Link href="/" className="flex h-16 w-[220px] shrink-0 items-center" aria-label="Function Hour home">
           <img src="/function-hour-logo.svg" alt="Function Hour" className="h-full w-full object-contain object-left" />
         </Link>
 
