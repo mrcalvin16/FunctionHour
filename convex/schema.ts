@@ -245,10 +245,23 @@ eventInteractions: defineTable({
     pagePath: v.string(),
     status: v.union(v.literal("new"), v.literal("in_progress"), v.literal("resolved")),
     notificationStatus: v.union(v.literal("pending"), v.literal("delivered"), v.literal("failed")),
+    priority: v.optional(v.union(v.literal("standard"), v.literal("urgent"))),
+    assignedTo: v.optional(v.string()),
+    followUpAt: v.optional(v.number()),
+    lastReplyAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_createdAt", ["createdAt"])
     .index("by_status_and_createdAt", ["status", "createdAt"]),
+
+  supportCaseActivity: defineTable({
+    requestId: v.id("supportRequests"),
+    actorId: v.string(),
+    action: v.union(v.literal("claim"), v.literal("release"), v.literal("priority"),
+      v.literal("status"), v.literal("note"), v.literal("follow_up"), v.literal("reply_recorded")),
+    detail: v.string(),
+    createdAt: v.number(),
+  }).index("by_requestId_and_createdAt", ["requestId", "createdAt"]),
 
   ticketCheckoutReservations: defineTable({
     reservationId: v.string(),
