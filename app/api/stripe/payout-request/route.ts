@@ -49,7 +49,6 @@ export async function GET() {
       earnedAmount: data.summary.earnedAmount,
       transferredAmount: data.summary.transferredAmount,
       requestedAmount: data.summary.requestedAmount,
-      availableStripeBalance: data.availableStripeBalance,
       requestableAmount: data.requestableAmount,
       pendingRequest: data.summary.pendingRequest,
     });
@@ -78,7 +77,14 @@ export async function POST(httpRequest: Request) {
         { status: 409 },
       );
     }
-    if (data.requestableAmount <= 0 && !data.summary.pendingRequest) {
+    if (data.summary.pendingRequest) {
+      return NextResponse.json({
+        success: true,
+        amount: data.summary.pendingRequest.amount,
+        message: "Your payout request is awaiting review by Function Hour Operations.",
+      });
+    }
+    if (data.requestableAmount <= 0) {
       return NextResponse.json(
         { error: "There are no eligible funds currently available to transfer." },
         { status: 409 },
@@ -97,39 +103,10 @@ export async function POST(httpRequest: Request) {
         ) * 100) / 100,
       },
     );
-    const availableCents = data.availableStripeBalance * 100;
-    if (payoutRequest.amount * 100 > availableCents) {
-      return NextResponse.json(
-        { error: "Stripe funds are still pending. Try again when they are available." },
-        { status: 409 },
-      );
-    }
-
-    const transfer = await getStripeClient().transfers.create(
-      {
-        amount: Math.round(payoutRequest.amount * 100),
-        currency: "usd",
-        destination: data.account.id,
-        transfer_group: `functionhour-organizer-${user.id}`,
-        metadata: {
-          type: "organizer_payout_request",
-          organizerId: user.id,
-          payoutRequestId: String(payoutRequest.requestId),
-        },
-      },
-      { idempotencyKey: `functionhour-payout-${payoutRequest.requestId}` },
-    );
-
-    await data.convex.mutation(api.payouts.markOrganizerPayoutTransferred, {
-      serverSecret: data.secret,
-      requestId: payoutRequest.requestId,
-      stripeTransferId: transfer.id,
-    });
     return NextResponse.json({
       success: true,
       amount: payoutRequest.amount,
-      transferId: transfer.id,
-      message: "Funds were transferred to your Stripe account. Your bank payout follows the schedule shown in Stripe.",
+      message: "Your payout request is awaiting review by Function Hour Operations.",
     });
   } catch (error) {
     console.error("Organizer payout request error:", error);

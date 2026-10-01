@@ -173,6 +173,7 @@ eventInteractions: defineTable({
     grossAmount: v.float64(),
     platformFeeAmount: v.optional(v.float64()),
     refundedAmount: v.float64(),
+    disputeStatus: v.optional(v.union(v.literal("open"), v.literal("won"), v.literal("lost"))),
     netAmount: v.float64(),
     quantity: v.float64(),
     discountCodeId: v.optional(v.id("discountCodes")),
@@ -198,14 +199,25 @@ eventInteractions: defineTable({
     currency: v.string(),
     status: v.union(
       v.literal("requested"),
-      v.literal("transferred")
+      v.literal("processing"),
+      v.literal("transferred"),
+      v.literal("rejected")
     ),
     stripeTransferId: v.optional(v.string()),
+    reviewedBy: v.optional(v.string()),
+    reviewNote: v.optional(v.string()),
     createdAt: v.float64(),
     updatedAt: v.float64(),
   })
     .index("by_organizer", ["organizerId"])
+    .index("by_status_and_createdAt", ["status", "createdAt"])
     .index("by_transfer", ["stripeTransferId"]),
+
+  supportRateBuckets: defineTable({
+    key: v.string(),
+    count: v.number(),
+    resetAt: v.number(),
+  }).index("by_key", ["key"]),
 
   ticketCheckoutReservations: defineTable({
     reservationId: v.string(),

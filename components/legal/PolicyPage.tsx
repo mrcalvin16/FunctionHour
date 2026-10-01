@@ -60,10 +60,10 @@ export default function PolicyPage({
           <p className="mt-2 text-sm leading-6 text-zinc-300">
             Contact Function Hour at{" "}
             <a
-              href="mailto:support@functionhour.com"
+              href="mailto:operations@functionhour.com"
               className="font-semibold text-orange-400 hover:text-orange-300"
             >
-              support@functionhour.com
+              operations@functionhour.com
             </a>{" "}
             or{" "}
             <a

@@ -152,10 +152,10 @@ export default function PrivacyPreferences() {
             <p className="mt-4 text-xs leading-5 text-zinc-500">
               This browser setting stops future event-view analytics here; it does not remove data already recorded or submit an account-level request. To request access to or deletion of account information, email{" "}
               <a
-                href="mailto:support@functionhour.com?subject=Personal%20information%20privacy%20request"
+                href="mailto:operations@functionhour.com?subject=Personal%20information%20privacy%20request"
                 className="font-semibold text-orange-300 underline underline-offset-2 hover:text-orange-200"
               >
-                support@functionhour.com
+                operations@functionhour.com
               </a>.
             </p>
 

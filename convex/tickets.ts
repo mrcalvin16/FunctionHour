@@ -10,6 +10,7 @@ import {
 } from "./_generated/server";
 import { requireEventCapability } from "./eventAccess";
 import { requireEventSalesOpen } from "./eventDates";
+import { isTicketEligibleForAdmission } from "./ticketAdmission";
 
 const CHECKOUT_RESERVATION_MS = 32 * 60 * 1000;
 
@@ -648,6 +649,57 @@ export const recordTicketOrder = mutation({
   },
 });
 
+export const getPaidOrdersMissingTickets = query({
+  args: { serverSecret: v.string() },
+  handler: async (ctx, args) => {
+    requireCheckoutSecret(args.serverSecret);
+    const orders = await ctx.db.query("ticketOrders").order("desc").take(500);
+    const missing = [];
+    for (const order of orders) {
+      if (order.status === "refunded") continue;
+      const ticket = await ctx.db.query("tickets")
+        .withIndex("by_stripeCheckoutSessionId", (q) =>
+          q.eq("stripeCheckoutSessionId", order.stripeCheckoutSessionId))
+        .first();
+      if (!ticket) missing.push({
+        orderId: order._id,
+        stripeCheckoutSessionId: order.stripeCheckoutSessionId,
+        eventId: order.eventId,
+        paidAt: order.paidAt,
+      });
+    }
+    return missing;
+  },
+});
+
+export const recordTicketDispute = mutation({
+  args: {
+    webhookSecret: v.string(),
+    stripePaymentIntentId: v.string(),
+    outcome: v.union(v.literal("open"), v.literal("won"), v.literal("lost")),
+  },
+  handler: async (ctx, args) => {
+    requireCheckoutSecret(args.webhookSecret);
+    const order = await ctx.db.query("ticketOrders")
+      .withIndex("by_stripePaymentIntentId", (q) =>
+        q.eq("stripePaymentIntentId", args.stripePaymentIntentId))
+      .unique();
+    if (!order) return false;
+    // Hold all of this order's proceeds while disputed or after a loss.
+    // A win restores only the amount still due after any separate refund.
+    const proceeds = Math.max(0, order.grossAmount - (order.platformFeeAmount ?? 0));
+    const netAmount = args.outcome === "won"
+      ? Math.max(0, proceeds - Math.min(proceeds, order.refundedAmount))
+      : 0;
+    await ctx.db.patch(order._id, {
+      disputeStatus: args.outcome,
+      netAmount,
+      updatedAt: Date.now(),
+    });
+    return true;
+  },
+});
+
 export const recordTicketRefund = mutation({
   args: {
     webhookSecret: v.string(),
@@ -678,10 +730,8 @@ export const recordTicketRefund = mutation({
 
     await ctx.db.patch(order._id, {
       refundedAmount,
-      netAmount: Math.max(
-        0,
-        ticketProceeds - Math.min(ticketProceeds, refundedAmount),
-      ),
+      netAmount: order.disputeStatus === "open" || order.disputeStatus === "lost"
+        ? 0 : Math.max(0, ticketProceeds - Math.min(ticketProceeds, refundedAmount)),
       status: fullyRefunded ? "refunded" : "partially_refunded",
       updatedAt: Date.now(),
     });
@@ -892,6 +942,10 @@ export const checkInTicket = mutation({
     }
 
     await requireEventCapability(ctx, ticket.eventId, "check_in");
+
+    if (!isTicketEligibleForAdmission(ticket)) {
+      throw new Error("This ticket is no longer valid for admission.");
+    }
 
     if (ticket.checkedIn) {
       throw new Error("Ticket has already been checked in.");

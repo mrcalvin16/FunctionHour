@@ -196,6 +196,35 @@ export async function POST(req: Request) {
       };
 
       try {
+        await convex.mutation(api.tickets.createTicketsAfterPayment, {
+          webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
+          eventId: eventId as Id<"events">,
+          buyerEmail,
+          buyerUserId,
+          buyerName,
+          stripeCheckoutSessionId: session.id,
+          stripePaymentIntentId,
+          reservationId,
+          tickets: tickets.map((line) => ({
+            ticketTypeId: line.ticketTypeId
+              ? (line.ticketTypeId as Id<"ticketTypes">)
+              : undefined,
+            quantity: Number(line.quantity || 1),
+          })),
+        });
+        console.info(
+          "[stripe.webhook] Tickets created in Convex",
+          ticketContext,
+        );
+      } catch (error) {
+        console.error("[stripe.webhook] Convex ticket creation failed", {
+          ...ticketContext,
+          ...safeErrorDetails(error),
+        });
+        throw error;
+      }
+
+      try {
         await convex.mutation(api.tickets.recordTicketOrder, {
           webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
           eventId: eventId as Id<"events">,
@@ -226,36 +255,27 @@ export async function POST(req: Request) {
         throw error;
       }
 
-      try {
-        await convex.mutation(api.tickets.createTicketsAfterPayment, {
-          webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
-          eventId: eventId as Id<"events">,
-          buyerEmail,
-          buyerUserId,
-          buyerName,
-          stripeCheckoutSessionId: session.id,
-          stripePaymentIntentId,
-          reservationId,
-          tickets: tickets.map((line) => ({
-            ticketTypeId: line.ticketTypeId
-              ? (line.ticketTypeId as Id<"ticketTypes">)
-              : undefined,
-            quantity: Number(line.quantity || 1),
-          })),
-        });
-        console.info(
-          "[stripe.webhook] Tickets created in Convex",
-          ticketContext,
+      // A delayed checkout webhook can arrive after a refund event. Reconcile
+      // Stripe's current charge state so that refunded passes cannot reappear.
+      let fullyRefunded = false;
+      if (stripePaymentIntentId) {
+        const paymentIntent = await getStripeClient().paymentIntents.retrieve(
+          stripePaymentIntentId, { expand: ["latest_charge"] },
         );
-      } catch (error) {
-        console.error("[stripe.webhook] Convex ticket creation failed", {
-          ...ticketContext,
-          ...safeErrorDetails(error),
-        });
-        throw error;
+        const charge = typeof paymentIntent.latest_charge === "object"
+          ? paymentIntent.latest_charge : null;
+        if (charge && charge.amount_refunded > 0) {
+          fullyRefunded = charge.amount_refunded >= charge.amount;
+          await convex.mutation(api.tickets.recordTicketRefund, {
+            webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
+            stripePaymentIntentId,
+            refundedAmount: charge.amount_refunded / 100,
+          });
+        }
       }
 
-      try {
+      if (!fullyRefunded) {
+        try {
         const eventName = session.metadata.eventName || "your event";
         const ticketTypeName =
           session.metadata.ticketTypeName || "Standard Admission";
@@ -274,8 +294,9 @@ export async function POST(req: Request) {
           text: `Your payment is confirmed.\n\n${quantity} ${ticketTypeName} ticket(s) for ${eventName}\nTotal: ${new Intl.NumberFormat("en-US", { style: "currency", currency: (session.currency || "usd").toUpperCase() }).format((session.amount_total ?? 0) / 100)}\n\nOpen your tickets: ${ticketsUrl}`,
           html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#171717"><p style="font-size:12px;font-weight:700;letter-spacing:.16em;color:#7c3aed">FUNCTION HOUR</p><h1 style="font-size:30px;line-height:1.15">Payment confirmed</h1><p>Your <strong>${quantity} ${escapeEmailHtml(ticketTypeName)} ticket(s)</strong> for <strong>${escapeEmailHtml(eventName)}</strong> are ready.</p><p style="margin:28px 0"><a href="${ticketsUrl}" style="background:#7c3aed;color:white;text-decoration:none;padding:14px 22px;border-radius:12px;font-weight:700">Open My Tickets</a></p><p style="font-size:13px;color:#666">A payment receipt is also provided through Stripe. Questions? Reply to this email.</p></div>`,
         });
-      } catch (emailError) {
-        console.error("Paid ticket email delivery failed:", emailError);
+        } catch (emailError) {
+          console.error("Paid ticket email delivery failed:", emailError);
+        }
       }
 
       return NextResponse.json({ received: true });
@@ -340,6 +361,26 @@ export async function POST(req: Request) {
       stripePaymentIntentId,
       refundedAmount: charge.amount_refunded / 100,
     });
+  }
+
+  if (event.type === "charge.dispute.created" || event.type === "charge.dispute.closed") {
+    const dispute = event.data.object as Stripe.Dispute;
+    const paymentIntentId = typeof dispute.payment_intent === "string"
+      ? dispute.payment_intent : dispute.payment_intent?.id;
+    if (paymentIntentId && process.env.NEXT_PUBLIC_CONVEX_URL) {
+      const outcome = event.type === "charge.dispute.created"
+        ? "open" : dispute.status === "won" ? "won" : "lost";
+      await new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL).mutation(
+        api.tickets.recordTicketDispute, {
+          webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
+          stripePaymentIntentId: paymentIntentId,
+          outcome,
+        },
+      );
+      console.warn("[stripe.webhook] Payment dispute requires finance reconciliation", {
+        disputeId: dispute.id, paymentIntentId, outcome,
+      });
+    }
   }
 
   return NextResponse.json({ received: true });
