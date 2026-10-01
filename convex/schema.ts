@@ -198,9 +198,16 @@ eventInteractions: defineTable({
     currency: v.string(),
     status: v.union(
       v.literal("requested"),
-      v.literal("transferred")
+      v.literal("approved"),
+      v.literal("processing"),
+      v.literal("transferred"),
+      v.literal("failed")
     ),
     stripeTransferId: v.optional(v.string()),
+    approvedBy: v.optional(v.string()),
+    approvedAt: v.optional(v.float64()),
+    failedAt: v.optional(v.float64()),
+    failureReason: v.optional(v.string()),
     createdAt: v.float64(),
     updatedAt: v.float64(),
   })

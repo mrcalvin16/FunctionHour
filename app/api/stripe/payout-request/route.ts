@@ -105,31 +105,14 @@ export async function POST(httpRequest: Request) {
       );
     }
 
-    const transfer = await getStripeClient().transfers.create(
-      {
-        amount: Math.round(payoutRequest.amount * 100),
-        currency: "usd",
-        destination: data.account.id,
-        transfer_group: `functionhour-organizer-${user.id}`,
-        metadata: {
-          type: "organizer_payout_request",
-          organizerId: user.id,
-          payoutRequestId: String(payoutRequest.requestId),
-        },
-      },
-      { idempotencyKey: `functionhour-payout-${payoutRequest.requestId}` },
-    );
 
-    await data.convex.mutation(api.payouts.markOrganizerPayoutTransferred, {
-      serverSecret: data.secret,
-      requestId: payoutRequest.requestId,
-      stripeTransferId: transfer.id,
-    });
     return NextResponse.json({
       success: true,
+      status: "requested",
+      requestId: payoutRequest.requestId,
       amount: payoutRequest.amount,
-      transferId: transfer.id,
-      message: "Funds were transferred to your Stripe account. Your bank payout follows the schedule shown in Stripe.",
+      message:
+        "Your payout request has been submitted and is pending approval. Funds will be transferred after review.",
     });
   } catch (error) {
     console.error("Organizer payout request error:", error);

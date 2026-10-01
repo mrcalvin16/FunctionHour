@@ -19,6 +19,7 @@ import type * as crons from "../crons.js";
 import type * as discountCodes from "../discountCodes.js";
 import type * as eventAccess from "../eventAccess.js";
 import type * as eventCreative from "../eventCreative.js";
+import type * as eventDates from "../eventDates.js";
 import type * as eventMessages from "../eventMessages.js";
 import type * as eventViews from "../eventViews.js";
 import type * as events from "../events.js";
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   discountCodes: typeof discountCodes;
   eventAccess: typeof eventAccess;
   eventCreative: typeof eventCreative;
+  eventDates: typeof eventDates;
   eventMessages: typeof eventMessages;
   eventViews: typeof eventViews;
   events: typeof events;
@@ -97,138 +99,5 @@ export declare const internal: FilterApi<
 >;
 
 export declare const components: {
-  rateLimiter: {
-    lib: {
-      checkRateLimit: FunctionReference<
-        "query",
-        "internal",
-        {
-          config:
-            | {
-                capacity?: number;
-                kind: "token bucket";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-                start?: null;
-              }
-            | {
-                capacity?: number;
-                kind: "fixed window";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-                start?: number;
-              };
-          count?: number;
-          key?: string;
-          name: string;
-          reserve?: boolean;
-          throws?: boolean;
-        },
-        { ok: true; retryAfter?: number } | { ok: false; retryAfter: number }
-      >;
-      clearAll: FunctionReference<
-        "mutation",
-        "internal",
-        { before?: number },
-        null
-      >;
-      getServerTime: FunctionReference<"mutation", "internal", {}, number>;
-      getValue: FunctionReference<
-        "query",
-        "internal",
-        {
-          config:
-            | {
-                capacity?: number;
-                kind: "token bucket";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-                start?: null;
-              }
-            | {
-                capacity?: number;
-                kind: "fixed window";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-                start?: number;
-              };
-          key?: string;
-          name: string;
-          sampleShards?: number;
-        },
-        {
-          config:
-            | {
-                capacity?: number;
-                kind: "token bucket";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-                start?: null;
-              }
-            | {
-                capacity?: number;
-                kind: "fixed window";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-                start?: number;
-              };
-          shard: number;
-          ts: number;
-          value: number;
-        }
-      >;
-      rateLimit: FunctionReference<
-        "mutation",
-        "internal",
-        {
-          config:
-            | {
-                capacity?: number;
-                kind: "token bucket";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-                start?: null;
-              }
-            | {
-                capacity?: number;
-                kind: "fixed window";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-                start?: number;
-              };
-          count?: number;
-          key?: string;
-          name: string;
-          reserve?: boolean;
-          throws?: boolean;
-        },
-        { ok: true; retryAfter?: number } | { ok: false; retryAfter: number }
-      >;
-      resetRateLimit: FunctionReference<
-        "mutation",
-        "internal",
-        { key?: string; name: string },
-        null
-      >;
-    };
-    time: {
-      getServerTime: FunctionReference<"mutation", "internal", {}, number>;
-    };
-  };
+  rateLimiter: import("@convex-dev/rate-limiter/_generated/component.js").ComponentApi<"rateLimiter">;
 };

@@ -141,7 +141,7 @@ export const getOrganizerPayoutSummary = query({
     }
     const requested = requests.reduce((sum, item) => sum + item.amount, 0);
     const pendingRequest = requests
-      .filter((item) => item.status === "requested")
+      .filter((item) => item.status === "requested" || item.status === "approved" || item.status === "processing")
       .sort((a, b) => b.createdAt - a.createdAt)[0];
     return {
       earnedAmount: Math.round(earned * 100) / 100,
@@ -176,7 +176,7 @@ export const createOrganizerPayoutRequest = mutation({
       throw new Error("Payout history is too large for automatic reconciliation.");
     }
     const inFlight = requests
-      .filter((item) => item.status === "requested")
+      .filter((item) => item.status === "requested" || item.status === "approved" || item.status === "processing")
       .sort((a, b) => b.createdAt - a.createdAt)[0];
     if (inFlight) return { requestId: inFlight._id, amount: inFlight.amount };
 
@@ -222,6 +222,85 @@ export const createOrganizerPayoutRequest = mutation({
     return { requestId, amount };
   },
 });
+
+
+
+export const approveOrganizerPayoutRequest = mutation({
+  args: {
+    serverSecret: v.string(),
+    requestId: v.id("organizerPayoutRequests"),
+    approvedBy: v.string(),
+  },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+
+    const request = await ctx.db.get(args.requestId);
+
+    if (!request) {
+      throw new Error("Payout request not found.");
+    }
+
+    if (request.status !== "requested") {
+      throw new Error("Payout request is not awaiting approval.");
+    }
+
+    await ctx.db.patch(args.requestId, {
+      status: "approved",
+      approvedBy: args.approvedBy,
+      approvedAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    return true;
+  },
+});
+
+
+export const markOrganizerPayoutProcessing = mutation({
+  args: {
+    serverSecret: v.string(),
+    requestId: v.id("organizerPayoutRequests"),
+  },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+
+    const request = await ctx.db.get(args.requestId);
+
+    if (!request) {
+      throw new Error("Payout request not found.");
+    }
+
+    if (request.status !== "approved") {
+      throw new Error("Payout must be approved first.");
+    }
+
+    await ctx.db.patch(args.requestId, {
+      status: "processing",
+      updatedAt: Date.now(),
+    });
+
+    return true;
+  },
+});
+
+
+export const markOrganizerPayoutFailed = mutation({
+  args: {
+    serverSecret: v.string(),
+    requestId: v.id("organizerPayoutRequests"),
+  },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+
+    await ctx.db.patch(args.requestId, {
+      status: "failed",
+      updatedAt: Date.now(),
+    });
+
+    return true;
+  },
+});
+
 
 export const markOrganizerPayoutTransferred = mutation({
   args: {
