@@ -397,7 +397,7 @@ function Sidebar({
               collapsed ? "text-center text-xl" : "text-[24px]",
             ].join(" ")}
           >
-            <img src="/function-hour-logo.svg" alt="Function Hour" className={collapsed ? "mx-auto h-9 w-9 object-contain" : "h-10 w-full object-contain object-left"} />
+            <img src="/function-hour-mark.svg" alt="Function Hour" className={collapsed ? "mx-auto h-9 w-9 object-contain" : "h-10 w-full object-contain object-left"} />
           </div>
 
           {!collapsed && (
