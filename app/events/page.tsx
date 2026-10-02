@@ -6,6 +6,8 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import DiscoveryNav from "@/components/DiscoveryNav";
 import Footer from "@/components/Footer";
+import { matchesDiscoveryCity } from "@/lib/discoveryCities";
+import DiscoveryEmptyState from "./components/DiscoveryEmptyState";
 import ExperienceHero, { type QuickFilter } from "./components/ExperienceHero";
 import DiscoveryCollections from "./components/DiscoveryCollections";
 import LiveMapSection from "./components/LiveMapSection";
@@ -25,15 +27,6 @@ import {
 function eventMatchesCategory(event: DiscoveryEvent, category: string) {
   if (category === "All") return true;
   return getEventCategory(event).toLowerCase() === category.toLowerCase();
-}
-
-function eventMatchesCity(event: DiscoveryEvent, city: string) {
-  if (city === "All Cities") return true;
-  const normalize = (value: string) => value.toLowerCase().replace(/[,.]/g, " ").replace(/\s+/g, " ").trim();
-  const text = [event.city, event.state, event.location, event.venueName, event.venueAddress]
-    .filter(Boolean)
-    .join(" ");
-  return normalize(text).includes(normalize(city));
 }
 
 function eventMatchesSearch(event: DiscoveryEvent, search: string) {
@@ -100,7 +93,7 @@ export default function EventsPage() {
     return baseEvents
       .filter((event) => isEventUpcoming(event))
       .filter((event) => eventMatchesCategory(event, category))
-      .filter((event) => eventMatchesCity(event, city))
+      .filter((event) => matchesDiscoveryCity(event, city))
       .filter((event) => eventMatchesSearch(event, search))
       .filter((event) => quickFilter === "free" ? Number(event.startingPrice ?? event.price ?? 0) <= 0 : quickFilter === "tonight" ? isTonight(event) : quickFilter === "weekend" ? isThisWeekend(event) : true)
       .filter((event) => matchesCollection(event, activeCollection))
@@ -157,26 +150,10 @@ export default function EventsPage() {
           onToggleSave={toggleSavedEvent}
         />
       ) : (
-        <section className="mx-auto max-w-[1240px] px-5 pb-20 sm:px-7 lg:px-8">
-          <div className="rounded-3xl border border-zinc-200 bg-white p-8 text-center shadow-sm sm:p-10">
-            <p className="text-sm font-black uppercase tracking-[0.24em] text-orange-700">No matches</p>
-            <h2 className="mt-3 text-3xl font-black text-zinc-950">Try a broader search or another collection.</h2>
-            <button
-              type="button"
-              onClick={() => {
-                setSearch("");
-                setCategory("All");
-                setCity("All Cities");
-                setActiveCollection("all");
-                setView("all");
-                setQuickFilter("");
-              }}
-              className="mt-6 rounded-full bg-zinc-950 px-6 py-3 text-sm font-black text-white transition hover:bg-zinc-800"
-            >
-              Reset discovery
-            </button>
-          </div>
-        </section>
+        <DiscoveryEmptyState city={city} onReset={() => {
+          setSearch(""); setCategory("All"); setCity("All Cities");
+          setActiveCollection("all"); setView("all"); setQuickFilter("");
+        }} />
       )}
 
       <DiscoveryCollections

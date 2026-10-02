@@ -6,6 +6,8 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import DiscoveryNav from "@/components/DiscoveryNav";
+import { matchesDiscoveryCity } from "@/lib/discoveryCities";
+import DiscoveryEmptyState from "./events/components/DiscoveryEmptyState";
 import Footer from "@/components/Footer";
 import ExperienceHero, { type QuickFilter } from "./events/components/ExperienceHero";
 import EventGrid from "./events/components/EventGrid";
@@ -15,11 +17,9 @@ import { discoveryScore, getEventCategory, isEventUpcoming, isThisWeekend, isTon
 function matches(event: DiscoveryEvent, search: string, category: string, city: string) {
   const searchable = [event.name, event.description, getEventCategory(event), event.location, event.venueName, event.venueAddress, event.city, event.state, event.dateString]
     .filter(Boolean).join(" ").toLowerCase();
-  const normalize = (value: string) => value.toLowerCase().replace(/[,.]/g, " ").replace(/\s+/g, " ").trim();
-  const cityText = normalize([event.city, event.state, event.location, event.venueName, event.venueAddress].filter(Boolean).join(" "));
   return (!search.trim() || searchable.includes(search.trim().toLowerCase())) &&
     (category === "All" || getEventCategory(event).toLowerCase() === category.toLowerCase()) &&
-    (city === "All Cities" || cityText.includes(normalize(city)));
+    matchesDiscoveryCity(event, city);
 }
 
 export default function HomePage() {
@@ -60,13 +60,7 @@ export default function HomePage() {
           <EventGrid events={displayedEvents} savedEventIds={savedEventIds} onToggleSave={toggleSavedEvent} />
         </>
       ) : (
-        <section className="mx-auto max-w-[1240px] px-5 py-16 sm:px-7 lg:px-8">
-          <div className="rounded-3xl border border-zinc-200 bg-white p-10 text-center">
-            <p className="text-sm font-black uppercase tracking-[0.24em] text-orange-700">No matches</p>
-            <h2 className="mt-3 text-3xl font-black">Try another search, category, or city.</h2>
-            <button type="button" onClick={() => { setSearch(""); setCategory("All"); setCity("All Cities"); setView("all"); setQuickFilter(""); }} className="mt-6 rounded-full bg-zinc-950 px-6 py-3 text-sm font-black text-white">Reset discovery</button>
-          </div>
-        </section>
+        <DiscoveryEmptyState city={city} onReset={() => { setSearch(""); setCategory("All"); setCity("All Cities"); setView("all"); setQuickFilter(""); }} />
       )}
 
       <section className="border-y border-zinc-200 bg-white px-5 py-12 text-center">
