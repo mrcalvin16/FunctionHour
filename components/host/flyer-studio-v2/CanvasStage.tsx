@@ -105,21 +105,15 @@ export default function CanvasStage({
     backgroundPresets[0];
 
   return (
-    <section aria-label="Flyer canvas workspace" className="relative flex min-h-[70vh] min-w-0 flex-col bg-[#e9e7ee] text-black lg:min-h-0">
+    <section aria-label="Flyer canvas workspace" className="order-first relative flex min-h-[70vh] min-w-0 flex-col bg-[#e9e7ee] text-zinc-950 lg:order-none lg:min-h-0">
       <div className="flex min-h-[56px] flex-wrap items-center justify-between gap-2 border-b border-black/10 bg-[#fcfbff] px-3 py-2 sm:px-4">
-        <div className="flex max-w-full items-center gap-2 overflow-x-auto">
-          {formats.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onFormatChange(item.id)}
-              className={`shrink-0 rounded-lg px-3 py-2 text-xs font-black ${format === item.id ? "bg-black text-white" : "bg-black/5 text-black/55"}`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <label className="flex min-w-0 items-center gap-2 text-xs font-bold text-zinc-700">
+          Format
+          <select aria-label="Canvas format" value={format} onChange={(event) => onFormatChange(event.target.value as typeof format)} className="h-10 max-w-[200px] rounded-xl border border-zinc-300 bg-white px-3 text-sm font-bold text-zinc-900">
+            {formats.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+          </select>
+        </label>
+        <div className="flex max-w-full flex-wrap items-center gap-2">
           {(["select", "marquee", "hand"] as const).map((tool) => (
             <button key={tool} type="button" aria-pressed={canvasTool === tool} onClick={() => onCanvasToolChange(tool)} className={`rounded-lg border px-2 py-2 text-xs font-black capitalize ${canvasTool === tool ? "border-violet-600 bg-violet-600 text-white" : "border-black/10 bg-white text-zinc-900"}`}>{tool === "marquee" ? "Select area" : tool}</button>
           ))}
@@ -166,8 +160,9 @@ export default function CanvasStage({
         >
           <div
             ref={canvasRef}
-            className="absolute left-0 top-0 origin-top-left overflow-hidden bg-black shadow-[0_20px_60px_rgba(35,20,65,.28),0_0_0_1px_rgba(70,45,110,.12)]"
+            className="absolute left-0 top-0 origin-top-left overflow-hidden shadow-[0_20px_60px_rgba(35,20,65,.28),0_0_0_1px_rgba(70,45,110,.12)]"
             style={{
+              backgroundColor: "#09090b",
               width: CANVAS_WIDTH,
               height: canvasHeight,
               transform: `scale(${canvasScale})`,
@@ -194,8 +189,8 @@ export default function CanvasStage({
               />
             ) : null}
             <div
-              className="pointer-events-none absolute inset-0 bg-black"
-              style={{ opacity: overlayStrength / 100 }}
+              className="pointer-events-none absolute inset-0"
+              style={{ backgroundColor: "#000000", opacity: overlayStrength / 100 }}
             />
 
             {elements.map((element) => {
