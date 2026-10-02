@@ -148,15 +148,16 @@ export const getAll = query({
   args: {},
   handler: async (ctx) => {
     const events = (await ctx.db.query("events").collect()).filter((event) =>
+      event.demoHidden !== true &&
       isEventUpcoming(event),
     );
 
     return await Promise.all(
-      events.map(async (event) => {
+      events.filter((event) => event.isDemo !== true).map(async (event) => {
         const [imageUrl, ticketTypes] = await Promise.all([
-          event.imageStorageId
+          event.imageUrl || (event.imageStorageId
             ? ctx.storage.getUrl(event.imageStorageId)
-            : Promise.resolve(null),
+            : Promise.resolve(null)),
           ctx.db
             .query("ticketTypes")
             .withIndex("by_event", (q) => q.eq("eventId", event._id))
@@ -172,10 +173,15 @@ export const getAll = query({
             ? Math.min(...activeTicketPrices)
             : (event.price ?? 0);
 
+        const organizer = event.userId
+          ? await ctx.db.query("users").withIndex("by_userId", (q) => q.eq("userId", event.userId)).first()
+          : null;
+
         return {
           ...event,
           imageUrl,
           startingPrice,
+          organizerName: organizer?.organizerName || organizer?.name || "Organizer",
         };
       }),
     );
@@ -186,31 +192,20 @@ export const getMapEvents = query({
   args: {},
   handler: async (ctx) => {
     const events = (await ctx.db.query("events").collect()).filter((event) =>
+      event.demoHidden !== true &&
       isEventUpcoming(event),
     );
 
     return await Promise.all(
       events.map(async (event) => {
-        const [imageUrl, ticketTypes] = await Promise.all([
-          event.imageStorageId
-            ? ctx.storage.getUrl(event.imageStorageId)
-            : Promise.resolve(null),
-          ctx.db.query("ticketTypes")
-            .withIndex("by_event", (q) => q.eq("eventId", event._id))
-            .take(100),
-        ]);
-        const activePrices = ticketTypes
-          .filter((ticketType) => ticketType.isActive !== false)
-          .map((ticketType) => ticketType.price);
-        const startingPrice = activePrices.length > 0
-          ? Math.min(...activePrices)
-          : (event.price ?? 0);
+        const imageUrl = event.imageUrl || (event.imageStorageId
+          ? await ctx.storage.getUrl(event.imageStorageId)
+          : null);
 
         return {
           _id: event._id,
           name: event.name,
           description: event.description,
-          category: event.category,
           location: event.location,
 
           venueName: event.venueName,
@@ -224,11 +219,11 @@ export const getMapEvents = query({
           eventDate: event.eventDate,
 
           price: event.price,
-          startingPrice,
           totalTickets: event.totalTickets,
           ticketsSold: event.ticketsSold,
-
+          isDemo: event.isDemo,
           imageUrl,
+
         };
       }),
     );
@@ -246,9 +241,11 @@ export const getById = query({
       return null;
     }
 
-    const imageUrl = event.imageStorageId
+    const imageUrl = event.imageUrl || (event.imageStorageId
       ? await ctx.storage.getUrl(event.imageStorageId)
-      : null;
+      : null);
+
+    if (event.demoHidden === true) return null;
 
     return {
       ...event,
@@ -272,10 +269,10 @@ export const getMyEvents = query({
       .collect();
 
     return await Promise.all(
-      events.map(async (event) => {
-        const imageUrl = event.imageStorageId
+      events.filter((event) => event.isDemo !== true).map(async (event) => {
+        const imageUrl = event.imageUrl || (event.imageStorageId
           ? await ctx.storage.getUrl(event.imageStorageId)
-          : null;
+          : null);
 
         return {
           ...event,
@@ -318,13 +315,13 @@ export const getEventsByCity = query({
     const events = (await ctx.db
       .query("events")
       .withIndex("by_city", (q) => q.eq("city", city))
-      .collect()).filter((event) => isEventUpcoming(event));
+      .collect()).filter((event) => event.demoHidden !== true && isEventUpcoming(event));
 
     return await Promise.all(
       events.map(async (event) => {
-        const imageUrl = event.imageStorageId
+        const imageUrl = event.imageUrl || (event.imageStorageId
           ? await ctx.storage.getUrl(event.imageStorageId)
-          : null;
+          : null);
 
         return {
           ...event,
@@ -348,10 +345,10 @@ export const getEventsByVenue = query({
       .collect();
 
     return await Promise.all(
-      events.map(async (event) => {
-        const imageUrl = event.imageStorageId
+      events.filter((event) => event.demoHidden !== true).map(async (event) => {
+        const imageUrl = event.imageUrl || (event.imageStorageId
           ? await ctx.storage.getUrl(event.imageStorageId)
-          : null;
+          : null);
 
         return {
           ...event,
@@ -629,6 +626,10 @@ export const promoteEvent = mutation({
       throw new Error("Event not found.");
     }
 
+    if (event.isDemo) {
+      throw new Error("Demo events cannot be promoted or purchased as inventory.");
+    }
+
     if (
       event.userId !== identity.subject &&
       event.organizerId !== identity.subject
@@ -808,13 +809,15 @@ export const seedBoostTestEvent = mutation({
 export const getTrendingEvents = query({
   args: {},
   handler: async (ctx) => {
-    const events = await ctx.db.query("events").collect();
+    const events = (await ctx.db.query("events").collect()).filter((event) =>
+      event.demoHidden !== true && isEventUpcoming(event),
+    );
 
     const enriched = await Promise.all(
       events.map(async (event) => {
-        const imageUrl = event.imageStorageId
+        const imageUrl = event.imageUrl || (event.imageStorageId
           ? await ctx.storage.getUrl(event.imageStorageId)
-          : null;
+          : null);
 
         const score =
           (event.ticketsSold || 0) * 2 +
@@ -861,7 +864,7 @@ export const getSellerEvents = query({
       .collect();
 
     return await Promise.all(
-      events.map(async (event) => {
+      events.filter((event) => event.isDemo !== true).map(async (event) => {
         const tickets = await ctx.db
           .query("tickets")
           .withIndex("by_event", (q) => q.eq("eventId", event._id))
@@ -879,9 +882,9 @@ export const getSellerEvents = query({
             ticket.status !== "canceled",
         ).length;
 
-        const imageUrl = event.imageStorageId
+        const imageUrl = event.imageUrl || (event.imageStorageId
           ? await ctx.storage.getUrl(event.imageStorageId)
-          : null;
+          : null);
 
         const metrics: Metrics = {
           soldTickets,

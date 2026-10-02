@@ -64,7 +64,7 @@ export default function SellerEventList() {
 function SellerEventCard({
   event,
 }: {
-  event: Doc<"events"> & {
+  event: Omit<Doc<"events">, "imageUrl"> & {
     metrics: Metrics;
     imageUrl: string | null;
     is_cancelled: boolean;

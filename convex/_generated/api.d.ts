@@ -8,15 +8,20 @@
  * @module
  */
 
+import type * as adminDashboard from "../adminDashboard.js";
 import type * as aiOrganizer from "../aiOrganizer.js";
 import type * as analytics from "../analytics.js";
 import type * as analyticsSources from "../analyticsSources.js";
 import type * as audience from "../audience.js";
+import type * as audit from "../audit.js";
 import type * as budget from "../budget.js";
 import type * as checkIn from "../checkIn.js";
 import type * as compTickets from "../compTickets.js";
 import type * as crons from "../crons.js";
+import type * as demoEvents from "../demoEvents.js";
 import type * as discountCodes from "../discountCodes.js";
+import type * as discoveryFollows from "../discoveryFollows.js";
+import type * as disputes from "../disputes.js";
 import type * as eventAccess from "../eventAccess.js";
 import type * as eventCreative from "../eventCreative.js";
 import type * as eventDates from "../eventDates.js";
@@ -43,15 +48,20 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  adminDashboard: typeof adminDashboard;
   aiOrganizer: typeof aiOrganizer;
   analytics: typeof analytics;
   analyticsSources: typeof analyticsSources;
   audience: typeof audience;
+  audit: typeof audit;
   budget: typeof budget;
   checkIn: typeof checkIn;
   compTickets: typeof compTickets;
   crons: typeof crons;
+  demoEvents: typeof demoEvents;
   discountCodes: typeof discountCodes;
+  discoveryFollows: typeof discoveryFollows;
+  disputes: typeof disputes;
   eventAccess: typeof eventAccess;
   eventCreative: typeof eventCreative;
   eventDates: typeof eventDates;

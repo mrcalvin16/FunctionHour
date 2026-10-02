@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import EventImage from "@/components/events/EventImage";
-import { formatEventDate, getBuyerPriceLabel } from "@/app/events/eventPresentation";
+import { formatEventDate } from "@/app/events/eventPresentation";
 import { BadgeCheck } from "lucide-react";
 
 export default function OrganizerProfilePage({
@@ -72,7 +72,7 @@ export default function OrganizerProfilePage({
       <section className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/70 shadow-2xl backdrop-blur-xl">
           <div
-            className="organizer-profile-hero relative h-[260px] overflow-hidden sm:h-[340px]"
+            className="relative h-[260px] overflow-hidden sm:h-[340px]"
             style={{
               backgroundImage: organizer.bannerUrl
                 ? `url(${organizer.bannerUrl})`
@@ -118,7 +118,7 @@ export default function OrganizerProfilePage({
                     )}
                   </div>
 
-                  <div className="organizer-profile-counts mt-3 flex flex-wrap gap-3 text-sm text-white/80">
+                  <div className="mt-3 flex flex-wrap gap-3 text-sm text-white/60">
                     <span>
                       {events.length} Event{events.length === 1 ? "" : "s"}
                     </span>
@@ -133,6 +133,17 @@ export default function OrganizerProfilePage({
                 </div>
               </div>
 
+              {organizer.isVerifiedOrganizer && <div className="hidden lg:flex lg:flex-col lg:items-end">
+                <div className="rounded-3xl border border-white/10 bg-black/40 px-6 py-4 backdrop-blur-xl">
+                  <p className="text-xs uppercase tracking-[0.3em] text-white/40">
+                    Organizer Rank
+                  </p>
+
+                  <h2 className="mt-2 text-3xl font-black text-white">
+                    Verified
+                  </h2>
+                </div>
+              </div>}
             </div>
           </div>
 
@@ -164,7 +175,7 @@ export default function OrganizerProfilePage({
               </p>
             )}
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
               <StatCard
                 label="Upcoming Events"
                 value={events.length.toString()}
@@ -175,6 +186,12 @@ export default function OrganizerProfilePage({
                 value={`${followerCount ?? 0}`}
               />
 
+              <StatCard
+                label="Status"
+                value={
+                  organizer.isVerifiedOrganizer ? "Verified" : "Rising"
+                }
+              />
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -242,9 +259,10 @@ export default function OrganizerProfilePage({
                 className="group overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/70 transition duration-300 hover:-translate-y-1 hover:border-violet-400/30 hover:bg-zinc-900"
               >
                 <div className="relative h-56 overflow-hidden">
-                  {event.imageStorageId ? (
+                  {event.imageStorageId || event.imageUrl ? (
                     <EventImage
                       storageId={event.imageStorageId}
+                      imageUrl={event.imageUrl}
                       alt={event.name}
                       className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
                     />
@@ -278,7 +296,9 @@ export default function OrganizerProfilePage({
 
                   <div className="mt-6 flex items-center justify-between">
                     <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-black">
-                      {getBuyerPriceLabel(event)}
+                      {(event.startingPrice ?? event.price)
+                        ? `From $${event.startingPrice ?? event.price}`
+                        : "Free RSVP"}
                     </div>
 
                     <div className="text-sm font-bold text-violet-200 transition group-hover:text-white">

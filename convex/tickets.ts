@@ -65,7 +65,7 @@ export const getOrganizerOrders = query({
       .collect();
     const limit = Math.min(Math.max(Math.floor(args.limit ?? 500), 1), 1000);
     const groups = await Promise.all(
-      events.map(async (event) => {
+      events.filter((event) => event.isDemo !== true).map(async (event) => {
         const orders = await ctx.db
           .query("ticketOrders")
           .withIndex("by_event_and_paidAt", (q) => q.eq("eventId", event._id))
@@ -108,6 +108,16 @@ export const reserveTicketsForCheckout = mutation({
       args.quantity > 10
     ) {
       throw new Error("Ticket quantity must be between 1 and 10.");
+    }
+
+    const event = await ctx.db.get(args.eventId);
+
+    if (!event) {
+      throw new Error("Event not found.");
+    }
+
+    if (event.isDemo) {
+      throw new Error("This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing.");
     }
 
     const duplicate = await ctx.db
@@ -158,12 +168,6 @@ export const reserveTicketsForCheckout = mutation({
           "You already have a checkout in progress for this event.",
         );
       }
-    }
-
-    const event = await ctx.db.get(args.eventId);
-
-    if (!event) {
-      throw new Error("Event not found.");
     }
 
     requireEventSalesOpen(event);
@@ -371,6 +375,10 @@ export const createTicket = mutation({
       throw new Error("Event not found.");
     }
 
+    if (event.isDemo) {
+      throw new Error("This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing.");
+    }
+
     requireEventSalesOpen(event);
 
     const ticketId = await ctx.db.insert("tickets", {
@@ -419,6 +427,10 @@ export const createTicketsAfterPayment = mutation({
 
     if (!event) {
       throw new Error("Event not found.");
+    }
+
+    if (event.isDemo) {
+      throw new Error("Demo events cannot be fulfilled through payment.");
     }
 
     const existing = await ctx.db

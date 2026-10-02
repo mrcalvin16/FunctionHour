@@ -250,6 +250,19 @@ export default function EventCheckoutPage({
     );
   }
 
+  if (event.isDemo) {
+    return (
+      <main className="min-h-screen bg-zinc-50 px-4 py-16 text-zinc-900 dark:bg-black dark:text-white">
+        <div className="mx-auto max-w-xl rounded-3xl border border-violet-200 bg-white p-8 text-center shadow-sm dark:border-violet-300/20 dark:bg-white/[0.04]">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-700 dark:text-violet-300">Demo Event</p>
+          <h1 className="mt-3 text-3xl font-black">{event.name}</h1>
+          <p className="mt-4 leading-7 text-zinc-600 dark:text-zinc-300">This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing.</p>
+          <Link href={`/events/${eventId}`} className="mt-7 inline-flex rounded-full bg-zinc-950 px-6 py-3 font-black text-white dark:bg-white dark:text-black">Return to event</Link>
+        </div>
+      </main>
+    );
+  }
+
   if (!isEventUpcoming(event)) {
     return (
       <main className="min-h-screen bg-zinc-50 px-4 py-16 text-zinc-900 dark:bg-black dark:text-white">

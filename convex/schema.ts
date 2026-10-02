@@ -84,9 +84,15 @@ eventInteractions: defineTable({
     ratingCount: v.optional(v.float64()),
 
     imageStorageId: v.optional(v.id("_storage")),
+    imageUrl: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
+    shortDescription: v.optional(v.string()),
 
     userId: v.string(),
     organizerId: v.optional(v.string()),
+    isDemo: v.optional(v.boolean()),
+    demoKey: v.optional(v.string()),
+    demoHidden: v.optional(v.boolean()),
 
     createdAt: v.optional(v.float64()),
 
@@ -787,6 +793,23 @@ eventInteractions: defineTable({
     .index("by_user", ["userId"])
     .index("by_organizer", ["organizerUserId"])
     .index("by_user_organizer", ["userId", "organizerUserId"]),
+
+
+  followedCities: defineTable({
+    userId: v.string(),
+    city: v.string(),
+    state: v.string(),
+    cityKey: v.string(),
+    createdAt: v.float64(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_cityKey", ["userId", "cityKey"]),
+
+  discoveryAlertSettings: defineTable({
+    userId: v.string(),
+    enabled: v.boolean(),
+    lastSeenAt: v.float64(),
+  }).index("by_user", ["userId"]),
 
 
   budgetItems: defineTable({

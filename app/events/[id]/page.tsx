@@ -18,31 +18,34 @@ import { formatEventDate, isEventUpcoming } from "../eventPresentation";
 
 function EventImage({
   storageId,
+  imageUrl: directImageUrl,
   name,
 }: {
   storageId?: Id<"_storage">;
+  imageUrl?: string | null;
   name?: string;
 }) {
   const imageUrl = useQuery(
     api.events.getImageUrl,
-    storageId ? { storageId } : "skip",
+    !directImageUrl && storageId ? { storageId } : "skip",
   );
+  const finalImageUrl = directImageUrl || imageUrl;
 
-  if (!storageId) {
+  if (!directImageUrl && !storageId) {
     return <div className="text-white/40">No Image</div>;
   }
 
-  if (imageUrl === undefined) {
+  if (finalImageUrl === undefined) {
     return <div className="text-white/40">Loading image...</div>;
   }
 
-  if (!imageUrl) {
+  if (!finalImageUrl) {
     return <div className="text-white/40">Image unavailable</div>;
   }
 
   return (
     <img
-      src={imageUrl}
+      src={finalImageUrl}
       alt={name ? `${name} event` : "Event image"}
       className="h-full w-full object-cover"
     />
@@ -229,6 +232,7 @@ export default function EventDetailPage({
               <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-zinc-900 sm:aspect-[16/10]">
                 <EventImage
                   storageId={event.imageStorageId}
+                  imageUrl={event.imageUrl}
                   name={event.name}
                 />
               </div>
@@ -237,6 +241,12 @@ export default function EventDetailPage({
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-violet-300/80">
                   {event.category || "Experience"}
                 </p>
+
+                {event.isDemo && (
+                  <p className="mt-3 inline-flex rounded-full border border-violet-300/25 bg-violet-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-violet-200">
+                    Demo Event
+                  </p>
+                )}
 
                 <h1 className="mt-3 max-w-3xl text-3xl font-black leading-tight tracking-[-0.04em] sm:text-5xl">
                   {event.name}
@@ -600,7 +610,12 @@ export default function EventDetailPage({
               )}
 
             <div className="mt-5">
-              {!salesOpen ? (
+              {event.isDemo ? (
+                <div className="w-full rounded-xl border border-violet-300/20 bg-violet-400/10 px-5 py-4 text-center text-sm leading-6 text-violet-100">
+                  <strong className="block">Demo Event</strong>
+                  This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing.
+                </div>
+              ) : !salesOpen ? (
                 <div className="w-full rounded-xl border border-white/10 bg-white/5 px-5 py-4 text-center font-bold text-zinc-400">
                   Ticket sales ended
                 </div>
@@ -712,7 +727,9 @@ export default function EventDetailPage({
             </div>
           </div>
 
-          {!salesOpen ? (
+          {event.isDemo ? (
+            <span className="max-w-[60%] rounded-xl border border-violet-300/20 bg-violet-400/10 px-4 py-3 text-center text-xs font-bold text-violet-100">Demo Event · Sample listing</span>
+          ) : !salesOpen ? (
             <span className="shrink-0 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 font-black text-zinc-400">
               Sales Ended
             </span>
