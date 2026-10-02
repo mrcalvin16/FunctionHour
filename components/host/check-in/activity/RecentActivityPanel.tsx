@@ -22,42 +22,42 @@ export default function RecentActivityPanel({
   formatTime,
 }: RecentActivityPanelProps) {
   return (
-            <aside className="rounded-3xl border border-white/10 bg-zinc-950 xl:sticky xl:top-6 xl:h-fit">
-              <div className="border-b border-white/10 p-5">
+            <aside className="min-w-0 rounded-3xl border border-zinc-200 bg-white shadow-sm xl:sticky xl:top-24 xl:h-fit">
+              <div className="border-b border-zinc-200 p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="font-black text-white">
+                    <h2 className="font-black text-zinc-950">
                       Recent activity
                     </h2>
 
-                    <p className="mt-1 text-xs text-zinc-500">
-                      Live entry history
+                    <p className="mt-1 text-xs text-zinc-700">
+                      Latest successful entries
                     </p>
                   </div>
 
-                  <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-300">
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
                     Live
                   </span>
                 </div>
               </div>
 
               {recentActivity.length > 0 ? (
-                <div className="max-h-[760px] divide-y divide-white/10 overflow-y-auto">
+                <div className="max-h-[min(760px,calc(100vh-180px))] divide-y divide-zinc-200 overflow-y-auto">
                   {recentActivity.map((item: RecentActivityItem) => (
                     <div key={item._id} className="p-5">
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
-                          <p className="truncate font-bold text-white">
+                          <p className="truncate font-bold text-zinc-950">
                             {item.guestName}
                           </p>
 
-                          <p className="mt-1 text-xs text-zinc-500">
+                          <p className="mt-1 text-xs text-zinc-700">
                             {item.ticketType}
                             {" · "}
                             {formatMethod(item.method)}
                           </p>
 
-                          <p className="mt-1 text-xs text-zinc-600">
+                          <p className="mt-1 text-xs text-zinc-700">
                             {item.gate}
                             {item.quantity > 1
                               ? ` · ${item.quantity} guests`
@@ -66,11 +66,11 @@ export default function RecentActivityPanel({
                         </div>
 
                         <div className="shrink-0 text-right">
-                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-400/10 text-xs font-black text-emerald-300">
+                          <span aria-label="Successful check-in" className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-xs font-black text-emerald-800">
                             ✓
                           </span>
 
-                          <p className="mt-2 text-xs font-semibold text-zinc-500">
+                          <p className="mt-2 text-xs font-semibold text-zinc-700">
                             {formatTime(item.checkedInAt)}
                           </p>
                         </div>
@@ -80,11 +80,11 @@ export default function RecentActivityPanel({
                 </div>
               ) : (
                 <div className="p-10 text-center">
-                  <p className="font-bold text-white">
+                  <p className="font-bold text-zinc-950">
                     No check-ins yet
                   </p>
 
-                  <p className="mt-1 text-sm text-zinc-500">
+                  <p className="mt-1 text-sm text-zinc-700">
                     Successful entries will appear here.
                   </p>
                 </div>

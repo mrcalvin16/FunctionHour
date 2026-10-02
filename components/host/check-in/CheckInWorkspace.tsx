@@ -58,15 +58,23 @@ export default function CheckInWorkspace({
   } = useCheckInWorkspace(initialEventId);
 
   if (organizerEvents === undefined) {
-    return <CheckInLoadingState />;
+    return (
+      <WorkspaceFrame>
+        <CheckInLoadingState />
+      </WorkspaceFrame>
+    );
   }
 
   if (organizerEvents.length === 0) {
-    return <NoEventsState />;
+    return (
+      <WorkspaceFrame>
+        <NoEventsState />
+      </WorkspaceFrame>
+    );
   }
 
   return (
-    <div className="space-y-6 pb-10">
+    <WorkspaceFrame>
       <CheckInHeader
         events={organizerEvents}
         eventId={eventId}
@@ -148,8 +156,14 @@ export default function CheckInWorkspace({
           onClose={handleResultClose}
         />
       ) : null}
+    </WorkspaceFrame>
+  );
+}
 
-
+function WorkspaceFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mx-auto min-w-0 max-w-[1600px] space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      {children}
     </div>
   );
 }

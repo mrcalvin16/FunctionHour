@@ -19,7 +19,7 @@ export default function GateSelector({
     <div>
       <label
         htmlFor="gate"
-        className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-zinc-500"
+        className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-zinc-700"
       >
         Current gate
       </label>
@@ -28,7 +28,7 @@ export default function GateSelector({
         id="gate"
         value={gate}
         onChange={(event) => onGateChange(event.target.value)}
-        className="h-12 w-full rounded-2xl border border-white/10 bg-zinc-950 px-4 text-sm font-semibold text-white outline-none transition focus:border-orange-400/60"
+        className="h-12 w-full min-w-0 rounded-2xl border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-950 outline-none transition focus:border-orange-600 focus:ring-2 focus:ring-orange-200"
       >
         {GATES.map((gateOption) => (
           <option key={gateOption} value={gateOption}>

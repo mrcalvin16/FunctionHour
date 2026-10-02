@@ -65,8 +65,8 @@ export default function CheckInContent({
   onUndo,
 }: CheckInContentProps) {
   return (
-    <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]">
-      <div className="space-y-6">
+    <section className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.55fr)]">
+      <div className="min-w-0 space-y-6">
         <ScannerPanel
           scannerActive={scannerActive}
           gate={gate}
