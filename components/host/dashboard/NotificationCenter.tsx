@@ -52,10 +52,10 @@ export default function NotificationCenter({
   notifications,
 }: NotificationCenterProps) {
   return (
-    <section className="overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#0c0b14]/80 shadow-[0_30px_100px_rgba(0,0,0,0.2)] backdrop-blur-xl">
-      <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4">
+    <section className="overflow-hidden rounded-[1.6rem] border border-zinc-200 bg-white shadow-[0_16px_48px_rgba(40,25,70,.06)]">
+      <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-5">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-400">
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-700">
             Attention Queue
           </p>
 
@@ -88,7 +88,7 @@ export default function NotificationCenter({
             You’re all clear
           </p>
 
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-zinc-600">
             No event-readiness issues need attention.
           </p>
         </div>
@@ -102,7 +102,7 @@ export default function NotificationCenter({
               <Link
                 key={notification.id}
                 href={notification.href}
-                className="group flex items-start gap-3 rounded-2xl border border-white/[0.07] bg-black/20 p-3.5 transition hover:border-white/[0.14] hover:bg-white/[0.035]"
+                className="group flex items-start gap-3 rounded-2xl border border-zinc-200 bg-[#fbfaff] p-3.5 transition hover:border-violet-300 hover:bg-violet-50"
               >
                 <span
                   className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${style.classes}`}
@@ -111,16 +111,16 @@ export default function NotificationCenter({
                 </span>
 
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-xs font-black text-white">
+                  <span className="block truncate text-xs font-black text-zinc-950">
                     {notification.title}
                   </span>
 
-                  <span className="mt-1 block text-[10px] leading-4 text-zinc-500">
+                  <span className="mt-1 block text-xs leading-5 text-zinc-600">
                     {notification.detail}
                   </span>
                 </span>
 
-                <span className="pt-2 text-xs font-black text-zinc-700 transition group-hover:translate-x-0.5 group-hover:text-white">
+                <span className="pt-2 text-xs font-black text-violet-700 transition group-hover:translate-x-0.5 group-hover:text-violet-900">
                   →
                 </span>
               </Link>
