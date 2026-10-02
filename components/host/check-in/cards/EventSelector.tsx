@@ -20,7 +20,7 @@ export default function EventSelector({
     <div>
       <label
         htmlFor="active-event"
-        className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-zinc-500"
+        className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-zinc-700"
       >
         Active event
       </label>
@@ -31,7 +31,7 @@ export default function EventSelector({
         onChange={(event) =>
           onEventChange(event.target.value as Id<"events">)
         }
-        className="h-12 w-full rounded-2xl border border-white/10 bg-zinc-950 px-4 text-sm font-semibold text-white outline-none transition focus:border-orange-400/60"
+        className="h-12 w-full min-w-0 rounded-2xl border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-950 outline-none transition focus:border-orange-600 focus:ring-2 focus:ring-orange-200"
       >
         {events.map((event) => (
           <option key={event._id} value={event._id}>

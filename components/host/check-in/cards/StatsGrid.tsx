@@ -54,16 +54,16 @@ function StatCard({
   detail,
 }: StatCardProps) {
   return (
-    <article className="rounded-3xl border border-white/10 bg-zinc-950 p-5">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-500">
+    <article className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm">
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-700">
         {label}
       </p>
 
-      <p className="mt-3 text-3xl font-black tracking-tight text-white">
+      <p className="mt-3 text-3xl font-black tracking-tight text-zinc-950">
         {value}
       </p>
 
-      <p className="mt-2 text-xs text-zinc-500">
+      <p className="mt-2 text-xs text-zinc-700">
         {detail}
       </p>
     </article>

@@ -34,20 +34,20 @@ export default function GuestSearchPanel({
   onUndo,
 }: GuestSearchPanelProps) {
   return (
-    <section className="rounded-3xl border border-white/10 bg-zinc-950">
-      <div className="border-b border-white/10 p-5">
+    <section className="min-w-0 rounded-3xl border border-zinc-200 bg-white shadow-sm">
+      <div className="border-b border-zinc-200 p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="font-black text-white">
+            <h2 className="font-black text-zinc-950">
               Guest search
             </h2>
 
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-zinc-700">
               Search by name, email, order, or QR value.
             </p>
           </div>
 
-          <span className="text-xs font-semibold text-zinc-500">
+          <span className="text-xs font-semibold text-zinc-700">
             {guests.length} guests shown
           </span>
         </div>
@@ -58,11 +58,12 @@ export default function GuestSearchPanel({
             onSearchChange(event.target.value)
           }
           placeholder="Search the guest list..."
-          className="mt-4 h-12 w-full rounded-2xl border border-white/10 bg-black px-4 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-orange-400/60"
+          aria-label="Search guests"
+          className="mt-4 h-12 w-full rounded-2xl border border-zinc-300 bg-white px-4 text-sm text-zinc-950 outline-none placeholder:text-zinc-600 focus:border-orange-600 focus:ring-2 focus:ring-orange-200"
         />
       </div>
 
-      <div className="max-h-[620px] divide-y divide-white/10 overflow-y-auto">
+      <div className="max-h-[620px] divide-y divide-zinc-200 overflow-y-auto">
         {guests.length > 0 ? (
           guests.map((guest) => (
             <div
@@ -71,32 +72,32 @@ export default function GuestSearchPanel({
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="truncate font-bold text-white">
+                  <p className="min-w-0 truncate font-bold text-zinc-950">
                     {guest.name}
                   </p>
 
-                  <span className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-bold text-zinc-400">
+                  <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-bold text-zinc-700">
                     {guest.ticketType}
                   </span>
 
                   {guest.quantity > 1 ? (
-                    <span className="rounded-full bg-orange-400/10 px-2.5 py-1 text-[11px] font-bold text-orange-300">
+                    <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[11px] font-bold text-orange-800">
                       {guest.quantity} guests
                     </span>
                   ) : null}
                 </div>
 
-                <p className="mt-1 truncate text-sm text-zinc-500">
+                <p className="mt-1 break-all text-sm text-zinc-700">
                   {guest.email || "No guest email"}
                   {" · "}
                   {guest.orderNumber}
                 </p>
               </div>
 
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
                 {guest.checkedIn ? (
                   <>
-                    <span className="inline-flex h-10 items-center rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 text-xs font-black text-emerald-300">
+                    <span className="inline-flex min-h-11 items-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-xs font-black text-emerald-800">
                       Checked in
                     </span>
 
@@ -104,7 +105,7 @@ export default function GuestSearchPanel({
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => onUndo(guest.ticketId)}
-                      className="h-10 rounded-xl border border-white/10 px-3 text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white disabled:opacity-50"
+                      className="min-h-11 rounded-xl border border-zinc-300 px-4 text-xs font-bold text-zinc-800 transition hover:bg-zinc-100 disabled:opacity-50"
                     >
                       Undo
                     </button>
@@ -114,7 +115,7 @@ export default function GuestSearchPanel({
                     type="button"
                     disabled={isSubmitting}
                     onClick={() => onCheckIn(guest.ticketId)}
-                    className="h-10 rounded-xl bg-white px-4 text-xs font-black text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="min-h-11 rounded-xl bg-zinc-950 px-4 text-xs font-black text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Check in
                   </button>
@@ -124,11 +125,11 @@ export default function GuestSearchPanel({
           ))
         ) : (
           <div className="p-10 text-center">
-            <p className="font-bold text-white">
+            <p className="font-bold text-zinc-950">
               No guests found
             </p>
 
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-zinc-700">
               Try another name, email, order number, or QR value.
             </p>
           </div>

@@ -18,20 +18,20 @@ export default function AttendanceProgress({
   attendancePercentage,
 }: AttendanceProgressProps) {
   return (
-    <section className="rounded-3xl border border-white/10 bg-zinc-950/80 p-5">
+    <section className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-lg font-black text-white">
+            <h2 className="text-lg font-black text-zinc-950">
               {eventName}
             </h2>
 
-            <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-300">
-              Live
+            <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-bold text-orange-800">
+              Selected event
             </span>
           </div>
 
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-zinc-700">
             {dateString || "Date not set"}
             {" · "}
             {venueName || location || "Venue not set"}
@@ -40,16 +40,16 @@ export default function AttendanceProgress({
 
         <div className="min-w-0 lg:w-[360px]">
           <div className="mb-2 flex items-center justify-between text-xs">
-            <span className="font-semibold text-zinc-400">
+            <span className="font-semibold text-zinc-700">
               Attendance progress
             </span>
 
-            <span className="font-black text-white">
+            <span className="font-black text-zinc-950">
               {checkedIn} / {totalGuests}
             </span>
           </div>
 
-          <div className="h-2 overflow-hidden rounded-full bg-white/5">
+          <div className="h-2 overflow-hidden rounded-full bg-zinc-200">
             <div
               className="h-full rounded-full bg-orange-400 transition-all duration-500"
               style={{

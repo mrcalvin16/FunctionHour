@@ -290,7 +290,7 @@ export default function CameraScanner({
   return (
     <div className="space-y-4">
       <div
-        className={`relative min-h-[390px] overflow-hidden rounded-[28px] border bg-black transition ${
+        className={`relative min-h-[320px] overflow-hidden rounded-[28px] border bg-black transition sm:min-h-[390px] ${
           active
             ? "border-orange-400/50"
             : "border-white/10"
@@ -341,7 +341,7 @@ export default function CameraScanner({
         </div>
 
         {!active ? (
-          <div className="relative z-10 flex min-h-[390px] items-center justify-center px-8 text-center">
+          <div className="relative z-10 flex min-h-[320px] items-center justify-center px-5 py-8 text-center sm:min-h-[390px] sm:px-8">
             <div>
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-2xl">
                 ◫
@@ -383,7 +383,7 @@ export default function CameraScanner({
               void changeCamera(event.target.value)
             }
             disabled={devices.length < 2}
-            className="h-11 min-w-0 flex-1 rounded-xl border border-white/10 bg-black px-3 text-sm font-semibold text-white outline-none focus:border-orange-400/60 disabled:opacity-50"
+            className="h-11 min-w-0 flex-1 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-semibold text-zinc-950 outline-none focus:border-orange-600 disabled:opacity-50"
           >
             {devices.length === 0 ? (
               <option value="">Detecting camera...</option>
@@ -403,7 +403,7 @@ export default function CameraScanner({
             <button
               type="button"
               onClick={() => void toggleTorch()}
-              className="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-bold text-white transition hover:bg-white/10"
+              className="h-11 rounded-xl border border-zinc-300 bg-white px-4 text-sm font-bold text-zinc-950 transition hover:bg-zinc-100"
             >
               {torchEnabled
                 ? "Turn flashlight off"
@@ -414,7 +414,7 @@ export default function CameraScanner({
           <button
             type="button"
             onClick={() => onActiveChange(false)}
-            className="h-11 rounded-xl border border-white/10 px-4 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+            className="h-11 rounded-xl border border-zinc-300 px-4 text-sm font-bold text-zinc-800 transition hover:bg-zinc-100"
           >
             Stop camera
           </button>

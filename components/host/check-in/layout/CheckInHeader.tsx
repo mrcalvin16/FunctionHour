@@ -36,17 +36,17 @@ export default function CheckInHeader({
   onHapticsToggle,
 }: CheckInHeaderProps) {
   return (
-    <header className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+    <header className="flex flex-col gap-5 2xl:flex-row 2xl:items-end 2xl:justify-between">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.28em] text-orange-400">
+        <p className="text-xs font-bold uppercase tracking-[0.28em] text-orange-700">
           Door Operations
         </p>
 
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">
           Check-In
         </h1>
 
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-700">
           Scan tickets, find guests, prevent duplicate entry,
           and monitor live attendance.
         </p>
@@ -55,8 +55,8 @@ export default function CheckInHeader({
       <div
         className={`grid w-full gap-3 ${
           lockEventSelection
-            ? "sm:grid-cols-2 xl:w-[560px]"
-            : "sm:grid-cols-3 xl:w-[840px]"
+            ? "sm:grid-cols-2 2xl:w-[520px]"
+            : "sm:grid-cols-3 2xl:w-[780px]"
         }`}
       >
         {!lockEventSelection ? (

@@ -38,14 +38,14 @@ export default function ScannerPanel({
   onCameraError,
 }: ScannerPanelProps) {
   return (
-    <section className="overflow-hidden rounded-3xl border border-white/10 bg-zinc-950">
-      <div className="flex flex-col gap-4 border-b border-white/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <section className="min-w-0 overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-zinc-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-black text-white">
+          <h2 className="font-black text-zinc-950">
             QR scanner
           </h2>
 
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-zinc-700">
             Supports camera scans and hardware QR scanners.
           </p>
         </div>
@@ -53,8 +53,8 @@ export default function ScannerPanel({
         <span
           className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${
             scannerActive
-              ? "bg-emerald-400/10 text-emerald-300"
-              : "bg-white/5 text-zinc-400"
+              ? "bg-emerald-100 text-emerald-800"
+              : "bg-zinc-100 text-zinc-700"
           }`}
         >
           {scannerActive
@@ -78,7 +78,7 @@ export default function ScannerPanel({
         >
           <label
             htmlFor="scanner-code"
-            className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-zinc-500"
+            className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-zinc-700"
           >
             Scanner input
           </label>
@@ -95,13 +95,13 @@ export default function ScannerPanel({
                   ? "Scan QR code now..."
                   : "Start scanner to enable"
               }
-              className="h-12 flex-1 rounded-2xl border border-white/10 bg-black px-4 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-orange-400/60 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-12 min-w-0 flex-1 rounded-2xl border border-zinc-300 bg-white px-4 text-sm text-zinc-950 outline-none placeholder:text-zinc-600 focus:border-orange-600 focus:ring-2 focus:ring-orange-200 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-600"
             />
 
             <button
               type="submit"
               disabled={!scannerActive || isSubmitting}
-              className="h-12 rounded-2xl bg-orange-400 px-6 text-sm font-black text-black transition hover:bg-orange-300 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-12 rounded-2xl bg-orange-500 px-6 text-sm font-black text-zinc-950 transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting
                 ? "Checking..."
@@ -112,11 +112,11 @@ export default function ScannerPanel({
 
         <form
           onSubmit={onManualSubmit}
-          className="mt-5 border-t border-white/10 pt-5"
+          className="mt-5 border-t border-zinc-200 pt-5"
         >
           <label
             htmlFor="manual-code"
-            className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-zinc-500"
+            className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-zinc-700"
           >
             Manual validation
           </label>
@@ -130,7 +130,7 @@ export default function ScannerPanel({
               }
               disabled={isSubmitting}
               placeholder="Order number, QR value, or guest email"
-              className="h-12 flex-1 rounded-2xl border border-white/10 bg-black px-4 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-orange-400/60 disabled:opacity-50"
+              className="h-12 min-w-0 flex-1 rounded-2xl border border-zinc-300 bg-white px-4 text-sm text-zinc-950 outline-none placeholder:text-zinc-600 focus:border-orange-600 focus:ring-2 focus:ring-orange-200 disabled:bg-zinc-100 disabled:text-zinc-600"
             />
 
             <button
@@ -138,7 +138,7 @@ export default function ScannerPanel({
               disabled={
                 !manualCode.trim() || isSubmitting
               }
-              className="h-12 rounded-2xl border border-white/10 bg-white/5 px-6 text-sm font-black text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-12 rounded-2xl border border-zinc-300 bg-zinc-950 px-6 text-sm font-black text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Validate ticket
             </button>
