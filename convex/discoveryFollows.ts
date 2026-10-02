@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { isEventUpcoming } from "./eventDates";
 
 function normalizeCity(city: string, state: string) {
   const cleanCity = city.trim().replace(/\s+/g, " ");
@@ -31,6 +32,29 @@ export const getMyFollows = query({
       alertsEnabled: settings?.enabled ?? false,
       lastSeenAt: settings?.lastSeenAt ?? Date.now(),
     };
+  },
+});
+
+export const getUnreadCount = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return 0;
+    const settings = await ctx.db.query("discoveryAlertSettings")
+      .withIndex("by_user", (q) => q.eq("userId", identity.subject)).first();
+    if (!settings?.enabled) return 0;
+    const [cities, organizers, recentEvents] = await Promise.all([
+      ctx.db.query("followedCities").withIndex("by_user", (q) => q.eq("userId", identity.subject)).take(100),
+      ctx.db.query("followedOrganizers").withIndex("by_user", (q) => q.eq("userId", identity.subject)).take(100),
+      ctx.db.query("events").order("desc").take(100),
+    ]);
+    return recentEvents.filter((event) => {
+      const createdAt = event.createdAt ?? event._creationTime;
+      if (!isEventUpcoming(event) || createdAt <= settings.lastSeenAt) return false;
+      const eventCityKey = `${event.city?.trim() || ""}|${event.state?.trim() || ""}`.toLowerCase();
+      return cities.some((follow) => follow.cityKey === eventCityKey && createdAt > follow.createdAt) ||
+        organizers.some((follow) => follow.organizerUserId === (event.organizerId || event.userId) && createdAt > follow.createdAt);
+    }).length;
   },
 });
 
