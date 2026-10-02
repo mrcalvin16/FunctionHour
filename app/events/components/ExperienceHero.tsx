@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { MapPin, Search, SlidersHorizontal, X } from "lucide-react";
+import { getDiscoveryCityOptions } from "@/lib/discoveryCities";
 import ExperienceUniverse from "./ExperienceUniverse";
 import { getEventCategory, type DiscoveryEvent } from "../eventPresentation";
 
@@ -38,18 +39,8 @@ export default function ExperienceHero({
   presentation = "universe",
 }: ExperienceHeroProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const cityOptions = useMemo(() => {
-    const counts = new Map<string, { city: string; state: string; count: number }>();
-    for (const event of events) {
-      const eventCity = event.city?.trim() || event.location?.split(",")[0]?.trim() || "";
-      const state = event.state?.trim() || event.location?.split(",")[1]?.trim().split(/\s+/)[0] || "";
-      if (!eventCity) continue;
-      const key = (eventCity + "|" + state).toLowerCase();
-      const previous = counts.get(key);
-      counts.set(key, { city: eventCity, state, count: (previous?.count ?? 0) + 1 });
-    }
-    return [...counts.values()].sort((a, b) => a.city.localeCompare(b.city));
-  }, [events]);
+  const cityOptions = useMemo(() => getDiscoveryCityOptions(events), [events]);
+  const cityGroups = [...new Set(cityOptions.map((item) => item.stateName))];
   const liveCategoryNames = [...new Set(events.map(getEventCategory))];
   const availableCategories = ["All", ...liveCategoryNames];
   if (!availableCategories.includes(category)) availableCategories.push(category);
@@ -107,10 +98,14 @@ export default function ExperienceHero({
             </div>
             <select aria-label="Filter by city" value={city} onChange={(event) => setCity(event.target.value)} className={controlClass}>
               <option value="All Cities">All cities</option>
-              {cityOptions.map((item) => {
-                const value = item.state ? `${item.city}, ${item.state}` : item.city;
-                return <option key={value} value={value}>{value} ({item.count})</option>;
-              })}
+              {cityGroups.map((stateName) => (
+                <optgroup key={stateName} label={stateName}>
+                  {cityOptions.filter((item) => item.stateName === stateName).map((item) => {
+                    const value = item.state ? `${item.city}, ${item.state}` : item.city;
+                    return <option key={value} value={value}>{value}</option>;
+                  })}
+                </optgroup>
+              ))}
               {city !== "All Cities" && !cityOptions.some((item) => (item.state ? `${item.city}, ${item.state}` : item.city) === city) && <option value={city}>{city}</option>}
             </select>
             <select aria-label="Filter by category" value={category} onChange={(event) => setCategory(event.target.value)} className={controlClass}>
