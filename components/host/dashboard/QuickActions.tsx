@@ -61,16 +61,16 @@ const quickActions: QuickAction[] = [
 
 export default function QuickActions() {
   return (
-    <section className="rounded-[1.5rem] border border-white/[0.08] bg-gradient-to-br from-[#171128] via-[#100e18] to-[#16100e] p-5 shadow-[0_30px_100px_rgba(0,0,0,0.24)] backdrop-blur-xl">
-      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-violet-400">
+    <section className="rounded-[1.6rem] border border-zinc-200 bg-white p-5 shadow-[0_16px_48px_rgba(40,25,70,.06)] sm:p-6">
+      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-violet-700">
         Shortcuts
       </p>
 
-      <h2 className="mt-2 text-xl font-black tracking-tight text-zinc-900">
+      <h2 className="mt-2 text-xl font-black tracking-tight text-zinc-950">
         Quick Actions
       </h2>
 
-      <p className="mt-1 text-xs leading-5 text-zinc-700">
+      <p className="mt-1 text-xs leading-5 text-zinc-600">
         Move directly into your most-used organizer tools.
       </p>
 
@@ -86,16 +86,16 @@ export default function QuickActions() {
               </span>
 
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-black text-zinc-900">
+                <span className="block truncate text-sm font-black text-zinc-950">
                   {action.label}
                 </span>
 
-                <span className="mt-1 block truncate text-[10px] text-zinc-700">
+                <span className="mt-1 block truncate text-xs text-zinc-600">
                   {action.description}
                 </span>
               </span>
 
-              <span className="text-sm font-black text-zinc-800 transition group-hover:translate-x-0.5 group-hover:text-violet-800">
+              <span className="text-sm font-black text-violet-700 transition group-hover:translate-x-0.5 group-hover:text-violet-900">
                 →
               </span>
             </>
@@ -106,7 +106,7 @@ export default function QuickActions() {
               <div
                 key={action.label}
                 aria-disabled="true"
-                className="flex min-h-[68px] items-center gap-3 rounded-2xl border border-white/[0.06] bg-black/20 px-3.5 py-3 opacity-60"
+                className="flex min-h-[68px] items-center gap-3 rounded-2xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 opacity-60"
               >
                 {content}
               </div>
@@ -117,7 +117,7 @@ export default function QuickActions() {
             <Link
               key={action.label}
               href={action.href}
-              className="group flex min-h-[68px] items-center gap-3 rounded-2xl border border-white/[0.07] bg-black/20 px-3.5 py-3 transition hover:border-white/[0.14] hover:bg-white/[0.04]"
+              className="group flex min-h-[68px] items-center gap-3 rounded-2xl border border-zinc-200 bg-[#fbfaff] px-3.5 py-3 transition hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-50 hover:shadow-sm"
             >
               {content}
             </Link>
