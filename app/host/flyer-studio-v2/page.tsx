@@ -8,7 +8,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { toPng } from "html-to-image";
-import { Box, CalendarDays, Circle, Frame, History, ImageUp, Layers3, LayoutTemplate, MapPin, Minus, Music2, Palette, PartyPopper, Shapes, Sparkles, Square, Star, Ticket, Type, Upload, WandSparkles } from "lucide-react";
+import { Box, CalendarDays, ChevronLeft, ChevronRight, Circle, Frame, History, ImageUp, Layers3, LayoutTemplate, MapPin, Minus, Music2, Palette, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PartyPopper, Shapes, Sparkles, Square, Star, Ticket, Type, Upload, WandSparkles } from "lucide-react";
 import ToolPanel from "@/components/host/flyer-studio-v2/ToolPanel";
 import PropertiesPanel from "@/components/host/flyer-studio-v2/PropertiesPanel";
 import CanvasStage from "@/components/host/flyer-studio-v2/CanvasStage";
@@ -86,6 +86,8 @@ export default function FlyerStudioV2Page() {
   const previousCanvasToolRef = useRef<"select" | "marquee" | "hand" | null>(null);
 
   const [activeTool, setActiveTool] = useState<SidebarTool>("templates");
+  const [toolsOpen, setToolsOpen] = useState(true);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState("");
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState("Luxury");
@@ -1348,8 +1350,8 @@ export default function FlyerStudioV2Page() {
   }
 
   return (
-    <main className="min-h-screen bg-[#111111] text-white">
-      <header className="flex min-h-16 flex-col gap-3 border-b border-white/10 bg-[#181818] px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+    <main className="min-h-screen bg-[#111019] text-white">
+      <header className="flex min-h-16 flex-col gap-3 border-b border-white/10 bg-[#17151f] px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="flex min-w-0 items-center gap-2 sm:gap-4">
           <Link
             href={
@@ -1357,13 +1359,15 @@ export default function FlyerStudioV2Page() {
                 ? `/host/events/${selectedEventId}/flyers`
                 : "/host"
             }
-            className="rounded-lg px-3 py-2 text-sm font-bold text-white/60 hover:bg-white/10 hover:text-white"
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-bold text-white/70 hover:bg-white/10 hover:text-white"
           >
-            ← Back
+            <ChevronLeft size={16} aria-hidden="true" /> Back
           </Link>
+          <span className="hidden h-7 w-px bg-white/15 sm:block" aria-hidden="true" />
+          <span className="hidden h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-orange-400 text-sm font-black shadow-[0_0_24px_rgba(168,85,247,.25)] sm:flex" aria-hidden="true">FH</span>
           <div className="min-w-0">
-            <p className="text-sm font-black">Flyer Studio</p>
-            <p className="hidden text-xs text-white/45 sm:block">Edit, arrange, and export on the canvas</p>
+            <p className="text-sm font-black tracking-tight">Flyer Studio <span className="ml-1 rounded bg-white/10 px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-widest text-violet-200">Workspace</span></p>
+            <p className="hidden truncate text-xs text-white/55 sm:block">{selectedEvent?.name || "Untitled flyer"} · {selectedFormat.label}</p>
           </div>
         </div>
 
@@ -1416,7 +1420,7 @@ export default function FlyerStudioV2Page() {
             type="button"
             onClick={() => void downloadCanvas()}
             disabled={isExporting}
-            className="shrink-0 rounded-lg bg-violet-600 px-4 py-2 text-sm font-black hover:bg-violet-500 disabled:opacity-50 sm:px-5"
+            className="shrink-0 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-sm font-black shadow-[0_4px_18px_rgba(124,58,237,.3)] hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 sm:px-5"
           >
             {isExporting ? "Exporting…" : exportReviewAcknowledged && eventDetailIssues.length ? "Export anyway" : "Download PNG"}
           </button>
@@ -1433,20 +1437,31 @@ export default function FlyerStudioV2Page() {
         </section>
       )}
 
-      <div className="grid min-h-[calc(100vh-64px)] grid-cols-1 lg:grid-cols-[76px_300px_minmax(0,1fr)_290px]">
-        <aside className="border-b border-white/10 bg-[#171717] py-2 lg:border-b-0 lg:border-r lg:py-3">
-          <div className="flex gap-2 overflow-x-auto px-2 lg:block lg:space-y-2">
+      <div className="flex min-h-12 flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-[#201d2a] px-4 py-2 text-xs">
+        <div className="flex items-center gap-2 text-white/70"><span className="h-2 w-2 rounded-full bg-violet-400" aria-hidden="true" /><span>Creative workspace</span><span className="text-white/30">/</span><span className="font-semibold text-white">{selectedFormat.label}</span><span className="hidden text-white/40 sm:inline">· {elements.length} layers</span></div>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => setToolsOpen((open) => !open)} aria-expanded={toolsOpen} aria-controls="flyer-tool-panel" className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 font-bold text-white/80 hover:bg-white/10 hover:text-white">{toolsOpen ? <PanelLeftClose size={15} aria-hidden="true" /> : <PanelLeftOpen size={15} aria-hidden="true" />}{toolsOpen ? "Hide tools" : "Show tools"}</button>
+          <button type="button" onClick={() => setInspectorOpen((open) => !open)} aria-expanded={inspectorOpen} aria-controls="flyer-inspector" className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 font-bold text-white/80 hover:bg-white/10 hover:text-white">{inspectorOpen ? <PanelRightClose size={15} aria-hidden="true" /> : <PanelRightOpen size={15} aria-hidden="true" />}{inspectorOpen ? "Hide inspector" : "Show inspector"}</button>
+        </div>
+      </div>
+
+      <div className={`grid min-h-[calc(100vh-116px)] grid-cols-1 ${toolsOpen ? inspectorOpen ? "lg:grid-cols-[72px_284px_minmax(0,1fr)_284px]" : "lg:grid-cols-[72px_284px_minmax(0,1fr)]" : inspectorOpen ? "lg:grid-cols-[72px_minmax(0,1fr)_284px]" : "lg:grid-cols-[72px_minmax(0,1fr)]"}`}>
+        <nav aria-label="Flyer tools" className="border-b border-white/10 bg-[#17151f] py-2 lg:border-b-0 lg:border-r lg:py-3">
+          <div className="flex gap-1 overflow-x-auto px-2 lg:block lg:space-y-1">
             {sidebarTools.map((tool) => {
               const Icon = sidebarIcons[tool.id];
               return (
               <button
                 key={tool.id}
                 type="button"
-                onClick={() => setActiveTool(tool.id)}
-                className={`flex min-w-[72px] shrink-0 flex-col items-center gap-1 rounded-xl px-1 py-3 text-[10px] font-bold transition lg:w-full lg:min-w-0 ${
-                  activeTool === tool.id
-                    ? "bg-violet-600 text-white"
-                    : "text-white/50 hover:bg-white/10 hover:text-white"
+                onClick={() => { if (activeTool === tool.id && toolsOpen) setToolsOpen(false); else { setActiveTool(tool.id); setToolsOpen(true); } }}
+                aria-label={`${tool.label} tools`}
+                aria-pressed={activeTool === tool.id && toolsOpen}
+                title={tool.label}
+                className={`flex min-w-[66px] shrink-0 flex-col items-center gap-1 rounded-xl px-1 py-2.5 text-[10px] font-bold transition lg:w-full lg:min-w-0 ${
+                  activeTool === tool.id && toolsOpen
+                    ? "bg-violet-600 text-white shadow-[0_4px_16px_rgba(124,58,237,.25)]"
+                    : "text-zinc-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
@@ -1455,9 +1470,13 @@ export default function FlyerStudioV2Page() {
               );
             })}
           </div>
-        </aside>
+        </nav>
 
-        <aside className="max-h-[42vh] overflow-y-auto border-b border-white/10 bg-[#202020] p-4 lg:max-h-none lg:border-b-0 lg:border-r">
+        {toolsOpen && <aside id="flyer-tool-panel" aria-label={`${sidebarTools.find((tool) => tool.id === activeTool)?.label} tools`} className="max-h-[50vh] overflow-y-auto border-b border-white/10 bg-[#211e2a] p-4 lg:max-h-[calc(100vh-116px)] lg:border-b-0 lg:border-r lg:p-5">
+          <div className="mb-5 flex items-center justify-between gap-2 border-b border-white/10 pb-3">
+            <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">Create & edit</p><h2 className="mt-1 text-lg font-black">{sidebarTools.find((tool) => tool.id === activeTool)?.label}</h2></div>
+            <button type="button" onClick={() => setToolsOpen(false)} aria-label="Collapse tools" title="Collapse tools" className="rounded-lg border border-white/10 p-2 text-white/70 hover:bg-white/10 hover:text-white"><ChevronLeft size={18} aria-hidden="true" /></button>
+          </div>
           {activeTool === "templates" && (
             <ToolPanel title="Templates">
               <p className="mb-4 text-xs leading-5 text-white/45">
@@ -1776,7 +1795,7 @@ export default function FlyerStudioV2Page() {
               />
             </ToolPanel>
           )}
-        </aside>
+        </aside>}
 
         <CanvasStage
           canvasRef={canvasRef}
@@ -1810,7 +1829,9 @@ export default function FlyerStudioV2Page() {
           onFinishInlineEditing={finishInlineEditing}
           updateElement={updateElement}
         />
-        <PropertiesPanel
+        {inspectorOpen && <div id="flyer-inspector" className="min-w-0 border-t border-white/10 bg-[#1b1923] lg:max-h-[calc(100vh-116px)] lg:overflow-y-auto lg:border-l lg:border-t-0">
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#25212f] px-4 py-3"><div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">Inspector</p><p className="mt-0.5 truncate text-sm font-bold">{selectedElement?.name || "Nothing selected"}</p></div><button type="button" onClick={() => setInspectorOpen(false)} aria-label="Collapse inspector" title="Collapse inspector" className="rounded-lg border border-white/10 p-2 text-white/70 hover:bg-white/10 hover:text-white"><ChevronRight size={18} aria-hidden="true" /></button></div>
+          <PropertiesPanel
           selectedElement={selectedElement}
           updateElement={updateElement}
           moveLayer={moveLayer}
@@ -1819,7 +1840,8 @@ export default function FlyerStudioV2Page() {
           deleteSelected={deleteSelected}
           canvasHeight={canvasHeight}
           onEditImage={(id) => { setRetouchElementId(id); setIsErasing(true); }}
-        />
+          />
+        </div>}
       </div>
 
       {designCheckOpen && (
