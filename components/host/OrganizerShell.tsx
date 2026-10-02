@@ -79,7 +79,6 @@ const navigation: NavGroup[] = [
         description: "Complimentary tickets",
         href: "/host/comp-tickets",
         icon: "comp",
-        accent: "orange",
       },
       {
         label: "Check In",
