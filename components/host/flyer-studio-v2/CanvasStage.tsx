@@ -105,8 +105,8 @@ export default function CanvasStage({
     backgroundPresets[0];
 
   return (
-    <section className="relative flex min-h-[70vh] min-w-0 flex-col bg-[#ececef] text-black lg:min-h-0">
-      <div className="flex min-h-[56px] flex-wrap items-center justify-between gap-2 border-b border-black/10 bg-white px-3 py-2 sm:px-4">
+    <section aria-label="Flyer canvas workspace" className="relative flex min-h-[70vh] min-w-0 flex-col bg-[#e9e7ee] text-black lg:min-h-0">
+      <div className="flex min-h-[56px] flex-wrap items-center justify-between gap-2 border-b border-black/10 bg-[#fcfbff] px-3 py-2 sm:px-4">
         <div className="flex max-w-full items-center gap-2 overflow-x-auto">
           {formats.map((item) => (
             <button
@@ -144,16 +144,13 @@ export default function CanvasStage({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-black/10 bg-white/80 px-4 py-2 text-[11px] font-medium text-zinc-600">
-        <span><strong className="text-zinc-900">Select</strong> an element</span>
-        <span><strong className="text-zinc-900">Shift-click</strong> to multi-select</span>
-        <span><strong className="text-zinc-900">Drag</strong> to move selected items</span>
-        <span><strong className="text-zinc-900">Space + drag</strong> to pan · <strong className="text-zinc-900">Ctrl/⌘ + wheel</strong> to zoom</span>
-        <span><strong className="text-zinc-900">Double-click</strong> text to edit</span>
-        <span><strong className="text-zinc-900">Resize handles</strong> adjust size</span>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 bg-[#f9f8fc] px-4 py-2 text-[11px] font-medium text-zinc-700">
+        <span><strong className="text-violet-800">Canvas</strong> · Click to select · Double-click text to edit</span>
+        <details className="relative group"><summary className="cursor-pointer list-none rounded-md px-2 py-1 font-bold text-violet-800 hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-violet-600">Shortcuts & tips ⌄</summary><div className="absolute right-0 top-full z-30 mt-2 w-64 rounded-xl border border-violet-200 bg-white p-4 text-xs leading-6 text-zinc-800 shadow-xl"><p><strong>Shift-click</strong> · Select multiple</p><p><strong>Space + drag</strong> · Pan canvas</p><p><strong>Ctrl/⌘ + wheel</strong> · Zoom</p><p><strong>Drag handles</strong> · Resize a layer</p></div></details>
       </div>
 
       <div ref={viewportRef} className={`flex flex-1 items-start overflow-auto p-4 sm:p-8 lg:p-12 ${canvasTool === "hand" ? "cursor-grab active:cursor-grabbing" : ""}`}
+        style={{ backgroundImage: "radial-gradient(#c7c3d2 0.8px, transparent 0.8px)", backgroundSize: "18px 18px" }}
         onPointerDown={(event) => { if (canvasTool !== "hand" || !viewportRef.current) return; panRef.current = { x: event.clientX, y: event.clientY, left: viewportRef.current.scrollLeft, top: viewportRef.current.scrollTop }; event.currentTarget.setPointerCapture(event.pointerId); event.preventDefault(); }}
         onPointerMove={(event) => { if (!panRef.current || !viewportRef.current) return; viewportRef.current.scrollLeft = panRef.current.left - event.clientX + panRef.current.x; viewportRef.current.scrollTop = panRef.current.top - event.clientY + panRef.current.y; }}
         onPointerUp={() => { panRef.current = null; }}
@@ -169,7 +166,7 @@ export default function CanvasStage({
         >
           <div
             ref={canvasRef}
-            className="absolute left-0 top-0 origin-top-left overflow-hidden bg-black shadow-2xl"
+            className="absolute left-0 top-0 origin-top-left overflow-hidden bg-black shadow-[0_20px_60px_rgba(35,20,65,.28),0_0_0_1px_rgba(70,45,110,.12)]"
             style={{
               width: CANVAS_WIDTH,
               height: canvasHeight,
