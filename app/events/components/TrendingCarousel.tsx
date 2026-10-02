@@ -29,8 +29,8 @@ export default function TrendingCarousel({
   };
 
   return (
-    <section id="event-results" className="mx-auto max-w-[1240px] px-5 py-10 sm:px-7 lg:px-8">
-      <div className="mb-6 flex items-end justify-between gap-6">
+    <section id="event-results" className="mx-auto max-w-[1240px] px-5 pb-8 pt-5 sm:px-7 lg:px-8">
+      <div className="mb-4 flex items-end justify-between gap-6">
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.28em] text-violet-700">
             Trending Near You
