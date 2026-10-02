@@ -9,8 +9,8 @@ const blendModes: { value: BlendMode; label: string }[] = [
 ];
 
 function BlendControl({ element, update }: { element: CanvasElement; update: (id: string, patch: Partial<CanvasElement>) => void }) {
-  return <label className="block text-xs font-bold text-white/80">Blending mode
-    <select value={element.blendMode ?? "normal"} onChange={(event) => update(element.id, { blendMode: event.target.value as BlendMode })} className="mt-2 w-full rounded-lg border border-white/20 bg-zinc-900 p-2 text-white">
+  return <label className="block text-xs font-bold text-zinc-700">Blending mode
+    <select value={element.blendMode ?? "normal"} onChange={(event) => update(element.id, { blendMode: event.target.value as BlendMode })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-900 p-2 text-zinc-950">
       {blendModes.map((mode) => <option key={mode.value} value={mode.value}>{mode.label}</option>)}
     </select>
   </label>;
@@ -56,18 +56,18 @@ export default function PropertiesPanel({
   onEditImage: (id: string) => void;
 }) {
   if (selectedElement?.kind === "adjustment") return (
-    <aside className="max-h-[55vh] overflow-y-auto border-t border-white/10 bg-[#1b1b1b] p-4 lg:max-h-none lg:border-l lg:border-t-0">
+    <aside className="max-h-[55vh] overflow-y-auto border-t border-zinc-200 bg-white p-4 lg:max-h-none lg:border-l lg:border-t-0">
       <h2 className="text-sm font-black">Adjustment layer</h2>
-      <p className="mt-2 text-xs leading-5 text-white/70">Changes the image and layers beneath it within this layer’s bounds. Stack layers for combined effects.</p>
+      <p className="mt-2 text-xs leading-5 text-zinc-700">Changes the image and layers beneath it within this layer’s bounds. Stack layers for combined effects.</p>
       <div className="mt-5 space-y-5">
-        {([ ["brightness", "Brightness", 0, 200], ["contrast", "Contrast", 0, 200], ["saturation", "Saturation", 0, 200], ["blur", "Blur", 0, 20] ] as const).map(([key, label, min, max]) => <label key={key} className="block text-xs font-bold text-white/80">{label} · {selectedElement[key] ?? (key === "blur" ? 0 : 100)}
+        {([ ["brightness", "Brightness", 0, 200], ["contrast", "Contrast", 0, 200], ["saturation", "Saturation", 0, 200], ["blur", "Blur", 0, 20] ] as const).map(([key, label, min, max]) => <label key={key} className="block text-xs font-bold text-zinc-700">{label} · {selectedElement[key] ?? (key === "blur" ? 0 : 100)}
           <input type="range" min={min} max={max} value={selectedElement[key] ?? (key === "blur" ? 0 : 100)} onChange={(event) => updateElement(selectedElement.id, { [key]: Number(event.target.value) })} className="mt-2 w-full" />
         </label>)}
         <BlendControl element={selectedElement} update={updateElement} />
-        <label className="block text-xs font-bold text-white/80">Strength · {Math.round((selectedElement.opacity ?? 1) * 100)}%
+        <label className="block text-xs font-bold text-zinc-700">Strength · {Math.round((selectedElement.opacity ?? 1) * 100)}%
           <input type="range" min={0} max={100} value={Math.round((selectedElement.opacity ?? 1) * 100)} onChange={(event) => updateElement(selectedElement.id, { opacity: Number(event.target.value) / 100 })} className="mt-2 w-full" />
         </label>
-        <button type="button" onClick={duplicateSelected} className="w-full rounded-lg border border-white/20 px-3 py-2 text-xs font-bold">Duplicate adjustment</button>
+        <button type="button" onClick={duplicateSelected} className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-xs font-bold">Duplicate adjustment</button>
         <button type="button" onClick={deleteSelected} className="w-full rounded-lg border border-red-500/40 px-3 py-2 text-xs font-bold text-red-200">Delete adjustment</button>
       </div>
     </aside>
@@ -79,42 +79,42 @@ export default function PropertiesPanel({
     const isIcon = selectedElement.kind === "icon";
     const isSticker = selectedElement.kind === "sticker";
     return (
-      <aside className="max-h-[55vh] overflow-y-auto border-t border-white/10 bg-[#1b1b1b] p-4 lg:max-h-none lg:border-l lg:border-t-0">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/60">{isImage ? "Image" : isLine ? "Line" : isFrame ? "Frame" : isIcon ? "Icon" : isSticker ? "Sticker" : "Shape"}</p>
+      <aside className="max-h-[55vh] overflow-y-auto border-t border-zinc-200 bg-white p-4 lg:max-h-none lg:border-l lg:border-t-0">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-700">{isImage ? "Image" : isLine ? "Line" : isFrame ? "Frame" : isIcon ? "Icon" : isSticker ? "Sticker" : "Shape"}</p>
         <div className="mt-4 space-y-4">
-          <label className="block text-xs font-bold text-white/70">Opacity
+          <label className="block text-xs font-bold text-zinc-700">Opacity
             <input type="range" min={10} max={100} value={Math.round((selectedElement.opacity ?? 1) * 100)} onChange={(event) => updateElement(selectedElement.id, { opacity: Number(event.target.value) / 100 })} className="mt-2 w-full" />
           </label>
           <BlendControl element={selectedElement} update={updateElement} />
-          {isImage && <button type="button" onClick={() => onEditImage(selectedElement.id)} className="w-full rounded-lg bg-violet-600 px-3 py-3 text-xs font-black text-white">Retouch image · remove, heal, erase</button>}
-          {isImage ? <div className="space-y-4 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+          {isImage && <button type="button" onClick={() => onEditImage(selectedElement.id)} className="w-full rounded-lg bg-violet-600 px-3 py-3 text-xs font-black text-zinc-950">Retouch image · remove, heal, erase</button>}
+          {isImage ? <div className="space-y-4 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
             {([
               ["brightness", "Brightness", 0, 200],
               ["contrast", "Contrast", 0, 200],
               ["saturation", "Saturation", 0, 200],
               ["blur", "Blur", 0, 20],
             ] as const).map(([key, label, min, max]) => (
-              <label key={key} className="block text-xs font-bold text-white/70">{label}
+              <label key={key} className="block text-xs font-bold text-zinc-700">{label}
                 <div className="mt-2 flex items-center gap-3">
                   <input type="range" min={min} max={max} value={selectedElement[key] ?? (key === "blur" ? 0 : 100)} onChange={(event) => updateElement(selectedElement.id, { [key]: Number(event.target.value) })} className="w-full" />
-                  <span className="w-10 text-right text-[11px] text-white/50">{selectedElement[key] ?? (key === "blur" ? 0 : 100)}</span>
+                  <span className="w-10 text-right text-[11px] text-zinc-700">{selectedElement[key] ?? (key === "blur" ? 0 : 100)}</span>
                 </div>
               </label>
             ))}
-            <label className="block text-xs font-bold text-white/70">Corner radius
+            <label className="block text-xs font-bold text-zinc-700">Corner radius
               <input type="range" min={0} max={100} value={selectedElement.borderRadius ?? 0} onChange={(event) => updateElement(selectedElement.id, { borderRadius: Number(event.target.value) })} className="mt-2 w-full" />
             </label>
-            <button type="button" onClick={() => updateElement(selectedElement.id, { brightness: 100, contrast: 100, saturation: 100, blur: 0, borderRadius: 0, opacity: 1 })} className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">Reset image adjustments</button>
+            <button type="button" onClick={() => updateElement(selectedElement.id, { brightness: 100, contrast: 100, saturation: 100, blur: 0, borderRadius: 0, opacity: 1 })} className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">Reset image adjustments</button>
           </div> : null}
-          {isIcon ? <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-3"><label className="block text-xs font-bold text-white/70">Icon color<input type="color" value={selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { color: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-white/70">Stroke width<input type="range" min={1} max={5} step={0.25} value={selectedElement.borderWidth ?? 2} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label></div> : null}
-          {isSticker ? <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-3"><label className="block text-xs font-bold text-white/70">Sticker text<input type="text" value={selectedElement.text} maxLength={24} onChange={(event) => updateElement(selectedElement.id, { text: event.target.value })} className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white" /></label><label className="block text-xs font-bold text-white/70">Fill<input type="color" value={selectedElement.background ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { background: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-white/70">Text color<input type="color" value={selectedElement.borderColor ?? "#ffffff"} onChange={(event) => updateElement(selectedElement.id, { borderColor: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-white/70">Style<select value={selectedElement.stickerStyle ?? "badge"} onChange={(event) => updateElement(selectedElement.id, { stickerStyle: event.target.value as "badge" | "burst" | "pill" })} className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"><option value="badge">Badge</option><option value="burst">Burst</option><option value="pill">Pill</option></select></label></div> : null}
-          {isLine ? <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-3"><label className="block text-xs font-bold text-white/70">Line color<input type="color" value={selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { color: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-white/70">Thickness<input type="range" min={1} max={20} value={selectedElement.borderWidth ?? 3} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label><label className="block text-xs font-bold text-white/70">Style<select value={selectedElement.lineStyle ?? "solid"} onChange={(event) => updateElement(selectedElement.id, { lineStyle: event.target.value as "solid" | "dashed" | "dotted" })} className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option></select></label></div> : null}
-          {isFrame ? <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-3"><label className="block text-xs font-bold text-white/70">Frame color<input type="color" value={selectedElement.borderColor ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { borderColor: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-white/70">Border width<input type="range" min={1} max={30} value={selectedElement.borderWidth ?? 5} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label><button type="button" onClick={() => updateElement(selectedElement.id, { frameShape: selectedElement.frameShape === "circle" ? "rectangle" : "circle" })} className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">{selectedElement.frameShape === "circle" ? "Make rectangular" : "Make circular"}</button></div> : null}
-          {isImage ? <label className="block text-xs font-bold text-white/70">Image fit
-            <select value={selectedElement.objectFit ?? "cover"} onChange={(event) => updateElement(selectedElement.id, { objectFit: event.target.value as "cover" | "contain" })} className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"><option value="cover">Fill frame</option><option value="contain">Fit inside</option></select>
-          </label> : <><label className="block text-xs font-bold text-white/70">Fill<input type="color" value={selectedElement.background ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { background: event.target.value })} className="mt-2 block h-10 w-full" /></label><button type="button" onClick={() => updateElement(selectedElement.id, { shape: selectedElement.shape === "circle" ? "rectangle" : "circle" })} className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">{selectedElement.shape === "circle" ? "Make rectangle" : "Make circle"}</button></>}
-          <div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => moveLayer("up")} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">Move up</button><button type="button" onClick={() => moveLayer("down")} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">Move down</button><button type="button" onClick={duplicateSelected} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">Duplicate</button><button type="button" onClick={() => updateElement(selectedElement.id, { locked: !selectedElement.locked })} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">{selectedElement.locked ? "Unlock" : "Lock"}</button></div>
-          <button type="button" onClick={deleteSelected} className="w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-300">Delete element</button>
+          {isIcon ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Icon color<input type="color" value={selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { color: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Stroke width<input type="range" min={1} max={5} step={0.25} value={selectedElement.borderWidth ?? 2} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label></div> : null}
+          {isSticker ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Sticker text<input type="text" value={selectedElement.text} maxLength={24} onChange={(event) => updateElement(selectedElement.id, { text: event.target.value })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950" /></label><label className="block text-xs font-bold text-zinc-700">Fill<input type="color" value={selectedElement.background ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { background: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Text color<input type="color" value={selectedElement.borderColor ?? "#ffffff"} onChange={(event) => updateElement(selectedElement.id, { borderColor: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Style<select value={selectedElement.stickerStyle ?? "badge"} onChange={(event) => updateElement(selectedElement.id, { stickerStyle: event.target.value as "badge" | "burst" | "pill" })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"><option value="badge">Badge</option><option value="burst">Burst</option><option value="pill">Pill</option></select></label></div> : null}
+          {isLine ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Line color<input type="color" value={selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { color: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Thickness<input type="range" min={1} max={20} value={selectedElement.borderWidth ?? 3} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Style<select value={selectedElement.lineStyle ?? "solid"} onChange={(event) => updateElement(selectedElement.id, { lineStyle: event.target.value as "solid" | "dashed" | "dotted" })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option></select></label></div> : null}
+          {isFrame ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Frame color<input type="color" value={selectedElement.borderColor ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { borderColor: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Border width<input type="range" min={1} max={30} value={selectedElement.borderWidth ?? 5} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label><button type="button" onClick={() => updateElement(selectedElement.id, { frameShape: selectedElement.frameShape === "circle" ? "rectangle" : "circle" })} className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">{selectedElement.frameShape === "circle" ? "Make rectangular" : "Make circular"}</button></div> : null}
+          {isImage ? <label className="block text-xs font-bold text-zinc-700">Image fit
+            <select value={selectedElement.objectFit ?? "cover"} onChange={(event) => updateElement(selectedElement.id, { objectFit: event.target.value as "cover" | "contain" })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"><option value="cover">Fill frame</option><option value="contain">Fit inside</option></select>
+          </label> : <><label className="block text-xs font-bold text-zinc-700">Fill<input type="color" value={selectedElement.background ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { background: event.target.value })} className="mt-2 block h-10 w-full" /></label><button type="button" onClick={() => updateElement(selectedElement.id, { shape: selectedElement.shape === "circle" ? "rectangle" : "circle" })} className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">{selectedElement.shape === "circle" ? "Make rectangle" : "Make circle"}</button></>}
+          <div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => moveLayer("up")} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">Move up</button><button type="button" onClick={() => moveLayer("down")} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">Move down</button><button type="button" onClick={duplicateSelected} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">Duplicate</button><button type="button" onClick={() => updateElement(selectedElement.id, { locked: !selectedElement.locked })} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">{selectedElement.locked ? "Unlock" : "Lock"}</button></div>
+          <button type="button" onClick={deleteSelected} className="w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-700">Delete element</button>
         </div>
       </aside>
     );
@@ -122,11 +122,11 @@ export default function PropertiesPanel({
 
   if (selectedElement?.kind === "qr") {
     return (
-      <aside className="max-h-[55vh] overflow-y-auto border-t border-white/10 bg-[#1b1b1b] p-4 lg:max-h-none lg:border-l lg:border-t-0">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/60">Ticket QR</p>
-        <p className="mt-3 text-sm leading-6 text-white/80">This code opens your event page. Place it on a clear part of the flyer and scan a downloaded copy before printing.</p>
-        <p className="mt-3 break-all rounded-xl border border-white/10 bg-black/30 p-3 text-xs text-white/70">{selectedElement.text}</p>
-        <label className="mt-5 block text-xs font-bold text-white/80">
+      <aside className="max-h-[55vh] overflow-y-auto border-t border-zinc-200 bg-white p-4 lg:max-h-none lg:border-l lg:border-t-0">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-700">Ticket QR</p>
+        <p className="mt-3 text-sm leading-6 text-zinc-700">This code opens your event page. Place it on a clear part of the flyer and scan a downloaded copy before printing.</p>
+        <p className="mt-3 break-all rounded-xl border border-zinc-200 bg-zinc-100 p-3 text-xs text-zinc-700">{selectedElement.text}</p>
+        <label className="mt-5 block text-xs font-bold text-zinc-700">
           QR size
           <input
             type="range"
@@ -146,17 +146,17 @@ export default function PropertiesPanel({
           />
         </label>
         <div className="mt-5 grid grid-cols-2 gap-2">
-          <button type="button" onClick={duplicateSelected} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">Duplicate</button>
-          <button type="button" onClick={() => updateElement(selectedElement.id, { locked: !selectedElement.locked })} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">{selectedElement.locked ? "Unlock" : "Lock"}</button>
+          <button type="button" onClick={duplicateSelected} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">Duplicate</button>
+          <button type="button" onClick={() => updateElement(selectedElement.id, { locked: !selectedElement.locked })} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">{selectedElement.locked ? "Unlock" : "Lock"}</button>
         </div>
-        <button type="button" onClick={deleteSelected} className="mt-4 w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-300">Remove QR</button>
+        <button type="button" onClick={deleteSelected} className="mt-4 w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-700">Remove QR</button>
       </aside>
     );
   }
 
   return (
-    <aside className="max-h-[55vh] overflow-y-auto border-t border-white/10 bg-[#1b1b1b] p-4 lg:max-h-none lg:border-l lg:border-t-0">
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-white/35">
+    <aside className="max-h-[55vh] overflow-y-auto border-t border-zinc-200 bg-white p-4 lg:max-h-none lg:border-l lg:border-t-0">
+      <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-700">
         Properties
       </p>
 
@@ -164,7 +164,7 @@ export default function PropertiesPanel({
         <div className="mt-4 space-y-5">
           <div className="grid grid-cols-2 gap-3">
             {(["x", "y"] as const).map((axis) => (
-              <label key={axis} className="text-xs font-bold text-white/70">
+              <label key={axis} className="text-xs font-bold text-zinc-700">
                 {axis === "x" ? "X position" : "Y position"}
                 <input
                   type="number"
@@ -173,13 +173,13 @@ export default function PropertiesPanel({
                     const value = Number(event.target.value);
                     if (Number.isFinite(value)) updateElement(selectedElement.id, { [axis]: value });
                   }}
-                  className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
+                  className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"
                 />
               </label>
             ))}
           </div>
           <div>
-            <label className="text-xs font-bold text-white/50">Text</label>
+            <label className="text-xs font-bold text-zinc-700">Text</label>
             <textarea
               value={selectedElement.text}
               onChange={(event) =>
@@ -187,16 +187,16 @@ export default function PropertiesPanel({
                   text: event.target.value,
                 })
               }
-              className="mt-2 min-h-24 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-sm outline-none"
+              className="mt-2 min-h-24 w-full rounded-xl border border-zinc-200 bg-zinc-100 p-3 text-sm outline-none"
             />
           </div>
 
-          <label className="block text-xs font-bold text-white/70">
+          <label className="block text-xs font-bold text-zinc-700">
             Font
             <select
               value={selectedElement.fontFamily ?? fontOptions[0].stack}
               onChange={(event) => updateElement(selectedElement.id, { fontFamily: event.target.value })}
-              className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
+              className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"
             >
               {fontOptions.map((font) => (
                 <option key={font.name} value={font.stack} style={{ fontFamily: font.stack }}>
@@ -207,7 +207,7 @@ export default function PropertiesPanel({
           </label>
 
           <div className="grid grid-cols-2 gap-3">
-            <label className="text-xs font-bold text-white/50">
+            <label className="text-xs font-bold text-zinc-700">
               Width
               <input
                 type="number"
@@ -217,10 +217,10 @@ export default function PropertiesPanel({
                     width: Math.max(MIN_WIDTH, Number(event.target.value)),
                   })
                 }
-                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
+                className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"
               />
             </label>
-            <label className="text-xs font-bold text-white/50">
+            <label className="text-xs font-bold text-zinc-700">
               Height
               <input
                 type="number"
@@ -230,13 +230,13 @@ export default function PropertiesPanel({
                     height: Math.max(MIN_HEIGHT, Number(event.target.value)),
                   })
                 }
-                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
+                className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"
               />
             </label>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-white/50">
+            <label className="text-xs font-bold text-zinc-700">
               Font size
             </label>
             <input
@@ -258,11 +258,11 @@ export default function PropertiesPanel({
               value={selectedElement.fontSize}
               onChange={(event) => updateElement(selectedElement.id, { fontSize: Math.min(120, Math.max(8, Number(event.target.value) || 8)) })}
               aria-label="Font size in pixels"
-              className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
+              className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"
             />
           </div>
 
-          <label className="block text-xs font-bold text-white/70">
+          <label className="block text-xs font-bold text-zinc-700">
             Letter spacing (px)
             <input
               type="number"
@@ -271,30 +271,30 @@ export default function PropertiesPanel({
               step={0.5}
               value={selectedElement.letterSpacing ?? 0}
               onChange={(event) => updateElement(selectedElement.id, { letterSpacing: Math.min(20, Math.max(-2, Number(event.target.value) || 0)) })}
-              className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"
+              className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"
             />
           </label>
 
-          <label className="block text-xs font-bold text-white/70">
+          <label className="block text-xs font-bold text-zinc-700">
             Line spacing
             <input type="range" min={0.8} max={2} step={0.05} value={selectedElement.lineHeight ?? 1.05} onChange={(event) => updateElement(selectedElement.id, { lineHeight: Number(event.target.value) })} className="mt-2 w-full" />
           </label>
 
-          <label className="block text-xs font-bold text-white/70">
+          <label className="block text-xs font-bold text-zinc-700">
             Text opacity
             <input type="range" min={10} max={100} value={Math.round((selectedElement.opacity ?? 1) * 100)} onChange={(event) => updateElement(selectedElement.id, { opacity: Number(event.target.value) / 100 })} className="mt-2 w-full" />
           </label>
           <BlendControl element={selectedElement} update={updateElement} />
 
-          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-            <p className="mb-3 text-xs font-black text-white/70">Outline & effects</p>
-            <label className="block text-xs font-bold text-white/60">Outline width
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+            <p className="mb-3 text-xs font-black text-zinc-700">Outline & effects</p>
+            <label className="block text-xs font-bold text-zinc-700">Outline width
               <input type="range" min={0} max={6} step={0.5} value={selectedElement.textStrokeWidth ?? 0} onChange={(event) => updateElement(selectedElement.id, { textStrokeWidth: Number(event.target.value) })} className="mt-2 w-full" />
             </label>
-            <label className="mt-3 flex items-center justify-between text-xs font-bold text-white/60">Outline color
+            <label className="mt-3 flex items-center justify-between text-xs font-bold text-zinc-700">Outline color
               <input type="color" value={selectedElement.textStrokeColor ?? "#000000"} onChange={(event) => updateElement(selectedElement.id, { textStrokeColor: event.target.value })} className="h-8 w-12" />
             </label>
-            <button type="button" aria-pressed={Boolean(selectedElement.glow)} onClick={() => updateElement(selectedElement.id, { glow: !selectedElement.glow })} className={selectedElement.glow ? "mt-3 w-full rounded-lg border border-violet-400/60 bg-violet-500/20 px-3 py-2 text-xs font-black" : "mt-3 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"}>
+            <button type="button" aria-pressed={Boolean(selectedElement.glow)} onClick={() => updateElement(selectedElement.id, { glow: !selectedElement.glow })} className={selectedElement.glow ? "mt-3 w-full rounded-lg border border-violet-400/60 bg-violet-500/20 px-3 py-2 text-xs font-black" : "mt-3 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black"}>
               {selectedElement.glow ? "Glow on" : "Add glow"}
             </button>
           </div>
@@ -303,7 +303,7 @@ export default function PropertiesPanel({
             type="button"
             aria-pressed={Boolean(selectedElement.uppercase)}
             onClick={() => updateElement(selectedElement.id, { uppercase: !selectedElement.uppercase })}
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"
+            className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black"
           >
             {selectedElement.uppercase ? "Uppercase on" : "Uppercase off"}
           </button>
@@ -317,7 +317,7 @@ export default function PropertiesPanel({
                   onClick={() =>
                     updateElement(selectedElement.id, { align: alignment })
                   }
-                  className={`rounded-lg border px-2 py-2 text-xs font-black ${selectedElement.align === alignment ? "border-violet-400 bg-violet-500/20" : "border-white/10 bg-white/5"}`}
+                  className={`rounded-lg border px-2 py-2 text-xs font-black ${selectedElement.align === alignment ? "border-violet-400 bg-violet-500/20" : "border-zinc-200 bg-zinc-50"}`}
                 >
                   {alignment}
                 </button>
@@ -325,8 +325,8 @@ export default function PropertiesPanel({
             )}
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-            <p className="mb-2 text-xs font-bold text-white/50">Position on canvas</p>
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+            <p className="mb-2 text-xs font-bold text-zinc-700">Position on canvas</p>
             <div className="grid grid-cols-3 gap-2">
               {([
                 ["left", "Left"],
@@ -340,7 +340,7 @@ export default function PropertiesPanel({
                   key={alignment}
                   type="button"
                   onClick={() => alignToCanvas(alignment)}
-                  className="rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-xs font-bold transition hover:border-violet-400/60 hover:bg-violet-500/15"
+                  className="rounded-lg border border-zinc-200 bg-zinc-50 px-2 py-2 text-xs font-bold transition hover:border-violet-400/60 hover:bg-violet-500/15"
                 >
                   {label}
                 </button>
@@ -356,11 +356,11 @@ export default function PropertiesPanel({
                   fontWeight: selectedElement.fontWeight >= 700 ? 400 : 900,
                 })
               }
-              className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"
+              className="flex-1 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black"
             >
               Bold
             </button>
-            <label className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black">
+            <label className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">
               Color
               <input
                 type="color"
@@ -385,7 +385,7 @@ export default function PropertiesPanel({
             }
             className={selectedElement.textShadow
               ? "w-full rounded-lg border border-violet-400/60 bg-violet-500/20 px-3 py-2 text-xs font-black"
-              : "w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"}
+              : "w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black"}
           >
             {selectedElement.textShadow ? "Text shadow on" : "Add text shadow"}
           </button>
@@ -394,21 +394,21 @@ export default function PropertiesPanel({
             <button
               type="button"
               onClick={() => moveLayer("up")}
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"
+              className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black"
             >
               Move up
             </button>
             <button
               type="button"
               onClick={() => moveLayer("down")}
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"
+              className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black"
             >
               Move down
             </button>
             <button
               type="button"
               onClick={duplicateSelected}
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"
+              className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black"
             >
               Duplicate
             </button>
@@ -419,7 +419,7 @@ export default function PropertiesPanel({
                   locked: !selectedElement.locked,
                 })
               }
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"
+              className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black"
             >
               {selectedElement.locked ? "Unlock" : "Lock"}
             </button>
@@ -428,13 +428,13 @@ export default function PropertiesPanel({
           <button
             type="button"
             onClick={deleteSelected}
-            className="w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-300"
+            className="w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-700"
           >
             Delete element
           </button>
         </div>
       ) : (
-        <p className="mt-4 text-sm leading-6 text-white/35">
+        <p className="mt-4 text-sm leading-6 text-zinc-700">
           Select an element on the canvas to edit its properties.
         </p>
       )}

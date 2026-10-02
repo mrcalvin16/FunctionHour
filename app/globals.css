@@ -581,3 +581,22 @@ html.light .functionhour-map-root .fh-map-inverse {
     flex-direction: row;
   }
 }
+
+/* Editor chrome stays light; artwork keeps its own palette. */
+.flyer-studio-workspace button.studio-primary,
+.flyer-studio-workspace button[class*="bg-violet-600"] {
+  color: #fff !important;
+}
+.flyer-template-artwork .text-zinc-950 {
+  color: #fff !important;
+}
+.flyer-template-artwork .text-zinc-700 {
+  color: #e4e4e7 !important;
+}
+.studio-modal-scrim {
+  background-color: rgba(24, 24, 27, 0.55) !important;
+}
+.flyer-studio-workspace :is(button, select, input, textarea):focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 3px;
+}

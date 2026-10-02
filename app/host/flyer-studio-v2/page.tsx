@@ -1350,8 +1350,8 @@ export default function FlyerStudioV2Page() {
   }
 
   return (
-    <main className="min-h-screen bg-[#111019] text-white">
-      <header className="flex min-h-16 flex-col gap-3 border-b border-white/10 bg-[#17151f] px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <main className="flyer-studio-workspace min-h-screen bg-[#f6f5fa] text-zinc-950">
+      <header className="flex min-h-16 flex-col gap-3 border-b border-zinc-200 bg-white px-3 py-3 xl:flex-row xl:items-center xl:justify-between sm:px-5">
         <div className="flex min-w-0 items-center gap-2 sm:gap-4">
           <Link
             href={
@@ -1359,24 +1359,24 @@ export default function FlyerStudioV2Page() {
                 ? `/host/events/${selectedEventId}/flyers`
                 : "/host"
             }
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-bold text-white/70 hover:bg-white/10 hover:text-white"
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-bold text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
           >
             <ChevronLeft size={16} aria-hidden="true" /> Back
           </Link>
-          <span className="hidden h-7 w-px bg-white/15 sm:block" aria-hidden="true" />
+          <span className="hidden h-7 w-px bg-zinc-50 sm:block" aria-hidden="true" />
           <span className="hidden h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-orange-400 text-sm font-black shadow-[0_0_24px_rgba(168,85,247,.25)] sm:flex" aria-hidden="true">FH</span>
           <div className="min-w-0">
-            <p className="text-sm font-black tracking-tight">Flyer Studio <span className="ml-1 rounded bg-white/10 px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-widest text-violet-200">Workspace</span></p>
-            <p className="hidden truncate text-xs text-white/55 sm:block">{selectedEvent?.name || "Untitled flyer"} · {selectedFormat.label}</p>
+            <p className="text-sm font-black tracking-tight">Flyer Studio <span className="ml-1 rounded bg-zinc-50 px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-widest text-violet-700">Design workspace</span></p>
+            <p className="hidden truncate text-xs text-zinc-700 sm:block">{selectedEvent?.name || "Untitled flyer"} · {selectedFormat.label}</p>
           </div>
         </div>
 
-        <div className="flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:pb-0">
+        <div className="flex w-full flex-wrap items-center gap-2 xl:w-auto">
           <button
             type="button"
             onClick={undo}
             disabled={!canUndo}
-            className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-bold hover:bg-white/10 disabled:opacity-30 sm:px-4"
+            className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-bold hover:bg-zinc-50 disabled:opacity-30 sm:px-4"
           >
             Undo
           </button>
@@ -1384,7 +1384,7 @@ export default function FlyerStudioV2Page() {
             type="button"
             onClick={redo}
             disabled={!canRedo}
-            className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-bold hover:bg-white/10 disabled:opacity-30 sm:px-4"
+            className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-bold hover:bg-zinc-50 disabled:opacity-30 sm:px-4"
           >
             Redo
           </button>
@@ -1392,20 +1392,20 @@ export default function FlyerStudioV2Page() {
             type="button"
             onClick={() => void saveCurrentDraft()}
             disabled={!selectedEventId || isSaving}
-            className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-bold hover:bg-white/10 disabled:opacity-30 sm:px-4"
+            className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-bold hover:bg-zinc-50 disabled:opacity-30 sm:px-4"
           >
             {isSaving ? "Saving…" : "Save draft"}
           </button>
           {saveStatus ? (
-            <span className="shrink-0 text-xs font-bold text-white/40">
+            <span className="shrink-0 text-xs font-bold text-zinc-700">
               {saveStatus}
             </span>
           ) : null}
-          {exportStatus && <span role="status" className="shrink-0 text-xs font-bold text-white/70">{exportStatus}</span>}
+          {exportStatus && <span role="status" className="shrink-0 text-xs font-bold text-zinc-700">{exportStatus}</span>}
           <button
             type="button"
             onClick={() => setDesignCheckOpen(true)}
-            className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-black hover:bg-white/10 sm:px-4"
+            className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-black hover:bg-zinc-50 sm:px-4"
           >
             Design Check{designCheckProblems ? ` · ${designCheckProblems}` : " ✓"}
           </button>
@@ -1420,7 +1420,7 @@ export default function FlyerStudioV2Page() {
             type="button"
             onClick={() => void downloadCanvas()}
             disabled={isExporting}
-            className="shrink-0 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-sm font-black shadow-[0_4px_18px_rgba(124,58,237,.3)] hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 sm:px-5"
+            className="shrink-0 rounded-lg studio-primary bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-sm font-black shadow-[0_4px_18px_rgba(124,58,237,.3)] hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 sm:px-5"
           >
             {isExporting ? "Exporting…" : exportReviewAcknowledged && eventDetailIssues.length ? "Export anyway" : "Download PNG"}
           </button>
@@ -1428,7 +1428,7 @@ export default function FlyerStudioV2Page() {
       </header>
 
       {selectedEvent && eventDetailIssues.length > 0 && (
-        <section role="status" className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/30 bg-amber-950/40 px-4 py-3 text-sm text-amber-100">
+        <section role="status" className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/30 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <div>
             <p className="font-black">Review before sharing</p>
             <p className="mt-1">{eventDetailIssues.join(" · ")}. Custom wording is okay; check that guests can find the event.</p>
@@ -1437,50 +1437,41 @@ export default function FlyerStudioV2Page() {
         </section>
       )}
 
-      <div className="flex min-h-12 flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-[#201d2a] px-4 py-2 text-xs">
-        <div className="flex items-center gap-2 text-white/70"><span className="h-2 w-2 rounded-full bg-violet-400" aria-hidden="true" /><span>Creative workspace</span><span className="text-white/30">/</span><span className="font-semibold text-white">{selectedFormat.label}</span><span className="hidden text-white/40 sm:inline">· {elements.length} layers</span></div>
+      <div className="flex min-h-12 flex-wrap items-center justify-between gap-2 border-b border-zinc-200 bg-white px-4 py-2 text-xs">
+        <div className="flex items-center gap-2 text-zinc-700"><span className="h-2 w-2 rounded-full bg-violet-400" aria-hidden="true" /><span>Creative workspace</span><span className="text-zinc-700">/</span><span className="font-semibold text-zinc-950">{selectedFormat.label}</span><span className="hidden text-zinc-700 sm:inline">· {elements.length} layers</span></div>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={() => setToolsOpen((open) => !open)} aria-expanded={toolsOpen} aria-controls="flyer-tool-panel" className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 font-bold text-white/80 hover:bg-white/10 hover:text-white">{toolsOpen ? <PanelLeftClose size={15} aria-hidden="true" /> : <PanelLeftOpen size={15} aria-hidden="true" />}{toolsOpen ? "Hide tools" : "Show tools"}</button>
-          <button type="button" onClick={() => setInspectorOpen((open) => !open)} aria-expanded={inspectorOpen} aria-controls="flyer-inspector" className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 font-bold text-white/80 hover:bg-white/10 hover:text-white">{inspectorOpen ? <PanelRightClose size={15} aria-hidden="true" /> : <PanelRightOpen size={15} aria-hidden="true" />}{inspectorOpen ? "Hide inspector" : "Show inspector"}</button>
+          <button type="button" onClick={() => setToolsOpen((open) => !open)} aria-expanded={toolsOpen} aria-controls="flyer-tool-panel" className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1.5 font-bold text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950">{toolsOpen ? <PanelLeftClose size={15} aria-hidden="true" /> : <PanelLeftOpen size={15} aria-hidden="true" />}{toolsOpen ? "Hide tools" : "Show tools"}</button>
+          <button type="button" onClick={() => setInspectorOpen((open) => !open)} aria-expanded={inspectorOpen} aria-controls="flyer-inspector" className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1.5 font-bold text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950">{inspectorOpen ? <PanelRightClose size={15} aria-hidden="true" /> : <PanelRightOpen size={15} aria-hidden="true" />}{inspectorOpen ? "Hide inspector" : "Show inspector"}</button>
         </div>
       </div>
 
-      <div className={`grid min-h-[calc(100vh-116px)] grid-cols-1 ${toolsOpen ? inspectorOpen ? "lg:grid-cols-[72px_284px_minmax(0,1fr)_284px]" : "lg:grid-cols-[72px_284px_minmax(0,1fr)]" : inspectorOpen ? "lg:grid-cols-[72px_minmax(0,1fr)_284px]" : "lg:grid-cols-[72px_minmax(0,1fr)]"}`}>
-        <nav aria-label="Flyer tools" className="border-b border-white/10 bg-[#17151f] py-2 lg:border-b-0 lg:border-r lg:py-3">
-          <div className="flex gap-1 overflow-x-auto px-2 lg:block lg:space-y-1">
-            {sidebarTools.map((tool) => {
+      <nav aria-label="Flyer tools" className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-zinc-200 bg-white px-4 py-3 sm:px-5">
+        {[
+          { label: "Create", tools: ["templates", "uploads", "elements", "text"] },
+          { label: "Style", tools: ["brand", "background"] },
+          { label: "Arrange", tools: ["layers", "history"] },
+        ].map((group) => (
+          <div key={group.label} className="flex min-w-0 items-center gap-1">
+            <span className="mr-1 hidden text-[10px] font-black uppercase tracking-widest text-zinc-600 sm:block">{group.label}</span>
+            {group.tools.map((id) => {
+              const tool = sidebarTools.find((item) => item.id === id)!;
               const Icon = sidebarIcons[tool.id];
-              return (
-              <button
-                key={tool.id}
-                type="button"
-                onClick={() => { if (activeTool === tool.id && toolsOpen) setToolsOpen(false); else { setActiveTool(tool.id); setToolsOpen(true); } }}
-                aria-label={`${tool.label} tools`}
-                aria-pressed={activeTool === tool.id && toolsOpen}
-                title={tool.label}
-                className={`flex min-w-[66px] shrink-0 flex-col items-center gap-1 rounded-xl px-1 py-2.5 text-[10px] font-bold transition lg:w-full lg:min-w-0 ${
-                  activeTool === tool.id && toolsOpen
-                    ? "bg-violet-600 text-white shadow-[0_4px_16px_rgba(124,58,237,.25)]"
-                    : "text-zinc-300 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
-                {tool.label}
-              </button>
-              );
+              return <button key={id} type="button" onClick={() => { if (activeTool === tool.id && toolsOpen) setToolsOpen(false); else { setActiveTool(tool.id); setToolsOpen(true); } }} aria-pressed={activeTool === tool.id && toolsOpen} className={`inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-bold transition ${activeTool === tool.id && toolsOpen ? "border border-violet-200 bg-violet-100 text-violet-900" : "text-zinc-700 hover:bg-zinc-100"}`}><Icon className="h-4 w-4" aria-hidden="true" />{tool.label}</button>;
             })}
           </div>
-        </nav>
+        ))}
+      </nav>
 
-        {toolsOpen && <aside id="flyer-tool-panel" aria-label={`${sidebarTools.find((tool) => tool.id === activeTool)?.label} tools`} className="max-h-[50vh] overflow-y-auto border-b border-white/10 bg-[#211e2a] p-4 lg:max-h-[calc(100vh-116px)] lg:border-b-0 lg:border-r lg:p-5">
-          <div className="mb-5 flex items-center justify-between gap-2 border-b border-white/10 pb-3">
-            <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">Create & edit</p><h2 className="mt-1 text-lg font-black">{sidebarTools.find((tool) => tool.id === activeTool)?.label}</h2></div>
-            <button type="button" onClick={() => setToolsOpen(false)} aria-label="Collapse tools" title="Collapse tools" className="rounded-lg border border-white/10 p-2 text-white/70 hover:bg-white/10 hover:text-white"><ChevronLeft size={18} aria-hidden="true" /></button>
+      <div className={`grid min-h-[calc(100vh-180px)] grid-cols-1 ${toolsOpen ? inspectorOpen ? "lg:grid-cols-[260px_minmax(0,1fr)_260px]" : "lg:grid-cols-[260px_minmax(0,1fr)]" : inspectorOpen ? "lg:grid-cols-[minmax(0,1fr)_260px]" : "lg:grid-cols-[minmax(0,1fr)]"}`}>
+        {toolsOpen && <aside id="flyer-tool-panel" aria-label={`${sidebarTools.find((tool) => tool.id === activeTool)?.label} tools`} className="max-h-[50vh] overflow-y-auto border-b border-zinc-200 bg-white p-4 lg:max-h-[calc(100vh-180px)] lg:border-b-0 lg:border-r lg:p-5">
+          <div className="mb-5 flex items-center justify-between gap-2 border-b border-zinc-200 pb-3">
+            <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-700">Create & edit</p><h2 className="mt-1 text-lg font-black">{sidebarTools.find((tool) => tool.id === activeTool)?.label}</h2></div>
+            <button type="button" onClick={() => setToolsOpen(false)} aria-label="Collapse tools" title="Collapse tools" className="rounded-lg border border-zinc-200 p-2 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"><ChevronLeft size={18} aria-hidden="true" /></button>
           </div>
           {activeTool === "templates" && (
-            <ToolPanel title="Templates">
-              <p className="mb-4 text-xs leading-5 text-white/45">
-                Start with a layout, then edit text and move elements on the canvas.
+            <ToolPanel title="Choose a starting point">
+              <p className="mb-4 text-xs leading-5 text-zinc-700">
+                Choose a look. Make it yours with text, images, and layers.
               </p>
               <div className="grid grid-cols-2 gap-3">
                 {templates.map((template) => (
@@ -1488,18 +1479,18 @@ export default function FlyerStudioV2Page() {
                     key={template.name}
                     type="button"
                     onClick={() => applyTemplate(template)}
-                    className="overflow-hidden rounded-xl border border-white/10 bg-black/30 text-left hover:border-violet-400/50"
+                    className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 text-left hover:border-violet-400/50"
                   >
-                    <div className="relative aspect-[4/5] overflow-hidden p-3" style={{ background: `radial-gradient(circle at 80% 15%, ${template.accent}88, transparent 34%), linear-gradient(145deg, #09090b, #18181b 60%, ${template.accent}44)` }}>
+                    <div className="flyer-template-artwork relative aspect-[4/5] overflow-hidden p-3" style={{ background: `radial-gradient(circle at 80% 15%, ${template.accent}88, transparent 34%), linear-gradient(145deg, #09090b, #18181b 60%, ${template.accent}44)` }}>
                       <div className="absolute inset-y-0 left-0 w-1.5" style={{ background: template.accent }} />
                       <p className="text-[8px] font-black uppercase tracking-[0.18em]" style={{ color: template.accent }}>{template.category}</p>
-                      <p className="mt-8 max-w-[90%] text-lg font-black uppercase leading-[.9] tracking-[-0.06em] text-white">{template.name}</p>
+                      <p className="mt-8 max-w-[90%] text-lg font-black uppercase leading-[.9] tracking-[-0.06em] text-zinc-950">{template.name}</p>
                       <div className="absolute bottom-3 left-3 right-3">
-                        <div className="mb-2 h-px bg-white/25" />
-                        <p className="text-[7px] font-bold uppercase tracking-widest text-white/60">Function Hour · Get Tickets</p>
+                        <div className="mb-2 h-px bg-zinc-50" />
+                        <p className="text-[7px] font-bold uppercase tracking-widest text-zinc-700">Function Hour · Get Tickets</p>
                       </div>
                     </div>
-                    <p className="p-2 text-[11px] font-bold text-white/60">Use design</p>
+                    <p className="p-3 text-xs font-bold text-zinc-800">Use design</p>
                   </button>
                 ))}
               </div>
@@ -1522,14 +1513,14 @@ export default function FlyerStudioV2Page() {
                 </select>
               </label>
               {selectedEvent && (
-                <button type="button" onClick={syncEventDetails} className="mb-4 w-full rounded-xl border border-violet-400/50 bg-violet-500/15 px-4 py-3 text-left text-sm font-bold text-white hover:bg-violet-500/25">
+                <button type="button" onClick={syncEventDetails} className="mb-4 w-full rounded-xl border border-violet-400/50 bg-violet-500/15 px-4 py-3 text-left text-sm font-bold text-zinc-950 hover:bg-violet-500/25">
                   Use event title, date &amp; venue
                 </button>
               )}
-              <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/5 p-7 text-center hover:border-violet-400/50">
+              <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-7 text-center hover:border-violet-400/50">
                 <span className="text-2xl">↑</span>
                 <span className="mt-2 text-sm font-black">{isUploading ? "Uploading…" : "Upload a background"}</span>
-                <span className="mt-1 text-xs text-white/40">
+                <span className="mt-1 text-xs text-zinc-700">
                   JPG, PNG or WebP
                 </span>
                 <input
@@ -1547,7 +1538,7 @@ export default function FlyerStudioV2Page() {
               </label>
               <label className="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-violet-400/40 bg-violet-500/10 p-5 text-center hover:bg-violet-500/15">
                 <span className="text-sm font-black">Add image as movable layer</span>
-                <span className="mt-1 text-xs text-white/50">PNG, JPG or WebP · move, resize and layer it</span>
+                <span className="mt-1 text-xs text-zinc-700">PNG, JPG or WebP · move, resize and layer it</span>
                 <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(event) => {
                   const file = event.target.files?.[0];
                   if (!file) return;
@@ -1600,15 +1591,15 @@ export default function FlyerStudioV2Page() {
           {activeTool === "text" && (
             <ToolPanel title="Text">
               <div className="space-y-3">
-                <button type="button" onClick={addTicketQr} disabled={!selectedEvent} className="w-full rounded-xl border border-violet-400/40 bg-violet-500/15 p-4 text-left text-sm font-black text-white hover:bg-violet-500/25 disabled:opacity-50">
-                  Add ticket QR <span className="mt-1 block text-xs font-medium text-white/70">Links directly to this event · select an event first</span>
+                <button type="button" onClick={addTicketQr} disabled={!selectedEvent} className="w-full rounded-xl border border-violet-400/40 bg-violet-500/15 p-4 text-left text-sm font-black text-zinc-950 hover:bg-violet-500/25 disabled:opacity-50">
+                  Add ticket QR <span className="mt-1 block text-xs font-medium text-zinc-700">Links directly to this event · select an event first</span>
                 </button>
                 {(["heading", "subheading", "body"] as const).map((kind) => (
                   <button
                     key={kind}
                     type="button"
                     onClick={() => addTextElement(kind)}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:bg-white/10"
+                    className="w-full rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left hover:bg-zinc-50"
                   >
                     <span
                       className={`block font-black ${kind === "heading" ? "text-2xl" : kind === "subheading" ? "text-lg" : "text-sm"}`}
@@ -1623,30 +1614,30 @@ export default function FlyerStudioV2Page() {
 
           {activeTool === "elements" && (
             <ToolPanel title="Elements">
-              <p className="mb-4 text-xs leading-5 text-white/45">Add visual building blocks to your flyer. Manage their order, visibility, and grouping in Layers.</p>
+              <p className="mb-4 text-xs leading-5 text-zinc-700">Add visual building blocks to your flyer. Manage their order, visibility, and grouping in Layers.</p>
               <div className="grid grid-cols-2 gap-3">
-                <button type="button" onClick={() => addShapeElement("rectangle")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Square className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Rectangle</span><span className="mt-1 block text-[10px] text-white/45">Cards, blocks & panels</span></button>
-                <button type="button" onClick={() => addShapeElement("circle")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Circle className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Circle</span><span className="mt-1 block text-[10px] text-white/45">Badges & accents</span></button>
-                <button type="button" onClick={addTicketQr} disabled={!selectedEvent} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10 disabled:opacity-40"><Box className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Ticket QR</span><span className="mt-1 block text-[10px] text-white/45">Link to this event</span></button>
-                <button type="button" onClick={() => setActiveTool("uploads")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><ImageUp className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Image</span><span className="mt-1 block text-[10px] text-white/45">Upload a movable layer</span></button>
-                <button type="button" onClick={addLineElement} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Minus className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Line</span><span className="mt-1 block text-[10px] text-white/45">Dividers & accents</span></button>
-                <button type="button" onClick={() => addFrameElement("rectangle")} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Frame className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Frame</span><span className="mt-1 block text-[10px] text-white/45">Editable border frame</span></button>
-                <button type="button" onClick={addAdjustmentLayer} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left hover:border-violet-400/50 hover:bg-white/10"><Palette className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Adjustment layer</span><span className="mt-1 block text-[10px] text-white/60">Stack color and light effects</span></button>
+                <button type="button" onClick={() => addShapeElement("rectangle")} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left hover:border-violet-400/50 hover:bg-zinc-50"><Square className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Rectangle</span><span className="mt-1 block text-[10px] text-zinc-700">Cards, blocks & panels</span></button>
+                <button type="button" onClick={() => addShapeElement("circle")} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left hover:border-violet-400/50 hover:bg-zinc-50"><Circle className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Circle</span><span className="mt-1 block text-[10px] text-zinc-700">Badges & accents</span></button>
+                <button type="button" onClick={addTicketQr} disabled={!selectedEvent} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left hover:border-violet-400/50 hover:bg-zinc-50 disabled:opacity-40"><Box className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Ticket QR</span><span className="mt-1 block text-[10px] text-zinc-700">Link to this event</span></button>
+                <button type="button" onClick={() => setActiveTool("uploads")} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left hover:border-violet-400/50 hover:bg-zinc-50"><ImageUp className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Image</span><span className="mt-1 block text-[10px] text-zinc-700">Upload a movable layer</span></button>
+                <button type="button" onClick={addLineElement} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left hover:border-violet-400/50 hover:bg-zinc-50"><Minus className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Line</span><span className="mt-1 block text-[10px] text-zinc-700">Dividers & accents</span></button>
+                <button type="button" onClick={() => addFrameElement("rectangle")} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left hover:border-violet-400/50 hover:bg-zinc-50"><Frame className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Frame</span><span className="mt-1 block text-[10px] text-zinc-700">Editable border frame</span></button>
+                <button type="button" onClick={addAdjustmentLayer} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left hover:border-violet-400/50 hover:bg-zinc-50"><Palette className="mb-3 h-6 w-6" /><span className="block text-sm font-black">Adjustment layer</span><span className="mt-1 block text-[10px] text-zinc-700">Stack color and light effects</span></button>
               </div>
-              <div className="mt-5 border-t border-white/10 pt-4"><p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-white/45">Event icons</p><div className="grid grid-cols-4 gap-2">{[
+              <div className="mt-5 border-t border-zinc-200 pt-4"><p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-700">Event icons</p><div className="grid grid-cols-4 gap-2">{[
                   ["music","Music",Music2],["location","Location",MapPin],["ticket","Ticket",Ticket],["calendar","Date",CalendarDays],["party","Party",PartyPopper],["sparkle","Sparkle",Sparkles],["star","Star",Star],
-                ].map(([key,label,Icon]) => { const IconComponent = Icon as typeof Star; return <button key={String(key)} type="button" title={String(label)} onClick={() => addIconElement(String(key), String(label))} className="flex aspect-square items-center justify-center rounded-xl border border-white/10 bg-white/5 hover:border-violet-400/50 hover:bg-white/10"><IconComponent className="h-5 w-5" /></button>; })}</div></div>
-              <div className="mt-5 border-t border-white/10 pt-4"><p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-white/45">Stickers</p><div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => addStickerElement("VIP", "badge")} className="rounded-xl bg-violet-600 px-3 py-3 text-xs font-black">VIP</button><button type="button" onClick={() => addStickerElement("SOLD OUT", "burst")} className="rounded-xl bg-white/10 px-3 py-3 text-xs font-black">SOLD OUT</button><button type="button" onClick={() => addStickerElement("FREE", "pill")} className="rounded-xl bg-white/10 px-3 py-3 text-xs font-black">FREE</button><button type="button" onClick={() => addStickerElement("21+", "badge")} className="rounded-xl bg-white/10 px-3 py-3 text-xs font-black">21+</button></div></div>
+                ].map(([key,label,Icon]) => { const IconComponent = Icon as typeof Star; return <button key={String(key)} type="button" title={String(label)} onClick={() => addIconElement(String(key), String(label))} className="flex aspect-square items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 hover:border-violet-400/50 hover:bg-zinc-50"><IconComponent className="h-5 w-5" /></button>; })}</div></div>
+              <div className="mt-5 border-t border-zinc-200 pt-4"><p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-700">Stickers</p><div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => addStickerElement("VIP", "badge")} className="rounded-xl bg-violet-600 px-3 py-3 text-xs font-black">VIP</button><button type="button" onClick={() => addStickerElement("SOLD OUT", "burst")} className="rounded-xl bg-zinc-50 px-3 py-3 text-xs font-black">SOLD OUT</button><button type="button" onClick={() => addStickerElement("FREE", "pill")} className="rounded-xl bg-zinc-50 px-3 py-3 text-xs font-black">FREE</button><button type="button" onClick={() => addStickerElement("21+", "badge")} className="rounded-xl bg-zinc-50 px-3 py-3 text-xs font-black">21+</button></div></div>
             </ToolPanel>
           )}
 
           {activeTool === "layers" && (
             <ToolPanel title="Layers">
-              <div className="mb-3 rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="mb-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
                 <p className="text-xs font-black">{selectedElementIds.length} selected</p>
-                <p className="mt-1 text-[10px] text-white/45">Shift-click layers or canvas objects to select multiple.</p>
-                <div className="mt-3 grid grid-cols-2 gap-2"><button type="button" disabled={selectedElementIds.length < 2} onClick={groupSelected} className="rounded-lg bg-violet-600 px-2 py-2 text-[10px] font-black disabled:opacity-30">Group</button><button type="button" onClick={ungroupSelected} className="rounded-lg border border-white/10 px-2 py-2 text-[10px] font-black">Ungroup</button></div>
-                <div className="mt-2 grid grid-cols-3 gap-1">{(["left","center","right","top","middle","bottom"] as const).map((alignment) => <button key={alignment} type="button" disabled={selectedElementIds.length < 2} onClick={() => alignSelected(alignment)} className="rounded bg-white/5 px-1 py-1 text-[9px] font-bold capitalize text-white/60 disabled:opacity-30">{alignment}</button>)}</div>
+                <p className="mt-1 text-[10px] text-zinc-700">Shift-click layers or canvas objects to select multiple.</p>
+                <div className="mt-3 grid grid-cols-2 gap-2"><button type="button" disabled={selectedElementIds.length < 2} onClick={groupSelected} className="rounded-lg bg-violet-600 px-2 py-2 text-[10px] font-black disabled:opacity-30">Group</button><button type="button" onClick={ungroupSelected} className="rounded-lg border border-zinc-200 px-2 py-2 text-[10px] font-black">Ungroup</button></div>
+                <div className="mt-2 grid grid-cols-3 gap-1">{(["left","center","right","top","middle","bottom"] as const).map((alignment) => <button key={alignment} type="button" disabled={selectedElementIds.length < 2} onClick={() => alignSelected(alignment)} className="rounded bg-zinc-50 px-1 py-1 text-[9px] font-bold capitalize text-zinc-700 disabled:opacity-30">{alignment}</button>)}</div>
               </div>
               <div className="space-y-2">
                 {[...elements].reverse().map((element, visualIndex) => {
@@ -1664,11 +1655,11 @@ export default function FlyerStudioV2Page() {
                         if (draggedId && draggedId !== element.id) moveLayerTo(draggedId, actualIndex);
                       }}
                       onClick={(event) => toggleElementSelection(element.id, event.shiftKey)}
-                      className={`rounded-xl border p-3 ${selectedElementIds.includes(element.id) ? "border-violet-400 bg-violet-500/15" : "border-white/10 bg-white/5"}`}
+                      className={`rounded-xl border p-3 ${selectedElementIds.includes(element.id) ? "border-violet-400 bg-violet-500/15" : "border-zinc-200 bg-zinc-50"}`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="cursor-grab text-white/35" title="Drag to reorder">⋮⋮</span>
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/10 text-[10px] font-black text-white/70">{icon}</span>
+                        <span className="cursor-grab text-zinc-700" title="Drag to reorder">⋮⋮</span>
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-zinc-50 text-[10px] font-black text-zinc-700">{icon}</span>
                         <input
                           aria-label={`Rename ${element.name}`}
                           defaultValue={element.name}
@@ -1677,14 +1668,14 @@ export default function FlyerStudioV2Page() {
                           onKeyDown={(event) => {
                             if (event.key === "Enter") event.currentTarget.blur();
                           }}
-                          className="min-w-0 flex-1 bg-transparent text-sm font-bold text-white outline-none focus:border-b focus:border-violet-400"
+                          className="min-w-0 flex-1 bg-transparent text-sm font-bold text-zinc-950 outline-none focus:border-b focus:border-violet-400"
                         />
                       </div>
                       <div className="mt-2 grid grid-cols-4 gap-1">
-                        <button type="button" onClick={(event) => { event.stopPropagation(); moveLayerEdge(element.id, "front"); }} className="rounded bg-white/5 px-1 py-1 text-[10px] font-bold text-white/50 hover:bg-white/10">Front</button>
-                        <button type="button" onClick={(event) => { event.stopPropagation(); moveLayerEdge(element.id, "back"); }} className="rounded bg-white/5 px-1 py-1 text-[10px] font-bold text-white/50 hover:bg-white/10">Back</button>
-                        <button type="button" onClick={(event) => { event.stopPropagation(); updateElement(element.id, { hidden: !element.hidden }); }} className="rounded bg-white/5 px-1 py-1 text-[10px] font-bold text-white/50 hover:bg-white/10">{element.hidden ? "Show" : "Hide"}</button>
-                        <button type="button" onClick={(event) => { event.stopPropagation(); updateElement(element.id, { locked: !element.locked }); }} className="rounded bg-white/5 px-1 py-1 text-[10px] font-bold text-white/50 hover:bg-white/10">{element.locked ? "Unlock" : "Lock"}</button>
+                        <button type="button" onClick={(event) => { event.stopPropagation(); moveLayerEdge(element.id, "front"); }} className="rounded bg-zinc-50 px-1 py-1 text-[10px] font-bold text-zinc-700 hover:bg-zinc-50">Front</button>
+                        <button type="button" onClick={(event) => { event.stopPropagation(); moveLayerEdge(element.id, "back"); }} className="rounded bg-zinc-50 px-1 py-1 text-[10px] font-bold text-zinc-700 hover:bg-zinc-50">Back</button>
+                        <button type="button" onClick={(event) => { event.stopPropagation(); updateElement(element.id, { hidden: !element.hidden }); }} className="rounded bg-zinc-50 px-1 py-1 text-[10px] font-bold text-zinc-700 hover:bg-zinc-50">{element.hidden ? "Show" : "Hide"}</button>
+                        <button type="button" onClick={(event) => { event.stopPropagation(); updateElement(element.id, { locked: !element.locked }); }} className="rounded bg-zinc-50 px-1 py-1 text-[10px] font-bold text-zinc-700 hover:bg-zinc-50">{element.locked ? "Unlock" : "Lock"}</button>
                       </div>
                     </div>
                   );
@@ -1695,32 +1686,32 @@ export default function FlyerStudioV2Page() {
 
           {activeTool === "history" && (
             <ToolPanel title="History">
-              <p className="mb-3 text-xs leading-5 text-white/70">Step back through edits. Select a snapshot to restore it; new edits then begin from that point.</p>
+              <p className="mb-3 text-xs leading-5 text-zinc-700">Step back through edits. Select a snapshot to restore it; new edits then begin from that point.</p>
               <div className="mb-3 grid grid-cols-2 gap-2">
-                <button type="button" onClick={undo} disabled={!canUndo} className="rounded-lg border border-white/20 px-3 py-2 text-xs font-bold disabled:opacity-40">Undo</button>
-                <button type="button" onClick={redo} disabled={!canRedo} className="rounded-lg border border-white/20 px-3 py-2 text-xs font-bold disabled:opacity-40">Redo</button>
+                <button type="button" onClick={undo} disabled={!canUndo} className="rounded-lg border border-zinc-200 px-3 py-2 text-xs font-bold disabled:opacity-40">Undo</button>
+                <button type="button" onClick={redo} disabled={!canRedo} className="rounded-lg border border-zinc-200 px-3 py-2 text-xs font-bold disabled:opacity-40">Redo</button>
               </div>
               <div className="max-h-72 space-y-1 overflow-auto" data-history-version={historyVersion}>
-                {historySteps.map((step) => <button key={step.index} type="button" aria-current={step.current ? "step" : undefined} onClick={() => jumpToHistory(step.index)} className={`block w-full rounded-lg border p-2 text-left text-xs font-medium hover:border-violet-400 ${step.current ? "border-violet-400 bg-violet-500/20 text-white" : "border-white/10 bg-white/5 text-white/80"}`}>{step.current ? "Current" : `Step ${step.index + 1}`} · {step.layerCount} layers</button>)}
+                {historySteps.map((step) => <button key={step.index} type="button" aria-current={step.current ? "step" : undefined} onClick={() => jumpToHistory(step.index)} className={`block w-full rounded-lg border p-2 text-left text-xs font-medium hover:border-violet-400 ${step.current ? "border-violet-400 bg-violet-500/20 text-zinc-950" : "border-zinc-200 bg-zinc-50 text-zinc-700"}`}>{step.current ? "Current" : `Step ${step.index + 1}`} · {step.layerCount} layers</button>)}
               </div>
             </ToolPanel>
           )}
 
           {activeTool === "brand" && (
             <ToolPanel title="Brand Kit">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="rounded-2xl border border-zinc-200 bg-white/[0.04] p-4">
                 <p className="text-sm font-black">Organizer Brand Kit</p>
-                <p className="mt-1 text-xs leading-5 text-white/45">Save your logo, colors, and preferred font once, then reuse them across event flyers.</p>
-                {brandKit?.logoUrl ? <img src={brandKit.logoUrl} alt="Organizer logo" className="mt-4 h-16 w-full rounded-xl bg-white/5 object-contain p-2" /> : null}
-                <label className="mt-4 flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/5 p-3 text-xs font-black hover:border-violet-400/50">Upload logo<input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadBrandLogo(file).catch(() => setBrandSaveStatus("Logo upload failed.")); event.target.value = ""; }} /></label>
-                <div className="mt-4 grid grid-cols-2 gap-3"><label className="text-xs font-bold text-white/60">Primary<input type="color" value={brandColor} onChange={(event) => setBrandColor(event.target.value)} className="mt-2 block h-10 w-full" /></label><label className="text-xs font-bold text-white/60">Secondary<input type="color" value={brandSecondaryColor} onChange={(event) => setBrandSecondaryColor(event.target.value)} className="mt-2 block h-10 w-full" /></label></div>
-                <label className="mt-4 block text-xs font-bold text-white/60">Preferred font<select value={brandFontFamily} onChange={(event) => setBrandFontFamily(event.target.value)} className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-2 text-white"><option value="Arial, Helvetica, sans-serif">Modern Sans</option><option value="'Avenir Next', Avenir, Arial, sans-serif">Avenir</option><option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica</option><option value="Futura, 'Trebuchet MS', sans-serif">Futura</option><option value="Georgia, 'Times New Roman', serif">Editorial Serif</option><option value="Impact, 'Arial Narrow', sans-serif">Bold Display</option></select></label>
-                <div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => void saveOrganizerBrandKit()} className="rounded-xl bg-violet-600 px-3 py-3 text-xs font-black hover:bg-violet-500">Save Brand Kit</button><button type="button" onClick={applyOrganizerBrandKit} className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-xs font-black hover:bg-white/10">Apply to Flyer</button></div>
-                {brandSaveStatus ? <p className="mt-3 text-xs font-bold text-white/50">{brandSaveStatus}</p> : null}
+                <p className="mt-1 text-xs leading-5 text-zinc-700">Save your logo, colors, and preferred font once, then reuse them across event flyers.</p>
+                {brandKit?.logoUrl ? <img src={brandKit.logoUrl} alt="Organizer logo" className="mt-4 h-16 w-full rounded-xl bg-zinc-50 object-contain p-2" /> : null}
+                <label className="mt-4 flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-3 text-xs font-black hover:border-violet-400/50">Upload logo<input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadBrandLogo(file).catch(() => setBrandSaveStatus("Logo upload failed.")); event.target.value = ""; }} /></label>
+                <div className="mt-4 grid grid-cols-2 gap-3"><label className="text-xs font-bold text-zinc-700">Primary<input type="color" value={brandColor} onChange={(event) => setBrandColor(event.target.value)} className="mt-2 block h-10 w-full" /></label><label className="text-xs font-bold text-zinc-700">Secondary<input type="color" value={brandSecondaryColor} onChange={(event) => setBrandSecondaryColor(event.target.value)} className="mt-2 block h-10 w-full" /></label></div>
+                <label className="mt-4 block text-xs font-bold text-zinc-700">Preferred font<select value={brandFontFamily} onChange={(event) => setBrandFontFamily(event.target.value)} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"><option value="Arial, Helvetica, sans-serif">Modern Sans</option><option value="'Avenir Next', Avenir, Arial, sans-serif">Avenir</option><option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica</option><option value="Futura, 'Trebuchet MS', sans-serif">Futura</option><option value="Georgia, 'Times New Roman', serif">Editorial Serif</option><option value="Impact, 'Arial Narrow', sans-serif">Bold Display</option></select></label>
+                <div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => void saveOrganizerBrandKit()} className="rounded-xl bg-violet-600 px-3 py-3 text-xs font-black hover:bg-violet-500">Save Brand Kit</button><button type="button" onClick={applyOrganizerBrandKit} className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-3 text-xs font-black hover:bg-zinc-50">Apply to Flyer</button></div>
+                {brandSaveStatus ? <p className="mt-3 text-xs font-bold text-zinc-700">{brandSaveStatus}</p> : null}
               </div>
-              <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="mt-4 rounded-2xl border border-zinc-200 bg-white/[0.04] p-4">
                 <p className="text-sm font-black">Quick accent</p>
-                <p className="mt-1 text-xs leading-5 text-white/45">
+                <p className="mt-1 text-xs leading-5 text-zinc-700">
                   Choose an accent. It updates the kicker and ticket button on your flyer.
                 </p>
                 <div className="mt-4 grid grid-cols-4 gap-2">
@@ -1737,7 +1728,7 @@ export default function FlyerStudioV2Page() {
                       aria-label={swatch.name + " brand accent"}
                       aria-pressed={brandColor === swatch.value}
                       title={swatch.name}
-                      className={"h-10 rounded-xl border-2 transition hover:scale-105 " + (brandColor === swatch.value ? "border-white ring-2 ring-violet-400" : "border-white/10")}
+                      className={"h-10 rounded-xl border-2 transition hover:scale-105 " + (brandColor === swatch.value ? "border-white ring-2 ring-violet-400" : "border-zinc-200")}
                       style={{ backgroundColor: swatch.value }}
                     />
                   ))}
@@ -1748,7 +1739,7 @@ export default function FlyerStudioV2Page() {
 
           {activeTool === "background" && (
             <ToolPanel title="Background">
-              <p className="mb-3 text-xs leading-5 text-white/45">
+              <p className="mb-3 text-xs leading-5 text-zinc-700">
                 Pick a gradient, then adjust its overlay strength.
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -1758,13 +1749,13 @@ export default function FlyerStudioV2Page() {
                     type="button"
                     onClick={() => setBackgroundPreset(preset.id)}
                     aria-pressed={backgroundPreset === preset.id}
-                    className={"overflow-hidden rounded-xl border text-left transition " + (backgroundPreset === preset.id ? "border-violet-400 ring-2 ring-violet-500/40" : "border-white/10 hover:border-white/30")}
+                    className={"overflow-hidden rounded-xl border text-left transition " + (backgroundPreset === preset.id ? "border-violet-400 ring-2 ring-violet-500/40" : "border-zinc-200 hover:border-zinc-200")}
                   >
                     <span
                       className="block h-14"
                       style={{ backgroundImage: preset.backgroundImage }}
                     />
-                    <span className="block bg-black/40 px-2 py-2 text-[11px] font-bold">
+                    <span className="block bg-zinc-100 px-2 py-2 text-[11px] font-bold">
                       {preset.label}
                     </span>
                   </button>
@@ -1774,13 +1765,13 @@ export default function FlyerStudioV2Page() {
                 <button
                   type="button"
                   onClick={() => { setImagePreview(""); setImageStorageId(null); }}
-                  className="mt-3 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-white/70 hover:bg-white/10"
+                  className="mt-3 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-zinc-50"
                 >
                   Remove image and use gradient
                 </button>
               ) : null}
 
-              <label className="mt-5 block text-xs font-bold text-white/50">
+              <label className="mt-5 block text-xs font-bold text-zinc-700">
                 Overlay strength
               </label>
               <input
@@ -1829,8 +1820,8 @@ export default function FlyerStudioV2Page() {
           onFinishInlineEditing={finishInlineEditing}
           updateElement={updateElement}
         />
-        {inspectorOpen && <div id="flyer-inspector" className="min-w-0 border-t border-white/10 bg-[#1b1923] lg:max-h-[calc(100vh-116px)] lg:overflow-y-auto lg:border-l lg:border-t-0">
-          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#25212f] px-4 py-3"><div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">Inspector</p><p className="mt-0.5 truncate text-sm font-bold">{selectedElement?.name || "Nothing selected"}</p></div><button type="button" onClick={() => setInspectorOpen(false)} aria-label="Collapse inspector" title="Collapse inspector" className="rounded-lg border border-white/10 p-2 text-white/70 hover:bg-white/10 hover:text-white"><ChevronRight size={18} aria-hidden="true" /></button></div>
+        {inspectorOpen && <div id="flyer-inspector" className="min-w-0 border-t border-zinc-200 bg-white lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto lg:border-l lg:border-t-0">
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3"><div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-700">Inspector</p><p className="mt-0.5 truncate text-sm font-bold">{selectedElement?.name || "Nothing selected"}</p></div><button type="button" onClick={() => setInspectorOpen(false)} aria-label="Collapse inspector" title="Collapse inspector" className="rounded-lg border border-zinc-200 p-2 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"><ChevronRight size={18} aria-hidden="true" /></button></div>
           <PropertiesPanel
           selectedElement={selectedElement}
           updateElement={updateElement}
@@ -1845,36 +1836,36 @@ export default function FlyerStudioV2Page() {
       </div>
 
       {designCheckOpen && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/75 p-4" onClick={() => setDesignCheckOpen(false)}>
-          <section className="w-full max-w-xl rounded-2xl border border-white/10 bg-[#181818] p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-            <div className="flex items-start justify-between gap-4"><div><p className="text-lg font-black">Design Check</p><p className="mt-1 text-sm text-white/55">{designCheckProblems ? `${designCheckProblems} item${designCheckProblems === 1 ? "" : "s"} to review before sharing.` : "Your flyer passes the current design checks."}</p></div><button type="button" onClick={() => setDesignCheckOpen(false)} className="rounded-lg border border-white/10 px-3 py-2 text-sm font-black text-white/60">Close</button></div>
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center studio-modal-scrim p-4" onClick={() => setDesignCheckOpen(false)}>
+          <section className="w-full max-w-xl rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4"><div><p className="text-lg font-black">Design Check</p><p className="mt-1 text-sm text-zinc-700">{designCheckProblems ? `${designCheckProblems} item${designCheckProblems === 1 ? "" : "s"} to review before sharing.` : "Your flyer passes the current design checks."}</p></div><button type="button" onClick={() => setDesignCheckOpen(false)} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-black text-zinc-700">Close</button></div>
             <div className="mt-5 space-y-2">
               {designChecks.map((check, index) => <div key={index} className={`flex items-start gap-3 rounded-xl border p-3 ${check.level === "error" ? "border-red-500/30 bg-red-500/10" : check.level === "warning" ? "border-amber-500/30 bg-amber-500/10" : "border-emerald-500/20 bg-emerald-500/5"}`}><span className="mt-0.5 text-sm font-black">{check.level === "error" ? "!" : check.level === "warning" ? "△" : "✓"}</span><span className="text-sm font-bold">{check.label}</span></div>)}
             </div>
-            <p className="mt-4 text-xs leading-5 text-white/40">Design Check is guidance, not a publishing block. Review warnings in context; intentional creative choices can still be exported.</p>
+            <p className="mt-4 text-xs leading-5 text-zinc-700">Design Check is guidance, not a publishing block. Review warnings in context; intentional creative choices can still be exported.</p>
           </section>
         </div>
       )}
 
       {socialPackOpen && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/75 p-4" onClick={() => setSocialPackOpen(false)}>
-          <section className="w-full max-w-2xl rounded-2xl border border-white/10 bg-[#181818] p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center studio-modal-scrim p-4" onClick={() => setSocialPackOpen(false)}>
+          <section className="w-full max-w-2xl rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-lg font-black">Create Social Pack</p>
-                <p className="mt-1 text-sm text-white/55">Turn this flyer into a platform-ready version. Function Hour fits the layout; you can fine-tune each version before downloading.</p>
+                <p className="mt-1 text-sm text-zinc-700">Turn this flyer into a platform-ready version. Function Hour fits the layout; you can fine-tune each version before downloading.</p>
               </div>
-              <button type="button" onClick={() => setSocialPackOpen(false)} className="rounded-lg border border-white/10 px-3 py-2 text-sm font-black text-white/60">Close</button>
+              <button type="button" onClick={() => setSocialPackOpen(false)} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-black text-zinc-700">Close</button>
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {socialPackFormats.map((item) => (
-                <button key={item.id} type="button" onClick={() => createSocialVersion(item.id)} className="rounded-xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-violet-400/60 hover:bg-violet-500/10">
+                <button key={item.id} type="button" onClick={() => createSocialVersion(item.id)} className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-left transition hover:border-violet-400/60 hover:bg-violet-500/10">
                   <span className="block text-sm font-black">{item.label}</span>
-                  <span className="mt-1 block text-xs text-white/45">{CANVAS_WIDTH * 3} × {item.height * 3} export</span>
+                  <span className="mt-1 block text-xs text-zinc-700">{CANVAS_WIDTH * 3} × {item.height * 3} export</span>
                 </button>
               ))}
             </div>
-            <p className="mt-4 text-xs leading-5 text-white/40">Tip: download each version after reviewing it. Switching formats uses the editor history, so Undo restores your prior layout.</p>
+            <p className="mt-4 text-xs leading-5 text-zinc-700">Tip: download each version after reviewing it. Switching formats uses the editor history, so Undo restores your prior layout.</p>
           </section>
         </div>
       )}

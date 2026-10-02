@@ -9,7 +9,7 @@ export default function ToolPanel({
 }) {
   return (
     <section>
-      <p className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+      <p className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-violet-700">
         {title}
       </p>
       {children}
