@@ -1349,6 +1349,33 @@ export default function FlyerStudioV2Page() {
     setSelectedElementId("");
   }
 
+  const publishingActions = (
+    <>
+          <button
+            type="button"
+            onClick={() => setDesignCheckOpen(true)}
+            className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-black hover:bg-zinc-50"
+          >
+            Design Check{designCheckProblems ? ` · ${designCheckProblems}` : " ✓"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setSocialPackOpen(true)}
+            className="w-full rounded-xl border border-violet-400/40 bg-violet-500/15 px-3 py-2 text-sm font-black hover:bg-violet-500/25"
+          >
+            Create Social Pack
+          </button>
+          <button
+            type="button"
+            onClick={() => void downloadCanvas()}
+            disabled={isExporting}
+            className="w-full rounded-xl studio-primary bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-sm font-black shadow-[0_4px_18px_rgba(124,58,237,.3)] hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50"
+          >
+            {isExporting ? "Exporting…" : exportReviewAcknowledged && eventDetailIssues.length ? "Export anyway" : "Download PNG"}
+          </button>
+    </>
+  );
+
   return (
     <main className="flyer-studio-workspace min-h-screen bg-[#f6f5fa] text-zinc-950">
       <header className="flex min-h-16 flex-col gap-3 border-b border-zinc-200 bg-white px-3 py-3 xl:flex-row xl:items-center xl:justify-between sm:px-5">
@@ -1402,28 +1429,7 @@ export default function FlyerStudioV2Page() {
             </span>
           ) : null}
           {exportStatus && <span role="status" className="shrink-0 text-xs font-bold text-zinc-700">{exportStatus}</span>}
-          <button
-            type="button"
-            onClick={() => setDesignCheckOpen(true)}
-            className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-black hover:bg-zinc-50 sm:px-4"
-          >
-            Design Check{designCheckProblems ? ` · ${designCheckProblems}` : " ✓"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setSocialPackOpen(true)}
-            className="shrink-0 rounded-lg border border-violet-400/40 bg-violet-500/15 px-3 py-2 text-sm font-black hover:bg-violet-500/25 sm:px-4"
-          >
-            Create Social Pack
-          </button>
-          <button
-            type="button"
-            onClick={() => void downloadCanvas()}
-            disabled={isExporting}
-            className="shrink-0 rounded-lg studio-primary bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-sm font-black shadow-[0_4px_18px_rgba(124,58,237,.3)] hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 sm:px-5"
-          >
-            {isExporting ? "Exporting…" : exportReviewAcknowledged && eventDetailIssues.length ? "Export anyway" : "Download PNG"}
-          </button>
+          {!toolsOpen && <div className="grid w-full gap-2 sm:w-auto sm:grid-cols-3">{publishingActions}</div>}
         </div>
       </header>
 
@@ -1463,7 +1469,8 @@ export default function FlyerStudioV2Page() {
       </nav>
 
       <div className={`grid min-h-[calc(100vh-180px)] grid-cols-1 ${toolsOpen ? inspectorOpen ? "lg:grid-cols-[260px_minmax(0,1fr)_260px]" : "lg:grid-cols-[260px_minmax(0,1fr)]" : inspectorOpen ? "lg:grid-cols-[minmax(0,1fr)_260px]" : "lg:grid-cols-[minmax(0,1fr)]"}`}>
-        {toolsOpen && <aside id="flyer-tool-panel" aria-label={`${sidebarTools.find((tool) => tool.id === activeTool)?.label} tools`} className="max-h-[50vh] overflow-y-auto border-b border-zinc-200 bg-white p-4 lg:max-h-[calc(100vh-180px)] lg:border-b-0 lg:border-r lg:p-5">
+        {toolsOpen && <aside id="flyer-tool-panel" aria-label={`${sidebarTools.find((tool) => tool.id === activeTool)?.label} tools`} className="flex min-h-0 flex-col border-b border-zinc-200 bg-white lg:max-h-[calc(100vh-180px)] lg:border-b-0 lg:border-r">
+          <div className="max-h-[50vh] min-h-0 flex-1 overflow-y-auto p-4 lg:max-h-none lg:p-5">
           <div className="mb-5 flex items-center justify-between gap-2 border-b border-zinc-200 pb-3">
             <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-700">Create & edit</p><h2 className="mt-1 text-lg font-black">{sidebarTools.find((tool) => tool.id === activeTool)?.label}</h2></div>
             <button type="button" onClick={() => setToolsOpen(false)} aria-label="Collapse tools" title="Collapse tools" className="rounded-lg border border-zinc-200 p-2 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"><ChevronLeft size={18} aria-hidden="true" /></button>
@@ -1786,6 +1793,11 @@ export default function FlyerStudioV2Page() {
               />
             </ToolPanel>
           )}
+          </div>
+          <section aria-label="Review and export flyer" className="shrink-0 space-y-2 border-t border-zinc-200 bg-zinc-50 p-4 lg:p-5">
+            <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Review & export</p>
+            {publishingActions}
+          </section>
         </aside>}
 
         <CanvasStage
