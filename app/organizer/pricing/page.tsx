@@ -66,7 +66,7 @@ const faqs = [
   {
     question: "How do organizer payouts work?",
     answer:
-      "Buyers can purchase tickets while charges settle in Function Hour’s Stripe account. After connecting and verifying a Stripe payout account, organizers can request their eligible ticket proceeds from the Payouts page. Function Hour Operations reviews requests for refunds and disputes before transfer. Stripe controls when funds reach the bank. Organizers are responsible for their own taxes.",
+      "Buyers can purchase tickets while charges settle in Function Hour’s Stripe account. After connecting and verifying a Stripe payout account, organizers can request eligible ticket proceeds from the Payouts page. A request shows as awaiting review while Function Hour Operations checks available funds, refunds, and disputes. We do not currently promise a fixed review or transfer date. Once approved, funds transfer to the organizer’s connected Stripe account; Stripe determines the bank payout date. Contact operations@functionhour.com about a pending request. Organizers are responsible for their own taxes.",
   },
 ];
 
@@ -201,6 +201,7 @@ export default function OrganizerPricingPage() {
             <p className="mt-2 text-sm leading-6 text-zinc-500">
               Paid checkout runs through Function Hour’s Stripe account, so organizer payout setup does not block ticket sales. Function Hour tracks eligible organizer proceeds in its ledger. After the organizer requests a transfer, Operations reviews refunds and disputes before funds move to the connected Stripe account. Organizers are responsible for their own taxes.
             </p>
+            <p className="mt-3 text-sm leading-6 text-zinc-700">Your Payouts page shows the amount available to request and whether a request is awaiting review. Review and transfer timing can vary with Stripe fund availability, refunds, and disputes; no fixed payout date is promised. For a request that needs attention, email <a className="font-bold underline" href="mailto:operations@functionhour.com">operations@functionhour.com</a>.</p>
             <Link href="/host/payouts" className="mt-4 inline-flex items-center gap-2 text-xs font-black text-orange-700 hover:text-zinc-950">
               Connect Stripe to request payouts <ArrowRight className="h-3.5 w-3.5" />
             </Link>

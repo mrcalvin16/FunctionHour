@@ -1,6 +1,9 @@
 "use client";
 
+import { matchesCollection, type DiscoveryEvent } from "../eventPresentation";
+
 type DiscoveryCollectionsProps = {
+  events: DiscoveryEvent[];
   activeCollection: string;
   onSelect: (value: string) => void;
 };
@@ -41,9 +44,12 @@ const collections: Collection[] = [
 ];
 
 export default function DiscoveryCollections({
+  events,
   activeCollection,
   onSelect,
 }: DiscoveryCollectionsProps) {
+  const available = collections.filter((collection) => events.some((event) => matchesCollection(event, collection.key)));
+  if (!available.length) return null;
   return (
     <section className="mx-auto max-w-[1240px] px-5 pb-10 sm:px-7 lg:px-8">
       <div className="mb-5">
@@ -57,7 +63,8 @@ export default function DiscoveryCollections({
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        {collections.map((collection) => {
+        {available.map((collection) => {
+          const count = events.filter((event) => matchesCollection(event, collection.key)).length;
           const isActive = activeCollection === collection.key;
 
           return (
@@ -92,9 +99,7 @@ export default function DiscoveryCollections({
                 </p>
 
                 <p className="mt-6 text-sm font-black text-zinc-950">
-                  {isActive
-                    ? "Collection selected ✓"
-                    : "Explore collection →"}
+                  {isActive ? "Collection selected ✓" : `Explore ${count} event${count === 1 ? "" : "s"} →`}
                 </p>
               </div>
             </button>

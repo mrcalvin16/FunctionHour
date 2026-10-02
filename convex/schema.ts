@@ -783,6 +783,22 @@ eventInteractions: defineTable({
     .index("by_organizer", ["organizerUserId"])
     .index("by_user_organizer", ["userId", "organizerUserId"]),
 
+  followedCities: defineTable({
+    userId: v.string(),
+    city: v.string(),
+    state: v.string(),
+    cityKey: v.string(),
+    createdAt: v.float64(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_cityKey", ["userId", "cityKey"]),
+
+  discoveryAlertSettings: defineTable({
+    userId: v.string(),
+    enabled: v.boolean(),
+    lastSeenAt: v.float64(),
+  }).index("by_user", ["userId"]),
+
 
   budgetItems: defineTable({
     eventId: v.id("events"),

@@ -15,9 +15,11 @@ import { discoveryScore, getEventCategory, isEventUpcoming, isThisWeekend, isTon
 function matches(event: DiscoveryEvent, search: string, category: string, city: string) {
   const searchable = [event.name, event.description, getEventCategory(event), event.location, event.venueName, event.venueAddress, event.city, event.state, event.dateString]
     .filter(Boolean).join(" ").toLowerCase();
+  const normalize = (value: string) => value.toLowerCase().replace(/[,.]/g, " ").replace(/\s+/g, " ").trim();
+  const cityText = normalize([event.city, event.state, event.location, event.venueName, event.venueAddress].filter(Boolean).join(" "));
   return (!search.trim() || searchable.includes(search.trim().toLowerCase())) &&
-    (category === "All" || searchable.includes(category.toLowerCase())) &&
-    (city === "All Cities" || searchable.includes(city.toLowerCase()));
+    (category === "All" || getEventCategory(event).toLowerCase() === category.toLowerCase()) &&
+    (city === "All Cities" || cityText.includes(normalize(city)));
 }
 
 export default function HomePage() {

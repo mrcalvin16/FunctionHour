@@ -115,12 +115,12 @@ export default function PayoutsWorkspace() {
           <div className="mt-5 rounded-2xl border border-white/[0.08] bg-black/20 p-4 text-sm">
             <p className="font-bold">Eligible funds</p>
             <p className="mt-1 text-2xl font-black">{requestStatus ? currency(requestStatus.requestableAmount) : "—"}</p>
-            {requestStatus?.pendingRequest ? <p className="mt-1 text-xs text-orange-300">A {currency(requestStatus.pendingRequest.amount)} request is awaiting Operations review.</p> : <p className="mt-1 text-xs text-zinc-300">Requests are limited to recorded net ticket sales and currently available Stripe funds.</p>}
+            {requestStatus?.pendingRequest ? <p className="mt-1 text-xs text-orange-300">Your {currency(requestStatus.pendingRequest.amount)} request from {new Date(requestStatus.pendingRequest.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} is awaiting Operations review.</p> : <p className="mt-1 text-xs text-zinc-300">Requests are limited to recorded net ticket sales and currently available Stripe funds.</p>}
             <button type="button" onClick={() => void requestFunds()} disabled={busy || status !== "active" || Boolean(requestStatus?.pendingRequest) || !(requestStatus?.requestableAmount ?? 0)} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 text-xs font-black text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-40">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
               {requestStatus?.pendingRequest ? "Request under review" : "Request available funds"}
             </button>
-            <p className="mt-2 text-[10px] leading-4 text-zinc-300">Operations reviews refund and dispute exposure before a transfer. Once approved, funds move to your Stripe account; your bank receives them according to Stripe’s payout schedule.</p>
+            <p className="mt-2 text-xs leading-5 text-zinc-300">Operations checks available funds, refunds, and disputes before a transfer. Review time varies; there is no fixed payout date. After approval, Stripe sets the bank payout schedule. For a pending request that needs attention, contact <a className="underline text-white" href="mailto:operations@functionhour.com">operations@functionhour.com</a>.</p>
           </div>
         </div>
       </section>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import OrganizerPortalLink from "@/components/OrganizerPortalLink";
+import FollowingNavLink from "@/components/FollowingNavLink";
 
 const browseLinks = [
   { href: "/events", label: "Events" },
@@ -34,6 +35,7 @@ export default function DiscoveryNav() {
         <div className="hidden items-center gap-2 lg:flex">
           {browseLinks.map(({ href, label }) => <Link key={href} href={href} className={linkClass}>{label}</Link>)}
           <SignedIn>
+            <FollowingNavLink className={linkClass} />
             {accountLinks.map(({ href, label }) => <Link key={href} href={href} className={linkClass}>{label}</Link>)}
             <OrganizerPortalLink className={actionClass} />
           </SignedIn>
@@ -57,6 +59,7 @@ export default function DiscoveryNav() {
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2 sm:grid-cols-3">
             {browseLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} className={linkClass}>{label}</Link>)}
             <SignedIn>
+              <FollowingNavLink className={linkClass} onClick={() => setMenuOpen(false)} />
               {accountLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} className={linkClass}>{label}</Link>)}
               <OrganizerPortalLink className={actionClass} />
             </SignedIn>

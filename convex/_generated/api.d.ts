@@ -17,6 +17,7 @@ import type * as checkIn from "../checkIn.js";
 import type * as compTickets from "../compTickets.js";
 import type * as crons from "../crons.js";
 import type * as discountCodes from "../discountCodes.js";
+import type * as discoveryFollows from "../discoveryFollows.js";
 import type * as eventAccess from "../eventAccess.js";
 import type * as eventCreative from "../eventCreative.js";
 import type * as eventMessages from "../eventMessages.js";
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   compTickets: typeof compTickets;
   crons: typeof crons;
   discountCodes: typeof discountCodes;
+  discoveryFollows: typeof discoveryFollows;
   eventAccess: typeof eventAccess;
   eventCreative: typeof eventCreative;
   eventMessages: typeof eventMessages;

@@ -24,11 +24,7 @@ import {
 
 function eventMatchesCategory(event: DiscoveryEvent, category: string) {
   if (category === "All") return true;
-  const text = [getEventCategory(event), event.name, event.description]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-  return text.includes(category.toLowerCase());
+  return getEventCategory(event).toLowerCase() === category.toLowerCase();
 }
 
 function eventMatchesCity(event: DiscoveryEvent, city: string) {
@@ -93,6 +89,11 @@ export default function EventsPage() {
       .slice(0, 6);
   }, [events]);
 
+  const upcomingEvents = useMemo(
+    () => ((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event)),
+    [events],
+  );
+
   const displayedEvents = useMemo(() => {
     const baseEvents = (view === "mine" ? myEvents ?? [] : events ?? []) as DiscoveryEvent[];
 
@@ -144,7 +145,7 @@ export default function EventsPage() {
         setCity={setCity}
         view={view}
         setView={setView}
-        events={((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event))}
+        events={upcomingEvents}
         quickFilter={quickFilter}
         setQuickFilter={setQuickFilter}
       />
@@ -178,7 +179,19 @@ export default function EventsPage() {
         </section>
       )}
 
-      <DiscoveryCollections activeCollection={activeCollection} onSelect={setActiveCollection} />
+      <DiscoveryCollections
+        events={upcomingEvents}
+        activeCollection={activeCollection}
+        onSelect={(collection) => {
+          setSearch("");
+          setCategory("All");
+          setCity("All Cities");
+          setView("all");
+          setQuickFilter("");
+          setActiveCollection(collection);
+          requestAnimationFrame(() => document.getElementById("event-results")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+        }}
+      />
       <LiveMapSection nearbyCount={displayedEvents.length} />
       <FeaturedHosts organizerStats={organizerStats} />
 

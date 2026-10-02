@@ -17,6 +17,7 @@ import {
   Search,
 } from "lucide-react";
 import ExperienceUniverse from "./ExperienceUniverse";
+import { getEventCategory, isThisWeekend, isTonight, type DiscoveryEvent } from "../eventPresentation";
 
 type EventsView = "all" | "mine";
 export type QuickFilter = "" | "tonight" | "weekend" | "free";
@@ -30,7 +31,7 @@ type ExperienceHeroProps = {
   setCity: Dispatch<SetStateAction<string>>;
   view: EventsView;
   setView: Dispatch<SetStateAction<EventsView>>;
-  events: Array<{ city?: string; state?: string; location?: string }>;
+  events: DiscoveryEvent[];
   quickFilter: QuickFilter;
   setQuickFilter: Dispatch<SetStateAction<QuickFilter>>;
   presentation?: "universe" | "directory";
@@ -79,6 +80,22 @@ export default function ExperienceHero({
     return [...counts.values()].sort((a, b) => a.state.localeCompare(b.state) || a.city.localeCompare(b.city));
   }, [events]);
   const popularCities = [...cityOptions].sort((a, b) => b.count - a.count).slice(0, 4);
+  const liveCategoryNames = [...new Set(events.map(getEventCategory))];
+  const availableCategories = [categories[0], ...liveCategoryNames.map((label) => ({
+    label,
+    icon: categories.find((item) => item.label.toLowerCase() === label.toLowerCase())?.icon ?? Compass,
+  }))];
+  const quickChips = (presentation === "directory" ? ["Near Me", "Tonight", "This Weekend", "Free"] : ["Near Me", "Tonight", "This Weekend", "Free", "Music", "Comedy", "Food", "Sports", "Networking"])
+    .filter((chip) => chip === "Near Me" || events.some((event) => {
+      if (chip === "Tonight") return isTonight(event);
+      if (chip === "This Weekend") return isThisWeekend(event);
+      if (chip === "Free") return Number(event.startingPrice ?? event.price ?? 0) <= 0;
+      const text = [event.name, event.description, getEventCategory(event)].join(" ").toLowerCase();
+      return text.includes(chip.toLowerCase());
+    }));
+  const trendingTerms = ["Essence", "Jazz Fest", "Brunch", "Live Music", "Happy Hour"].filter((term) =>
+    events.some((event) => [event.name, event.description, getEventCategory(event)].join(" ").toLowerCase().includes(term.toLowerCase())),
+  );
   const visibleCities = cityOptions.filter((item) => (item.city + " " + item.state).toLowerCase().includes(citySearch.toLowerCase()));
   const states = [...new Set(visibleCities.map((item) => item.state || "Other locations"))];
   const resetFilters = () => {
@@ -184,17 +201,7 @@ export default function ExperienceHero({
   </div>
 
   <div className="mt-5 flex flex-wrap gap-3">
-    {(presentation === "directory" ? ["Near Me", "Tonight", "This Weekend", "Free"] : [
-      "Near Me",
-      "Tonight",
-      "This Weekend",
-      "Free",
-      "Music",
-      "Comedy",
-      "Food",
-      "Sports",
-      "Networking",
-    ]).map((chip) => (
+    {quickChips.map((chip) => (
       <button
         key={chip}
         type="button"
@@ -211,18 +218,12 @@ export default function ExperienceHero({
     ))}
   </div>
 
-  {presentation === "universe" && <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
+  {presentation === "universe" && trendingTerms.length > 0 && <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
     <span className="font-bold text-zinc-500">
       Trending
     </span>
 
-    {[
-      "Essence",
-      "Jazz Fest",
-      "Brunch",
-      "Live Music",
-      "Happy Hour",
-    ].map((term) => (
+    {trendingTerms.map((term) => (
       <button
         key={term}
         type="button"
@@ -246,7 +247,7 @@ export default function ExperienceHero({
 
         <div id="event-filters" className={`scroll-mt-28 overflow-hidden rounded-[1.65rem] border border-zinc-200 bg-white shadow-sm ${presentation === "universe" ? "mt-8" : "mt-4"}`}>
           <div className="grid grid-cols-4 gap-1 p-2 sm:grid-cols-6 lg:grid-cols-11">
-            {categories.map((item) => {
+            {availableCategories.map((item) => {
               const isActive = category === item.label;
               const Icon = item.icon;
 
