@@ -94,19 +94,19 @@ export default function RecentActivity({
   items,
 }: RecentActivityProps) {
   return (
-    <section className="overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#0c0b14]/80 shadow-[0_30px_100px_rgba(0,0,0,0.2)] backdrop-blur-xl">
-      <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4">
+    <section className="overflow-hidden rounded-[1.6rem] border border-zinc-200 bg-white shadow-[0_16px_48px_rgba(40,25,70,.06)]">
+      <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-5">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-400">
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-700">
             Live Operations
           </p>
 
-          <h2 className="mt-2 text-xl font-black tracking-tight text-zinc-900">
+          <h2 className="mt-2 text-xl font-black tracking-tight text-zinc-950">
             Recent Activity
           </h2>
         </div>
 
-        <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/15 bg-emerald-400/[0.08] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-300">
+        <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-800">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
           Live
         </span>
@@ -129,7 +129,7 @@ export default function RecentActivity({
           </p>
         </div>
       ) : (
-        <div className="divide-y divide-white/[0.06]">
+        <div className="divide-y divide-zinc-100">
           {items.map((item) => {
             const style = activityStyles[item.kind];
             const Icon = style.icon;
@@ -138,7 +138,7 @@ export default function RecentActivity({
               <Link
                 key={item.id}
                 href={item.href}
-                className="group flex items-start gap-4 px-5 py-4 transition hover:bg-white/[0.035]"
+                className="group flex items-start gap-4 px-5 py-4 transition hover:bg-violet-50/70"
               >
                 <span
                   className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${style.iconClasses}`}
@@ -148,7 +148,7 @@ export default function RecentActivity({
 
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                    <span className="truncate text-sm font-black text-white transition group-hover:text-orange-200">
+                    <span className="truncate text-sm font-black text-zinc-950 transition group-hover:text-violet-800">
                       {item.title}
                     </span>
 
@@ -157,11 +157,11 @@ export default function RecentActivity({
                     </span>
                   </span>
 
-                  <span className="mt-1 block truncate text-xs text-zinc-500">
+                  <span className="mt-1 block truncate text-xs text-zinc-600">
                     {item.detail}
                   </span>
 
-                  <span className="mt-2 block text-[9px] font-black uppercase tracking-[0.18em] text-zinc-700">
+                  <span className="mt-2 block text-[9px] font-black uppercase tracking-[0.18em] text-violet-700">
                     {style.label}
                   </span>
                 </span>

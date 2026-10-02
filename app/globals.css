@@ -206,6 +206,12 @@ html.light .organizer-shell [class*="text-emerald-4"] {
   color: #047857 !important;
 }
 
+/* Event artwork and the selected OS navigation item keep white labels against
+   their saturated backgrounds while the surrounding dashboard stays light. */
+html.light .organizer-shell .organizer-event-cover :is(p, span) {
+  color: #fff !important;
+}
+
 html.light [class~="text-white"],
 html.light [class*="text-white/"] {
   color: #18181b !important;

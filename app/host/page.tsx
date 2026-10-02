@@ -375,8 +375,24 @@ export default function HostPage() {
   }
 
   return (
-    <main className="relative px-4 py-5 sm:px-6 sm:py-6">
-      <section className="grid grid-cols-1 gap-3 min-[430px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+    <main className="relative mx-auto max-w-[1600px] space-y-6 px-4 py-6 text-zinc-950 sm:px-7 sm:py-8">
+      <section className="relative overflow-hidden rounded-[2rem] border border-violet-200 bg-white p-6 shadow-[0_18px_60px_rgba(72,42,111,.09)] sm:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-violet-200/60 blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -bottom-24 right-28 h-56 w-56 rounded-full bg-orange-100/80 blur-3xl" aria-hidden="true" />
+        <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-violet-700">Function Hour · Organizer OS</p>
+            <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">Your events, at a glance.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-zinc-700">See what needs attention, check ticket activity, and get back to creating your next event.</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/host/events" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-violet-200 bg-white px-5 text-sm font-bold text-violet-800 transition hover:bg-violet-50">Manage events</Link>
+            <Link href="/host/create" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-violet-700 to-fuchsia-600 px-5 text-sm font-black text-white shadow-[0_10px_28px_rgba(109,40,217,.22)] transition hover:brightness-110">+ Create event</Link>
+          </div>
+        </div>
+      </section>
+
+      <section aria-label="Organizer metrics" className="grid grid-cols-1 gap-4 min-[430px]:grid-cols-2 xl:grid-cols-3">
         <MetricCard
           label="Gross Sales"
           value={money(stats.grossSales)}
@@ -501,8 +517,8 @@ export default function HostPage() {
         />
       </section>
 
-      <section className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1fr)_350px]">
-        <div className="min-w-0 rounded-[1.5rem] border border-white/[0.08] bg-[#0c0b14]/80 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.2)] backdrop-blur-xl sm:p-5">
+      <section className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_330px]">
+        <div className="min-w-0 rounded-[1.6rem] border border-zinc-200 bg-white p-5 shadow-[0_16px_48px_rgba(40,25,70,.06)] sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-violet-400">
@@ -513,7 +529,7 @@ export default function HostPage() {
                 Your Events
               </h2>
 
-              <p className="mt-1 text-sm text-zinc-500">
+              <p className="mt-1 text-sm text-zinc-600">
                 Manage, monitor, and grow your
                 events.
               </p>
@@ -568,20 +584,20 @@ export default function HostPage() {
           )}
         </div>
 
-        <aside className="h-fit rounded-[1.5rem] border border-white/[0.08] bg-gradient-to-br from-[#171128] via-[#100e18] to-[#16100e] p-4 shadow-[0_30px_100px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-5 2xl:sticky 2xl:top-[98px]">
+        <aside className="h-fit rounded-[1.6rem] border border-violet-200 bg-gradient-to-br from-white via-[#faf7ff] to-[#fff8f2] p-5 shadow-[0_16px_48px_rgba(40,25,70,.07)] sm:p-6 2xl:sticky 2xl:top-[98px]">
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-violet-400">
-            Mission Control
+            Performance
           </p>
 
           <h2 className="mt-2 text-2xl font-black tracking-tight">
-            Organizer Pulse
+            Sales overview
           </h2>
 
-          <div className="mt-5 rounded-2xl border border-white/[0.08] bg-black/25 p-5">
+          <div className="mt-5 rounded-2xl border border-violet-100 bg-white p-5">
             <div className="flex items-center justify-between gap-5">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
-                  Command Signal
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">
+                  Ticket sell-through
                 </p>
 
                 <p className="mt-3 text-4xl font-black">
@@ -603,32 +619,23 @@ export default function HostPage() {
           </div>
 
           <PulseCard
-            label="Tonight’s Revenue"
+            label="Total ticket revenue"
             value={money(stats.grossSales)}
-            description="Across active events"
+            description="Across your events"
             chart
           />
 
           <PulseCard
             label="Active Boosts"
             value={String(activeBoosts)}
-            description="Promoted signals"
+            description="Promoted events"
             dots
           />
 
           <PulseCard
-            label="Launch Readiness"
-            value={
-              hostedEvents.length > 0
-                ? "Online"
-                : "Standby"
-            }
-            valueClassName={
-              hostedEvents.length > 0
-                ? "text-emerald-400"
-                : "text-amber-300"
-            }
-            description="Events in command view"
+            label="Events created"
+            value={String(hostedEvents.length)}
+            description="In your organizer account"
             bars
           />
 
@@ -641,7 +648,7 @@ export default function HostPage() {
         </aside>
       </section>
 
-      <section className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
         <RecentActivity items={recentActivity} />
 
         <div className="space-y-5">
@@ -671,8 +678,8 @@ function MetricCard({
   graph: "violet" | "orange";
 }) {
   return (
-    <article className="relative min-h-[160px] overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-[#0e0d17]/85 p-4 backdrop-blur-xl sm:p-5">
-      <div className="pointer-events-none absolute right-[-30px] top-[-30px] h-28 w-28 rounded-full bg-violet-600/[0.06] blur-3xl" />
+    <article className="relative min-h-[150px] overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white p-5 shadow-[0_10px_35px_rgba(40,25,70,.04)] transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-[0_18px_40px_rgba(85,45,135,.1)]">
+      <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-violet-100/70 blur-2xl" />
 
       <p
         className={[
@@ -691,7 +698,7 @@ function MetricCard({
             {value}
           </p>
 
-          <p className="mt-2 truncate text-xs text-zinc-500 sm:text-sm">
+          <p className="mt-2 truncate text-xs text-zinc-600 sm:text-sm">
             {description}
           </p>
         </div>
@@ -736,9 +743,9 @@ function EventCard({
   const status = eventStatus(event);
 
   return (
-    <article className="group overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-gradient-to-r from-[#0b0a12] via-[#11101b] to-[#151019] transition hover:border-violet-400/25">
+    <article className="group overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-[#fcfbff] transition hover:border-violet-300 hover:shadow-[0_16px_32px_rgba(66,40,100,.08)]">
       <div className="grid min-h-[235px] md:grid-cols-[190px_minmax(0,1fr)]">
-        <div className="relative min-h-[180px] overflow-hidden bg-gradient-to-br from-violet-950 via-violet-800 to-orange-700 md:min-h-full">
+        <div className="organizer-event-cover relative min-h-[180px] overflow-hidden bg-gradient-to-br from-violet-950 via-violet-800 to-orange-700 md:min-h-full">
           {event.imageUrl ? (
             <img
               src={event.imageUrl}
@@ -792,7 +799,7 @@ function EventCard({
                   "Untitled Event"}
               </h3>
 
-              <p className="mt-2 truncate text-xs text-zinc-500 sm:text-sm">
+              <p className="mt-2 truncate text-xs text-zinc-600 sm:text-sm">
                 {formatEventDate(event)}
                 {event.location
                   ? ` • ${event.location}`
@@ -843,7 +850,7 @@ function EventCard({
           </div>
 
           <div className="mt-auto pt-5">
-            <div className="flex items-center justify-between text-[10px] text-zinc-600">
+            <div className="flex items-center justify-between text-xs text-zinc-600">
               <span>{sold} sold</span>
 
               <span>
@@ -885,8 +892,8 @@ function EventStat({
   value: string;
 }) {
   return (
-    <div className="min-w-0 rounded-xl border border-white/[0.07] bg-black/20 p-3">
-      <p className="truncate text-[8px] font-black uppercase tracking-[0.18em] text-zinc-600">
+    <div className="min-w-0 rounded-xl border border-zinc-200 bg-white p-3">
+      <p className="truncate text-[9px] font-black uppercase tracking-[0.14em] text-zinc-600">
         {label}
       </p>
 
@@ -915,8 +922,8 @@ function PulseCard({
   bars?: boolean;
 }) {
   return (
-    <div className="mt-3 rounded-2xl border border-white/[0.08] bg-black/25 p-4">
-      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500">
+    <div className="mt-3 rounded-2xl border border-violet-100 bg-white p-4">
+      <p className="text-[10px] font-black uppercase tracking-[0.17em] text-zinc-600">
         {label}
       </p>
 
@@ -928,7 +935,7 @@ function PulseCard({
             {value}
           </p>
 
-          <p className="mt-1 truncate text-xs text-zinc-500">
+          <p className="mt-1 truncate text-xs text-zinc-600">
             {description}
           </p>
         </div>
