@@ -216,7 +216,7 @@ export const getOrganizerByUserId = query({
       .collect();
 
     const events = await Promise.all(
-      rawEvents.filter((event) => isEventUpcoming(event)).map(async (event) => {
+      rawEvents.filter((event) => event.demoHidden !== true && isEventUpcoming(event)).map(async (event) => {
         const ticketTypes = await ctx.db
           .query("ticketTypes")
           .withIndex("by_event", (q) => q.eq("eventId", event._id))
