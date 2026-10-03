@@ -51,9 +51,9 @@ export default function MyEventPassportPage() {
       const existing = byEvent.get(key);
       if (existing) {
         existing.tickets += 1;
-        existing.checkedIn ||= ticket.checkedIn;
+        existing.checkedIn ||= ticket.checkedIn === true;
       } else {
-        byEvent.set(key, { event, date, tickets: 1, checkedIn: ticket.checkedIn });
+        byEvent.set(key, { event, date, tickets: 1, checkedIn: ticket.checkedIn === true });
       }
     }
 
