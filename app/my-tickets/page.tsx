@@ -79,7 +79,7 @@ export default function MyTicketsPage() {
             </Link>
             <Link
               href="/my-event-passport"
-              className="inline-flex min-h-11 items-center rounded-xl border border-violet-300/30 bg-violet-400/10 px-4 text-xs font-black text-violet-100 hover:bg-violet-400/20"
+              className="inline-flex min-h-11 items-center rounded-xl border border-violet-300 bg-violet-100 px-4 text-xs font-black text-violet-950 shadow-sm transition-colors hover:border-violet-400 hover:bg-violet-200"
             >
               Event Passport
             </Link>
