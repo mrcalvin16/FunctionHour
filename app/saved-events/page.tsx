@@ -8,13 +8,14 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import OrganizerPortalLink from "@/components/OrganizerPortalLink";
 
-function EventImage({ storageId }: { storageId?: Id<"_storage"> }) {
-  const imageUrl = useQuery(
+function EventImage({ storageId, directImageUrl }: { storageId?: Id<"_storage">; directImageUrl?: string | null }) {
+  const storedImageUrl = useQuery(
     api.events.getImageUrl,
-    storageId ? { storageId } : "skip"
+    !directImageUrl && storageId ? { storageId } : "skip"
   );
+  const imageUrl = directImageUrl || storedImageUrl;
 
-  if (!storageId) {
+  if (!directImageUrl && !storageId) {
     return (
       <div className="flex h-56 items-center justify-center bg-zinc-900 text-zinc-500">
         No Image
@@ -120,7 +121,7 @@ export default function SavedEventsPage() {
                 href={`/events/${event!._id}`}
                 className="overflow-hidden rounded-[1.5rem] sm:rounded-3xl border border-white/10 bg-white/[0.045] shadow-2xl shadow-black/40 backdrop-blur-xl transition hover:border-orange-400/50"
               >
-                <EventImage storageId={event!.imageStorageId} />
+                <EventImage storageId={event!.imageStorageId} directImageUrl={event!.imageUrl} />
 
                 <div className="p-4 sm:p-6">
                   <div className="mb-3 flex items-center justify-between">
