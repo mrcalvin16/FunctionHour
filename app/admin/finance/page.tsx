@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { getStripeClient } from "@/lib/stripe/server";
 import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
-import { api } from "@/convex/_generated/api";
-import { getConvexClient } from "@/lib/convex";
+import PayoutRequestReview from "@/components/admin/PayoutRequestReview";
 
 export const dynamic = "force-dynamic";
 
@@ -19,20 +18,9 @@ export default async function FinanceAdminPage() {
   }
 
   const stripe = getStripeClient();
-  const secret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
-
-  if (!secret) {
-    throw new Error("Missing payout configuration");
-  }
-
-  const convex = getConvexClient();
-
-  const [balance, transactions, payoutRequests] = await Promise.all([
+  const [balance, transactions] = await Promise.all([
     stripe.balance.retrieve(),
     stripe.balanceTransactions.list({ limit: 100 }),
-    convex.query(api.payouts.getPendingPayoutRequests, {
-      serverSecret: secret,
-    }),
   ]);
 
   const currency = balance.available[0]?.currency ?? balance.pending[0]?.currency ?? "usd";
@@ -59,6 +47,7 @@ export default async function FinanceAdminPage() {
         <a href="/admin/organizer-verification" className="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700">
           Review organizer verification
         </a>
+        <a href="/admin/payouts" className="ml-3 mt-4 inline-flex rounded-xl border border-violet-300 px-4 py-2 text-xs font-semibold text-violet-800 hover:bg-violet-50">View payout ledger</a>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">
           Stripe is the source of truth for funds. Function Hour can display this balance and reconcile transfers, fees, refunds, and disputes, but does not hold money in the application database.
         </p>
@@ -77,131 +66,13 @@ export default async function FinanceAdminPage() {
         <Metric label="Disputes / adjustments" value={money(totals.disputes, currency)} />
       </section>
 
-      <section className="mt-8 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-zinc-950">
-          Organizer payout requests
-        </h2>
-
-        {payoutRequests.length === 0 ? (
-          <p className="mt-4 text-sm text-zinc-500">
-            No pending payout requests.
-          </p>
-        ) : (
-          <div className="mt-4 space-y-3">
-            {payoutRequests.map((request) => (
-              <div
-                key={request._id}
-                className="flex items-center justify-between rounded-xl border border-black/10 p-4"
-              >
-                <div>
-                  <p className="font-medium text-zinc-950">
-                    Organizer payout
-                  </p>
-                  <p className="text-sm text-zinc-500">
-                    ${request.amount.toFixed(2)} · {request.status}
-                  </p>
-                </div>
-
-                {request.status === "requested" ? (
-                  <form
-                    action={async () => {
-                      "use server";
-
-                      await fetch(
-                        `${process.env.NEXT_PUBLIC_APP_URL}/api/admin/payouts/approve`,
-                        {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                          },
-                          body: JSON.stringify({
-                            requestId: request._id,
-                            stripeAccountId: request.stripeAccountId,
-                            amount: request.amount,
-                          }),
-                        }
-                      );
-                    }}
-                  >
-                    <button
-                      className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
-                    >
-                      Approve
-                    </button>
-                  </form>
-                ) : (
-                  <span className="text-sm text-zinc-500">
-                    {request.status}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-
-
-      <section className="mt-8 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-
-        <h2 className="text-lg font-semibold text-zinc-950">
-          Finance reconciliation
-        </h2>
-
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
-
-          <div className="rounded-xl border p-4">
-            <p className="text-xs uppercase text-zinc-500">
-              Pending payouts
-            </p>
-            <p className="mt-2 text-2xl font-semibold">
-              {payoutRequests.filter(
-                (p) => p.status === "requested"
-              ).length}
-            </p>
-          </div>
-
-
-          <div className="rounded-xl border p-4">
-            <p className="text-xs uppercase text-zinc-500">
-              Approved transfers
-            </p>
-
-            <p className="mt-2 text-2xl font-semibold">
-              {payoutRequests.filter(
-                (p) => p.status === "transferred"
-              ).length}
-            </p>
-          </div>
-
-
-          <div className="rounded-xl border p-4">
-            <p className="text-xs uppercase text-zinc-500">
-              Operational status
-            </p>
-
-            <p className="mt-2 text-2xl font-semibold">
-              Healthy
-            </p>
-          </div>
-
-        </div>
-
-
-        <p className="mt-5 text-sm text-zinc-600">
-          Stripe remains the source of truth for funds.
-          Function Hour tracks operational reconciliation,
-          payout approvals, transfers, refunds, and disputes.
-        </p>
-
-      </section>
-
+      <div id="payout-requests"><PayoutRequestReview /></div>
 
       <section className="mt-8 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-zinc-950">Settlement rules</h2>
         <ul className="mt-4 space-y-2 text-sm leading-6 text-zinc-600">
           <li>• Paid ticket charges land on Function Hour’s Stripe balance; organizer payout setup does not block checkout.</li>
-          <li>• Organizers can request their available net ticket proceeds to be transferred to their connected Stripe account.</li>
+          <li>• Organizers can request their available net ticket proceeds; Operations reviews each request before a transfer.</li>
           <li>• Organizers remain responsible for event taxes and event-level obligations.</li>
           <li>• Refunds, disputes, and transfers remain visible to Operations for reconciliation.</li>
           <li>• Organizers remain responsible for their tax reporting and payments.</li>
