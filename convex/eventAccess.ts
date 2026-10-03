@@ -237,6 +237,42 @@ export const listEventTeam = query({
   },
 });
 
+
+// Server-side invitation delivery lookup with a fresh manage_team authorization check.
+export const getInvitationEmailDetails = query({
+  args: {
+    serverSecret: v.string(),
+    clerkId: v.string(),
+    email: v.optional(v.string()),
+    memberId: v.id("eventTeamMembers"),
+  },
+  handler: async (ctx, args) => {
+    const expected = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
+    if (!expected || args.serverSecret !== expected) throw new Error("Unauthorized server request.");
+    const member = await ctx.db.get(args.memberId);
+    if (!member || member.status !== "invited" || !member.email) {
+      throw new Error("No pending invitation found.");
+    }
+    const role = await getEventRole(ctx, member.eventId, args.clerkId, args.email);
+    if (!role || !roleCan(role, "manage_team")) {
+      throw new Error("You do not have permission to invite event staff.");
+    }
+    const event = await ctx.db.get(member.eventId);
+    if (!event) throw new Error("Event not found.");
+    const inviter = await ctx.db.query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+    return {
+      memberId: member._id,
+      recipientEmail: member.email,
+      recipientName: member.name || "there",
+      role: member.role,
+      eventId: event._id,
+      eventName: event.name,
+      inviterName: inviter?.name || "Your event organizer",
+    };
+  },
+});
 export const upsertEventTeamMember = mutation({
   args: {
     eventId: v.id("events"),

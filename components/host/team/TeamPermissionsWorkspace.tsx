@@ -57,16 +57,21 @@ export default function TeamPermissionsWorkspace({
     setMessage("");
     setError("");
     try {
-      await inviteMember({
+      const memberId = await inviteMember({
         eventId: selectedEventId,
         email,
         name: name.trim() || undefined,
         role,
       });
+      const delivery = await sendInvitationEmail(memberId);
       setName("");
       setEmail("");
       setRole("check_in_staff");
-      setMessage("Team access added. Share the event workspace link with this staff member.");
+      if (delivery.ok) {
+        setMessage("Invitation email sent. Access activates when they sign in with the invited email.");
+      } else {
+        setError(`Team access was added, but the invitation email could not be sent. ${delivery.error}`);
+      }
     } catch (inviteError) {
       setError(inviteError instanceof Error ? inviteError.message : "Unable to add this team member.");
     } finally {
@@ -74,6 +79,30 @@ export default function TeamPermissionsWorkspace({
     }
   }
 
+  async function sendInvitationEmail(memberId: Id<"eventTeamMembers">) {
+    const response = await fetch("/api/email/event-team-invitation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ memberId, requestId: crypto.randomUUID() }),
+    });
+    const result = await response.json().catch(() => ({}));
+    return {
+      ok: response.ok,
+      error: typeof result.error === "string" ? result.error : "Please try again.",
+    };
+  }
+
+  async function handleResendInvitation(memberId: Id<"eventTeamMembers">) {
+    setError("");
+    setMessage("");
+    try {
+      const result = await sendInvitationEmail(memberId);
+      if (!result.ok) throw new Error(result.error);
+      setMessage("Invitation email sent.");
+    } catch (sendError) {
+      setError(sendError instanceof Error ? sendError.message : "Unable to send the invitation email.");
+    }
+  }
   async function handleRoleChange(memberId: Id<"eventTeamMembers">, nextRole: StaffRole) {
     if (!selectedEventId) return;
     setError("");
@@ -168,6 +197,15 @@ export default function TeamPermissionsWorkspace({
                     >
                       {roles.map((roleOption) => <option key={roleOption.value} value={roleOption.value}>{roleOption.label}</option>)}
                     </select>
+                    {member.status === "invited" && (
+                      <button
+                        type="button"
+                        onClick={() => handleResendInvitation(member._id)}
+                        className="inline-flex min-h-10 items-center justify-center rounded-xl border border-violet-400/20 px-3 text-xs font-black text-violet-200 hover:bg-violet-400/10"
+                      >
+                        Resend invite
+                      </button>
+                    )}
                     {member.status !== "revoked" && (
                       <button
                         type="button"
@@ -184,8 +222,8 @@ export default function TeamPermissionsWorkspace({
 
             <form onSubmit={handleInvite} className="h-fit rounded-[1.5rem] border border-white/[0.08] bg-gradient-to-br from-[#171128] to-[#15100e] p-5 sm:p-6">
               <UserPlus className="h-6 w-6 text-orange-400" />
-              <h2 className="mt-3 text-xl font-black">Add team member</h2>
-              <p className="mt-1 text-xs leading-5 text-zinc-500">Access activates when they sign in with this email.</p>
+              <h2 className="mt-3 text-xl font-black">Invite team member</h2>
+              <p className="mt-1 text-xs leading-5 text-zinc-500">We’ll email them a link to the event workspace. Access activates when they sign in with this email.</p>
               <div className="mt-5 space-y-3">
                 <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Name (optional)" className="min-h-11 w-full rounded-xl border border-white/10 bg-black/30 px-4 text-sm outline-none focus:border-violet-400/50" />
                 <input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="staff@example.com" className="min-h-11 w-full rounded-xl border border-white/10 bg-black/30 px-4 text-sm outline-none focus:border-violet-400/50" />
@@ -193,7 +231,7 @@ export default function TeamPermissionsWorkspace({
                   {roles.map((roleOption) => <option key={roleOption.value} value={roleOption.value}>{roleOption.label}</option>)}
                 </select>
                 <button disabled={busy} className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 text-sm font-black disabled:opacity-50">
-                  {busy ? "Adding…" : "Add member"}
+                  {busy ? "Sending invitation…" : "Send invitation"}
                 </button>
               </div>
             </form>
