@@ -605,9 +605,9 @@ export default function EventDetailPage({
 
             <div className="mt-5">
               {event.isDemo ? (
-                <div className="w-full rounded-xl border border-violet-300/50 bg-violet-50 px-5 py-4 text-center text-sm leading-6 text-zinc-800 dark:border-violet-300/20 dark:bg-violet-400/10 dark:text-violet-100">
-                  <strong className="block font-black text-violet-950 dark:text-violet-100">Demo Event</strong>
-                  This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing.
+                <div className="w-full rounded-xl border-2 border-violet-400 bg-white px-5 py-4 text-center text-sm leading-6 text-black shadow-sm dark:border-violet-300/50 dark:bg-zinc-900 dark:text-white">
+                  <strong className="block text-base font-black text-violet-950 dark:text-violet-200">Demo Event</strong>
+                  <p className="mt-1 font-semibold text-black dark:text-white">This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing.</p>
                 </div>
               ) : !salesOpen ? (
                 <div className="w-full rounded-xl border border-white/10 bg-white/5 px-5 py-4 text-center font-bold text-zinc-400">
@@ -643,9 +643,11 @@ export default function EventDetailPage({
               )}
             </div>
 
-            <p className="mt-4 text-center text-xs text-white/35">
-              Secure checkout · Tickets appear in My Tickets
-            </p>
+            {!event.isDemo && (
+              <p className="mt-4 text-center text-xs text-white/60">
+                Secure checkout · Tickets appear in My Tickets
+              </p>
+            )}
 
             <div className="mt-5 border-t border-white/10 pt-5">
               <ShareEventButton
