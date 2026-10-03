@@ -87,12 +87,12 @@ eventInteractions: defineTable({
     imageUrl: v.optional(v.string()),
     tags: v.optional(v.array(v.string())),
     shortDescription: v.optional(v.string()),
-
-    userId: v.string(),
-    organizerId: v.optional(v.string()),
     isDemo: v.optional(v.boolean()),
     demoKey: v.optional(v.string()),
     demoHidden: v.optional(v.boolean()),
+
+    userId: v.string(),
+    organizerId: v.optional(v.string()),
 
     createdAt: v.optional(v.float64()),
 
@@ -179,6 +179,7 @@ eventInteractions: defineTable({
     grossAmount: v.float64(),
     platformFeeAmount: v.optional(v.float64()),
     refundedAmount: v.float64(),
+    disputeStatus: v.optional(v.union(v.literal("open"), v.literal("won"), v.literal("lost"))),
     netAmount: v.float64(),
     quantity: v.float64(),
     discountCodeId: v.optional(v.id("discountCodes")),
@@ -197,6 +198,20 @@ eventInteractions: defineTable({
     .index("by_buyerEmail", ["buyerEmail"])
     .index("by_event_and_paidAt", ["eventId", "paidAt"]),
 
+  ticketRecoveryActions: defineTable({
+    sessionId: v.string(),
+    reviewedBy: v.string(),
+    beforeOrderRecorded: v.boolean(),
+    beforeTicketCount: v.number(),
+    afterTicketCount: v.optional(v.number()),
+    status: v.union(v.literal("started"), v.literal("completed"), v.literal("failed")),
+    emailStatus: v.optional(v.union(v.literal("accepted"), v.literal("failed"), v.literal("skipped"))),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_sessionId", ["sessionId"])
+    .index("by_createdAt", ["createdAt"]),
+
   organizerPayoutRequests: defineTable({
     organizerId: v.string(),
     stripeAccountId: v.string(),
@@ -204,75 +219,55 @@ eventInteractions: defineTable({
     currency: v.string(),
     status: v.union(
       v.literal("requested"),
-      v.literal("approved"),
       v.literal("processing"),
       v.literal("transferred"),
-      v.literal("failed")
+      v.literal("rejected")
     ),
     stripeTransferId: v.optional(v.string()),
-    approvedBy: v.optional(v.string()),
-    approvedAt: v.optional(v.float64()),
-    failedAt: v.optional(v.float64()),
-    failureReason: v.optional(v.string()),
+    reviewedBy: v.optional(v.string()),
+    reviewNote: v.optional(v.string()),
     createdAt: v.float64(),
     updatedAt: v.float64(),
   })
     .index("by_organizer", ["organizerId"])
+    .index("by_status_and_createdAt", ["status", "createdAt"])
     .index("by_transfer", ["stripeTransferId"]),
 
-  
+  supportRateBuckets: defineTable({
+    key: v.string(),
+    count: v.number(),
+    resetAt: v.number(),
+  }).index("by_key", ["key"]),
 
-  
-
-  adminActions: defineTable({
-
-    adminId: v.string(),
-
-    action: v.string(),
-
-    resourceType: v.string(),
-
-    resourceId: v.string(),
-
-    status: v.union(
-      v.literal("success"),
-      v.literal("failed")
+  supportRequests: defineTable({
+    category: v.union(
+      v.literal("ticket_help"), v.literal("refund"), v.literal("report_event"),
+      v.literal("payment"), v.literal("merch"), v.literal("account"), v.literal("other"),
     ),
+    email: v.string(),
+    name: v.optional(v.string()),
+    message: v.string(),
+    eventUrl: v.optional(v.string()),
+    pagePath: v.string(),
+    status: v.union(v.literal("new"), v.literal("in_progress"), v.literal("resolved")),
+    notificationStatus: v.union(v.literal("pending"), v.literal("delivered"), v.literal("failed")),
+    priority: v.optional(v.union(v.literal("standard"), v.literal("urgent"))),
+    assignedTo: v.optional(v.string()),
+    followUpAt: v.optional(v.number()),
+    lastReplyAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_createdAt", ["createdAt"])
+    .index("by_status_and_createdAt", ["status", "createdAt"]),
 
-    metadata: v.optional(v.string()),
-
-    createdAt: v.float64(),
-
-  })
-    .index("by_admin", ["adminId"])
-    .index("by_resource", ["resourceType", "resourceId"]),
-
-
-  stripeDisputes: defineTable({
-    stripeDisputeId: v.string(),
-    paymentIntentId: v.optional(v.string()),
-    chargeId: v.optional(v.string()),
-    orderId: v.optional(v.id("ticketOrders")),
-    eventId: v.optional(v.id("events")),
-    organizerId: v.optional(v.string()),
-    amount: v.float64(),
-    currency: v.string(),
-    status: v.union(
-      v.literal("warning"),
-      v.literal("needs_response"),
-      v.literal("under_review"),
-      v.literal("won"),
-      v.literal("lost"),
-      v.literal("closed")
-    ),
-    reason: v.optional(v.string()),
-    createdAt: v.float64(),
-    updatedAt: v.float64(),
-  })
-    .index("by_stripeDisputeId", ["stripeDisputeId"])
-    .index("by_status", ["status"])
-    .index("by_paymentIntentId", ["paymentIntentId"]),
-
+  supportCaseActivity: defineTable({
+    requestId: v.id("supportRequests"),
+    actorId: v.string(),
+    action: v.union(v.literal("claim"), v.literal("release"), v.literal("priority"),
+      v.literal("status"), v.literal("note"), v.literal("follow_up"), v.literal("reply_recorded")),
+    detail: v.string(),
+    createdAt: v.number(),
+  }).index("by_requestId_and_createdAt", ["requestId", "createdAt"]),
 
   ticketCheckoutReservations: defineTable({
     reservationId: v.string(),
@@ -793,7 +788,6 @@ eventInteractions: defineTable({
     .index("by_user", ["userId"])
     .index("by_organizer", ["organizerUserId"])
     .index("by_user_organizer", ["userId", "organizerUserId"]),
-
 
   followedCities: defineTable({
     userId: v.string(),
