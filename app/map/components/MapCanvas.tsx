@@ -4,11 +4,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUpRight, LocateFixed, MapPin, Route } from "lucide-react";
 import Map, {
-  Layer,
   Marker,
   NavigationControl,
   Popup,
-  Source,
   type MapRef,
   type ViewState,
 } from "react-map-gl/mapbox";
@@ -137,18 +135,6 @@ export default function MapCanvas({
   [visibleEvents, lookedUp]);
   const selectedEvent =
     mappedEvents.find((event) => event._id === selectedId) ?? null;
-  // A visual discovery line, not a travel route. Its stops follow the date order
-  // shown in the station rail, so the interface reads consistently at any zoom.
-  const eventLine = useMemo(() => ({
-    type: "Feature" as const,
-    properties: {},
-    geometry: {
-      type: "LineString" as const,
-      coordinates: [...mappedEvents]
-        .sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0))
-        .map((event) => [Number(event.longitude), Number(event.latitude)]),
-    },
-  }), [mappedEvents]);
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
   // Older events may have an address but no stored coordinates. Resolve those
@@ -189,7 +175,7 @@ export default function MapCanvas({
       { west: Infinity, east: -Infinity, south: Infinity, north: -Infinity },
     );
     mapRef.current?.fitBounds([[bounds.west, bounds.south], [bounds.east, bounds.north]], {
-      padding: { top: 180, bottom: 205, left: window.innerWidth >= 640 ? 440 : 35, right: 50 },
+      padding: { top: 180, bottom: 48, left: window.innerWidth >= 640 ? 440 : 35, right: 50 },
       maxZoom: 11,
       duration: 650,
     });
@@ -255,11 +241,17 @@ export default function MapCanvas({
             The interactive map is unavailable here. Browse every matching event below.
           </p>
           <div className="mt-5 max-h-[40dvh] space-y-2 overflow-y-auto text-left">
-            {[...visibleEvents].sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0)).map((event, index) => <div key={event._id} className="relative flex gap-3 pb-1">
-              {index < visibleEvents.length - 1 && <span aria-hidden="true" className="absolute bottom-[-.5rem] left-[1.05rem] top-5 w-1 bg-gradient-to-b from-violet-600 to-orange-500" />}
-              <span className={`fh-map-inverse relative z-10 mt-2 grid h-9 w-9 shrink-0 place-items-center rounded-full border-4 border-white text-[10px] font-black text-white shadow-sm ${index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`}>{String(index + 1).padStart(2, "0")}</span>
-              <Link href={`/events/${event._id}`} className="flex min-h-16 flex-1 items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-violet-50/40 p-3 text-sm font-bold text-zinc-950 hover:border-violet-400"><span><span className="block">{event.name || "Untitled event"}</span><span className="block text-xs font-normal text-zinc-600">{locationLabel(event)} · {getFromPriceLabel(event)}</span></span><ArrowUpRight className="h-4 w-4 shrink-0 text-violet-700" /></Link>
-            </div>)}
+            {[...visibleEvents].sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0)).map((event) => (
+              <div key={event._id} className="flex items-center gap-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-violet-700 text-white shadow-sm">
+                  <MapPin className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <Link href={`/events/${event._id}`} className="flex min-h-16 flex-1 items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-violet-50/40 p-3 text-sm font-bold text-zinc-950 hover:border-violet-400">
+                  <span><span className="block">{event.name || "Untitled event"}</span><span className="block text-xs font-normal text-zinc-600">{locationLabel(event)} · {getFromPriceLabel(event)}</span></span>
+                  <ArrowUpRight className="h-4 w-4 shrink-0 text-violet-700" />
+                </Link>
+              </div>
+            ))}
             {loading && <p role="status" className="text-center text-sm text-zinc-700">Loading upcoming events…</p>}
             {!loading && visibleEvents.length === 0 && <p className="text-center text-sm text-zinc-600">No events are available for this selection. Browse the event directory for all upcoming events.</p>}
           </div>
@@ -296,10 +288,6 @@ export default function MapCanvas({
         attributionControl={false}
       >
         <NavigationControl position="top-right" showCompass={false} />
-        {mappedEvents.length > 1 && <Source id="functionhour-event-line" type="geojson" data={eventLine}>
-          <Layer id="event-line-halo" type="line" paint={{ "line-color": "#ffffff", "line-width": 10, "line-opacity": 0.92 }} layout={{ "line-cap": "round", "line-join": "round" }} />
-          <Layer id="event-line-color" type="line" paint={{ "line-color": "#7c3aed", "line-width": 5, "line-opacity": 0.85, "line-dasharray": [2, 1.3] }} layout={{ "line-cap": "round", "line-join": "round" }} />
-        </Source>}
         {mappedEvents.map((event) => {
           const active = selectedId === event._id;
           return (
@@ -312,14 +300,15 @@ export default function MapCanvas({
               <button
                 type="button"
                 aria-label={`Show ${event.name || "event"}`}
+                title={event.name || "Show event"}
                 onClick={(clickEvent) => {
                   clickEvent.stopPropagation();
                   focusEvent(event);
                 }}
-                className={`fh-map-inverse group relative flex min-h-11 items-center gap-2 rounded-full border-[3px] border-white px-3 text-white shadow-[0_5px_20px_rgba(64,30,120,.27)] transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${active ? "bg-violet-700" : "bg-[#e94d28]"}`}
+                className={`group relative grid h-11 w-11 place-items-center rounded-full border-2 border-white shadow-[0_5px_20px_rgba(64,30,120,.35)] transition hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${active ? "bg-violet-700" : "bg-[#e94d28]"}`}
               >
-                <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20"><MapPin className="h-4 w-4" aria-hidden="true" /></span>
-                <span className="max-w-32 truncate text-xs font-black">{event.name || "Event"}</span>
+                <MapPin className="h-7 w-7 fill-white/20 text-white" aria-hidden="true" />
+                <span aria-hidden="true" className="absolute left-1/2 top-[11px] h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white" />
               </button>
             </Marker>
           );
@@ -377,7 +366,7 @@ export default function MapCanvas({
       <button
         type="button"
         onClick={useMyLocation}
-        className="absolute bottom-48 right-3 z-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-zinc-200 bg-white/95 px-4 text-xs font-black text-zinc-950 shadow-lg backdrop-blur-xl hover:bg-violet-50 sm:bottom-48 sm:right-5"
+        className="absolute bottom-5 right-3 z-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-zinc-200 bg-white/95 px-4 text-xs font-black text-zinc-950 shadow-lg backdrop-blur-xl hover:bg-violet-50 sm:bottom-5 sm:right-5"
       >
         <LocateFixed
           className={`h-4 w-4 ${locationStatus === "loading" ? "animate-pulse text-violet-700" : ""}`}
@@ -391,41 +380,12 @@ export default function MapCanvas({
       </button>
 
       {!loading && visibleEvents.length === 0 && (
-        <div className="absolute inset-x-3 bottom-36 z-10 rounded-2xl border border-zinc-200 bg-white/95 p-4 text-center text-sm text-zinc-700 shadow-lg backdrop-blur-xl sm:bottom-5 sm:left-auto sm:right-5 sm:max-w-sm">
+        <div className="absolute inset-x-3 bottom-5 z-10 rounded-2xl border border-zinc-200 bg-white/95 p-4 text-center text-sm text-zinc-700 shadow-lg backdrop-blur-xl sm:bottom-5 sm:left-auto sm:right-5 sm:max-w-sm">
           No events match these filters. Try another category, date, or location.
         </div>
       )}
 
-      {visibleEvents.length > 0 && (
-        <section aria-label="Event line stops" className="absolute inset-x-0 bottom-0 z-10 border-t border-violet-200 bg-white/95 px-3 pb-[max(.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-16px_50px_rgba(72,41,120,.12)] backdrop-blur-xl sm:px-5">
-          <div className="mb-1 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.17em] text-violet-700"><Route className="h-4 w-4" /> The event line <span className="ml-auto text-zinc-600">{visibleEvents.length} stop{visibleEvents.length === 1 ? "" : "s"}</span></div>
-          <p className="mb-2 text-[10px] text-zinc-600">A way to explore events · not travel directions</p>
-          <div className="relative flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
-          {[...visibleEvents].sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0)).map((event, index) => (
-            <button
-              key={event._id}
-              type="button"
-              onClick={() => {
-                const mapped = mappedEvents.find((item) => item._id === event._id);
-                if (mapped) focusEvent(mapped);
-                else window.location.assign(`/events/${event._id}`);
-              }}
-              aria-label={`Stop ${index + 1}: ${event.name || "Untitled event"}, ${locationLabel(event)}`}
-              className={`relative z-10 min-w-[220px] max-w-[260px] flex-1 pt-1 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 ${selectedId === event._id ? "text-violet-800" : "text-zinc-950"}`}
-            >
-              {index < visibleEvents.length - 1 && <span aria-hidden="true" className={`absolute -right-3 left-5 top-[1.3rem] h-1 ${index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`} />}
-              <span className={`fh-map-inverse relative z-10 grid h-9 w-9 place-items-center rounded-full border-4 border-white text-xs font-black text-white shadow-md ${selectedId === event._id ? "bg-violet-700 ring-2 ring-violet-300" : index % 2 ? "bg-[#e94d28]" : "bg-violet-600"}`}>{String(index + 1).padStart(2, "0")}</span>
-              <span className={`mt-1 block rounded-2xl border p-3 shadow-sm ${selectedId === event._id ? "border-violet-400 bg-violet-50" : "border-zinc-200 bg-white hover:border-violet-300 hover:bg-violet-50/50"}`}>
-                <span className="block text-[10px] font-black uppercase tracking-[0.1em] text-violet-700">{formatDate(event)}</span>
-                <span className="mt-1 block line-clamp-1 text-sm font-black">{event.name || "Untitled event"}</span>
-                <span className="mt-1 block line-clamp-1 text-xs text-zinc-600">{locationLabel(event)}</span>
-                <span className="mt-2 flex items-center justify-between text-xs font-bold"><span>{getFromPriceLabel(event)}</span><span className="flex items-center text-violet-700">{mappedEvents.some((item) => item._id === event._id) ? "Show stop" : "View event"}<ArrowUpRight className="ml-1 h-3 w-3" /></span></span>
-              </span>
-            </button>
-          ))}
-          </div>
-        </section>
-      )}
+
     </div>
   );
 }
