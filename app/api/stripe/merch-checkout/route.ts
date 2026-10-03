@@ -21,6 +21,10 @@ export async function POST(request: Request) {
     const fulfillmentMethod = body.fulfillmentMethod === "shipping" ? "shipping" as const : "pickup" as const;
     reservationId = crypto.randomUUID();
     const convex = getConvexClient();
+    const linkedEvent = await convex.query(api.events.getById, { eventId: body.eventId as Id<"events"> });
+    if (linkedEvent?.isDemo) {
+      return NextResponse.json({ error: "Demo Event", message: "This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing." }, { status: 409 });
+    }
     const reservation = await convex.mutation(api.merch.reserveCartForCheckout, {
       checkoutSecret: secret,
       reservationId,
