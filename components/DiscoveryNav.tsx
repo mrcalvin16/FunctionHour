@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import OrganizerPortalLink from "@/components/OrganizerPortalLink";
@@ -19,10 +20,20 @@ const accountLinks = [
   { href: "/my-merch-orders", label: "Merch Orders" },
 ];
 
-const linkClass = "rounded-full border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-950";
+const linkClass = "rounded-full border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-400 hover:text-zinc-950";
+const activeLinkClass = "rounded-full border border-orange-300 bg-orange-50 px-3 py-2 text-sm font-bold text-zinc-950 shadow-sm transition";
+
+function isCurrentLink(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function getLinkClass(pathname: string, href: string) {
+  return isCurrentLink(pathname, href) ? activeLinkClass : linkClass;
+}
 const actionClass = "rounded-full bg-gradient-to-r from-orange-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white transition hover:brightness-95";
 
 export default function DiscoveryNav() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -34,10 +45,10 @@ export default function DiscoveryNav() {
         </Link>
 
         <div className="hidden items-center gap-2 lg:flex">
-          {browseLinks.map(({ href, label }) => <Link key={href} href={href} className={linkClass}>{label}</Link>)}
+          {browseLinks.map(({ href, label }) => <Link key={href} href={href} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}</Link>)}
           <SignedIn>
             <FollowingNavLink className={linkClass} />
-            {accountLinks.map(({ href, label }) => <Link key={href} href={href} className={linkClass}>{label}</Link>)}
+            {accountLinks.map(({ href, label }) => <Link key={href} href={href} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}</Link>)}
             <OrganizerPortalLink className={actionClass} />
           </SignedIn>
           <SignedOut>
@@ -58,10 +69,10 @@ export default function DiscoveryNav() {
       {menuOpen && (
         <nav id="discovery-mobile-menu" aria-label="Mobile navigation" className="border-t border-zinc-200 bg-white px-4 py-4 lg:hidden">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2 sm:grid-cols-3">
-            {browseLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} className={linkClass}>{label}</Link>)}
+            {browseLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}</Link>)}
             <SignedIn>
               <FollowingNavLink className={linkClass} onClick={() => setMenuOpen(false)} />
-              {accountLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} className={linkClass}>{label}</Link>)}
+              {accountLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}</Link>)}
               <OrganizerPortalLink className={actionClass} />
             </SignedIn>
             <SignedOut>
