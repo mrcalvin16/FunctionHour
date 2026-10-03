@@ -69,7 +69,7 @@ export default function DiscoveryEventCard({
           className="block h-full"
         >
           <div className="h-full transition duration-500 group-hover:scale-[1.045]">
-            <EventImage storageId={event.imageStorageId} />
+            <EventImage storageId={event.imageStorageId} imageUrl={event.imageUrl} />
           </div>
         </Link>
 
