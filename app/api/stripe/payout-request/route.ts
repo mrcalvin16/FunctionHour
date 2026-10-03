@@ -49,7 +49,6 @@ export async function GET() {
       earnedAmount: data.summary.earnedAmount,
       transferredAmount: data.summary.transferredAmount,
       requestedAmount: data.summary.requestedAmount,
-      availableStripeBalance: data.availableStripeBalance,
       requestableAmount: data.requestableAmount,
       pendingRequest: data.summary.pendingRequest,
     });
@@ -78,7 +77,14 @@ export async function POST(httpRequest: Request) {
         { status: 409 },
       );
     }
-    if (data.requestableAmount <= 0 && !data.summary.pendingRequest) {
+    if (data.summary.pendingRequest) {
+      return NextResponse.json({
+        success: true,
+        amount: data.summary.pendingRequest.amount,
+        message: "Your payout request is awaiting review by Function Hour Operations.",
+      });
+    }
+    if (data.requestableAmount <= 0) {
       return NextResponse.json(
         { error: "There are no eligible funds currently available to transfer." },
         { status: 409 },
@@ -97,22 +103,10 @@ export async function POST(httpRequest: Request) {
         ) * 100) / 100,
       },
     );
-    const availableCents = data.availableStripeBalance * 100;
-    if (payoutRequest.amount * 100 > availableCents) {
-      return NextResponse.json(
-        { error: "Stripe funds are still pending. Try again when they are available." },
-        { status: 409 },
-      );
-    }
-
-
     return NextResponse.json({
       success: true,
-      status: "requested",
-      requestId: payoutRequest.requestId,
       amount: payoutRequest.amount,
-      message:
-        "Your payout request has been submitted and is pending approval. Funds will be transferred after review.",
+      message: "Your payout request is awaiting review by Function Hour Operations.",
     });
   } catch (error) {
     console.error("Organizer payout request error:", error);
