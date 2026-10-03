@@ -100,10 +100,10 @@ export default function MyEventPassportPage() {
         <DiscoveryNav />
         <section className="mx-auto max-w-7xl px-5 py-16 sm:px-7 lg:px-8">
           <div className="mx-auto max-w-lg rounded-[2rem] border border-zinc-200 bg-gradient-to-br from-white via-[#fff4ed] to-[#fff0f5] p-8 text-center shadow-sm sm:p-10">
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-orange-700">Your collection</p>
-          <h1 className="mt-3 text-3xl font-black tracking-tight text-zinc-950">Your Event Passport</h1>
-          <p className="mt-3 leading-6 text-zinc-600">Sign in to see the past events in your ticket history.</p>
-          <SignInButton mode="modal"><button className="mt-6 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 px-5 py-3 font-black text-white shadow-sm transition hover:brightness-95">Sign in</button></SignInButton>
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-orange-700">Your collection</p>
+            <h1 className="mt-3 text-3xl font-black tracking-tight text-zinc-950">Your Event Passport</h1>
+            <p className="mt-3 leading-6 text-zinc-600">Sign in to see the past events in your ticket history.</p>
+            <SignInButton mode="modal"><button className="mt-6 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 px-5 py-3 font-black text-white shadow-sm transition hover:brightness-95">Sign in</button></SignInButton>
           </div>
         </section>
         <Footer />
@@ -155,7 +155,7 @@ export default function MyEventPassportPage() {
             <section className="mt-6 grid gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">Events in {activeYear}</p><p className="mt-2 text-4xl font-black text-zinc-950">{yearEvents.length}</p></div>
               <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">Most explored city</p><p className="mt-2 truncate text-2xl font-black text-zinc-950">{highlights.city}</p></div>
-              <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">Your scene</p><p className="mt-2 truncate text-2xl font-black">{highlights.category}</p></div>
+              <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">Your scene</p><p className="mt-2 truncate text-2xl font-black text-zinc-950">{highlights.category}</p></div>
             </section>
 
             <div className="mb-4 mt-10 flex items-end justify-between gap-4">
@@ -169,7 +169,7 @@ export default function MyEventPassportPage() {
                 const hasImage = Boolean(image);
                 const place = event.city || event.location || "A night out";
                 return (
-                                    <Link
+                  <Link
                     key={String(event._id)}
                     href={`/events/${event._id}`}
                     className={`group relative isolate min-h-[270px] overflow-hidden rounded-[1.6rem] border shadow-sm transition hover:-translate-y-1 hover:border-orange-300 ${hasImage ? "border-zinc-800 bg-zinc-950" : "border-zinc-200 bg-gradient-to-br from-white via-[#fff3eb] to-[#fff0f5]"}`}
