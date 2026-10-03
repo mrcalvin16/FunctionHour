@@ -67,9 +67,11 @@ export default function TeamPermissionsWorkspace({
       setName("");
       setEmail("");
       setRole("check_in_staff");
-      setMessage(delivery.ok
-        ? "Invitation email sent. Access activates when they sign in with the invited email."
-        : `Team access was added, but the invitation email could not be sent. ${delivery.error}`);
+      if (delivery.ok) {
+        setMessage("Invitation email sent. Access activates when they sign in with the invited email.");
+      } else {
+        setError(`Team access was added, but the invitation email could not be sent. ${delivery.error}`);
+      }
     } catch (inviteError) {
       setError(inviteError instanceof Error ? inviteError.message : "Unable to add this team member.");
     } finally {
