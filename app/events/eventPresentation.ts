@@ -5,9 +5,6 @@ export type DiscoveryEvent = {
   name?: string;
   description?: string;
   category?: string;
-  eventType?: string;
-  type?: string;
-  tags?: string[];
   location?: string;
   venueName?: string;
   venueAddress?: string;
@@ -26,11 +23,13 @@ export type DiscoveryEvent = {
   organizerId?: string;
   userId?: string;
   imageStorageId?: Id<"_storage">;
+  imageUrl?: string | null;
+  isDemo?: boolean;
   isFeatured?: boolean;
 };
 
 export function getEventCategory(event: DiscoveryEvent) {
-  return event.category?.trim() || event.eventType?.trim() || event.type?.trim() || event.tags?.[0]?.trim() || "Experience";
+  return event.category?.trim() || "Experience";
 }
 
 export function getBuyerPriceLabel(event: Pick<DiscoveryEvent, "startingPrice" | "price">) {
