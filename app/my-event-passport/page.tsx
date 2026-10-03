@@ -6,9 +6,10 @@ import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { ArrowUpRight, CalendarDays, MapPin, TicketCheck } from "lucide-react";
 import { api } from "@/convex/_generated/api";
+import type { Doc } from "@/convex/_generated/dataModel";
 
 type PassportEvent = {
-  event: NonNullable<NonNullable<ReturnType<typeof useQuery<typeof api.tickets.getUserTickets>>>[number]["event"]>;
+  event: Doc<"events">;
   date: number;
   tickets: number;
   checkedIn: boolean;
