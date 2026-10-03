@@ -120,11 +120,13 @@ export const getOrganizerPayoutSummary = query({
 
     let earned = 0;
     let orderCount = 0;
+    let openDisputeCount = 0;
     for (const event of events) {
       for await (const order of ctx.db
         .query("ticketOrders")
         .withIndex("by_event_and_paidAt", (q) => q.eq("eventId", event._id))) {
         orderCount += 1;
+        if (order.disputeStatus === "open") openDisputeCount += 1;
         if (orderCount > 20_000) {
           throw new Error("Payout history is too large for automatic reconciliation.");
         }
@@ -139,12 +141,15 @@ export const getOrganizerPayoutSummary = query({
     if (requests.length > 10_000) {
       throw new Error("Payout history is too large for automatic reconciliation.");
     }
-    const requested = requests.reduce((sum, item) => sum + item.amount, 0);
+    const requested = requests
+      .filter((item) => item.status !== "rejected")
+      .reduce((sum, item) => sum + item.amount, 0);
     const pendingRequest = requests
-      .filter((item) => item.status === "requested" || item.status === "approved" || item.status === "processing")
+      .filter((item) => item.status === "requested" || item.status === "processing")
       .sort((a, b) => b.createdAt - a.createdAt)[0];
     return {
       earnedAmount: Math.round(earned * 100) / 100,
+      openDisputeCount,
       transferredAmount: Math.round(
         requests
           .filter((item) => item.status === "transferred")
@@ -176,7 +181,7 @@ export const createOrganizerPayoutRequest = mutation({
       throw new Error("Payout history is too large for automatic reconciliation.");
     }
     const inFlight = requests
-      .filter((item) => item.status === "requested" || item.status === "approved" || item.status === "processing")
+      .filter((item) => item.status === "requested" || item.status === "processing")
       .sort((a, b) => b.createdAt - a.createdAt)[0];
     if (inFlight) return { requestId: inFlight._id, amount: inFlight.amount };
 
@@ -202,7 +207,9 @@ export const createOrganizerPayoutRequest = mutation({
       }
     }
 
-    const alreadyReserved = requests.reduce((sum, item) => sum + item.amount, 0);
+    const alreadyReserved = requests
+      .filter((item) => item.status !== "rejected")
+      .reduce((sum, item) => sum + item.amount, 0);
     const amount = Math.max(
       0,
       Math.floor(Math.min(args.requestedAmount, earned - alreadyReserved + Number.EPSILON) * 100) / 100,
@@ -223,90 +230,112 @@ export const createOrganizerPayoutRequest = mutation({
   },
 });
 
+export const getPendingPayoutRequests = query({
+  args: { serverSecret: v.string() },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+    const requested = await ctx.db.query("organizerPayoutRequests")
+      .withIndex("by_status_and_createdAt", (q) => q.eq("status", "requested"))
+      .order("desc").take(500);
+    const processing = await ctx.db.query("organizerPayoutRequests")
+      .withIndex("by_status_and_createdAt", (q) => q.eq("status", "processing"))
+      .order("desc").take(500);
+    return [...requested, ...processing].sort((a, b) => b.createdAt - a.createdAt).slice(0, 500).map((request) => ({
+      requestId: request._id,
+      status: request.status,
+      organizerId: request.organizerId,
+      stripeAccountId: request.stripeAccountId,
+      amount: request.amount,
+      createdAt: request.createdAt,
+    }));
+  },
+});
 
+// The operations ledger includes completed and declined requests, not only the
+// actionable queue. Keep this bounded; an exact request ID can still be opened
+// through getPayoutRequestForReview when it ages out of the recent window.
+export const getAdminPayoutLedger = query({
+  args: { serverSecret: v.string() },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+    const requests = await ctx.db.query("organizerPayoutRequests").order("desc").take(200);
+    const organizers = new Map<string, { name: string | null; email: string | null }>();
+    for (const organizerId of new Set(requests.map((request) => request.organizerId))) {
+      const user = (await ctx.db.query("users")
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", organizerId)).first()) ??
+        (await ctx.db.query("users")
+          .withIndex("by_userId", (q) => q.eq("userId", organizerId)).first());
+      organizers.set(organizerId, { name: user?.name ?? null, email: user?.email ?? null });
+    }
+    return requests.map((request) => ({
+      requestId: request._id,
+      organizerId: request.organizerId,
+      organizer: organizers.get(request.organizerId) ?? { name: null, email: null },
+      stripeAccountId: request.stripeAccountId,
+      stripeTransferId: request.stripeTransferId ?? null,
+      amount: request.amount,
+      currency: request.currency,
+      status: request.status,
+      reviewedBy: request.reviewedBy ?? null,
+      reviewNote: request.reviewNote ?? null,
+      createdAt: request.createdAt,
+      updatedAt: request.updatedAt,
+    }));
+  },
+});
 
-export const approveOrganizerPayoutRequest = mutation({
+export const beginOrganizerPayoutTransfer = mutation({
   args: {
-    serverSecret: v.string(),
-    requestId: v.id("organizerPayoutRequests"),
-    approvedBy: v.string(),
+    serverSecret: v.string(), requestId: v.id("organizerPayoutRequests"), reviewedBy: v.string(),
   },
   handler: async (ctx, args) => {
     assertServerSecret(args.serverSecret);
-
     const request = await ctx.db.get(args.requestId);
-
-    if (!request) {
-      throw new Error("Payout request not found.");
-    }
-
-    if (request.status !== "requested") {
-      throw new Error("Payout request is not awaiting approval.");
-    }
-
+    if (!request || request.status !== "requested") throw new Error("Payout request is not pending approval.");
     await ctx.db.patch(args.requestId, {
-      status: "approved",
-      approvedBy: args.approvedBy,
-      approvedAt: Date.now(),
-      updatedAt: Date.now(),
+      status: "processing", reviewedBy: args.reviewedBy, updatedAt: Date.now(),
     });
-
     return true;
   },
 });
 
-
-export const markOrganizerPayoutProcessing = mutation({
-  args: {
-    serverSecret: v.string(),
-    requestId: v.id("organizerPayoutRequests"),
-  },
+export const getPayoutRequestForReview = query({
+  args: { serverSecret: v.string(), requestId: v.id("organizerPayoutRequests") },
   handler: async (ctx, args) => {
     assertServerSecret(args.serverSecret);
-
     const request = await ctx.db.get(args.requestId);
-
-    if (!request) {
-      throw new Error("Payout request not found.");
-    }
-
-    if (request.status !== "approved") {
-      throw new Error("Payout must be approved first.");
-    }
-
-    await ctx.db.patch(args.requestId, {
-      status: "processing",
-      updatedAt: Date.now(),
-    });
-
-    return true;
+    if (!request) throw new Error("Payout request not found.");
+    return request;
   },
 });
 
-
-export const markOrganizerPayoutFailed = mutation({
+export const rejectOrganizerPayoutRequest = mutation({
   args: {
     serverSecret: v.string(),
     requestId: v.id("organizerPayoutRequests"),
+    reviewedBy: v.string(),
+    reviewNote: v.string(),
   },
   handler: async (ctx, args) => {
     assertServerSecret(args.serverSecret);
-
+    const request = await ctx.db.get(args.requestId);
+    if (!request || request.status !== "requested") {
+      throw new Error("Only pending requests may be rejected.");
+    }
     await ctx.db.patch(args.requestId, {
-      status: "failed",
-      updatedAt: Date.now(),
+      status: "rejected", reviewedBy: args.reviewedBy,
+      reviewNote: args.reviewNote.slice(0, 500), updatedAt: Date.now(),
     });
-
     return true;
   },
 });
-
 
 export const markOrganizerPayoutTransferred = mutation({
   args: {
     serverSecret: v.string(),
     requestId: v.id("organizerPayoutRequests"),
     stripeTransferId: v.string(),
+    reviewedBy: v.string(),
   },
   handler: async (ctx, args) => {
     assertServerSecret(args.serverSecret);
@@ -318,35 +347,13 @@ export const markOrganizerPayoutTransferred = mutation({
       }
       return true;
     }
+    if (request.status !== "processing") throw new Error("Payout request is not processing.");
     await ctx.db.patch(args.requestId, {
       status: "transferred",
       stripeTransferId: args.stripeTransferId,
+      reviewedBy: args.reviewedBy,
       updatedAt: Date.now(),
     });
     return true;
   },
 });
-
-
-export const getPendingPayoutRequests = query({
-  args: {
-    serverSecret: v.string(),
-  },
-
-  handler: async (ctx, args) => {
-    assertServerSecret(args.serverSecret);
-
-    const requests = await ctx.db
-      .query("organizerPayoutRequests")
-      .order("desc")
-      .take(100);
-
-    return requests.filter(
-      (request) =>
-        request.status === "requested" ||
-        request.status === "approved" ||
-        request.status === "processing"
-    );
-  },
-});
-
