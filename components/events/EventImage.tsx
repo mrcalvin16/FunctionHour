@@ -6,21 +6,24 @@ import type { Id } from "@/convex/_generated/dataModel";
 
 export default function EventImage({
   storageId,
+  imageUrl: directImageUrl,
   alt = "Event image",
   className = "h-full w-full object-cover",
   fallbackClassName = "flex h-full w-full items-center justify-center bg-white/10 text-sm text-white/40",
 }: {
   storageId?: Id<"_storage">;
+  imageUrl?: string | null;
   alt?: string;
   className?: string;
   fallbackClassName?: string;
 }) {
-  const imageUrl = useQuery(
+  const storedImageUrl = useQuery(
     api.events.getImageUrl,
-    storageId ? { storageId } : "skip"
+    !directImageUrl && storageId ? { storageId } : "skip"
   );
+  const imageUrl = directImageUrl || storedImageUrl;
 
-  if (!storageId) {
+  if (!directImageUrl && !storageId) {
     return <div className={fallbackClassName}>No Image</div>;
   }
 

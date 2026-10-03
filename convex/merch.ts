@@ -182,6 +182,7 @@ export const reserveCartForCheckout = mutation({
     if (existing) throw new Error("Checkout reservation already exists.");
     const event = await ctx.db.get(args.eventId);
     if (!event) throw new Error("Event not found.");
+    if (event.isDemo) throw new Error("Demo events cannot start merchandise checkout.");
     const now = Date.now();
     const expiresAt = now + 30 * 60 * 1_000;
     const reservationDocumentId = await ctx.db.insert(
@@ -855,7 +856,7 @@ export const getOrganizerWorkspace = query({
       .order("desc")
       .take(100);
     const products = [];
-    for (const event of events) {
+    for (const event of events.filter((event) => event.isDemo !== true)) {
       const eventProducts = await ctx.db
         .query("merch")
         .withIndex("by_eventId", (q) => q.eq("eventId", event._id))

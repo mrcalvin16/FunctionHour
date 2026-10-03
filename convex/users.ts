@@ -209,6 +209,7 @@ export const getOrganizerAccess = query({
     const ownedEvent = await ctx.db
       .query("events")
       .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+      .filter((q) => q.neq(q.field("isDemo"), true))
       .first();
     const directMembership = await ctx.db
       .query("eventTeamMembers")

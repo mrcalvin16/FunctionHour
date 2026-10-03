@@ -7,19 +7,26 @@ import { Id } from "@/convex/_generated/dataModel";
 
 type EventImageProps = {
   storageId?: Id<"_storage">;
+  imageUrl?: string | null;
   className?: string;
   alt?: string;
 };
 
-export default function EventImage({ storageId, className = "h-56", alt = "Event image" }: EventImageProps) {
-  const imageUrl = useQuery(
+export default function EventImage({
+  storageId,
+  imageUrl: directImageUrl,
+  className = "h-full w-full object-cover",
+  alt = "Event image",
+}: EventImageProps) {
+  const storedImageUrl = useQuery(
     api.events.getImageUrl,
-    storageId ? { storageId } : "skip"
+    !directImageUrl && storageId ? { storageId } : "skip"
   );
+  const imageUrl = directImageUrl || storedImageUrl;
 
-  if (!storageId) {
+  if (!directImageUrl && !storageId) {
     return (
-      <div className={`flex ${className} items-center justify-center bg-zinc-900 text-zinc-300`}>
+      <div className="flex h-56 items-center justify-center bg-zinc-900 text-zinc-500">
         No Image
       </div>
     );
@@ -27,7 +34,7 @@ export default function EventImage({ storageId, className = "h-56", alt = "Event
 
   if (imageUrl === undefined) {
     return (
-      <div className={`flex ${className} items-center justify-center bg-zinc-900 text-zinc-300`}>
+      <div className="flex h-56 items-center justify-center bg-zinc-900 text-zinc-500">
         Loading image...
       </div>
     );
@@ -35,19 +42,19 @@ export default function EventImage({ storageId, className = "h-56", alt = "Event
 
   if (!imageUrl) {
     return (
-      <div className={`flex ${className} items-center justify-center bg-zinc-900 text-zinc-300`}>
+      <div className="flex h-56 items-center justify-center bg-zinc-900 text-zinc-500">
         Image unavailable
       </div>
     );
   }
 
   return (
-    <div className={`relative ${className} w-full overflow-hidden`}>
+    <div className="relative h-56 w-full overflow-hidden">
       <Image
         src={imageUrl}
         alt={alt}
         fill
-        className="object-cover transition duration-300 group-hover:scale-105"
+        className={className}
       />
     </div>
   );

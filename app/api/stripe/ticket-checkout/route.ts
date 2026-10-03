@@ -174,6 +174,18 @@ export async function POST(req: Request) {
 
     checkoutStage = "configuration";
     const convex = getConvexClient();
+    const checkoutEvent = await convex.query(api.events.getById, {
+      eventId: eventId as Id<"events">,
+    });
+    if (!checkoutEvent) {
+      return NextResponse.json({ error: "Event not found." }, { status: 404 });
+    }
+    if (checkoutEvent.isDemo) {
+      return NextResponse.json(
+        { error: "Demo Event", message: "This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing." },
+        { status: 409 },
+      );
+    }
     const checkoutSecret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
     if (!checkoutSecret) {
       return NextResponse.json(
