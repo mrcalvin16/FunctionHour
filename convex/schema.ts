@@ -84,6 +84,12 @@ eventInteractions: defineTable({
     ratingCount: v.optional(v.float64()),
 
     imageStorageId: v.optional(v.id("_storage")),
+    imageUrl: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
+    shortDescription: v.optional(v.string()),
+    isDemo: v.optional(v.boolean()),
+    demoKey: v.optional(v.string()),
+    demoHidden: v.optional(v.boolean()),
 
     userId: v.string(),
     organizerId: v.optional(v.string()),
