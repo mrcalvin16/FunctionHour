@@ -58,7 +58,7 @@ export default function EventList({
                 </div>
 
                 <Link href={href} tabIndex={-1} aria-hidden="true" className="block h-[88px] overflow-hidden rounded-xl bg-zinc-900 sm:h-[112px]">
-                  <EventImage storageId={event.imageStorageId} className="h-full" alt="" />
+                  <EventImage storageId={event.imageStorageId} imageUrl={event.imageUrl} className="h-full" alt="" />
                 </Link>
 
                 <div className="min-w-0 self-center">
