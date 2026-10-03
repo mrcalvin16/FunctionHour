@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, LocateFixed, MapPin, Route } from "lucide-react";
+import { ArrowUpRight, LocateFixed, MapPin } from "lucide-react";
 import Map, {
   Marker,
   NavigationControl,
