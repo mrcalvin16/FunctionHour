@@ -21,6 +21,7 @@ export const getOrganizerAudience = query({
       .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
       .order("desc")
       .take(MAX_EVENTS);
+    const realEvents = events.filter((event) => event.isDemo !== true);
 
     const audience = new Map<
       string,
@@ -37,7 +38,7 @@ export const getOrganizerAudience = query({
       }
     >();
 
-    for (const event of events) {
+    for (const event of realEvents) {
       const tickets = await ctx.db
         .query("tickets")
         .withIndex("by_event_and_purchasedAt", (q) =>
