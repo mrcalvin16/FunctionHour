@@ -243,7 +243,7 @@ export default function EventDetailPage({
                 </p>
 
                 {event.isDemo && (
-                  <p className="mt-3 inline-flex rounded-full border border-violet-300/25 bg-violet-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-violet-200">
+                  <p className="mt-3 inline-flex rounded-full border border-violet-300/40 bg-violet-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-violet-950 dark:border-violet-300/25 dark:bg-violet-400/10 dark:text-violet-200">
                     Demo Event
                   </p>
                 )}
@@ -605,8 +605,8 @@ export default function EventDetailPage({
 
             <div className="mt-5">
               {event.isDemo ? (
-                <div className="w-full rounded-xl border border-violet-300/20 bg-violet-400/10 px-5 py-4 text-center text-sm leading-6 text-violet-100">
-                  <strong className="block">Demo Event</strong>
+                <div className="w-full rounded-xl border border-violet-300/50 bg-violet-50 px-5 py-4 text-center text-sm leading-6 text-zinc-800 dark:border-violet-300/20 dark:bg-violet-400/10 dark:text-violet-100">
+                  <strong className="block font-black text-violet-950 dark:text-violet-100">Demo Event</strong>
                   This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing.
                 </div>
               ) : !salesOpen ? (
@@ -718,7 +718,7 @@ export default function EventDetailPage({
           </div>
 
           {event.isDemo ? (
-            <span className="max-w-[60%] rounded-xl border border-violet-300/20 bg-violet-400/10 px-4 py-3 text-center text-xs font-bold text-violet-100">Demo Event · Sample listing</span>
+            <span className="max-w-[60%] rounded-xl border border-violet-300/50 bg-violet-50 px-4 py-3 text-center text-xs font-bold text-violet-950 dark:border-violet-300/20 dark:bg-violet-400/10 dark:text-violet-100">Demo Event · Sample listing</span>
           ) : !salesOpen ? (
             <span className="shrink-0 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 font-black text-zinc-400">
               Sales Ended
