@@ -186,12 +186,12 @@ export default function MyEventPassportPage() {
                     <div className={`absolute right-4 top-4 rotate-6 rounded-full border-2 border-dashed px-3 py-2 text-center text-[9px] font-black uppercase leading-tight tracking-wider shadow-lg ${hasImage ? "border-orange-100 bg-gradient-to-br from-orange-500 to-pink-500 text-white" : "border-orange-500/70 bg-white/80 text-orange-700"}`}>
                       <span className="block">{checkedIn ? "Checked" : "Ticketed"}</span><span>{checkedIn ? "in" : "memory"}</span>
                     </div>
-                    <div className={`absolute left-4 top-4 rounded-lg px-3 py-2 backdrop-blur-sm ${hasImage ? "bg-black/45" : "bg-white/75 shadow-sm"}`}><p className={`text-[10px] font-black uppercase tracking-[0.16em] ${hasImage ? "text-orange-200" : "text-orange-700"}`}>{formatMonth(date)}</p><p className={`text-2xl font-black leading-none ${hasImage ? "text-white" : "text-zinc-950"}`}>{new Date(date).getDate()}</p></div>
+                    <div className={`absolute left-4 top-4 rounded-lg px-3 py-2 backdrop-blur-sm ${hasImage ? "bg-black/45" : "bg-white/75 shadow-sm"}`}><p className={`text-[10px] font-black uppercase tracking-[0.16em] ${hasImage ? "text-orange-200" : "text-orange-700"}`}>{formatMonth(date)}</p><p className={`text-2xl font-black leading-none ${hasImage ? "text-zinc-50" : "text-zinc-950"}`}>{new Date(date).getDate()}</p></div>
                     <div className="absolute inset-x-0 bottom-0 p-5">
                       <p className={`flex items-center gap-1.5 text-xs font-bold ${hasImage ? "text-zinc-200" : "text-zinc-600"}`}><MapPin className={`h-3.5 w-3.5 ${hasImage ? "text-orange-300" : "text-orange-600"}`} />{place}</p>
-                      <h3 className={`mt-2 line-clamp-2 text-xl font-black leading-tight ${hasImage ? "text-white" : "text-zinc-950"}`}>{event.name || "Untitled event"}</h3>
-                      <div className={`mt-3 flex items-center justify-between gap-3 text-xs ${hasImage ? "text-zinc-300" : "text-zinc-600"}`}><span className="truncate uppercase tracking-wider">{event.category || "Experience"}</span><span className="shrink-0">{formatLongDate(date)}</span></div>
-                      {count > 1 && <p className={`mt-2 text-[11px] ${hasImage ? "text-zinc-300" : "text-zinc-600"}`}>{count} tickets for this event</p>}
+                      <h3 className={`mt-2 line-clamp-2 text-xl font-black leading-tight ${hasImage ? "text-zinc-50" : "text-zinc-950"}`}>{event.name || "Untitled event"}</h3>
+                      <div className={`mt-3 flex items-center justify-between gap-3 text-xs ${hasImage ? "text-zinc-200" : "text-zinc-600"}`}><span className="truncate uppercase tracking-wider">{event.category || "Experience"}</span><span className="shrink-0">{formatLongDate(date)}</span></div>
+                      {count > 1 && <p className={`mt-2 text-[11px] ${hasImage ? "text-zinc-200" : "text-zinc-600"}`}>{count} tickets for this event</p>}
                     </div>
                   </Link>
                 );
