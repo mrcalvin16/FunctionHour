@@ -15,6 +15,12 @@ const roleLabels: Record<string, string> = {
 
 export async function POST(request: Request) {
   try {
+    const origin = request.headers.get("origin");
+    const requestOrigin = new URL(request.url).origin;
+    if (!origin || origin !== requestOrigin) {
+      return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+    }
+
     const user = await currentUser();
     const email = user?.primaryEmailAddress?.emailAddress;
     if (!user || !email) {
@@ -57,9 +63,9 @@ export async function POST(request: Request) {
 
     await sendTransactionalEmail({
       to: invitation.recipientEmail,
-      subject: `You’re invited to join ${invitation.eventName.replace(/[\\r\\n]/g, " ")} on Function Hour`,
+      subject: `You’re invited to join ${invitation.eventName.replace(/[\r\n]/g, " ")} on Function Hour`,
       idempotencyKey: `event-team-invite-${invitation.memberId}-${requestId}`,
-      text: `Hi ${invitation.recipientName},\\n\\n${invitation.inviterName} invited you to help with ${invitation.eventName} as ${roleLabel}.\\n\\nOpen the event workspace: ${workspaceUrl}\\n\\nSign in to Function Hour with ${invitation.recipientEmail} to access your assigned role.`,
+      text: `Hi ${invitation.recipientName},\n\n${invitation.inviterName} invited you to help with ${invitation.eventName} as ${roleLabel}.\n\nOpen the event workspace: ${workspaceUrl}\n\nSign in to Function Hour with ${invitation.recipientEmail} to access your assigned role.`,
       html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#18181b"><p style="font-size:12px;font-weight:700;letter-spacing:.16em;color:#7c3aed">FUNCTION HOUR</p><h1 style="font-size:28px;line-height:1.2">You’re invited to join the event team</h1><p>Hi ${recipientName},</p><p>${inviterName} invited you to help with <strong>${eventName}</strong>.</p><p>Your role: <strong>${safeRole}</strong></p><p style="margin:28px 0"><a href="${escapeEmailHtml(workspaceUrl)}" style="background:#7c3aed;color:#fff;text-decoration:none;padding:14px 22px;border-radius:12px;font-weight:700">Open event workspace</a></p><p style="font-size:13px;color:#52525b">Sign in to Function Hour with ${escapeEmailHtml(invitation.recipientEmail)} to access your assigned role. If you weren’t expecting this invitation, you can ignore this email.</p></div>`,
     });
 
