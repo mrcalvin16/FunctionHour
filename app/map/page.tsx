@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "convex/react";
 import Link from "next/link";
-import { ArrowLeft, List, RotateCcw, Search, Route } from "lucide-react";
+import { ArrowLeft, List, MapPin, RotateCcw, Search } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import MapCanvas, {
   type MapEvent,
@@ -91,13 +91,13 @@ export default function MapPage() {
       {mapAvailable !== false && <section className="absolute left-3 right-3 top-16 z-20 rounded-[1.75rem] border border-zinc-200 bg-white/95 p-3 shadow-[0_18px_60px_rgba(38,30,55,.14)] backdrop-blur-xl sm:left-5 sm:right-auto sm:top-20 sm:w-[390px] sm:p-5">
         <div className="hidden sm:block">
           <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] text-violet-700">
-            <Route className="h-4 w-4" aria-hidden="true" /> Function Hour event lines
+            <MapPin className="h-4 w-4" aria-hidden="true" /> Function Hour event pins
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-tight">
-            Pick your next stop.
+            Find something happening.
           </h1>
           <p className="mt-2 text-sm leading-6 text-zinc-600">
-            Explore event stops by name, venue, or city.
+            Tap a pin to preview an event. Search by name, venue, or city.
           </p>
         </div>
 
