@@ -8,12 +8,10 @@
  * @module
  */
 
-import type * as adminDashboard from "../adminDashboard.js";
 import type * as aiOrganizer from "../aiOrganizer.js";
 import type * as analytics from "../analytics.js";
 import type * as analyticsSources from "../analyticsSources.js";
 import type * as audience from "../audience.js";
-import type * as audit from "../audit.js";
 import type * as budget from "../budget.js";
 import type * as checkIn from "../checkIn.js";
 import type * as compTickets from "../compTickets.js";
@@ -21,7 +19,6 @@ import type * as crons from "../crons.js";
 import type * as demoEvents from "../demoEvents.js";
 import type * as discountCodes from "../discountCodes.js";
 import type * as discoveryFollows from "../discoveryFollows.js";
-import type * as disputes from "../disputes.js";
 import type * as eventAccess from "../eventAccess.js";
 import type * as eventCreative from "../eventCreative.js";
 import type * as eventDates from "../eventDates.js";
@@ -48,12 +45,10 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  adminDashboard: typeof adminDashboard;
   aiOrganizer: typeof aiOrganizer;
   analytics: typeof analytics;
   analyticsSources: typeof analyticsSources;
   audience: typeof audience;
-  audit: typeof audit;
   budget: typeof budget;
   checkIn: typeof checkIn;
   compTickets: typeof compTickets;
@@ -61,7 +56,6 @@ declare const fullApi: ApiFromModules<{
   demoEvents: typeof demoEvents;
   discountCodes: typeof discountCodes;
   discoveryFollows: typeof discoveryFollows;
-  disputes: typeof disputes;
   eventAccess: typeof eventAccess;
   eventCreative: typeof eventCreative;
   eventDates: typeof eventDates;
@@ -109,5 +103,138 @@ export declare const internal: FilterApi<
 >;
 
 export declare const components: {
-  rateLimiter: import("@convex-dev/rate-limiter/_generated/component.js").ComponentApi<"rateLimiter">;
+  rateLimiter: {
+    lib: {
+      checkRateLimit: FunctionReference<
+        "query",
+        "internal",
+        {
+          config:
+            | {
+                capacity?: number;
+                kind: "token bucket";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: null;
+              }
+            | {
+                capacity?: number;
+                kind: "fixed window";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: number;
+              };
+          count?: number;
+          key?: string;
+          name: string;
+          reserve?: boolean;
+          throws?: boolean;
+        },
+        { ok: true; retryAfter?: number } | { ok: false; retryAfter: number }
+      >;
+      clearAll: FunctionReference<
+        "mutation",
+        "internal",
+        { before?: number },
+        null
+      >;
+      getServerTime: FunctionReference<"mutation", "internal", {}, number>;
+      getValue: FunctionReference<
+        "query",
+        "internal",
+        {
+          config:
+            | {
+                capacity?: number;
+                kind: "token bucket";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: null;
+              }
+            | {
+                capacity?: number;
+                kind: "fixed window";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: number;
+              };
+          key?: string;
+          name: string;
+          sampleShards?: number;
+        },
+        {
+          config:
+            | {
+                capacity?: number;
+                kind: "token bucket";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: null;
+              }
+            | {
+                capacity?: number;
+                kind: "fixed window";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: number;
+              };
+          shard: number;
+          ts: number;
+          value: number;
+        }
+      >;
+      rateLimit: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          config:
+            | {
+                capacity?: number;
+                kind: "token bucket";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: null;
+              }
+            | {
+                capacity?: number;
+                kind: "fixed window";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: number;
+              };
+          count?: number;
+          key?: string;
+          name: string;
+          reserve?: boolean;
+          throws?: boolean;
+        },
+        { ok: true; retryAfter?: number } | { ok: false; retryAfter: number }
+      >;
+      resetRateLimit: FunctionReference<
+        "mutation",
+        "internal",
+        { key?: string; name: string },
+        null
+      >;
+    };
+    time: {
+      getServerTime: FunctionReference<"mutation", "internal", {}, number>;
+    };
+  };
 };
