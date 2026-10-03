@@ -245,6 +245,7 @@ export default function OrganizerProfilePage({
                   {event.imageStorageId ? (
                     <EventImage
                       storageId={event.imageStorageId}
+                      imageUrl={event.imageUrl}
                       alt={event.name}
                       className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
                     />
