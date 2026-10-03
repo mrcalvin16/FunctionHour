@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireEventCapability, requireIdentity } from "./eventAccess";
 
@@ -867,7 +867,14 @@ export const getOrganizerWorkspace = query({
           .query("merchVariants")
           .withIndex("by_merchId", (q) => q.eq("merchId", product._id))
           .take(100);
-        products.push({ ...product, eventName: event.name, variants });
+        products.push({
+          ...product,
+          imageUrl: product.imageStorageId
+            ? await ctx.storage.getUrl(product.imageStorageId)
+            : (product.imageUrl ?? null),
+          eventName: event.name,
+          variants,
+        });
       }
     }
     const orders = await ctx.db
@@ -982,14 +989,19 @@ export const getProductEditor = query({
       .query("merchVariants")
       .withIndex("by_merchId", (q) => q.eq("merchId", product._id))
       .take(100);
-    return { ...product, variants };
+    return {
+      ...product,
+      imageUrl: product.imageStorageId
+        ? await ctx.storage.getUrl(product.imageStorageId)
+        : (product.imageUrl ?? null),
+      variants,
+    };
   },
 });
 
 export const updateProduct = mutation({
   args: {
     merchId: v.id("merch"),
-    imageStorageId: v.optional(v.id("_storage")),
     name: v.string(),
     description: v.optional(v.string()),
     sku: v.string(),
@@ -1003,6 +1015,7 @@ export const updateProduct = mutation({
     preorderCutoffAt: v.optional(v.number()),
     featured: v.boolean(),
     limitedDrop: v.boolean(),
+    imageStorageId: v.optional(v.id("_storage")),
     variants: v.array(
       v.object({
         variantId: v.optional(v.id("merchVariants")),
@@ -1018,7 +1031,7 @@ export const updateProduct = mutation({
   },
   handler: async (ctx, args) => {
     const product = await ctx.db.get(args.merchId);
-    if (!product) throw new Error("Product not found.");
+    if (!product) throw new ConvexError("Product not found.");
     await requireEventCapability(ctx, product.eventId, "manage_event");
     if (
       !args.name.trim() ||
@@ -1026,12 +1039,25 @@ export const updateProduct = mutation({
       args.price < 0 ||
       args.inventory < (product.reserved ?? 0) + (product.sold ?? 0)
     )
-      throw new Error(
+      throw new ConvexError(
         "Enter valid product details. Inventory cannot be below reserved and sold units.",
       );
+    let imageUpdate = {};
+    if (args.imageStorageId) {
+      const image = await ctx.db.system.get("_storage", args.imageStorageId);
+      if (!image || image.size > 10 * 1024 * 1024)
+        throw new ConvexError("Choose a JPG, PNG, or WebP image under 10 MB.");
+      // Content type is optional in Convex storage metadata. The upload endpoint
+      // checks the browser's format and size before sending it to storage.
+      if (image.contentType && !["image/jpeg", "image/png", "image/webp"].includes(image.contentType))
+        throw new ConvexError("Choose a JPG, PNG, or WebP image under 10 MB.");
+      const imageUrl = await ctx.storage.getUrl(args.imageStorageId);
+      if (!imageUrl) throw new ConvexError("Image upload is unavailable. Try again.");
+      imageUpdate = { imageStorageId: args.imageStorageId, imageUrl };
+    }
     const now = Date.now();
     await ctx.db.patch(product._id, {
-      ...(args.imageStorageId !== undefined && { imageStorageId: args.imageStorageId }),
+      ...imageUpdate,
       name: args.name.trim().slice(0, 120),
       description: args.description?.trim().slice(0, 2_000),
       sku: args.sku.trim().toUpperCase().slice(0, 64),
@@ -1054,13 +1080,13 @@ export const updateProduct = mutation({
     for (const input of args.variants) {
       const sku = input.sku.trim().toUpperCase().slice(0, 64);
       if (!input.name.trim() || !sku || input.price < 0 || input.inventory < 0)
-        throw new Error("Every variant needs valid details.");
+        throw new ConvexError("Every variant needs valid details.");
       if (input.variantId) {
         const variant = await ctx.db.get(input.variantId);
         if (!variant || variant.merchId !== product._id)
-          throw new Error("Variant not found.");
+          throw new ConvexError("Variant not found.");
         if (input.inventory < variant.reserved + variant.sold)
-          throw new Error(
+          throw new ConvexError(
             `${variant.name} inventory cannot be below reserved and sold units.`,
           );
         const duplicate = await ctx.db
@@ -1068,7 +1094,7 @@ export const updateProduct = mutation({
           .withIndex("by_sku", (q) => q.eq("sku", sku))
           .first();
         if (duplicate && duplicate._id !== variant._id)
-          throw new Error(`SKU ${sku} is already in use.`);
+          throw new ConvexError(`SKU ${sku} is already in use.`);
         await ctx.db.patch(variant._id, {
           name: input.name.trim().slice(0, 100),
           sku,
@@ -1085,7 +1111,7 @@ export const updateProduct = mutation({
           .query("merchVariants")
           .withIndex("by_sku", (q) => q.eq("sku", sku))
           .first();
-        if (duplicate) throw new Error(`SKU ${sku} is already in use.`);
+        if (duplicate) throw new ConvexError(`SKU ${sku} is already in use.`);
         const id = await ctx.db.insert("merchVariants", {
           merchId: product._id,
           name: input.name.trim().slice(0, 100),
