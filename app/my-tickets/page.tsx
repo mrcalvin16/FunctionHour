@@ -78,6 +78,12 @@ export default function MyTicketsPage() {
               Orders
             </Link>
             <Link
+              href="/my-event-passport"
+              className="inline-flex min-h-11 items-center rounded-xl border border-violet-300/30 bg-violet-400/10 px-4 text-xs font-black text-violet-100 hover:bg-violet-400/20"
+            >
+              Event Passport
+            </Link>
+            <Link
               href="/saved-events"
               className="hidden min-h-11 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-xs font-black text-zinc-300 hover:bg-white/[0.07] sm:inline-flex"
             >
