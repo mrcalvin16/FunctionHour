@@ -15,6 +15,7 @@ const browseLinks = [
 const accountLinks = [
   { href: "/saved-events", label: "Saved" },
   { href: "/my-tickets", label: "My Tickets" },
+  { href: "/my-event-passport", label: "Passport" },
   { href: "/my-merch-orders", label: "Merch Orders" },
 ];
 
