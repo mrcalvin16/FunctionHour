@@ -1,5 +1,5 @@
-// SECURITY: ticket status validation
 import { v } from "convex/values";
+import { isTicketEligibleForAdmission } from "./ticketAdmission";
 import {
   mutation,
   query,
@@ -333,6 +333,11 @@ export const validateCode = query({
       return null;
     }
 
+    // A valid QR code alone does not grant admission after a refund or revocation.
+    if (!isTicketEligibleForAdmission(ticket)) {
+      return null;
+    }
+
     const guest = await getTicketGuest(ctx, ticket);
 
     return {
@@ -371,6 +376,10 @@ export const checkInTicket = mutation({
 
     if (!ticket || ticket.eventId !== args.eventId) {
       throw new Error("Ticket not found for this event.");
+    }
+
+    if (!isTicketEligibleForAdmission(ticket)) {
+      throw new Error("This ticket is no longer valid for admission.");
     }
 
     const guest = await getTicketGuest(ctx, ticket);
