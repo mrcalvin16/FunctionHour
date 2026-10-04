@@ -1001,14 +1001,21 @@ export const updateFulfillment = mutation({
     const order = await ctx.db.get(args.orderId);
     if (!order || order.organizerId !== identity.subject)
       throw new Error("Order not found or access denied.");
+    const nextTrackingNumber = args.trackingNumber?.trim().slice(0, 120);
+    const nextTrackingUrl = args.trackingUrl?.trim().slice(0, 500);
+    const notifyCustomer =
+      ["shipped", "ready_for_pickup"].includes(args.fulfillmentStatus) &&
+      (order.fulfillmentStatus !== args.fulfillmentStatus ||
+        order.trackingNumber !== nextTrackingNumber ||
+        order.trackingUrl !== nextTrackingUrl);
     const updatedAt = Date.now();
     await ctx.db.patch(args.orderId, {
       fulfillmentStatus: args.fulfillmentStatus,
-      trackingNumber: args.trackingNumber?.trim().slice(0, 120),
-      trackingUrl: args.trackingUrl?.trim().slice(0, 500),
+      trackingNumber: nextTrackingNumber,
+      trackingUrl: nextTrackingUrl,
       updatedAt,
     });
-    return { updatedAt };
+    return { updatedAt, notifyCustomer };
   },
 });
 
@@ -1316,7 +1323,7 @@ export const getPrintfulSyncRecord = query({
     if (!order || order.organizerId !== args.clerkId) return null;
     if (order.fulfillmentMethod !== "printful" || !order.printfulOrderId)
       return null;
-    return { printfulOrderId: order.printfulOrderId };
+    return { printfulOrderId: order.printfulOrderId, fulfillmentStatus: order.fulfillmentStatus, trackingNumber: order.trackingNumber, trackingUrl: order.trackingUrl };
   },
 });
 
@@ -1335,14 +1342,21 @@ export const recordPrintfulShipment = mutation({
     const order = await ctx.db.get(args.orderId);
     if (!order || order.organizerId !== args.clerkId)
       throw new Error("Order not found.");
+    const trackingNumber = args.trackingNumber?.slice(0, 150);
+    const trackingUrl = args.trackingUrl?.slice(0, 500);
+    const notifyCustomer = args.shipped &&
+      (order.fulfillmentStatus !== "shipped" ||
+        order.trackingNumber !== trackingNumber ||
+        order.trackingUrl !== trackingUrl);
+    const updatedAt = Date.now();
     await ctx.db.patch(order._id, {
       printfulStatus: args.printfulStatus.slice(0, 80),
       printfulError: undefined,
-      trackingNumber: args.trackingNumber?.slice(0, 150),
-      trackingUrl: args.trackingUrl?.slice(0, 500),
+      trackingNumber,
+      trackingUrl,
       fulfillmentStatus: args.shipped ? "shipped" : order.fulfillmentStatus,
-      updatedAt: Date.now(),
+      updatedAt,
     });
-    return true;
+    return { updatedAt, notifyCustomer };
   },
 });
