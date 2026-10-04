@@ -6,14 +6,26 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { parseEventId } from "@/lib/eventStaff";
 
 export default function OrganizerAccessGate({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { isLoaded, isSignedIn } = useAuth();
   const user = useQuery(api.users.getCurrentUser, isSignedIn ? {} : "skip");
   const ownedEvents = useQuery(api.events.getMyEvents, isSignedIn ? {} : "skip");
-  const accessLoading = isSignedIn && (user === undefined || ownedEvents === undefined);
+  const eventPath = pathname.match(/^\/host\/events\/([^/]+)/);
+  const staffEventId = parseEventId(eventPath?.[1]);
+  const staffAccess = useQuery(
+    api.eventAccess.getMyEventAccess,
+    isSignedIn && staffEventId ? { eventId: staffEventId } : "skip"
+  );
+  const accessLoading =
+    isSignedIn &&
+    (user === undefined ||
+      ownedEvents === undefined ||
+      (staffEventId !== null && staffAccess === undefined));
   const canAccessOrganizerTools = user?.isOrganizer === true || Boolean(ownedEvents?.length);
+  const canAccessStaffWorkspace = Boolean(staffAccess?.role);
 
   if (!isLoaded || accessLoading) {
     return <AccessScreen title="Loading Organizer OS…" />;
@@ -36,7 +48,9 @@ export default function OrganizerAccessGate({ children }: { children: ReactNode 
     return children;
   }
 
-  if (!canAccessOrganizerTools) {
+  // Event staff can open only the event workspace for which Convex confirms
+  // their role. They do not need an organizer profile or owned events.
+  if (!canAccessOrganizerTools && !canAccessStaffWorkspace) {
     return (
       <AccessScreen
         title="Set up your organizer profile"
