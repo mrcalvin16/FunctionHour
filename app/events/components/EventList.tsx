@@ -85,6 +85,11 @@ export default function EventList({
                     >
                       {isSaved ? "♥" : "♡"}
                     </button>
+                    {event.hasMerch && (
+                      <Link href={`${href}/merch`} className="inline-flex min-h-10 items-center rounded-full border border-zinc-300 bg-white px-3 text-xs font-black text-zinc-900 transition hover:border-orange-400 hover:text-orange-800">
+                        Shop merch
+                      </Link>
+                    )}
                     <Link href={href} className="inline-flex min-h-10 items-center rounded-full bg-zinc-950 px-4 text-xs font-black text-white transition hover:bg-zinc-800">
                       View event <span aria-hidden="true" className="ml-2">→</span>
                     </Link>
