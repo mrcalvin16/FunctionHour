@@ -125,11 +125,12 @@ export default function MapPage() {
           )}
         </label>
 
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+        <div role="group" aria-label="Filter map by category" className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
           {categories.map((category) => (
             <button
               key={category}
               type="button"
+              aria-pressed={activeCategory === category}
               onClick={() => setActiveCategory(category)}
               className={`min-h-10 shrink-0 rounded-full px-4 text-xs font-black transition ${activeCategory === category ? "fh-map-inverse bg-violet-700 text-white shadow-md shadow-violet-500/20" : "border border-zinc-200 bg-white text-zinc-700 hover:border-violet-300 hover:bg-violet-50"}`}
             >
@@ -138,7 +139,7 @@ export default function MapPage() {
           ))}
         </div>
 
-        <div className="mt-3 grid grid-cols-3 rounded-2xl border border-zinc-200 bg-zinc-100 p-1">
+        <div role="group" aria-label="Filter map by date" className="mt-3 grid grid-cols-3 rounded-2xl border border-zinc-200 bg-zinc-100 p-1">
           {(
             [
               ["all", "Any date"],
@@ -149,6 +150,7 @@ export default function MapPage() {
             <button
               key={value}
               type="button"
+              aria-pressed={timeMode === value}
               onClick={() => setTimeMode(value)}
               className={`min-h-10 rounded-xl px-2 text-[11px] font-black transition sm:text-xs ${timeMode === value ? "bg-white text-zinc-950 shadow-sm" : "text-zinc-600 hover:text-zinc-950"}`}
             >

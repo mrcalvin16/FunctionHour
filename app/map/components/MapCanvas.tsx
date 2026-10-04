@@ -268,11 +268,18 @@ export default function MapCanvas({
   }
 
   if (mapSupported === null) {
-    return <div className="h-full bg-zinc-100" aria-label="Loading map" />;
+    return (
+      <div role="status" aria-live="polite" className="flex h-full items-center justify-center bg-zinc-100 p-4 text-sm font-semibold text-zinc-800">
+        Loading the interactive event map…
+      </div>
+    );
   }
 
   return (
-    <div className="functionhour-map-canvas relative h-full overflow-hidden bg-[#f8fafc]">
+    <div role="region" aria-label="Interactive event map. Event results are also available in the List view." className="functionhour-map-canvas relative h-full overflow-hidden bg-[#f8fafc]">
+      <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {loading ? "Loading map events." : `${mappedEvents.length} event ${mappedEvents.length === 1 ? "has" : "have"} map pins.`}
+      </p>
       <Map
         ref={mapRef}
         {...viewState}
@@ -372,15 +379,17 @@ export default function MapCanvas({
           className={`h-4 w-4 ${locationStatus === "loading" ? "animate-pulse text-violet-700" : ""}`}
           aria-hidden="true"
         />
-        {locationStatus === "loading"
-          ? "Locating…"
-          : locationStatus === "error"
-            ? "Location blocked"
-            : "Near me"}
+        <span aria-live="polite" aria-atomic="true">
+          {locationStatus === "loading"
+            ? "Locating…"
+            : locationStatus === "error"
+              ? "Location blocked"
+              : "Near me"}
+        </span>
       </button>
 
       {!loading && visibleEvents.length === 0 && (
-        <div className="absolute inset-x-3 bottom-5 z-10 rounded-2xl border border-zinc-200 bg-white/95 p-4 text-center text-sm text-zinc-700 shadow-lg backdrop-blur-xl sm:bottom-5 sm:left-auto sm:right-5 sm:max-w-sm">
+        <div role="status" aria-live="polite" className="absolute inset-x-3 bottom-5 z-10 rounded-2xl border border-zinc-200 bg-white/95 p-4 text-center text-sm text-zinc-700 shadow-lg backdrop-blur-xl sm:bottom-5 sm:left-auto sm:right-5 sm:max-w-sm">
           No events match these filters. Try another category, date, or location.
         </div>
       )}
