@@ -25,6 +25,7 @@ export type DiscoveryEvent = {
   imageStorageId?: Id<"_storage">;
   imageUrl?: string | null;
   isDemo?: boolean;
+  hasMerch?: boolean;
   isFeatured?: boolean;
 };
 
