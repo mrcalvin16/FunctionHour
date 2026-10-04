@@ -334,6 +334,7 @@ export default function EventCheckoutPage({
                       <button
                         key={ticket._id}
                         type="button"
+                        aria-pressed={selected}
                         disabled={!!soldOut}
                         onClick={() => setSelectedTicketTypeId(ticket._id)}
                         className={`w-full rounded-2xl border p-5 text-left transition ${
@@ -372,6 +373,7 @@ export default function EventCheckoutPage({
                       <button
                         key={addOn._id}
                         type="button"
+                        aria-pressed={selected}
                         disabled={!!addOn.isSoldOut}
                         onClick={() => toggleAddOn(addOn._id)}
                         className={`w-full rounded-2xl border p-5 text-left transition ${
@@ -423,7 +425,7 @@ export default function EventCheckoutPage({
                 <div className="flex items-center overflow-hidden rounded-full border border-zinc-300 bg-white dark:border-white/15 dark:bg-black">
                   <button
                     type="button"
-                    aria-label="Remove one ticket"
+                    aria-label="Decrease ticket quantity"
                     onClick={() => setQuantity((current) => Math.max(1, current - 1))}
                     disabled={quantity <= 1}
                     className="grid h-11 w-11 place-items-center text-xl font-black hover:bg-zinc-100 disabled:opacity-30 dark:hover:bg-white/10"
@@ -433,7 +435,7 @@ export default function EventCheckoutPage({
                   <span className="min-w-10 text-center font-black" aria-live="polite">{quantity}</span>
                   <button
                     type="button"
-                    aria-label="Add one ticket"
+                    aria-label="Increase ticket quantity"
                     onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
                     disabled={quantity >= maxQuantity}
                     className="grid h-11 w-11 place-items-center text-xl font-black hover:bg-zinc-100 disabled:opacity-30 dark:hover:bg-white/10"
@@ -457,7 +459,7 @@ export default function EventCheckoutPage({
                   <button type="button" onClick={() => setPromoToValidate(promoCode)} disabled={!promoCode} className="rounded-xl border border-zinc-300 bg-white px-3 text-xs font-black hover:bg-zinc-100 disabled:opacity-40 dark:border-white/10 dark:bg-transparent dark:hover:bg-white/10">Apply</button>
                 </div>
                 {promoToValidate && discount === undefined && <p className="mt-2 text-xs text-zinc-500">Checking code…</p>}
-                {discount && <p className={`mt-2 text-xs ${discount.valid ? "text-emerald-400" : "text-red-300"}`}>{discount.message}</p>}
+                {discount && <p role="status" aria-live="polite" className={`mt-2 text-xs ${discount.valid ? "text-emerald-700" : "text-red-700"}`}>{discount.message}</p>}
               </div>
 
               {discount?.valid && (
@@ -520,22 +522,31 @@ export default function EventCheckoutPage({
               ) : (
                 <>
                   <div className="space-y-3">
-                    <input
-                      type="text"
-                      value={buyerName}
-                      onChange={(e) => setBuyerName(e.target.value)}
-                      placeholder="Full Name"
-                      className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-orange-400 dark:border-white/10 dark:bg-black/40 dark:text-white dark:placeholder:text-white/40"
-                    />
-
-                    <input
-                      type="email"
-                      value={buyerEmail}
-                      onChange={(e) => setBuyerEmail(e.target.value)}
-                      placeholder="Email Address"
-                      required
-                      className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-orange-400 dark:border-white/10 dark:bg-black/40 dark:text-white dark:placeholder:text-white/40"
-                    />
+                    <div>
+                      <label htmlFor="checkout-buyer-name" className="mb-1 block text-sm font-bold text-zinc-800">Full name</label>
+                      <input
+                        id="checkout-buyer-name"
+                        name="name"
+                        type="text"
+                        autoComplete="name"
+                        value={buyerName}
+                        onChange={(e) => setBuyerName(e.target.value)}
+                        className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-orange-400 dark:border-white/10 dark:bg-black/40 dark:text-white dark:placeholder:text-white/40"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="checkout-buyer-email" className="mb-1 block text-sm font-bold text-zinc-800">Email address</label>
+                      <input
+                        id="checkout-buyer-email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        value={buyerEmail}
+                        onChange={(e) => setBuyerEmail(e.target.value)}
+                        required
+                        className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-orange-400 dark:border-white/10 dark:bg-black/40 dark:text-white dark:placeholder:text-white/40"
+                      />
+                    </div>
                   </div>
 
                   <button
@@ -552,7 +563,7 @@ export default function EventCheckoutPage({
             </div>
 
             {message && (
-              <p className="mt-4 whitespace-pre-line rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700 dark:border-white/10 dark:bg-black dark:text-white/70">
+              <p role="alert" aria-live="assertive" className="mt-4 whitespace-pre-line rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-semibold text-red-900 dark:border-red-700 dark:bg-black dark:text-red-200">
                 {message}
               </p>
             )}
