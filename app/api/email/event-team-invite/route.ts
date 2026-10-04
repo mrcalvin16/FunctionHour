@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     if (!invitation) return NextResponse.json({ error: "Invitation not found." }, { status: 404 });
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
-    const workspaceUrl = new URL(`/host/events/${invitation.eventId}`, appUrl).toString();
+    const workspaceUrl = new URL(`/staff/sign-in?eventId=${encodeURIComponent(invitation.eventId)}`, appUrl).toString();
     const name = invitation.name ? `Hi ${invitation.name},` : "Hello,";
     const role = roleNames[invitation.role] || "Event team member";
     const eventName = escapeEmailHtml(invitation.eventName);
@@ -44,8 +44,8 @@ export async function POST(request: Request) {
       to: invitation.email,
       subject: `You’re invited to help with ${invitation.eventName}`,
       idempotencyKey: `event-team-invite-${invitation.memberId}-${invitation.updatedAt}`,
-      text: `${name}\n\nYou’ve been invited as ${role} for ${invitation.eventName} on Function Hour. Open the event workspace: ${workspaceUrl}\n\nSign in using ${invitation.email}. Access is tied to this exact email address. If you weren’t expecting this invitation, you can ignore this message.`,
-      html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#171717"><p style="font-size:12px;font-weight:700;letter-spacing:.16em;color:#7c3aed">FUNCTION HOUR</p><h1 style="font-size:28px;line-height:1.2">You’re invited to an event team</h1><p>${safeName}</p><p>You’ve been invited as <strong>${safeRole}</strong> for <strong>${eventName}</strong>.</p><p style="margin:28px 0"><a href="${workspaceUrl}" style="background:#7c3aed;color:white;text-decoration:none;padding:14px 22px;border-radius:12px;font-weight:700">Open event workspace</a></p><p style="font-size:13px;color:#555">Sign in using <strong>${escapeEmailHtml(invitation.email)}</strong>. Access is tied to this exact email address. If you weren’t expecting this invitation, you can ignore this message.</p></div>`,
+      text: `${name}\n\nYou’ve been invited as ${role} for ${invitation.eventName} on Function Hour. Staff sign-in: ${workspaceUrl}\n\nSign in using ${invitation.email}. Access is tied to this exact email address. If you weren’t expecting this invitation, you can ignore this message.`,
+      html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#171717"><p style="font-size:12px;font-weight:700;letter-spacing:.16em;color:#7c3aed">FUNCTION HOUR</p><h1 style="font-size:28px;line-height:1.2">You’re invited to an event team</h1><p>${safeName}</p><p>You’ve been invited as <strong>${safeRole}</strong> for <strong>${eventName}</strong>.</p><p style="margin:28px 0"><a href="${workspaceUrl}" style="background:#7c3aed;color:white;text-decoration:none;padding:14px 22px;border-radius:12px;font-weight:700">Staff sign in</a></p><p style="font-size:13px;color:#555">Sign in using <strong>${escapeEmailHtml(invitation.email)}</strong>. Access is tied to this exact email address. If you weren’t expecting this invitation, you can ignore this message.</p></div>`,
     });
     return NextResponse.json({ sent: true });
   } catch (error) {
