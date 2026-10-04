@@ -17,7 +17,7 @@ export default function HostEventLayout({
 }) {
   const { id } = use(params);
   const eventId = id as Id<"events">;
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
   const event = useQuery(api.events.getById, {
     eventId,
   });
@@ -58,7 +58,7 @@ export default function HostEventLayout({
     return (
       <CommandCenterState
         title="Access unavailable"
-        detail="You do not have permission to manage this event."
+        detail={`You are signed in as ${user?.primaryEmailAddress?.emailAddress || "an account without a primary email"}. Ask the event organizer to invite this exact email address, then sign out and back in if the invitation was just added.`}
       />
     );
   }
