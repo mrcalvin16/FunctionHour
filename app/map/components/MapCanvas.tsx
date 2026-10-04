@@ -388,6 +388,7 @@ export default function MapCanvas({
         </span>
       </button>
 
+      {visibleEvents.length > 0 && (
       <details className="absolute bottom-5 left-3 z-10 w-[min(24rem,calc(100vw-5rem))] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-zinc-200 bg-white/95 text-zinc-950 shadow-xl backdrop-blur-xl sm:left-5">
         <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 text-sm font-black marker:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-800">
           <span>Matching events</span>
@@ -408,6 +409,7 @@ export default function MapCanvas({
           {visibleEvents.length === 0 && <p className="p-3 text-sm text-zinc-700">No events match the selected filters.</p>}
         </section>
       </details>
+      )}
 
       {!loading && visibleEvents.length === 0 && (
         <div role="status" aria-live="polite" className="absolute inset-x-3 bottom-5 z-10 rounded-2xl border border-zinc-200 bg-white/95 p-4 text-center text-sm text-zinc-700 shadow-lg backdrop-blur-xl sm:bottom-5 sm:left-auto sm:right-5 sm:max-w-sm">
