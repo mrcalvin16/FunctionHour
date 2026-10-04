@@ -47,7 +47,7 @@ export default function MerchOrderPage({
       trackingNumber: trackingNumber || undefined,
       trackingUrl: trackingUrl || undefined,
     });
-    if (status === "shipped" || status === "ready_for_pickup") {
+    if (result.notifyCustomer && (status === "shipped" || status === "ready_for_pickup")) {
       try {
         const response = await fetch("/api/email/merch-fulfillment", {
           method: "POST",
