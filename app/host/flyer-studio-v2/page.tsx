@@ -840,6 +840,7 @@ export default function FlyerStudioV2Page() {
       },
     ]);
     setSelectedElementId(id);
+    setInspectorOpen(true);
   }
 
   async function uploadBackground(file: Blob) {
@@ -1125,6 +1126,7 @@ export default function FlyerStudioV2Page() {
     setGuides([]);
 
     commitSnapshot(interaction.startSnapshot);
+    setInspectorOpen(true);
   }
 
   function startInlineEditing(
@@ -1232,6 +1234,7 @@ export default function FlyerStudioV2Page() {
   }
 
   function toggleElementSelection(elementId: string, additive: boolean) {
+    setInspectorOpen(true);
     const element = elements.find((item) => item.id === elementId);
     const relatedIds = element?.groupId ? elements.filter((item) => item.groupId === element.groupId).map((item) => item.id) : [elementId];
     if (!additive) {
@@ -1280,6 +1283,7 @@ export default function FlyerStudioV2Page() {
     const element: CanvasElement = { id, kind: "icon", name, text: "", iconName, x: 210, y: Math.round(canvasHeight / 2 - 50), width: 100, height: 100, fontSize: 12, fontWeight: 400, color: brandColor, align: "center", opacity: 1, borderWidth: 2 };
     commitElements((current) => [...current, element]);
     setSelectedElementId(id);
+    setInspectorOpen(true);
     setSelectedElementIds([id]);
   }
 
@@ -1288,6 +1292,7 @@ export default function FlyerStudioV2Page() {
     const element: CanvasElement = { id, kind: "sticker", name: `${text} sticker`, text, stickerStyle, x: 165, y: Math.round(canvasHeight / 2 - 45), width: 190, height: stickerStyle === "pill" ? 64 : 120, fontSize: stickerStyle === "pill" ? 20 : 24, fontWeight: 900, color: brandColor, background: brandColor, borderColor: "#ffffff", borderWidth: stickerStyle === "badge" ? 2 : 0, align: "center", opacity: 1 };
     commitElements((current) => [...current, element]);
     setSelectedElementId(id);
+    setInspectorOpen(true);
     setSelectedElementIds([id]);
   }
 
@@ -1296,6 +1301,7 @@ export default function FlyerStudioV2Page() {
     const element: CanvasElement = { id, kind: "line", name: "Line", text: "", x: 80, y: Math.round(canvasHeight / 2), width: 360, height: 24, fontSize: 12, fontWeight: 400, color: brandColor, align: "center", opacity: 1, borderWidth: 3, lineStyle: "solid" };
     commitElements((current) => [...current, element]);
     setSelectedElementId(id);
+    setInspectorOpen(true);
     setSelectedElementIds([id]);
   }
 
@@ -1305,6 +1311,7 @@ export default function FlyerStudioV2Page() {
     const element: CanvasElement = { id, kind: "frame", name: frameShape === "circle" ? "Circle frame" : "Frame", text: "", x: Math.round((CANVAS_WIDTH - size) / 2), y: Math.round((canvasHeight - (frameShape === "circle" ? size : 220)) / 2), width: size, height: frameShape === "circle" ? size : 220, fontSize: 12, fontWeight: 400, color: brandColor, align: "center", opacity: 1, borderColor: brandColor, borderWidth: 5, borderRadius: 20, frameShape };
     commitElements((current) => [...current, element]);
     setSelectedElementId(id);
+    setInspectorOpen(true);
     setSelectedElementIds([id]);
   }
 
@@ -1331,6 +1338,7 @@ export default function FlyerStudioV2Page() {
     };
     commitElements((current) => [...current, element]);
     setSelectedElementId(id);
+    setInspectorOpen(true);
   }
 
   function addImageElement(url: string, name = "Uploaded image", storageId?: Id<"_storage">) {
@@ -1358,6 +1366,7 @@ export default function FlyerStudioV2Page() {
     };
     commitElements((current) => [...current, element]);
     setSelectedElementId(id);
+    setInspectorOpen(true);
     setActiveTool("layers");
   }
 
