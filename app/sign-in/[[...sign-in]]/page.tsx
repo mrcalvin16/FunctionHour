@@ -29,7 +29,7 @@ export default async function SignInPage({
         <SignIn
           path="/sign-in"
           routing="path"
-          signUpUrl="/sign-up"
+          signUpUrl={redirectUrl ? `/sign-up?redirect_url=${encodeURIComponent(redirectUrl)}` : "/sign-up"}
           forceRedirectUrl={redirectUrl}
           fallbackRedirectUrl={redirectUrl ?? "/onboarding"}
         />

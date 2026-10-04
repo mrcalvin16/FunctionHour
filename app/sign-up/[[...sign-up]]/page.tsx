@@ -19,7 +19,7 @@ export default function SignUpPage() {
         <SignUp
           path="/sign-up"
           routing="path"
-          signInUrl="/sign-in"
+          signInUrl={requestedRedirect ? `/sign-in?redirect_url=${encodeURIComponent(fallbackRedirectUrl)}` : "/sign-in"}
           forceRedirectUrl={fallbackRedirectUrl}
           fallbackRedirectUrl={fallbackRedirectUrl}
         />
