@@ -42,6 +42,16 @@ export default function EventMerchStore({
     const result = new URLSearchParams(window.location.search).get("checkout");
     if (result === "success" || result === "cancelled") setCheckoutResult(result);
   }, []);
+  useEffect(() => {
+    const productId = new URLSearchParams(window.location.search).get("product");
+    if (!productId || !store) return;
+    window.requestAnimationFrame(() => {
+      document.getElementById(`merch-product-${productId}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  }, [store]);
   const total = useMemo(
     () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cart],
@@ -231,6 +241,7 @@ export default function EventMerchStore({
                   return (
                     <article
                       key={product._id}
+                      id={`merch-product-${product._id}`}
                       className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.035]"
                     >
                       <div className="aspect-square bg-white/[0.03]">
