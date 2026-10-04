@@ -33,13 +33,17 @@ export async function POST(request: Request) {
         const trackingUrl = safeTrackingUrl(details.trackingUrl);
         const eventName = escapeEmailHtml(details.eventName);
         const trackingLink = trackingUrl ? `<p><a href="${escapeEmailHtml(trackingUrl)}" style="color:#6d28d9;font-weight:700">Track your shipment</a></p>` : "";
-        await sendTransactionalEmail({
-          to: details.buyerEmail,
-          subject: `Your order from ${details.eventName} is on its way`,
-          idempotencyKey: `merch-fulfillment-${details.orderId}-${details.status}-${details.updatedAt}`,
-          text: `Your order has shipped.\nTracking number: ${details.trackingNumber || "Not provided"}\n\nView your order: ${ordersUrl}`,
-          html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#171717"><p style="font-size:12px;font-weight:700;letter-spacing:.16em;color:#7c3aed">FUNCTION HOUR</p><h1 style="font-size:28px">Your order is on its way</h1><p>Your order from <strong>${eventName}</strong> has shipped.</p>${trackingLink}<p style="margin:28px 0"><a href="${ordersUrl}" style="background:#7c3aed;color:white;text-decoration:none;padding:14px 22px;border-radius:12px;font-weight:700">View My Merch Orders</a></p></div>`,
-        });
+        try {
+          await sendTransactionalEmail({
+            to: details.buyerEmail,
+            subject: `Your order from ${details.eventName} is on its way`,
+            idempotencyKey: `merch-fulfillment-${details.orderId}-${details.status}-${details.updatedAt}`,
+            text: `Your order has shipped.\nTracking number: ${details.trackingNumber || "Not provided"}\n\nView your order: ${ordersUrl}`,
+            html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#171717"><p style="font-size:12px;font-weight:700;letter-spacing:.16em;color:#7c3aed">FUNCTION HOUR</p><h1 style="font-size:28px">Your order is on its way</h1><p>Your order from <strong>${eventName}</strong> has shipped.</p>${trackingLink}<p style="margin:28px 0"><a href="${ordersUrl}" style="background:#7c3aed;color:white;text-decoration:none;padding:14px 22px;border-radius:12px;font-weight:700">View My Merch Orders</a></p></div>`,
+          });
+        } catch (emailError) {
+          console.error("Printful shipment email delivery failed:", emailError);
+        }
       }
     }
     return NextResponse.json({ ...status, customerNotified: update.notifyCustomer });
