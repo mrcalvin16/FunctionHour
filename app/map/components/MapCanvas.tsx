@@ -388,6 +388,29 @@ export default function MapCanvas({
         </span>
       </button>
 
+      {visibleEvents.length > 0 && (
+      <details className="absolute bottom-5 left-3 z-10 w-[min(24rem,calc(100vw-5rem))] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-zinc-200 bg-white/95 text-zinc-950 shadow-xl backdrop-blur-xl sm:left-5">
+        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 text-sm font-black marker:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-800">
+          <span>Matching events</span>
+          <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-bold text-violet-950">{visibleEvents.length}</span>
+        </summary>
+        <section aria-label="Events matching map filters" className="max-h-[40dvh] overflow-y-auto border-t border-zinc-200 p-2">
+          <ul className="space-y-1">
+            {[...visibleEvents].sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0)).map((event) => (
+              <li key={event._id}>
+                <Link href={`/events/${event._id}`} className="block rounded-xl p-3 text-sm text-zinc-950 hover:bg-violet-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-violet-800">
+                  <span className="block font-bold">{event.name || "Untitled event"}</span>
+                  <span className="mt-1 block text-xs text-zinc-700">{formatDate(event)} · {locationLabel(event)}</span>
+                  <span className="mt-1 block text-xs font-semibold text-violet-900">{getFromPriceLabel(event)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {visibleEvents.length === 0 && <p className="p-3 text-sm text-zinc-700">No events match the selected filters.</p>}
+        </section>
+      </details>
+      )}
+
       {!loading && visibleEvents.length === 0 && (
         <div role="status" aria-live="polite" className="absolute inset-x-3 bottom-5 z-10 rounded-2xl border border-zinc-200 bg-white/95 p-4 text-center text-sm text-zinc-700 shadow-lg backdrop-blur-xl sm:bottom-5 sm:left-auto sm:right-5 sm:max-w-sm">
           No events match these filters. Try another category, date, or location.
