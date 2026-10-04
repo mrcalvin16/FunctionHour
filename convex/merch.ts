@@ -950,6 +950,38 @@ export const getOrganizerWorkspace = query({
   },
 });
 
+export const getFulfillmentEmailDetails = query({
+  args: {
+    serverSecret: v.string(),
+    clerkId: v.string(),
+    orderId: v.id("merchOrders"),
+    expectedUpdatedAt: v.number(),
+  },
+  handler: async (ctx, args) => {
+    if (!process.env.STRIPE_WEBHOOK_SHARED_SECRET || args.serverSecret !== process.env.STRIPE_WEBHOOK_SHARED_SECRET)
+      throw new Error("Unauthorized server request.");
+    const order = await ctx.db.get(args.orderId);
+    if (!order || order.organizerId !== args.clerkId) throw new Error("Order not found or access denied.");
+    if (order.updatedAt !== args.expectedUpdatedAt || !["shipped", "ready_for_pickup"].includes(order.fulfillmentStatus ?? "") || !order.buyerEmail) return null;
+    const [event, items] = await Promise.all([
+      order.eventId ? ctx.db.get(order.eventId) : null,
+      ctx.db.query("merchOrderItems").withIndex("by_orderId", (q) => q.eq("orderId", order._id)).take(20),
+    ]);
+    return {
+      orderId: order._id,
+      updatedAt: order.updatedAt,
+      buyerEmail: order.buyerEmail,
+      buyerName: order.buyerName ?? "",
+      status: order.fulfillmentStatus,
+      fulfillmentMethod: order.fulfillmentMethod ?? "shipping",
+      trackingNumber: order.trackingNumber ?? "",
+      trackingUrl: order.trackingUrl ?? "",
+      eventName: event?.name ?? "your event",
+      items: items.map((item) => ({ name: item.productName, variantName: item.variantName ?? "", quantity: item.quantity })),
+    };
+  },
+});
+
 export const updateFulfillment = mutation({
   args: {
     orderId: v.id("merchOrders"),
@@ -969,13 +1001,14 @@ export const updateFulfillment = mutation({
     const order = await ctx.db.get(args.orderId);
     if (!order || order.organizerId !== identity.subject)
       throw new Error("Order not found or access denied.");
+    const updatedAt = Date.now();
     await ctx.db.patch(args.orderId, {
       fulfillmentStatus: args.fulfillmentStatus,
       trackingNumber: args.trackingNumber?.trim().slice(0, 120),
       trackingUrl: args.trackingUrl?.trim().slice(0, 500),
-      updatedAt: Date.now(),
+      updatedAt,
     });
-    return true;
+    return { updatedAt };
   },
 });
 
