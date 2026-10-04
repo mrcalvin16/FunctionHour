@@ -77,7 +77,7 @@ function PassportArtwork({
             </div>
             <div className="grid h-[92px] w-[92px] shrink-0 rotate-6 place-items-center rounded-full border-2 border-dashed border-white/75 bg-white/10 text-center shadow-inner">
               <div>
-                <TicketCheck className="mx-auto h-6 w-6" />
+                <TicketCheck className="mx-auto h-6 w-6 text-white" strokeWidth={2.5} />
                 <span className="mt-1 block text-[9px] font-black uppercase tracking-[0.15em]">{eventCount ? eventCount + " stamps" : "Ready"}</span>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function MyEventPassportPage() {
   }
 
   return (
-    <main className="safe-x min-h-screen overflow-x-hidden bg-[#fffaf7] text-zinc-950">
+    <main className="passport-page safe-x min-h-screen overflow-x-hidden bg-[#fffaf7] text-zinc-950">
       <DiscoveryNav />
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-20 h-[560px] overflow-hidden">
         <div className="absolute -left-40 top-0 h-96 w-96 rounded-full bg-orange-200/35 blur-[130px]" />
@@ -240,8 +240,8 @@ export default function MyEventPassportPage() {
               {years.length > 0 && (
                 <div className="flex max-w-full gap-2 overflow-x-auto pb-1" aria-label="Choose a passport year">
                   {years.map((year) => (
-                    <button key={year} type="button" aria-pressed={year === activeYear} onClick={() => setSelectedYear(year)} className={year === activeYear ? "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-orange-600 bg-orange-600 px-4 text-xs font-black text-white shadow-sm" : "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:border-orange-300 hover:text-orange-800"}>
-                      <CalendarDays className="h-3.5 w-3.5" />{year}
+                    <button key={year} type="button" aria-pressed={year === activeYear} onClick={() => setSelectedYear(year)} className={year === activeYear ? "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-orange-300 bg-orange-100 px-4 text-xs font-black text-orange-950 shadow-sm" : "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:border-orange-300 hover:text-orange-800"}>
+                      <CalendarDays className={year === activeYear ? "h-4 w-4 text-orange-900" : "h-4 w-4 text-zinc-700"} strokeWidth={2.5} />{year}
                     </button>
                   ))}
                 </div>
@@ -268,11 +268,11 @@ export default function MyEventPassportPage() {
                         <span className="mt-0.5 block text-xl font-black leading-none text-zinc-950">{new Date(date).getDate()}</span>
                       </div>
                       <span className={checkedIn ? "absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-white/95 px-3 py-1.5 text-[10px] font-black text-emerald-800 shadow-sm" : "absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-white/95 px-3 py-1.5 text-[10px] font-black text-orange-800 shadow-sm"}>
-                        <TicketCheck className="h-3.5 w-3.5" />{checkedIn ? "Checked in" : "In your history"}
+                        <TicketCheck className="h-4 w-4 shrink-0" strokeWidth={2.5} />{checkedIn ? "Checked in" : "In your history"}
                       </span>
                     </div>
                     <div className="p-5">
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600"><MapPin className="h-3.5 w-3.5 shrink-0 text-orange-600" /><span className="truncate">{place}</span></div>
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600"><MapPin className="h-4 w-4 shrink-0 text-orange-700" strokeWidth={2.5} /><span className="truncate">{place}</span></div>
                       <h3 className="mt-2 line-clamp-2 text-xl font-black leading-snug tracking-[-0.025em] text-zinc-950">{event.name || "Untitled event"}</h3>
                       <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-100 pt-3">
                         <span className="truncate text-[10px] font-black uppercase tracking-[0.14em] text-zinc-500">{event.category || "Experience"}</span>
