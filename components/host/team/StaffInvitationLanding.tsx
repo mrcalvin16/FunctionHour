@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SignOutButton, useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
@@ -11,6 +11,7 @@ import { staffSignInUrl } from "@/lib/eventStaff";
 
 export default function StaffInvitationLanding({ eventId }: { eventId: Id<"events"> }) {
   const router = useRouter();
+  const [hasMounted, setHasMounted] = useState(false);
   const { isLoaded, isSignedIn, user } = useUser();
   const event = useQuery(api.events.getById, { eventId });
   const access = useQuery(
@@ -19,6 +20,11 @@ export default function StaffInvitationLanding({ eventId }: { eventId: Id<"event
   );
 
   useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasMounted) return;
     if (isLoaded && !isSignedIn) {
       router.replace(staffSignInUrl(eventId));
       return;
@@ -26,9 +32,21 @@ export default function StaffInvitationLanding({ eventId }: { eventId: Id<"event
     if (access?.role) {
       router.replace(`/host/events/${eventId}`);
     }
-  }, [access?.role, eventId, isLoaded, isSignedIn, router]);
+  }, [access?.role, eventId, hasMounted, isLoaded, isSignedIn, router]);
 
-  const email = user?.primaryEmailAddress?.emailAddress;
+  const email = hasMounted ? user?.primaryEmailAddress?.emailAddress : undefined;
+
+  if (!hasMounted) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f7f8fb] px-4 py-10 text-slate-950">
+        <section aria-live="polite" className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-xl shadow-slate-900/5 sm:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-700">FunctionHour · Event team</p>
+          <h1 className="mt-4 text-3xl font-black tracking-tight">Checking your invitation</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">Please wait while we verify your event access.</p>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f7f8fb] px-4 py-10 text-slate-950">
@@ -39,7 +57,17 @@ export default function StaffInvitationLanding({ eventId }: { eventId: Id<"event
         </h1>
         {event === null ? (
           <p className="mt-3 text-sm leading-6 text-slate-600">This event is unavailable. Ask the organizer to confirm the event and resend your staff link.</p>
-        ) : (!isLoaded || (isSignedIn && (event === undefined || access === undefined)) || access?.role) ? (
+        ) : access?.role ? (
+          <>
+            <p className="mt-3 text-sm leading-6 text-slate-700">Your event access is confirmed. Opening the workspace now.</p>
+            <Link
+              href={`/host/events/${eventId}`}
+              className="mt-6 inline-flex min-h-12 items-center justify-center rounded-xl bg-violet-700 px-6 text-sm font-bold text-white hover:bg-violet-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"
+            >
+              Open event workspace
+            </Link>
+          </>
+        ) : (!isLoaded || (isSignedIn && (event === undefined || access === undefined))) ? (
           <p className="mt-3 text-sm leading-6 text-slate-600">Please wait while we verify your event access.</p>
         ) : !isSignedIn ? (
           <p className="mt-3 text-sm leading-6 text-slate-600">Taking you to staff sign-in…</p>
