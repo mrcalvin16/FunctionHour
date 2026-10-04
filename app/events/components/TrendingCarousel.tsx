@@ -79,11 +79,18 @@ export default function TrendingCarousel({
                   </h3>
                 </Link>
                 <p className="mt-3 truncate text-sm text-zinc-600">{getEventLocation(event)}</p>
-                <div className="mt-4 flex items-center justify-between border-t border-zinc-200 pt-4">
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-zinc-200 pt-4">
                   <p className="text-lg font-black text-zinc-950">{getFromPriceLabel(event)}</p>
-                  <Link href={`/events/${event._id}`} className="rounded-full bg-zinc-950 px-4 py-2 text-xs font-black text-white transition hover:bg-zinc-800">
-                    View event
-                  </Link>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    {event.hasMerch && (
+                      <Link href={`/events/${event._id}/merch`} aria-label={`Shop merchandise for ${event.name}`} className="rounded-full border border-zinc-300 bg-white px-3 py-2 text-xs font-black text-zinc-900 transition hover:border-orange-400 hover:text-orange-800">
+                        Shop merch
+                      </Link>
+                    )}
+                    <Link href={`/events/${event._id}`} className="rounded-full bg-zinc-950 px-4 py-2 text-xs font-black text-white transition hover:bg-zinc-800">
+                      View event
+                    </Link>
+                  </div>
                 </div>
               </div>
             </article>
