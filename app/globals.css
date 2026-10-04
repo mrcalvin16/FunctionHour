@@ -600,3 +600,9 @@ html.light .functionhour-map-root .fh-map-inverse {
   outline: 2px solid #7c3aed;
   outline-offset: 3px;
 }
+
+/* Keep keyboard focus visible even on controls with component-level outline resets. */
+:focus-visible {
+  outline: 3px solid #4c1d95 !important;
+  outline-offset: 3px !important;
+}
