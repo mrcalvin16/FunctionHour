@@ -20,6 +20,7 @@ export default function SignUpPage() {
           path="/sign-up"
           routing="path"
           signInUrl="/sign-in"
+          forceRedirectUrl={fallbackRedirectUrl}
           fallbackRedirectUrl={fallbackRedirectUrl}
         />
         <p className="mt-6 text-xs leading-5 text-zinc-500">

@@ -103,7 +103,8 @@ export async function getEventRole(
   ctx: EventContext,
   eventId: Id<"events">,
   userId: string,
-  email?: string
+  email?: string,
+  tokenIdentifier?: string
 ): Promise<EventRole | null> {
   const event = await ctx.db.get(eventId);
 
@@ -134,7 +135,25 @@ export async function getEventRole(
     return teamMember.role;
   }
 
-  const normalizedEmail = email?.trim().toLowerCase();
+  let normalizedEmail = email?.trim().toLowerCase();
+
+  if (!normalizedEmail && tokenIdentifier) {
+    const userByToken = await ctx.db
+      .query("users")
+      .withIndex("by_tokenIdentifier", (q) =>
+        q.eq("tokenIdentifier", tokenIdentifier)
+      )
+      .first();
+    normalizedEmail = userByToken?.email?.trim().toLowerCase();
+  }
+
+  if (!normalizedEmail) {
+    const userByClerkId = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", userId))
+      .first();
+    normalizedEmail = userByClerkId?.email?.trim().toLowerCase();
+  }
 
   if (!normalizedEmail) {
     return null;
@@ -170,7 +189,8 @@ export async function requireEventCapability(
       ctx,
       eventId,
       identity.subject,
-      identity.email
+      identity.email,
+      identity.tokenIdentifier
   );
 
   if (
@@ -200,7 +220,8 @@ export const getMyEventAccess = query({
       ctx,
       args.eventId,
       identity.subject,
-      identity.email
+      identity.email,
+      identity.tokenIdentifier
     );
 
     return {
