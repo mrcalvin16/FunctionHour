@@ -154,7 +154,7 @@ export const getAll = query({
 
     return await Promise.all(
       events.map(async (event) => {
-        const [imageUrl, ticketTypes] = await Promise.all([
+        const [imageUrl, ticketTypes, merchProducts] = await Promise.all([
           event.imageUrl || (event.imageStorageId
             ? ctx.storage.getUrl(event.imageStorageId)
             : Promise.resolve(null)),
@@ -162,8 +162,16 @@ export const getAll = query({
             .query("ticketTypes")
             .withIndex("by_event", (q) => q.eq("eventId", event._id))
             .take(100),
+          ctx.db.query("merch")
+            .withIndex("by_eventId", (q) => q.eq("eventId", event._id))
+            .take(100),
         ]);
 
+        const hasMerch = merchProducts.some((product) =>
+          (product.status === "published" || (!product.status && product.isActive)) &&
+          (!product.preorderCutoffAt || product.preorderCutoffAt > Date.now()) &&
+          product.fulfillmentMethod !== "printful",
+        );
         const activeTicketPrices = ticketTypes
           .filter((ticketType) => ticketType.isActive !== false)
           .map((ticketType) => ticketType.price);
@@ -180,6 +188,7 @@ export const getAll = query({
         return {
           ...event,
           imageUrl,
+          hasMerch,
           startingPrice,
           organizerName: organizer?.organizerName || organizer?.name || "Organizer",
         };

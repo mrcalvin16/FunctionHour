@@ -57,16 +57,28 @@ export default function TeamPermissionsWorkspace({
     setMessage("");
     setError("");
     try {
-      await inviteMember({
+      const invitedEmail = email.trim();
+      const memberId = await inviteMember({
         eventId: selectedEventId,
-        email,
+        email: invitedEmail,
         name: name.trim() || undefined,
         role,
       });
       setName("");
       setEmail("");
       setRole("check_in_staff");
-      setMessage("Team access added. Share the event workspace link with this staff member.");
+
+      try {
+        const response = await fetch("/api/email/event-team-invite", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ eventId: selectedEventId, memberId }),
+        });
+        if (!response.ok) throw new Error("Invitation email could not be delivered.");
+        setMessage(`Invitation email sent to ${invitedEmail}. Access is linked to this exact email address.`);
+      } catch {
+        setMessage(`Access was added for ${invitedEmail}, but the invitation email could not be delivered. Copy and share the event workspace link.`);
+      }
     } catch (inviteError) {
       setError(inviteError instanceof Error ? inviteError.message : "Unable to add this team member.");
     } finally {
@@ -185,7 +197,7 @@ export default function TeamPermissionsWorkspace({
             <form onSubmit={handleInvite} className="h-fit rounded-[1.5rem] border border-white/[0.08] bg-gradient-to-br from-[#171128] to-[#15100e] p-5 sm:p-6">
               <UserPlus className="h-6 w-6 text-orange-400" />
               <h2 className="mt-3 text-xl font-black">Add team member</h2>
-              <p className="mt-1 text-xs leading-5 text-zinc-500">Access activates when they sign in with this email.</p>
+              <p className="mt-1 text-xs leading-5 text-zinc-300">We’ll email the event workspace link. They must sign in using the same email address you invite.</p>
               <div className="mt-5 space-y-3">
                 <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Name (optional)" className="min-h-11 w-full rounded-xl border border-white/10 bg-black/30 px-4 text-sm outline-none focus:border-violet-400/50" />
                 <input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="staff@example.com" className="min-h-11 w-full rounded-xl border border-white/10 bg-black/30 px-4 text-sm outline-none focus:border-violet-400/50" />

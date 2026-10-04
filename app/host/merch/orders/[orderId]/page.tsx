@@ -28,6 +28,7 @@ export default function MerchOrderPage({
   const [trackingNumber, setTrackingNumber] = useState("");
   const [trackingUrl, setTrackingUrl] = useState("");
   const [saved, setSaved] = useState(false);
+  const [emailNotice, setEmailNotice] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [syncError, setSyncError] = useState("");
   useEffect(() => {
@@ -39,12 +40,29 @@ export default function MerchOrderPage({
   }, [order]);
   async function submit(event: FormEvent) {
     event.preventDefault();
-    await update({
+    setEmailNotice("");
+    const result = await update({
       orderId: typedOrderId,
       fulfillmentStatus: status,
       trackingNumber: trackingNumber || undefined,
       trackingUrl: trackingUrl || undefined,
     });
+    if (result.notifyCustomer && (status === "shipped" || status === "ready_for_pickup")) {
+      try {
+        const response = await fetch("/api/email/merch-fulfillment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId, expectedUpdatedAt: result.updatedAt }),
+        });
+        if (!response.ok) throw new Error("Notification email could not be sent.");
+        const delivery = await response.json();
+        setEmailNotice(delivery.sent ? "Customer notified by email." : "Fulfillment saved. No customer email was sent.");
+      } catch {
+        setEmailNotice("Fulfillment saved, but the customer email could not be sent. Tracking remains available in My Merch Orders.");
+      }
+    } else {
+      setEmailNotice("Fulfillment saved.");
+    }
     setSaved(true);
   }
   async function syncPrintful() {
@@ -194,6 +212,7 @@ export default function MerchOrderPage({
               className="mt-2 min-h-11 w-full rounded-xl border border-white/[.08] bg-black/30 px-3 text-sm"
             />
           </label>
+          {emailNotice && <p role="status" className="mt-4 rounded-xl border border-white/[.08] bg-black/20 p-3 text-xs leading-5 text-zinc-300">{emailNotice}</p>}
           <button className="mt-5 min-h-11 w-full rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 text-xs font-black">
             {saved ? "Saved" : "Save fulfillment"}
           </button>

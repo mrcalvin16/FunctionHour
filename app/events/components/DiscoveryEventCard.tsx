@@ -180,13 +180,16 @@ export default function DiscoveryEventCard({
             </p>
           </div>
 
-          <Link
-            href={`/events/${event._id}`}
-            className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-3 text-xs font-black text-white transition duration-200 hover:scale-[1.02] hover:bg-zinc-800 active:scale-95"
-          >
-            View event
-            <span aria-hidden="true">→</span>
-          </Link>
+          <div className="flex flex-wrap justify-end gap-2">
+            {event.hasMerch && (
+              <Link href={`/events/${event._id}/merch`} aria-label={`Shop merchandise for ${event.name}`} className="inline-flex items-center rounded-full border border-zinc-300 bg-white px-4 py-3 text-xs font-black text-zinc-900 transition hover:border-orange-400 hover:text-orange-800">
+                Shop merch
+              </Link>
+            )}
+            <Link href={`/events/${event._id}`} className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-3 text-xs font-black text-white transition duration-200 hover:scale-[1.02] hover:bg-zinc-800 active:scale-95">
+              View event <span aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
       </div>
 

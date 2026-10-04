@@ -357,6 +357,33 @@ export const inviteEventTeamMember = mutation({
   },
 });
 
+export const getInvitationEmailDetails = query({
+  args: {
+    serverSecret: v.string(),
+    eventId: v.id("events"),
+    memberId: v.id("eventTeamMembers"),
+    clerkId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    if (!process.env.STRIPE_WEBHOOK_SHARED_SECRET || args.serverSecret !== process.env.STRIPE_WEBHOOK_SHARED_SECRET)
+      throw new Error("Unauthorized server request.");
+    const role = await getEventRole(ctx, args.eventId, args.clerkId);
+    if (!role || !roleCan(role, "manage_team"))
+      throw new Error("You do not have permission to invite team members.");
+    const [event, member] = await Promise.all([ctx.db.get(args.eventId), ctx.db.get(args.memberId)]);
+    if (!event || !member || member.eventId !== event._id || member.status !== "invited" || !member.email) return null;
+    return {
+      eventName: event.name,
+      eventId: event._id,
+      memberId: member._id,
+      email: member.email,
+      name: member.name ?? "",
+      role: member.role,
+      updatedAt: member.updatedAt ?? member.createdAt,
+    };
+  },
+});
+
 export const updateEventTeamMemberRole = mutation({
   args: {
     eventId: v.id("events"),
