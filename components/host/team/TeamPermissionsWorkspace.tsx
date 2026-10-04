@@ -110,8 +110,8 @@ export default function TeamPermissionsWorkspace({
 
   async function copyWorkspaceLink() {
     if (!selectedEventId) return;
-    await navigator.clipboard.writeText(`${window.location.origin}/host/events/${selectedEventId}`);
-    setMessage("Event workspace link copied.");
+    await navigator.clipboard.writeText(`${window.location.origin}/staff/sign-in?eventId=${encodeURIComponent(selectedEventId)}`);
+    setMessage("Staff sign-in link copied.");
   }
 
   return (
@@ -152,7 +152,7 @@ export default function TeamPermissionsWorkspace({
                   onClick={copyWorkspaceLink}
                   className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 px-3 text-xs font-black text-zinc-400 hover:text-white"
                 >
-                  <Copy className="h-4 w-4" /> Copy workspace link
+                  <Copy className="h-4 w-4" /> Copy staff sign-in link
                 </button>
               </div>
 
