@@ -20,6 +20,7 @@ export default function Footer({ homePrivacyOptOut = false }: { homePrivacyOptOu
           <Link href="/refund-policy" className="transition hover:text-zinc-950">Refunds</Link>
           <Link href="/terms" className="transition hover:text-zinc-950">Terms</Link>
           <Link href="/privacy" className="transition hover:text-zinc-950">Privacy</Link>
+          <Link href="/accessibility" className="transition hover:text-zinc-950">Accessibility
           <a href="mailto:operations@functionhour.com?subject=Accessibility%20support" className="transition hover:text-zinc-950">Accessibility support</a>
           <PrivacyPreferences />
           <a href="mailto:operations@functionhour.com" className="transition hover:text-zinc-950">Support</a>
