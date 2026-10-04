@@ -107,6 +107,8 @@ export const getStorefront = query({
         (product.preorderCutoffAt && product.preorderCutoffAt <= now)
       )
         continue;
+      // Printful fulfillment is reserved for MVP 2; MVP 1 merch uses FunctionHour's Stripe checkout and direct fulfillment.
+      if (product.fulfillmentMethod === "printful") continue;
       const variants = await ctx.db
         .query("merchVariants")
         .withIndex("by_merchId", (q) => q.eq("merchId", product._id))
