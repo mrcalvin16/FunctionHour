@@ -29,6 +29,67 @@ const fontOptions = [
   { name: "Typewriter", stack: "'Courier New', Courier, monospace" },
 ] as const;
 
+function colorPatchFor(element: CanvasElement, color: string): Partial<CanvasElement> | null {
+  switch (element.kind) {
+    case "text":
+    case "button":
+    case "line":
+    case "icon":
+      return { color };
+    case "shape":
+    case "sticker":
+      return { background: color };
+    case "frame":
+      return { borderColor: color };
+    default:
+      return null;
+  }
+}
+
+function ElementColorControl({
+  element,
+  selectionCount,
+  onChange,
+}: {
+  element: CanvasElement;
+  selectionCount: number;
+  onChange: (color: string) => void;
+}) {
+  const patch = colorPatchFor(element, element.color);
+  if (!patch) return null;
+
+  const value = element.kind === "shape" || element.kind === "sticker"
+    ? element.background ?? element.color
+    : element.kind === "frame"
+      ? element.borderColor ?? element.color
+      : element.color;
+  const label = {
+    text: "Text color",
+    button: "Text color",
+    shape: "Fill color",
+    line: "Line color",
+    frame: "Frame color",
+    icon: "Icon color",
+    sticker: "Sticker fill",
+  }[element.kind as "text" | "button" | "shape" | "line" | "frame" | "icon" | "sticker"] ?? "Color";
+
+  return (
+    <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+      <label className="flex items-center justify-between gap-3 text-xs font-bold text-zinc-800">
+        {selectionCount > 1 ? "Selected elements color" : label}
+        <input
+          type="color"
+          aria-label={selectionCount > 1 ? "Color for selected elements" : label}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-10 w-14 cursor-pointer rounded-md border border-zinc-300 bg-white p-1"
+        />
+      </label>
+      {selectionCount > 1 && <p className="mt-2 text-xs leading-5 text-zinc-700">Applies to all selected text, shapes, lines, icons, frames, and stickers.</p>}
+    </div>
+  );
+}
+
 export default function PropertiesPanel({
   selectedElement,
   updateElement,
@@ -38,8 +99,12 @@ export default function PropertiesPanel({
   deleteSelected,
   canvasHeight,
   onEditImage,
+  selectionCount,
+  applyColorToSelection,
 }: {
   selectedElement: CanvasElement | null;
+  selectionCount: number;
+  applyColorToSelection: (color: string) => void;
   updateElement: (
     id: string,
     patch:
@@ -60,6 +125,7 @@ export default function PropertiesPanel({
       <h2 className="text-sm font-black">Adjustment layer</h2>
       <p className="mt-2 text-xs leading-5 text-zinc-700">Changes the image and layers beneath it within this layer’s bounds. Stack layers for combined effects.</p>
       <div className="mt-5 space-y-5">
+        <ElementColorControl element={selectedElement} selectionCount={selectionCount} onChange={applyColorToSelection} />
         {([ ["brightness", "Brightness", 0, 200], ["contrast", "Contrast", 0, 200], ["saturation", "Saturation", 0, 200], ["blur", "Blur", 0, 20] ] as const).map(([key, label, min, max]) => <label key={key} className="block text-xs font-bold text-zinc-700">{label} · {selectedElement[key] ?? (key === "blur" ? 0 : 100)}
           <input type="range" min={min} max={max} value={selectedElement[key] ?? (key === "blur" ? 0 : 100)} onChange={(event) => updateElement(selectedElement.id, { [key]: Number(event.target.value) })} className="mt-2 w-full" />
         </label>)}
@@ -82,6 +148,7 @@ export default function PropertiesPanel({
       <aside className="max-h-[55vh] overflow-y-auto border-t border-zinc-200 bg-white p-4 lg:max-h-none lg:border-l lg:border-t-0">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-700">{isImage ? "Image" : isLine ? "Line" : isFrame ? "Frame" : isIcon ? "Icon" : isSticker ? "Sticker" : "Shape"}</p>
         <div className="mt-4 space-y-4">
+          <ElementColorControl element={selectedElement} selectionCount={selectionCount} onChange={applyColorToSelection} />
           <label className="block text-xs font-bold text-zinc-700">Opacity
             <input type="range" min={10} max={100} value={Math.round((selectedElement.opacity ?? 1) * 100)} onChange={(event) => updateElement(selectedElement.id, { opacity: Number(event.target.value) / 100 })} className="mt-2 w-full" />
           </label>
@@ -106,13 +173,13 @@ export default function PropertiesPanel({
             </label>
             <button type="button" onClick={() => updateElement(selectedElement.id, { brightness: 100, contrast: 100, saturation: 100, blur: 0, borderRadius: 0, opacity: 1 })} className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">Reset image adjustments</button>
           </div> : null}
-          {isIcon ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Icon color<input type="color" value={selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { color: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Stroke width<input type="range" min={1} max={5} step={0.25} value={selectedElement.borderWidth ?? 2} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label></div> : null}
-          {isSticker ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Sticker text<input type="text" value={selectedElement.text} maxLength={24} onChange={(event) => updateElement(selectedElement.id, { text: event.target.value })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950" /></label><label className="block text-xs font-bold text-zinc-700">Fill<input type="color" value={selectedElement.background ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { background: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Text color<input type="color" value={selectedElement.borderColor ?? "#ffffff"} onChange={(event) => updateElement(selectedElement.id, { borderColor: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Style<select value={selectedElement.stickerStyle ?? "badge"} onChange={(event) => updateElement(selectedElement.id, { stickerStyle: event.target.value as "badge" | "burst" | "pill" })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"><option value="badge">Badge</option><option value="burst">Burst</option><option value="pill">Pill</option></select></label></div> : null}
-          {isLine ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Line color<input type="color" value={selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { color: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Thickness<input type="range" min={1} max={20} value={selectedElement.borderWidth ?? 3} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Style<select value={selectedElement.lineStyle ?? "solid"} onChange={(event) => updateElement(selectedElement.id, { lineStyle: event.target.value as "solid" | "dashed" | "dotted" })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option></select></label></div> : null}
-          {isFrame ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Frame color<input type="color" value={selectedElement.borderColor ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { borderColor: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Border width<input type="range" min={1} max={30} value={selectedElement.borderWidth ?? 5} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label><button type="button" onClick={() => updateElement(selectedElement.id, { frameShape: selectedElement.frameShape === "circle" ? "rectangle" : "circle" })} className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">{selectedElement.frameShape === "circle" ? "Make rectangular" : "Make circular"}</button></div> : null}
+          {isIcon ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700"><label className="block text-xs font-bold text-zinc-700">Stroke width<input type="range" min={1} max={5} step={0.25} value={selectedElement.borderWidth ?? 2} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label></div> : null}
+          {isSticker ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Sticker text<input type="text" value={selectedElement.text} maxLength={24} onChange={(event) => updateElement(selectedElement.id, { text: event.target.value })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950" /></label><label className="block text-xs font-bold text-zinc-700">Text color<input type="color" value={selectedElement.borderColor ?? "#ffffff"} onChange={(event) => updateElement(selectedElement.id, { borderColor: event.target.value })} className="mt-2 block h-10 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Style<select value={selectedElement.stickerStyle ?? "badge"} onChange={(event) => updateElement(selectedElement.id, { stickerStyle: event.target.value as "badge" | "burst" | "pill" })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"><option value="badge">Badge</option><option value="burst">Burst</option><option value="pill">Pill</option></select></label></div> : null}
+          {isLine ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Thickness<input type="range" min={1} max={20} value={selectedElement.borderWidth ?? 3} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label><label className="block text-xs font-bold text-zinc-700">Style<select value={selectedElement.lineStyle ?? "solid"} onChange={(event) => updateElement(selectedElement.id, { lineStyle: event.target.value as "solid" | "dashed" | "dotted" })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option></select></label></div> : null}
+          {isFrame ? <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3"><label className="block text-xs font-bold text-zinc-700">Border width<input type="range" min={1} max={30} value={selectedElement.borderWidth ?? 5} onChange={(event) => updateElement(selectedElement.id, { borderWidth: Number(event.target.value) })} className="mt-2 w-full" /></label><button type="button" onClick={() => updateElement(selectedElement.id, { frameShape: selectedElement.frameShape === "circle" ? "rectangle" : "circle" })} className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">{selectedElement.frameShape === "circle" ? "Make rectangular" : "Make circular"}</button></div> : null}
           {isImage ? <label className="block text-xs font-bold text-zinc-700">Image fit
             <select value={selectedElement.objectFit ?? "cover"} onChange={(event) => updateElement(selectedElement.id, { objectFit: event.target.value as "cover" | "contain" })} className="mt-2 w-full rounded-lg border border-zinc-200 bg-zinc-100 p-2 text-zinc-950"><option value="cover">Fill frame</option><option value="contain">Fit inside</option></select>
-          </label> : <><label className="block text-xs font-bold text-zinc-700">Fill<input type="color" value={selectedElement.background ?? selectedElement.color} onChange={(event) => updateElement(selectedElement.id, { background: event.target.value })} className="mt-2 block h-10 w-full" /></label><button type="button" onClick={() => updateElement(selectedElement.id, { shape: selectedElement.shape === "circle" ? "rectangle" : "circle" })} className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">{selectedElement.shape === "circle" ? "Make rectangle" : "Make circle"}</button></>}
+          </label> : <><button type="button" onClick={() => updateElement(selectedElement.id, { shape: selectedElement.shape === "circle" ? "rectangle" : "circle" })} className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">{selectedElement.shape === "circle" ? "Make rectangle" : "Make circle"}</button></>}
           <div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => moveLayer("up")} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">Move up</button><button type="button" onClick={() => moveLayer("down")} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">Move down</button><button type="button" onClick={duplicateSelected} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">Duplicate</button><button type="button" onClick={() => updateElement(selectedElement.id, { locked: !selectedElement.locked })} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">{selectedElement.locked ? "Unlock" : "Lock"}</button></div>
           <button type="button" onClick={deleteSelected} className="w-full rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-black text-red-700">Delete element</button>
         </div>
@@ -178,6 +245,7 @@ export default function PropertiesPanel({
               </label>
             ))}
           </div>
+          <ElementColorControl element={selectedElement} selectionCount={selectionCount} onChange={applyColorToSelection} />
           <div>
             <label className="text-xs font-bold text-zinc-700">Text</label>
             <textarea
@@ -348,32 +416,13 @@ export default function PropertiesPanel({
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() =>
-                updateElement(selectedElement.id, {
-                  fontWeight: selectedElement.fontWeight >= 700 ? 400 : 900,
-                })
-              }
-              className="flex-1 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black"
-            >
-              Bold
-            </button>
-            <label className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black">
-              Color
-              <input
-                type="color"
-                value={selectedElement.color}
-                onChange={(event) =>
-                  updateElement(selectedElement.id, {
-                    color: event.target.value,
-                  })
-                }
-                className="h-5 w-5"
-              />
-            </label>
-          </div>
+          <button
+            type="button"
+            onClick={() => updateElement(selectedElement.id, { fontWeight: selectedElement.fontWeight >= 700 ? 400 : 900 })}
+            className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-black"
+          >
+            Bold
+          </button>
 
           <button
             type="button"
