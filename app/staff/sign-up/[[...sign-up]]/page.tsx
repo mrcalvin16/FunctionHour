@@ -1,13 +1,14 @@
-"use client";
-
 import { SignUp } from "@clerk/nextjs";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { parseEventId, staffAcceptUrl, staffSignInUrl } from "@/lib/eventStaff";
 
-export default function StaffSignUpPage() {
-  const searchParams = useSearchParams();
-  const eventId = parseEventId(searchParams.get("eventId") ?? undefined);
+export default async function StaffSignUpPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ eventId?: string | string[] }>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const eventId = parseEventId(params.eventId);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f7f8fb] px-4 py-10 text-slate-950">
