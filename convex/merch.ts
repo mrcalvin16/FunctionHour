@@ -107,7 +107,6 @@ export const getStorefront = query({
         (product.preorderCutoffAt && product.preorderCutoffAt <= now)
       )
         continue;
-      if (product.fulfillmentMethod === "printful") continue;
       const variants = await ctx.db
         .query("merchVariants")
         .withIndex("by_merchId", (q) => q.eq("merchId", product._id))
