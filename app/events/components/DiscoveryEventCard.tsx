@@ -89,7 +89,7 @@ export default function DiscoveryEventCard({
 
         <button
           type="button"
-          aria-label={isSaved ? "Remove saved event" : "Save event"}
+          aria-label={isSaved ? `Remove ${event.name} from saved events` : `Save ${event.name}`}
           aria-pressed={isSaved}
           onClick={(clickEvent) => {
             clickEvent.preventDefault();
@@ -103,6 +103,7 @@ export default function DiscoveryEventCard({
           }`}
         >
           <span
+            aria-hidden="true"
             className={`transition-transform duration-200 ${
               isSaved ? "scale-110" : ""
             }`}
