@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     if (!record) return NextResponse.json({ error: "Printful order not found." }, { status: 404 });
     const status = await getPrintfulOrderStatus(record.printfulOrderId);
     const update = await convex.mutation(api.merch.recordPrintfulShipment, { serverSecret, orderId: typedOrderId, clerkId: user.id, printfulStatus: status.status, trackingNumber: status.trackingNumber, trackingUrl: status.trackingUrl, shipped: status.shipped });
+    let customerNotified = false;
     if (update.notifyCustomer) {
       const details = await convex.query(api.merch.getFulfillmentEmailDetails, {
         serverSecret,
@@ -41,12 +42,13 @@ export async function POST(request: Request) {
             text: `Your order has shipped.\nTracking number: ${details.trackingNumber || "Not provided"}\n\nView your order: ${ordersUrl}`,
             html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#171717"><p style="font-size:12px;font-weight:700;letter-spacing:.16em;color:#7c3aed">FUNCTION HOUR</p><h1 style="font-size:28px">Your order is on its way</h1><p>Your order from <strong>${eventName}</strong> has shipped.</p>${trackingLink}<p style="margin:28px 0"><a href="${ordersUrl}" style="background:#7c3aed;color:white;text-decoration:none;padding:14px 22px;border-radius:12px;font-weight:700">View My Merch Orders</a></p></div>`,
           });
+          customerNotified = true;
         } catch (emailError) {
           console.error("Printful shipment email delivery failed:", emailError);
         }
       }
     }
-    return NextResponse.json({ ...status, customerNotified: update.notifyCustomer });
+    return NextResponse.json({ ...status, customerNotified });
   } catch (error) {
     console.error("Printful order sync error:", error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to sync Printful status." }, { status: 500 });
