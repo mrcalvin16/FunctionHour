@@ -33,8 +33,8 @@ export default async function StaffSignInPage({
             This staff link is missing a valid event. Ask the organizer to resend the invitation.
           </div>
         )}
-        <Link href={eventId ? staffSignInUrl(eventId) : "/sign-in"} className="mt-6 inline-block text-sm font-semibold text-violet-700 underline underline-offset-4">
-          FunctionHour account help
+        <Link href="/" className="mt-6 inline-block text-sm font-semibold text-violet-700 underline underline-offset-4">
+          Return to FunctionHour
         </Link>
       </section>
     </main>
