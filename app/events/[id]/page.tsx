@@ -117,7 +117,8 @@ export default function EventDetailPage({
     isLoaded && isSignedIn ? {} : "skip",
   );
 
-  const merch = useQuery(api.merch.getByEvent, { eventId });
+  const merch = useQuery(api.merch.getStorefront, { eventId });
+  const merchItems = merch?.products ?? [];
 
   const ticketTypes = useQuery(api.ticketTypes.getByEvent, { eventId });
   const ticketAddOns = useQuery(api.ticketAddOns.getByEvent, { eventId });
@@ -441,7 +442,7 @@ export default function EventDetailPage({
               </div>
             )}
 
-            {(canManageEvent || (merch && merch.length > 0)) && (
+            {(canManageEvent || merchItems.length > 0) && (
               <div className="order-4 mt-5 sm:mt-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                   <div>
@@ -458,7 +459,7 @@ export default function EventDetailPage({
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    {merch && merch.length > 0 && (
+                    {merchItems.length > 0 && (
                       <Link
                         href={`/events/${event._id}/merch`}
                         className="rounded-2xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 min-h-11 py-3.5 sm:py-3 text-sm font-black text-white"
@@ -481,13 +482,17 @@ export default function EventDetailPage({
                   <div className="mt-4 max-w-full rounded-[1.5rem] sm:rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 text-white/50">
                     Loading merch...
                   </div>
-                ) : merch.length === 0 ? (
+                 ) : merchItems.length === 0 ? (
                   <div className="mt-4 max-w-full rounded-[1.5rem] sm:rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 text-white/50">
                     No merch added yet.
                   </div>
                 ) : (
                   <div className="mt-4 grid gap-5 md:grid-cols-1 sm:grid-cols-2">
-                    {merch.map((item) => (
+                    {merchItems.map((item) => {
+                      const available = item.variants.length
+                        ? Math.max(...item.variants.map((variant) => variant.available))
+                        : item.available;
+                      return (
                       <div
                         key={item._id}
                         className="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.045] to-white/[0.02] shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-orange-300/35 hover:shadow-[0_0_60px_rgba(249,115,22,0.12)]"
@@ -514,23 +519,36 @@ export default function EventDetailPage({
                           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <p className="font-bold">${item.price}</p>
                             <p className="text-sm text-white/50">
-                              {(item.inventory ?? 0) > 0
-                                ? `${item.inventory} left`
-                                : "Sold out"}
+                              {available > 0 ? `${available} left` : "Sold out"}
                             </p>
                           </div>
 
-                          {canManageEvent && (
-                            <Link
-                              href={`/host/events/${event._id}/merch/${item._id}/edit`}
-                              className="mt-4 inline-flex rounded-2xl sm:rounded-xl border border-white/10 px-4 min-h-11 py-3.5 sm:py-3 sm:py-2 text-sm font-semibold text-white hover:bg-white/10"
-                            >
-                              Edit Merch
-                            </Link>
-                          )}
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {available > 0 ? (
+                              <Link
+                                href={`/events/${event._id}/merch?product=${encodeURIComponent(item._id)}`}
+                                className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 text-sm font-black text-white shadow-sm transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                              >
+                                Buy this item
+                              </Link>
+                            ) : (
+                              <span className="inline-flex min-h-11 items-center rounded-xl border border-white/10 px-4 text-sm font-bold text-white/60">
+                                Sold out
+                              </span>
+                            )}
+                            {canManageEvent && (
+                              <Link
+                                href={`/host/events/${event._id}/merch/${item._id}/edit`}
+                                className="inline-flex min-h-11 items-center rounded-xl border border-white/10 px-4 text-sm font-semibold text-white hover:bg-white/10"
+                              >
+                                Edit Merch
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
