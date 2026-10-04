@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
+      - name: Accessibility lint for core customer journeys
+        run: npx eslint app/accessibility/page.tsx app/map/page.tsx app/map/components/MapCanvas.tsx "app/events/[id]/checkout/page.tsx" app/events/components/DiscoveryEventCard.tsx components/SearchBar.tsx components/ui/button.tsx components/Footer.tsx
+
       - name: Type-check
         run: npm run typecheck
 
