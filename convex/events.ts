@@ -169,7 +169,8 @@ export const getAll = query({
 
         const hasMerch = merchProducts.some((product) =>
           (product.status === "published" || (!product.status && product.isActive)) &&
-          (!product.preorderCutoffAt || product.preorderCutoffAt > Date.now()),
+          (!product.preorderCutoffAt || product.preorderCutoffAt > Date.now()) &&
+          product.fulfillmentMethod !== "printful",
         );
         const activeTicketPrices = ticketTypes
           .filter((ticketType) => ticketType.isActive !== false)
