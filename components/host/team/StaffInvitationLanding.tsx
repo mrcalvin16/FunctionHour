@@ -12,9 +12,10 @@ import { staffSignInUrl } from "@/lib/eventStaff";
 export default function StaffInvitationLanding({ eventId }: { eventId: Id<"events"> }) {
   const router = useRouter();
   const { isLoaded, isSignedIn, user } = useUser();
+  const event = useQuery(api.events.getById, { eventId });
   const access = useQuery(
     api.eventAccess.getMyEventAccess,
-    isLoaded && isSignedIn ? { eventId } : "skip"
+    isLoaded && isSignedIn && event ? { eventId } : "skip"
   );
 
   useEffect(() => {
@@ -34,9 +35,11 @@ export default function StaffInvitationLanding({ eventId }: { eventId: Id<"event
       <section aria-live="polite" className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-xl shadow-slate-900/5 sm:p-8">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-700">FunctionHour · Event team</p>
         <h1 className="mt-4 text-3xl font-black tracking-tight">
-          {access?.role ? "Opening your workspace" : "Checking your invitation"}
+          {event === null ? "Invitation unavailable" : access?.role ? "Opening your workspace" : "Checking your invitation"}
         </h1>
-        {(!isLoaded || (isSignedIn && access === undefined) || access?.role) ? (
+        {event === null ? (
+          <p className="mt-3 text-sm leading-6 text-slate-600">This event is unavailable. Ask the organizer to confirm the event and resend your staff link.</p>
+        ) : (!isLoaded || (isSignedIn && (event === undefined || access === undefined)) || access?.role) ? (
           <p className="mt-3 text-sm leading-6 text-slate-600">Please wait while we verify your event access.</p>
         ) : !isSignedIn ? (
           <p className="mt-3 text-sm leading-6 text-slate-600">Taking you to staff sign-in…</p>
