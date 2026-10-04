@@ -57,7 +57,7 @@ function MerchImage({
   storageId,
   name,
 }: {
-  imageUrl?: string;
+  imageUrl?: string | null;
   storageId?: Id<"_storage">;
   name: string;
 }) {
