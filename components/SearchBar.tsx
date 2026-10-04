@@ -30,7 +30,7 @@ export default function SearchBar() {
         <Search aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 w-5 h-5" />
         <button
           type="submit"
-          className="absolute right-3 top-1/2 -translate-y-1/2 min-h-9 bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-800 transition-colors duration-200"
+          className="absolute right-3 top-1/2 -translate-y-1/2 min-h-11 bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-800 transition-colors duration-200"
         >
           Search
         </button>
