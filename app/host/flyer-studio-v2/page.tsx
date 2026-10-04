@@ -167,6 +167,26 @@ export default function FlyerStudioV2Page() {
   const canvasScale = useMemo(() => zoom / 100, [zoom]);
   const selectedElement =
     elements.find((element) => element.id === selectedElementId) || null;
+  const applyColorToSelection = useCallback((color: string) => {
+    const ids = new Set([...selectedElementIds, selectedElementId].filter(Boolean));
+    commitElements((current) => current.map((element) => {
+      if (!ids.has(element.id)) return element;
+      switch (element.kind) {
+        case "text":
+        case "button":
+        case "line":
+        case "icon":
+          return { ...element, color };
+        case "shape":
+        case "sticker":
+          return { ...element, background: color };
+        case "frame":
+          return { ...element, borderColor: color };
+        default:
+          return element;
+      }
+    }));
+  }, [commitElements, selectedElementId, selectedElementIds]);
   const headline =
     elements.find((element) => element.id === "headline")?.text ||
     "Night Moves";
@@ -1836,6 +1856,8 @@ export default function FlyerStudioV2Page() {
           <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3"><div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-700">Inspector</p><p className="mt-0.5 truncate text-sm font-bold">{selectedElement?.name || "Nothing selected"}</p></div><button type="button" onClick={() => setInspectorOpen(false)} aria-label="Collapse inspector" title="Collapse inspector" className="rounded-lg border border-zinc-200 p-2 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"><ChevronRight size={18} aria-hidden="true" /></button></div>
           <PropertiesPanel
           selectedElement={selectedElement}
+          selectionCount={Math.max(1, selectedElementIds.length)}
+          applyColorToSelection={applyColorToSelection}
           updateElement={updateElement}
           moveLayer={moveLayer}
           alignToCanvas={alignSelectedToCanvas}
