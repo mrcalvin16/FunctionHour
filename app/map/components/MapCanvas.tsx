@@ -268,7 +268,11 @@ export default function MapCanvas({
   }
 
   if (mapSupported === null) {
-    return <div className="h-full bg-zinc-100" aria-label="Loading map" />;
+    return (
+      <div role="status" aria-live="polite" className="flex h-full items-center justify-center bg-zinc-100 p-4 text-sm font-semibold text-zinc-800">
+        Loading the interactive event map…
+      </div>
+    );
   }
 
   return (
