@@ -57,7 +57,17 @@ export default function StaffInvitationLanding({ eventId }: { eventId: Id<"event
         </h1>
         {event === null ? (
           <p className="mt-3 text-sm leading-6 text-slate-600">This event is unavailable. Ask the organizer to confirm the event and resend your staff link.</p>
-        ) : (!isLoaded || (isSignedIn && (event === undefined || access === undefined)) || access?.role) ? (
+        ) : access?.role ? (
+          <>
+            <p className="mt-3 text-sm leading-6 text-slate-700">Your event access is confirmed. Opening the workspace now.</p>
+            <Link
+              href={`/host/events/${eventId}`}
+              className="mt-6 inline-flex min-h-12 items-center justify-center rounded-xl bg-violet-700 px-6 text-sm font-bold text-white hover:bg-violet-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"
+            >
+              Open event workspace
+            </Link>
+          </>
+        ) : (!isLoaded || (isSignedIn && (event === undefined || access === undefined))) ? (
           <p className="mt-3 text-sm leading-6 text-slate-600">Please wait while we verify your event access.</p>
         ) : !isSignedIn ? (
           <p className="mt-3 text-sm leading-6 text-slate-600">Taking you to staff sign-in…</p>
