@@ -53,7 +53,7 @@ export default function DiscoveryNav() {
           </SignedIn>
           <SignedOut>
             <OrganizerPortalLink className={actionClass} />
-            <SignInButton mode="modal"><button type="button" className={linkClass}>Sign In</button></SignInButton>
+            <SignInButton mode="modal"><button data-cta="sign_in" type="button" className={linkClass}>Sign In</button></SignInButton>
           </SignedOut>
           <SignedIn><UserButton afterSignOutUrl="/" /></SignedIn>
         </div>
@@ -77,7 +77,7 @@ export default function DiscoveryNav() {
             </SignedIn>
             <SignedOut>
               <OrganizerPortalLink className={actionClass} />
-              <SignInButton mode="modal"><button type="button" className={linkClass}>Sign In</button></SignInButton>
+              <SignInButton mode="modal"><button data-cta="sign_in" type="button" className={linkClass}>Sign In</button></SignInButton>
             </SignedOut>
             <Link href="/organizer/pricing" onClick={() => setMenuOpen(false)} className={linkClass}>Organizer Pricing</Link>
           </div>

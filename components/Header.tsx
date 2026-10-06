@@ -24,7 +24,7 @@ export default function Header() {
 
           <SignedOut>
             <SignInButton>
-              <button className="rounded-xl bg-violet-700 px-4 py-2 font-bold text-white hover:bg-violet-800">
+              <button data-cta="sign_in" className="rounded-xl bg-violet-700 px-4 py-2 font-bold text-white hover:bg-violet-800">
                 Sign In
               </button>
             </SignInButton>

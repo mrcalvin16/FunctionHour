@@ -2,6 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  ctaActivity: defineTable({ cta: v.string(), path: v.string(), createdAt: v.number() }).index("by_createdAt", ["createdAt"]),
 
 
 eventInteractions: defineTable({
