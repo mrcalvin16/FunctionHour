@@ -550,6 +550,7 @@ export default function EventCheckoutPage({
                   </div>
 
                   <button
+                    data-cta="ticket_checkout"
                     onClick={handleReserveTicket}
                     disabled={submitting}
                     className="mt-3 min-h-12 w-full rounded-2xl bg-white px-5 py-4 font-black text-black hover:bg-zinc-200 disabled:opacity-50"

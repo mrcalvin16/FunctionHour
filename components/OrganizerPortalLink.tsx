@@ -29,7 +29,7 @@ export default function OrganizerPortalLink({
         : "/host/profile";
 
   return (
-    <Link prefetch={false} href={href} className={className}>
+    <Link data-cta={isSignedIn && canAccess ? undefined : "create_event"} prefetch={false} href={href} className={className}>
       {isSignedIn && canAccess ? organizerLabel : attendeeLabel}
     </Link>
   );

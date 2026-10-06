@@ -17,6 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/payouts" className="font-medium hover:text-violet-700">Payout ledger</Link>
           <Link href="/admin/organizer-verification" className="font-medium hover:text-violet-700">Organizer verification</Link>
           <Link href="/admin/support" className="font-medium hover:text-violet-700">Support requests</Link>
+          <Link href="/admin/activity" className="font-medium hover:text-violet-700">Users & activity</Link>
           <Link href="/admin/health" className="font-medium hover:text-violet-700">System health</Link>
         </div>
       </nav>

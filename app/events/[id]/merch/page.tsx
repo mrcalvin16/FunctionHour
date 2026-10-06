@@ -427,6 +427,7 @@ export default function EventMerchStore({
                 ) : null}
                 <button
                   type="button"
+                  data-cta="merch_checkout"
                   onClick={() => void checkout()}
                   disabled={
                     busy ||

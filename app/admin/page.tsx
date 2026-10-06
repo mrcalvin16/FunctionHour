@@ -3,6 +3,7 @@ import OrderRecoveryDesk from "@/components/admin/OrderRecoveryDesk";
 
 export default function AdminPage() {
   const sections = [
+    { title: "Users & activity", description: "Recent registrations, onboarding status, and CTA clicks.", href: "/admin/activity", action: "View activity" },
     {
       title: "Orders & ticket recovery",
       description: "Find paid checkouts, inspect fulfillment, and recover missing orders or passes.",
