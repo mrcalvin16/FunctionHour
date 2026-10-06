@@ -45,7 +45,7 @@ export default function DiscoveryNav() {
           <span className="text-xl font-black tracking-[-0.06em] sm:text-2xl"><span className="text-zinc-950">Function</span><span className="bg-gradient-to-r from-orange-500 via-pink-500 to-violet-600 bg-clip-text text-transparent">Hour</span></span>
         </Link>
 
-        <div className="hidden items-center gap-2 2xl:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           {browseLinks.map(({ href, label }) => <Link key={href} href={href} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}{href === "/my-event-passport" && <span className="ml-1.5 inline-block rounded-full bg-violet-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-800">Beta</span>}</Link>)}
           <SignedIn>
             <FollowingNavLink className={linkClass} />
@@ -59,7 +59,7 @@ export default function DiscoveryNav() {
           <SignedIn><UserButton afterSignOutUrl="/" /></SignedIn>
         </div>
 
-        <div className="flex items-center gap-3 2xl:hidden">
+        <div className="flex items-center gap-3 lg:hidden">
           <SignedIn><UserButton afterSignOutUrl="/" /></SignedIn>
           <button type="button" aria-label="Navigation menu" aria-expanded={menuOpen} aria-controls="discovery-mobile-menu" onClick={() => setMenuOpen((open) => !open)} className={linkClass}>
             {menuOpen ? "Close" : "Menu"}
@@ -68,7 +68,7 @@ export default function DiscoveryNav() {
       </nav>
 
       {menuOpen && (
-        <nav id="discovery-mobile-menu" aria-label="Mobile navigation" className="border-t border-zinc-200 bg-white px-4 py-4 2xl:hidden">
+        <nav id="discovery-mobile-menu" aria-label="Mobile navigation" className="border-t border-zinc-200 bg-white px-4 py-4 lg:hidden">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2 sm:grid-cols-3">
             {browseLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}{href === "/my-event-passport" && <span className="ml-1.5 inline-block rounded-full bg-violet-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-800">Beta</span>}</Link>)}
             <SignedIn>
