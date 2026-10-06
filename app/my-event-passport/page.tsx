@@ -220,15 +220,15 @@ export default function MyEventPassportPage() {
           <>
             <section aria-label="Your year in events" className="mt-7 grid gap-3 sm:grid-cols-3">
               <div className="flex items-center gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-[0_12px_32px_-28px_rgba(124,45,18,0.38)]">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-orange-50 text-orange-700"><TicketCheck className="h-5 w-5" /></span>
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl passport-stat-orange bg-orange-50 text-orange-700"><TicketCheck className="h-5 w-5" /></span>
                 <div><p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">Events attended</p><p className="mt-1 text-2xl font-black leading-none text-zinc-950">{yearEvents.length}</p></div>
               </div>
               <div className="flex items-center gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-[0_12px_32px_-28px_rgba(124,45,18,0.38)]">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-700"><MapPinned className="h-5 w-5" /></span>
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl passport-stat-rose bg-rose-50 text-rose-700"><MapPinned className="h-5 w-5" /></span>
                 <div><p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">Places explored</p><p className="mt-1 truncate text-xl font-black leading-none text-zinc-950">{cityCount ? cityCount + (cityCount === 1 ? " city" : " cities") : "—"}</p></div>
               </div>
               <div className="flex items-center gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-[0_12px_32px_-28px_rgba(124,45,18,0.38)]">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-700"><Sparkles className="h-5 w-5" /></span>
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl passport-stat-violet bg-violet-50 text-violet-700"><Sparkles className="h-5 w-5" /></span>
                 <div><p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">Your top scene</p><p className="mt-1 truncate text-xl font-black leading-none text-zinc-950">{highlights.category}</p></div>
               </div>
             </section>
