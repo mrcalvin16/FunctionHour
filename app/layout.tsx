@@ -22,11 +22,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.ico?v=fh-20261006", sizes: "any" },
+      { url: "/icon?v=fh-20261006", type: "image/png", sizes: "512x512" },
     ],
-    shortcut: "/favicon.ico",
-    apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.ico?v=fh-20261006",
+    apple: [{ url: "/apple-icon?v=fh-20261006", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
     type: "website",
