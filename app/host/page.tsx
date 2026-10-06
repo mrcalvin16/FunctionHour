@@ -694,7 +694,7 @@ function MetricCard({
 
       <div className="relative mt-4 flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate text-2xl font-black tracking-tight sm:text-3xl">
+          <p className="break-words text-2xl font-black tracking-tight text-zinc-950 sm:text-3xl">
             {value}
           </p>
 
@@ -768,12 +768,12 @@ function EventCard({
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/10" />
 
-          <div className="absolute bottom-3 left-3 rounded-xl border border-white/10 bg-black/60 px-3 py-2 backdrop-blur-xl">
+          <div className="organizer-revenue-badge absolute bottom-3 left-3 right-3 w-fit max-w-[calc(100%-1.5rem)] rounded-xl border border-zinc-200 bg-white px-3 py-2 shadow-sm">
             <p className="text-[8px] font-black uppercase tracking-[0.2em] text-zinc-400">
               Revenue
             </p>
 
-            <p className="mt-1 text-sm font-black">
+            <p className="mt-1 break-words text-sm font-black text-zinc-950">
               {money(revenue)}
             </p>
           </div>
