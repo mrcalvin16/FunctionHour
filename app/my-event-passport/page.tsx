@@ -59,13 +59,13 @@ function PassportArtwork({
   categoryCount: number;
 }) {
   return (
-    <div className="relative mx-auto w-full max-w-[390px] px-3 py-4 sm:px-6 lg:ml-auto">
+    <div className="relative mx-auto w-full max-w-[390px] min-w-0 py-4 sm:px-6 lg:ml-auto">
       <div aria-hidden="true" className="absolute inset-4 rotate-[-7deg] rounded-[2rem] border border-orange-200/70 bg-white/70 shadow-sm" />
       <div className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-orange-500 via-orange-600 to-pink-600 p-6 text-white shadow-[0_24px_60px_-28px_rgba(194,65,12,0.7)] sm:p-7">
         <div aria-hidden="true" className="absolute -right-12 -top-12 h-52 w-52 rounded-full border border-white/15" />
         <div aria-hidden="true" className="absolute -right-4 -top-4 h-36 w-36 rounded-full border border-white/15" />
         <div aria-hidden="true" className="absolute -bottom-24 -left-16 h-56 w-56 rounded-full bg-pink-300/20 blur-2xl" />
-        <div className="relative flex min-h-[245px] flex-col justify-between sm:min-h-[270px]">
+        <div className="relative flex min-h-[245px] min-w-0 flex-col justify-between sm:min-h-[270px]">
           <div className="flex items-center justify-between gap-4">
             <span className="text-[10px] font-black uppercase tracking-[0.28em] text-white/90">FunctionHour</span>
             <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-white/95">Personal edition</span>
@@ -73,10 +73,10 @@ function PassportArtwork({
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.25em] text-orange-50/90">A life well spent</p>
-              <h2 className="mt-2 text-4xl font-black leading-[0.95] tracking-[-0.06em] sm:text-5xl">Event<br />Passport</h2>
+              <h2 className="mt-2 text-3xl font-black leading-[0.95] tracking-[-0.06em] sm:text-5xl">Event<br />Passport</h2>
               <p className="mt-4 text-sm font-semibold text-orange-50/90">{year ? year + " collection" : "Your next story starts here"}</p>
             </div>
-            <div className="grid h-[92px] w-[92px] shrink-0 rotate-6 place-items-center rounded-full border-2 border-dashed border-white/75 bg-white/10 text-center shadow-inner">
+            <div className="grid h-[68px] w-[68px] sm:h-[92px] sm:w-[92px] shrink-0 rotate-6 place-items-center rounded-full border-2 border-dashed border-white/75 bg-white/10 text-center shadow-inner">
               <div>
                 <TicketCheck className="mx-auto h-6 w-6 text-white" strokeWidth={2.5} />
                 <span className="mt-1 block text-[9px] font-black uppercase tracking-[0.15em]">{eventCount ? eventCount + " stamps" : "Ready"}</span>
@@ -186,8 +186,8 @@ export default function MyEventPassportPage() {
         <div className="absolute -right-40 top-24 h-96 w-96 rounded-full bg-pink-200/35 blur-[140px]" />
       </div>
 
-      <section className="relative mx-auto max-w-7xl px-5 pb-16 pt-8 sm:px-7 lg:px-8 lg:pb-20 lg:pt-12">
-        <header className="grid gap-8 rounded-[2rem] border border-orange-100 bg-gradient-to-br from-white via-[#fff7f1] to-[#fff0f4] p-6 shadow-[0_18px_60px_-45px_rgba(124,45,18,0.32)] sm:p-9 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-4 lg:p-12">
+      <section className="relative mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-7 lg:px-8 lg:pb-20 lg:pt-12">
+        <header className="grid gap-8 rounded-[2rem] border border-orange-100 bg-gradient-to-br from-white via-[#fff7f1] to-[#fff0f4] p-4 shadow-[0_18px_60px_-45px_rgba(124,45,18,0.32)] sm:p-9 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-4 lg:p-12">
           <div className="max-w-2xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-orange-800"><Sparkles className="h-3.5 w-3.5" /> Your FunctionHour story</p>
             <h1 className="mt-5 text-4xl font-black leading-[0.96] tracking-[-0.06em] text-zinc-950 sm:text-6xl">A year worth<br className="hidden sm:block" /> remembering.</h1>
@@ -218,18 +218,18 @@ export default function MyEventPassportPage() {
           </section>
         ) : (
           <>
-            <section aria-label="Your year in events" className="mt-7 grid gap-3 sm:grid-cols-3">
-              <div className="flex items-center gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-[0_12px_32px_-28px_rgba(124,45,18,0.38)]">
+            <section aria-label="Your year in events" className="mt-7 grid gap-3 lg:grid-cols-3">
+              <div className="flex min-w-0 items-center gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-[0_12px_32px_-28px_rgba(124,45,18,0.38)]">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl passport-stat-orange bg-orange-50 text-orange-700"><TicketCheck className="h-5 w-5" /></span>
-                <div><p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">Events attended</p><p className="mt-1 text-2xl font-black leading-none text-zinc-950">{yearEvents.length}</p></div>
+                <div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">Events attended</p><p className="mt-1 text-2xl font-black leading-none text-zinc-950">{yearEvents.length}</p></div>
               </div>
-              <div className="flex items-center gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-[0_12px_32px_-28px_rgba(124,45,18,0.38)]">
+              <div className="flex min-w-0 items-center gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-[0_12px_32px_-28px_rgba(124,45,18,0.38)]">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl passport-stat-rose bg-rose-50 text-rose-700"><MapPinned className="h-5 w-5" /></span>
-                <div><p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">Places explored</p><p className="mt-1 truncate text-xl font-black leading-none text-zinc-950">{cityCount ? cityCount + (cityCount === 1 ? " city" : " cities") : "—"}</p></div>
+                <div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">Places explored</p><p className="mt-1 truncate text-xl font-black leading-none text-zinc-950">{cityCount ? cityCount + (cityCount === 1 ? " city" : " cities") : "—"}</p></div>
               </div>
-              <div className="flex items-center gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-[0_12px_32px_-28px_rgba(124,45,18,0.38)]">
+              <div className="flex min-w-0 items-center gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-[0_12px_32px_-28px_rgba(124,45,18,0.38)]">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl passport-stat-violet bg-violet-50 text-violet-700"><Sparkles className="h-5 w-5" /></span>
-                <div><p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">Your top scene</p><p className="mt-1 truncate text-xl font-black leading-none text-zinc-950">{highlights.category}</p></div>
+                <div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">Your top scene</p><p className="mt-1 truncate text-xl font-black leading-none text-zinc-950">{highlights.category}</p></div>
               </div>
             </section>
 
@@ -242,7 +242,7 @@ export default function MyEventPassportPage() {
               {years.length > 0 && (
                 <div className="flex max-w-full gap-2 overflow-x-auto pb-1" aria-label="Choose a passport year">
                   {years.map((year) => (
-                    <button key={year} type="button" aria-pressed={year === activeYear} onClick={() => setSelectedYear(year)} className={year === activeYear ? "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-orange-300 bg-orange-100 px-4 text-xs font-black text-orange-950 shadow-sm" : "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:border-orange-300 hover:text-orange-800"}>
+                    <button key={year} type="button" aria-pressed={year === activeYear} onClick={() => setSelectedYear(year)} className={year === activeYear ? "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-orange-300 bg-orange-100 px-4 text-xs font-black text-orange-950 shadow-sm" : "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:border-orange-300 hover:text-orange-800"}>
                       <CalendarDays className={year === activeYear ? "h-4 w-4 text-orange-900" : "h-4 w-4 text-zinc-700"} strokeWidth={2.5} />{year}
                     </button>
                   ))}
