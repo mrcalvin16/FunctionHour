@@ -606,3 +606,24 @@ html.light .functionhour-map-root .fh-map-inverse {
   outline: 3px solid #4c1d95 !important;
   outline-offset: 3px !important;
 }
+
+/* A quiet desktop-only drift; transform avoids layout and paint-heavy effects. */
+@keyframes experience-planet-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(2px, -4px, 0); }
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .experience-universe-node {
+    animation: experience-planet-drift 14s ease-in-out infinite;
+  }
+  .experience-universe-node:nth-of-type(2n) {
+    animation-duration: 17s;
+    animation-delay: -6s;
+    animation-direction: reverse;
+  }
+  .experience-universe-node:nth-of-type(3n) {
+    animation-duration: 19s;
+    animation-delay: -11s;
+  }
+}
