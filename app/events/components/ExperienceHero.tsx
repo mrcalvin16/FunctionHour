@@ -112,7 +112,7 @@ export default function ExperienceHero({
               {availableCategories.map((label) => <option key={label} value={label}>{label === "All" ? "All categories" : label}</option>)}
             </select>
             <button type="button" onClick={() => setFiltersOpen(!filtersOpen)} aria-expanded={filtersOpen} aria-controls="extra-event-filters" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 text-sm font-bold text-violet-800 transition hover:bg-violet-100">
-              <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
+              <SlidersHorizontal aria-hidden="true" className="event-filter-icon h-4 w-4 shrink-0" />
               <span className="hidden sm:inline">More filters</span>
               <span className="sm:hidden">Filters</span>
               {extraFilterCount > 0 && <span className="flex h-5 w-5 items-center justify-center rounded-full bg-violet-700 text-[11px] text-white">{extraFilterCount}</span>}

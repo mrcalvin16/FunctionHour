@@ -42,10 +42,10 @@ export default function DiscoveryNav() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6" aria-label="Main navigation">
         <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="Function Hour home">
           <img src="/function-hour-mark.svg" alt="" aria-hidden="true" className="h-9 w-9 object-contain sm:h-10 sm:w-10" />
-          <span className="text-xl font-black tracking-[-0.06em] sm:text-2xl"><span className="text-zinc-950">Function</span><span className="bg-gradient-to-r from-orange-500 via-pink-500 to-violet-600 bg-clip-text text-transparent">Hour</span></span>
+          <span className="text-lg font-black tracking-[-0.06em] sm:text-2xl"><span className="text-zinc-950">Function</span><span className="bg-gradient-to-r from-orange-500 via-pink-500 to-violet-600 bg-clip-text text-transparent">Hour</span></span>
         </Link>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden min-w-0 flex-1 flex-wrap items-center justify-end gap-2 lg:flex">
           {browseLinks.map(({ href, label }) => <Link key={href} href={href} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}{href === "/my-event-passport" && <span className="ml-1.5 inline-block rounded-full bg-violet-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-800">Beta</span>}</Link>)}
           <SignedIn>
             <FollowingNavLink className={linkClass} />
@@ -59,7 +59,7 @@ export default function DiscoveryNav() {
           <SignedIn><UserButton afterSignOutUrl="/" /></SignedIn>
         </div>
 
-        <div className="flex items-center gap-3 lg:hidden">
+        <div className="flex shrink-0 items-center gap-2 lg:hidden">
           <SignedIn><UserButton afterSignOutUrl="/" /></SignedIn>
           <button type="button" aria-label="Navigation menu" aria-expanded={menuOpen} aria-controls="discovery-mobile-menu" onClick={() => setMenuOpen((open) => !open)} className={linkClass}>
             {menuOpen ? "Close" : "Menu"}

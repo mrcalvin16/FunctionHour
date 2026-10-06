@@ -634,3 +634,5 @@ html.light .functionhour-map-root .fh-map-inverse {
 html.light .passport-stat-orange > svg { color: #c2410c !important; }
 html.light .passport-stat-rose > svg { color: #be123c !important; }
 html.light .passport-stat-violet > svg { color: #6d28d9 !important; }
+
+html.light button .event-filter-icon { color: #5b21b6 !important; }
