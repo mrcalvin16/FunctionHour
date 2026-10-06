@@ -1,9 +1,10 @@
 "use client";
 
+import DiscoveryNav from "@/components/DiscoveryNav";
 import PurchaseConfirmation from "@/components/PurchaseConfirmation";
 import Link from "next/link";
 import { useQuery } from "convex/react";
-import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
+import { useUser, SignInButton } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import TicketWalletList from "@/components/tickets/TicketWalletList";
 
@@ -29,8 +30,9 @@ export default function MyTicketsPage() {
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-black px-6 py-10 text-white">
-        <section className="mx-auto max-w-3xl text-center">
+      <main className="min-h-screen bg-white text-zinc-950">
+        <DiscoveryNav />
+        <section className="mx-auto max-w-3xl px-6 py-10 text-center">
           <h1 className="text-4xl font-bold">My Tickets</h1>
 
           <p className="mt-4 text-zinc-400">
@@ -50,50 +52,16 @@ export default function MyTicketsPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#07060c] px-4 py-6 text-white sm:px-6 sm:py-10">
+    <main className="relative min-h-screen bg-white text-zinc-950">
+      <DiscoveryNav />
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[-16%] top-[-18%] h-[500px] w-[500px] rounded-full bg-violet-700/15 blur-[150px]" />
         <div className="absolute bottom-[-20%] right-[-12%] h-[520px] w-[520px] rounded-full bg-orange-500/10 blur-[160px]" />
       </div>
 
-      <section className="mx-auto max-w-5xl">
+      <section className="relative mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
         <PurchaseConfirmation type="ticket" />
-        <nav className="relative mb-8 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] pb-5">
-          <Link
-            href="/events"
-            className="text-sm font-black tracking-[-0.04em] text-white"
-          >
-            FUNCTION<span className="text-violet-400">HOUR</span>
-          </Link>
 
-          <div className="flex items-center gap-2">
-            <Link
-              href="/events"
-              className="inline-flex min-h-11 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-xs font-black text-zinc-300 hover:bg-white/[0.07]"
-            >
-              Explore
-            </Link>
-            <Link
-              href="/my-orders"
-              className="inline-flex min-h-11 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-xs font-black text-zinc-300 hover:bg-white/[0.07]"
-            >
-              Orders
-            </Link>
-            <Link
-              href="/my-event-passport"
-              className="inline-flex min-h-11 items-center rounded-xl border border-violet-300 bg-violet-100 px-4 text-xs font-black text-violet-950 shadow-sm transition-colors hover:border-violet-400 hover:bg-violet-200"
-            >
-              Event Passport
-            </Link>
-            <Link
-              href="/saved-events"
-              className="hidden min-h-11 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-xs font-black text-zinc-300 hover:bg-white/[0.07] sm:inline-flex"
-            >
-              Saved
-            </Link>
-            <UserButton afterSignOutUrl="/" />
-          </div>
-        </nav>
 
         <div className="relative mb-8 flex items-center justify-between gap-4">
           <div>

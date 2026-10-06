@@ -629,3 +629,8 @@ html.light .functionhour-map-root .fh-map-inverse {
     animation-delay: -11s;
   }
 }
+
+/* Passport stat icons need dark strokes on their pale badges. */
+html.light .passport-stat-orange > svg { color: #c2410c !important; }
+html.light .passport-stat-rose > svg { color: #be123c !important; }
+html.light .passport-stat-violet > svg { color: #6d28d9 !important; }
