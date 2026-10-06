@@ -1,5 +1,6 @@
 "use client";
 
+import PurchaseConfirmation from "@/components/PurchaseConfirmation";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
@@ -56,6 +57,7 @@ export default function MyTicketsPage() {
       </div>
 
       <section className="mx-auto max-w-5xl">
+        <PurchaseConfirmation type="ticket" />
         <nav className="relative mb-8 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] pb-5">
           <Link
             href="/events"

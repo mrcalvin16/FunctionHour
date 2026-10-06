@@ -102,7 +102,7 @@ export default function EventCheckoutPage({
     : 10;
   const maxQuantity = Number(basePrice) <= 0
     ? 1
-    : Math.max(1, Math.min(10, selectedInventory));
+    : Math.max(1, Math.min(event?.maxTicketsPerOrder ?? 10, selectedInventory));
 
   useEffect(() => {
     setQuantity((current) => Math.min(current, maxQuantity));
@@ -178,11 +178,11 @@ export default function EventCheckoutPage({
       }
 
       if (!paidCheckout) {
-        await createTicket({
+        const ticketId = await createTicket({
           eventId,
         });
 
-        router.push("/onboarding/attendee?checkout=success");
+        router.push(`/tickets/${ticketId}?purchase=complete`);
         return;
       }
 

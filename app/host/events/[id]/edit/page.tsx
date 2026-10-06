@@ -43,6 +43,7 @@ export default function EditEventPage() {
   const [dateString, setDateString] = useState("");
   const [price, setPrice] = useState("");
   const [totalTickets, setTotalTickets] = useState("");
+  const [maxTicketsPerOrder, setMaxTicketsPerOrder] = useState("10");
 
   const [refundPolicy, setRefundPolicy] = useState("");
   const [refundDeadline, setRefundDeadline] = useState("");
@@ -77,6 +78,7 @@ export default function EditEventPage() {
     setDateString(event.dateString ?? "");
     setPrice(String(event.price ?? 0));
     setTotalTickets(String(event.totalTickets ?? 0));
+    setMaxTicketsPerOrder(String(event.maxTicketsPerOrder ?? 10));
 
     setRefundPolicy(
       event.refundPolicy ||
@@ -248,6 +250,7 @@ export default function EditEventPage() {
         eventDate: new Date(dateString).getTime(),
         price: Number(price),
         totalTickets: Number(totalTickets),
+        maxTicketsPerOrder: Number(maxTicketsPerOrder),
         refundPolicy: refundPolicy.trim(),
         refundDeadline: refundDeadline.trim(),
         refundContactEmail: refundContactEmail.trim(),
@@ -495,6 +498,10 @@ export default function EditEventPage() {
                 className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
               />
             </div>
+              <label className="block text-sm font-semibold text-zinc-800">Maximum tickets per order
+                <input required type="number" min="1" max="10" step="1" value={maxTicketsPerOrder} onChange={(e) => setMaxTicketsPerOrder(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900" />
+                <span className="mt-2 block text-xs font-normal text-zinc-600">Set a purchase limit from 1 to 10. Total capacity is managed separately.</span>
+              </label>
           </section>
 
           <section className="space-y-5 rounded-3xl border border-orange-500/20 bg-orange-500/5 p-5">

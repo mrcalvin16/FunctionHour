@@ -1,3 +1,4 @@
+import { attendeeEventDate, attendeeVenue } from "@/lib/attendeeDisplay";
 import type { Id } from "@/convex/_generated/dataModel";
 
 export type DiscoveryEvent = {
@@ -71,26 +72,11 @@ export function isEventUpcoming(
 }
 
 export function formatEventDate(event: DiscoveryEvent) {
-  const timestamp = getEventTimestamp(event);
-  if (!Number.isFinite(timestamp)) return event.dateString || "Date coming soon";
-
-  return new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(timestamp));
+  return attendeeEventDate(event);
 }
 
 export function getEventLocation(event: DiscoveryEvent) {
-  return (
-    event.venueName ||
-    event.venueAddress ||
-    [event.city, event.state].filter(Boolean).join(", ") ||
-    event.location ||
-    "Location coming soon"
-  );
+  return attendeeVenue(event);
 }
 
 export function isTonight(event: DiscoveryEvent) {
