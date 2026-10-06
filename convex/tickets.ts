@@ -1,3 +1,4 @@
+import { assertTicketPurchaseQuantity } from "./ticketPurchaseLimit";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
@@ -116,6 +117,8 @@ export const reserveTicketsForCheckout = mutation({
     if (!event) {
       throw new Error("Event not found.");
     }
+
+    assertTicketPurchaseQuantity(args.quantity, event.maxTicketsPerOrder ?? 10);
 
     if (event.isDemo) {
       throw new Error("This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing.");
@@ -1152,6 +1155,7 @@ export const getTicketDetails = query({
       event,
       imageUrl,
       sourceName,
+      organizerName: organizerName || "Event organizer",
       holder: {
         name:
           ticket.buyerName || currentProfile?.name || identity.name || "Guest",

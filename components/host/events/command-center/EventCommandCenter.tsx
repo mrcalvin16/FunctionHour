@@ -37,6 +37,7 @@ export type EventCommandEvent = {
   dateString: string;
   price?: number;
   totalTickets?: number;
+  maxTicketsPerOrder?: number;
   ticketsSold?: number;
   ratingTotal?: number;
   ratingCount?: number;

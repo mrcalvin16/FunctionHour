@@ -1,5 +1,6 @@
 "use client";
 
+import { attendeeEventDate, attendeeVenue } from "@/lib/attendeeDisplay";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { FunctionReturnType } from "convex/server";
@@ -155,7 +156,7 @@ export default function TicketWalletList({
                       </p>
                       <p className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-orange-300" />
-                        {ticket.event?.location || "Location TBD"}
+                        {attendeeVenue(ticket.event || {})}
                       </p>
                     </div>
 
@@ -244,18 +245,5 @@ function compareUpcoming(left: number | null, right: number | null) {
 }
 
 function formatEventDate(ticket: UserTicket) {
-  const eventTime = getEventTime(ticket);
-
-  if (eventTime === null) {
-    return ticket.event?.dateString || "Date TBD";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(eventTime);
+  return attendeeEventDate(ticket.event || {});
 }

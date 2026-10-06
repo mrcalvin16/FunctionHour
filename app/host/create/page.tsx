@@ -23,6 +23,7 @@ export default function CreateEventPage() {
   const [endTime, setEndTime] = useState("");
   const [price, setPrice] = useState("");
   const [totalTickets, setTotalTickets] = useState("");
+  const [maxTicketsPerOrder, setMaxTicketsPerOrder] = useState("10");
   const [image, setImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -97,6 +98,7 @@ export default function CreateEventPage() {
         dateString: eventDate,
         price: Number(price),
         totalTickets: Number(totalTickets),
+        maxTicketsPerOrder: Number(maxTicketsPerOrder),
         imageStorageId,
       });
 
@@ -251,6 +253,10 @@ export default function CreateEventPage() {
                   placeholder="100"
                 />
               </div>
+              <label className="block text-sm font-semibold text-zinc-800">Maximum tickets per order
+                <input required type="number" min="1" max="10" step="1" value={maxTicketsPerOrder} onChange={(e) => setMaxTicketsPerOrder(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900" />
+                <span className="mt-2 block text-xs font-normal text-zinc-600">Set a purchase limit from 1 to 10. Total capacity is managed separately.</span>
+              </label>
             </div>
 
             <div>

@@ -14,6 +14,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import VenueRules from "@/components/functionhour/VenueRules";
 import { getEventViewAttribution } from "@/lib/analytics/eventViewAttribution";
 import { getPrivacyPreferences, PRIVACY_PREFERENCES_EVENT } from "@/lib/privacyPreferences";
+import { attendeeVenue } from "@/lib/attendeeDisplay";
 import { formatEventDate, getBuyerPriceLabel, getFromPriceLabel, isEventUpcoming } from "../eventPresentation";
 
 function EventImage({
@@ -263,12 +264,8 @@ export default function EventDetailPage({
                     value={formatEventDate(event)}
                   />
                   <EventSignalCard
-                    label="Location"
-                    value={
-                      event.venueName ||
-                      event.location ||
-                      "Location coming soon"
-                    }
+                    label="Venue"
+                    value={attendeeVenue(event)}
                   />
                 </div>
               </div>

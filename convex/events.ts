@@ -1,3 +1,4 @@
+import { validateTicketPurchaseLimit } from "./ticketPurchaseLimit";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireEventCapability } from "./eventAccess";
@@ -60,6 +61,7 @@ export const createEvent = mutation({
 
     price: v.optional(v.float64()),
     totalTickets: v.optional(v.float64()),
+    maxTicketsPerOrder: v.optional(v.number()),
 
     imageStorageId: v.optional(v.id("_storage")),
 
@@ -100,6 +102,7 @@ export const createEvent = mutation({
       throw new Error("Complete organizer onboarding before creating an event.");
     }
 
+    validateTicketPurchaseLimit(args.maxTicketsPerOrder);
     const eventId = await ctx.db.insert("events", {
       name: args.name,
       description: args.description ?? "",
@@ -119,6 +122,7 @@ export const createEvent = mutation({
 
       price: args.price ?? 0,
       totalTickets: args.totalTickets ?? 0,
+      maxTicketsPerOrder: args.maxTicketsPerOrder ?? 10,
       ticketsSold: 0,
 
       imageStorageId: args.imageStorageId,
@@ -403,6 +407,7 @@ export const updateEvent = mutation({
 
     price: v.optional(v.float64()),
     totalTickets: v.optional(v.float64()),
+    maxTicketsPerOrder: v.optional(v.number()),
 
     imageStorageId: v.optional(v.id("_storage")),
     removeImage: v.optional(v.boolean()),
@@ -426,7 +431,9 @@ export const updateEvent = mutation({
       throw new Error("Event not found.");
     }
 
+    validateTicketPurchaseLimit(args.maxTicketsPerOrder);
     await ctx.db.patch(args.eventId, {
+      ...(args.maxTicketsPerOrder !== undefined && { maxTicketsPerOrder: args.maxTicketsPerOrder }),
       ...(args.name !== undefined && { name: args.name }),
       ...(args.description !== undefined && { description: args.description }),
       ...(args.category !== undefined && { category: args.category }),

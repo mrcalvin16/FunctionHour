@@ -116,8 +116,6 @@ export async function POST(req: Request) {
     const {
       eventId,
       tickets,
-      successPath,
-      cancelPath,
       promoCode,
       buyerEmail: submittedBuyerEmail,
       buyerName: submittedBuyerName,
@@ -295,12 +293,7 @@ export async function POST(req: Request) {
         : []),
     ];
 
-    const successUrl = buildReturnUrl(
-      appUrl,
-      successPath,
-      "/onboarding/attendee",
-      "success"
-    );
+    const successUrl = `${appUrl}/my-tickets?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = new URL(
       `/events/${eventId}/checkout?checkout=cancelled`,
       "https://functionhour.com"
@@ -410,22 +403,4 @@ export async function POST(req: Request) {
       }
     );
   }
-}
-
-function buildReturnUrl(
-  appUrl: string,
-  requestedPath: string | undefined,
-  fallbackPath: string,
-  checkoutStatus: "success" | "cancelled"
-): string {
-  const safePath =
-    requestedPath?.startsWith("/") &&
-    !requestedPath.startsWith("//")
-      ? requestedPath
-      : fallbackPath;
-  const url = new URL(safePath, appUrl);
-
-  url.searchParams.set("checkout", checkoutStatus);
-
-  return url.toString();
 }

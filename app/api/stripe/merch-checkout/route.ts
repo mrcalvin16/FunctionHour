@@ -45,9 +45,9 @@ export async function POST(request: Request) {
       })),
       shipping_address_collection: fulfillmentMethod === "shipping" ? { allowed_countries: ["US", "CA"] } : undefined,
       shipping_options: fulfillmentMethod === "shipping" && reservation.shippingFee > 0 ? [{ shipping_rate_data: { type: "fixed_amount", fixed_amount: { amount: Math.round(reservation.shippingFee * 100), currency: "usd" }, display_name: "Standard shipping" } }] : undefined,
-      metadata: { checkoutType: "merch", reservationId, eventId: body.eventId, fulfillmentMethod },
+      metadata: { checkoutType: "merch", buyerUserId: user.id, reservationId, eventId: body.eventId, fulfillmentMethod },
       expires_at: Math.floor(reservation.expiresAt / 1_000),
-      success_url: new URL(`/events/${body.eventId}/merch?checkout=success`, appUrl).toString(),
+      success_url: `${appUrl}/events/${body.eventId}/merch?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: new URL(`/events/${body.eventId}/merch?checkout=cancelled`, appUrl).toString(),
     });
     await convex.mutation(api.merch.attachCheckoutSession, { checkoutSecret: secret, reservationId, stripeCheckoutSessionId: session.id });

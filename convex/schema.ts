@@ -79,6 +79,7 @@ eventInteractions: defineTable({
 
     price: v.optional(v.float64()),
     totalTickets: v.optional(v.float64()),
+    maxTicketsPerOrder: v.optional(v.number()),
     ticketsSold: v.optional(v.float64()),
     ratingTotal: v.optional(v.float64()),
     ratingCount: v.optional(v.float64()),

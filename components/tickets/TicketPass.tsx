@@ -1,5 +1,7 @@
 "use client";
 
+import { attendeeEventDate, attendeeVenue } from "@/lib/attendeeDisplay";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import QRCode from "react-qr-code";
 import { useQuery } from "convex/react";
@@ -17,6 +19,8 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
 export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
+  const [justPurchased, setJustPurchased] = useState(false);
+  useEffect(() => { setJustPurchased(new URLSearchParams(window.location.search).get("purchase") === "complete"); }, []);
   const ticket = useQuery(api.tickets.getTicketDetails, { ticketId });
 
   if (ticket === undefined) {
@@ -60,6 +64,7 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
       </div>
 
       <section className="relative mx-auto max-w-5xl">
+        {justPurchased && !isRevoked && <div role="status" className="mb-5 flex items-center gap-3 rounded-2xl border border-violet-200 bg-violet-50 p-5 text-zinc-900"><CheckCircle2 className="text-violet-700" /><div><p className="text-xl font-black">You’re going!</p><p className="text-sm text-zinc-700">Your free ticket is confirmed. Keep this pass ready for entry.</p></div></div>}
         <Link
           href="/my-tickets"
           className="inline-flex min-h-11 items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-zinc-500 transition hover:text-white"
@@ -102,12 +107,12 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
               <PassDetail
                 icon={<CalendarDays className="h-5 w-5" />}
                 label="Date"
-                value={ticket.event.dateString || "Date TBD"}
+                value={attendeeEventDate(ticket.event)}
               />
               <PassDetail
                 icon={<MapPin className="h-5 w-5" />}
-                label="Location"
-                value={ticket.event.location || "Location TBD"}
+                label="Venue"
+                value={attendeeVenue(ticket.event)}
               />
               <PassDetail
                 icon={<UserRound className="h-5 w-5" />}
@@ -132,7 +137,7 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
                 label="Purchased"
                 value={formatPurchaseDate(ticket.purchasedAt)}
               />
-              <MiniDetail label="Source" value={ticket.sourceName} />
+              <MiniDetail label="Organizer" value={ticket.organizerName || "Event organizer"} />
             </div>
 
             <div className="mt-7 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-xs leading-5 text-zinc-400">
