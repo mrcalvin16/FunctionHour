@@ -21,8 +21,8 @@ const accountLinks = [
   { href: "/my-merch-orders", label: "Merch Orders" },
 ];
 
-const linkClass = "rounded-full border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-400 hover:text-zinc-950";
-const activeLinkClass = "rounded-full border border-orange-300 bg-orange-50 px-3 py-2 text-sm font-bold text-zinc-950 shadow-sm transition";
+const linkClass = "inline-flex min-h-11 items-center whitespace-nowrap rounded-full border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-400 hover:text-zinc-950";
+const activeLinkClass = "inline-flex min-h-11 items-center whitespace-nowrap rounded-full border border-orange-300 bg-orange-50 px-3 py-2 text-sm font-bold text-zinc-950 shadow-sm transition";
 
 function isCurrentLink(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -31,7 +31,7 @@ function isCurrentLink(pathname: string, href: string) {
 function getLinkClass(pathname: string, href: string) {
   return isCurrentLink(pathname, href) ? activeLinkClass : linkClass;
 }
-const actionClass = "rounded-full bg-gradient-to-r from-orange-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white transition hover:brightness-95";
+const actionClass = "inline-flex min-h-11 items-center whitespace-nowrap rounded-full bg-gradient-to-r from-orange-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white transition hover:brightness-95";
 
 export default function DiscoveryNav() {
   const pathname = usePathname();

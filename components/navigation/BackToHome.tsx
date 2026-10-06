@@ -3,17 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const customerRoutes = [
-  "/events",
-  "/map",
-  "/saved-events",
-  "/my-tickets",
-  "/cities",
-  "/explore",
-  "/organizers",
-  "/tickets",
-  "/onboarding/attendee",
-];
+const customerRoutes = ["/tickets", "/onboarding/attendee"];
 
 export default function BackToHome() {
   const pathname = usePathname();

@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import OrganizerPortalLink from "@/components/OrganizerPortalLink";
+import DiscoveryNav from "@/components/DiscoveryNav";
 
 function EventImage({ storageId, directImageUrl }: { storageId?: Id<"_storage">; directImageUrl?: string | null }) {
   const storedImageUrl = useQuery(
@@ -47,43 +46,9 @@ export default function SavedEventsPage() {
         <div className="absolute left-[-18%] top-[-10%] h-[420px] w-[420px] rounded-full bg-orange-500/15 blur-[120px]" />
         <div className="absolute right-[-18%] top-[18%] h-[420px] w-[420px] rounded-full bg-violet-500/15 blur-[120px]" />
       </div>
-      <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-black/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/events" className="text-2xl font-black">
-            Function Hour
-          </Link>
+      <DiscoveryNav />
 
-          <div className="flex items-center gap-3">
-            <Link href="/events" className="rounded-full border border-zinc-700 px-4 py-2 text-sm">
-              Events
-            </Link>
-
-            <Link href="/saved-events" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black">
-              Saved
-            </Link>
-
-            <Link prefetch={false} href="/my-tickets" className="rounded-full border border-zinc-700 px-4 py-2 text-sm">
-              My Tickets
-            </Link>
-
-            <OrganizerPortalLink organizerLabel="Host" className="rounded-full border border-zinc-700 px-4 py-2 text-sm" />
-
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black">
-                  Sign In
-                </button>
-              </SignInButton>
-            </SignedOut>
-
-            <SignedIn>
-              <UserButton afterSignOutUrl="/events" />
-            </SignedIn>
-          </div>
-        </div>
-      </nav>
-
-      <section className="mx-auto max-w-7xl px-6 py-14">
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-14">
         <p className="text-sm uppercase tracking-[0.3em] text-orange-400">
           Your Collection
         </p>
