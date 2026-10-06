@@ -20,6 +20,7 @@ import type { Doc } from "@/convex/_generated/dataModel";
 
 type PassportEvent = {
   event: Doc<"events">;
+  imageUrl: string | null;
   date: number;
   tickets: number;
   checkedIn: boolean;
@@ -113,10 +114,11 @@ export default function MyEventPassportPage() {
       const key = String(event._id);
       const existing = byEvent.get(key);
       if (existing) {
+        existing.imageUrl ||= ticket.imageUrl || event.imageUrl || null;
         existing.tickets += 1;
         existing.checkedIn ||= ticket.checkedIn === true;
       } else {
-        byEvent.set(key, { event, date, tickets: 1, checkedIn: ticket.checkedIn === true });
+        byEvent.set(key, { event, imageUrl: ticket.imageUrl || event.imageUrl || null, date, tickets: 1, checkedIn: ticket.checkedIn === true });
       }
     }
 
@@ -249,8 +251,8 @@ export default function MyEventPassportPage() {
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {yearEvents.map(({ event, date, tickets: count, checkedIn }) => {
-                const image = event.imageUrl || null;
+              {yearEvents.map(({ event, imageUrl, date, tickets: count, checkedIn }) => {
+                const image = imageUrl;
                 const place = getCity(event) || event.location || "A night out";
                 return (
                   <Link key={String(event._id)} href={"/events/" + event._id} className="group overflow-hidden rounded-[1.5rem] border border-zinc-200 bg-white shadow-[0_12px_36px_-28px_rgba(24,24,27,0.34)] transition duration-200 hover:-translate-y-1 hover:border-orange-300 hover:shadow-[0_24px_50px_-32px_rgba(234,88,12,0.34)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-600">

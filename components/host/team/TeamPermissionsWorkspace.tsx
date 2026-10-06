@@ -150,9 +150,9 @@ export default function TeamPermissionsWorkspace({
                 <button
                   type="button"
                   onClick={copyWorkspaceLink}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 px-3 text-xs font-black text-zinc-400 hover:text-white"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-4 text-sm font-semibold text-violet-900 transition hover:bg-violet-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 focus-visible:ring-offset-2"
                 >
-                  <Copy className="h-4 w-4" /> Copy staff sign-in link
+                  <Copy className="h-4 w-4" /> Copy staff access link
                 </button>
               </div>
 
