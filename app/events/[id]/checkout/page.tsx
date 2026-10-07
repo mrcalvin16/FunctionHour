@@ -24,6 +24,11 @@ export default function EventCheckoutPage({
   const event = useQuery(api.events.getById, { eventId });
   const ticketTypes = useQuery(api.ticketTypes.getByEvent, { eventId });
   const addOns = useQuery(api.ticketAddOns.getByEvent, { eventId });
+  const [salesClock, setSalesClock] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setSalesClock(Date.now()), 15_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const myTicket = useQuery(
     api.tickets.getMyTicketForEvent,
@@ -61,6 +66,14 @@ export default function EventCheckoutPage({
     () => ticketTypes?.filter((ticket) => ticket.isActive !== false) ?? [],
     [ticketTypes],
   );
+  const eventSoldOut = Boolean(event && (event.isSoldOut ||
+    (event.totalTickets !== undefined && event.totalTickets > 0 && (event.ticketsSold ?? 0) >= event.totalTickets)));
+  const allTicketTypesUnavailable = activeTicketTypes.length > 0 && activeTicketTypes.every((ticket) =>
+    ticket.isSoldOut || ticket.salesPaused || (ticket.quantity !== undefined && (ticket.sold ?? 0) >= ticket.quantity));
+  const allTicketTypesSoldOut = activeTicketTypes.length > 0 && activeTicketTypes.every((ticket) =>
+    ticket.isSoldOut || (ticket.quantity !== undefined && (ticket.sold ?? 0) >= ticket.quantity));
+  const salesClosed = Boolean(event && (event.eventStatus === "cancelled" || event.eventStatus === "postponed" ||
+    !isEventUpcoming(event, salesClock) || (event.salesEndAt !== undefined && salesClock >= event.salesEndAt) || eventSoldOut || allTicketTypesUnavailable));
 
   const activeAddOns = useMemo(
     () => addOns?.filter((addOn) => addOn.isActive !== false) ?? [],
@@ -71,7 +84,8 @@ export default function EventCheckoutPage({
     const requestedTicketType = searchParams.get("ticketType");
     if (
       requestedTicketType &&
-      activeTicketTypes.some((ticket) => ticket._id === requestedTicketType)
+      activeTicketTypes.some((ticket) => ticket._id === requestedTicketType && !ticket.isSoldOut && !ticket.salesPaused &&
+        (ticket.quantity === undefined || (ticket.sold ?? 0) < ticket.quantity))
     ) {
       setSelectedTicketTypeId(requestedTicketType);
     }
@@ -97,9 +111,10 @@ export default function EventCheckoutPage({
   );
 
   const total = Number(basePrice) * quantity + addOnTotal;
-  const selectedInventory = selectedTicketType?.quantity
-    ? Math.max(selectedTicketType.quantity - (selectedTicketType.sold ?? 0), 0)
-    : 10;
+  const selectedInventory = Math.min(
+    selectedTicketType?.quantity !== undefined ? Math.max(selectedTicketType.quantity - (selectedTicketType.sold ?? 0), 0) : 10,
+    event?.totalTickets !== undefined && event.totalTickets > 0 ? Math.max(event.totalTickets - (event.ticketsSold ?? 0), 0) : 10,
+  );
   const maxQuantity = Number(basePrice) <= 0
     ? 1
     : Math.max(1, Math.min(event?.maxTicketsPerOrder ?? 10, selectedInventory));
@@ -151,6 +166,7 @@ export default function EventCheckoutPage({
     setMessage("");
 
     if (!isLoaded) return;
+    if (salesClosed) { setMessage("Ticket sales are closed or sold out for this event."); return; }
 
     if (!isSignedIn) {
       setMessage("Please sign in before checkout.");
@@ -180,6 +196,7 @@ export default function EventCheckoutPage({
       if (!paidCheckout) {
         const ticketId = await createTicket({
           eventId,
+          ticketTypeId: selectedTicketType?._id,
         });
 
         router.push(`/tickets/${ticketId}?purchase=complete`);
@@ -263,12 +280,12 @@ export default function EventCheckoutPage({
     );
   }
 
-  if (!isEventUpcoming(event)) {
+  if (salesClosed) {
     return (
       <main className="min-h-screen bg-zinc-50 px-4 py-16 text-zinc-900 dark:bg-black dark:text-white">
         <div className="mx-auto max-w-xl rounded-3xl border border-zinc-200 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
-          <h1 className="text-3xl font-black">Ticket sales have ended</h1>
-          <p className="mt-3 text-zinc-600 dark:text-zinc-400">This event is no longer accepting ticket orders.</p>
+          <h1 className="text-3xl font-black">{eventSoldOut || allTicketTypesSoldOut ? "Sold out" : "Ticket sales are closed"}</h1>
+          <p className="mt-3 text-zinc-600 dark:text-zinc-400">{eventSoldOut || allTicketTypesSoldOut ? "There are no tickets left for this event." : allTicketTypesUnavailable ? "Ticket options are temporarily unavailable." : "This event is no longer accepting new ticket orders."}</p>
           <Link href={`/events/${eventId}`} className="mt-6 inline-flex rounded-2xl bg-zinc-900 px-5 py-3 font-black text-white dark:bg-white dark:text-black">
             Return to event
           </Link>

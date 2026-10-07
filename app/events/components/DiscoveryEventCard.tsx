@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import EventImage from "./EventImage";
-import { getFromPriceLabel, getEventCategory, getEventTimestamp, type DiscoveryEvent } from "../eventPresentation";
+import { getTicketListingLabel, getEventCategory, getEventTimestamp, type DiscoveryEvent } from "../eventPresentation";
 
 type CardEvent = DiscoveryEvent & {
   organizerName?: string;
@@ -50,7 +50,7 @@ export default function DiscoveryEventCard({
 }: DiscoveryEventCardProps) {
   const category = getEventCategory(event);
   const organizerName = getOrganizerName(event);
-  const priceLabel = getFromPriceLabel(event);
+  const priceLabel = getTicketListingLabel(event);
 
   const location =
     event.location ||

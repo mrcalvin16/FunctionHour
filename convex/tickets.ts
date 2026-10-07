@@ -124,6 +124,8 @@ export const reserveTicketsForCheckout = mutation({
       throw new Error("This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing.");
     }
 
+    requireEventSalesOpen(event);
+
     const duplicate = await ctx.db
       .query("ticketCheckoutReservations")
       .withIndex("by_reservationId", (q) =>
@@ -174,7 +176,10 @@ export const reserveTicketsForCheckout = mutation({
       }
     }
 
-    requireEventSalesOpen(event);
+    if (event.totalTickets !== undefined && event.totalTickets > 0 &&
+      (event.ticketsSold ?? 0) + args.quantity > event.totalTickets) {
+      throw new Error("There are not enough tickets remaining.");
+    }
 
     let ticketTypeName: string | undefined;
     let ticketTypeDescription: string | undefined;
@@ -209,11 +214,6 @@ export const reserveTicketsForCheckout = mutation({
       await ctx.db.patch(args.ticketTypeId, {
         sold: (ticketType.sold ?? 0) + args.quantity,
       });
-    } else if (
-      event.totalTickets !== undefined &&
-      (event.ticketsSold ?? 0) + args.quantity > event.totalTickets
-    ) {
-      throw new Error("There are not enough tickets remaining.");
     }
 
     if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
@@ -344,6 +344,7 @@ export const releaseExpiredCheckoutReservation = internalMutation({
 export const createTicket = mutation({
   args: {
     eventId: v.id("events"),
+    ticketTypeId: v.optional(v.id("ticketTypes")),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -385,6 +386,23 @@ export const createTicket = mutation({
 
     requireEventSalesOpen(event);
 
+    let ticketTypeName: string | undefined;
+    if (args.ticketTypeId) {
+      const ticketType = await ctx.db.get(args.ticketTypeId);
+      if (!ticketType || ticketType.eventId !== args.eventId || ticketType.isActive === false || ticketType.isSoldOut || ticketType.salesPaused ||
+        (ticketType.quantity !== undefined && (ticketType.sold ?? 0) >= ticketType.quantity)) {
+        throw new Error("This ticket option is sold out or unavailable.");
+      }
+      if (ticketType.price !== 0) throw new Error("Paid tickets require checkout.");
+      ticketTypeName = ticketType.name;
+      await ctx.db.patch(ticketType._id, { sold: (ticketType.sold ?? 0) + 1 });
+    } else {
+      const types = await ctx.db.query("ticketTypes").withIndex("by_event", (q) => q.eq("eventId", args.eventId)).take(100);
+      if (types.some((type) => type.isActive !== false) || (event.price ?? 0) > 0) {
+        throw new Error("Choose an available ticket option at checkout.");
+      }
+    }
+
     const ticketId = await ctx.db.insert("tickets", {
       eventId: args.eventId,
       userId: identity.subject,
@@ -393,6 +411,9 @@ export const createTicket = mutation({
       purchasedAt: Date.now(),
       createdAt: Date.now(),
       qrCode: `${args.eventId}:${identity.subject}:${Date.now()}`,
+      ticketTypeId: args.ticketTypeId,
+      ticketTypeName,
+      unitPrice: 0,
     });
 
     await ctx.db.patch(args.eventId, {

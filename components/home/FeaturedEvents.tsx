@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useStorageUrl } from "@/lib/utils";
-import { getFromPriceLabel, type DiscoveryEvent } from "@/app/events/eventPresentation";
+import { getTicketListingLabel, type DiscoveryEvent } from "@/app/events/eventPresentation";
 
 export default function FeaturedEvents() {
   const events = useQuery(api.events.getAll);
@@ -52,7 +52,7 @@ function FeaturedEventCard({ event }: { event: DiscoveryEvent }) {
       <div className="flex items-center justify-between gap-4 p-5">
         <div>
           <p className="text-xs font-bold uppercase tracking-wider text-white/70">Tickets</p>
-          <p className="mt-1 text-xl font-black">{getFromPriceLabel(event)}</p>
+          <p className="mt-1 text-xl font-black">{getTicketListingLabel(event)}</p>
         </div>
         <span className="rounded-full bg-white px-5 py-2.5 text-sm font-black text-black transition group-hover:bg-orange-300">View Event</span>
       </div>
