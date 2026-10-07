@@ -149,20 +149,20 @@ export default function TicketWalletList({
                       {ticket.event?.name || "Untitled Event"}
                     </h2>
 
-                    <div className="mt-4 space-y-2 text-sm text-zinc-400">
+                    <div className="mt-4 space-y-2 text-sm text-zinc-700">
                       <p className="flex items-center gap-2">
-                        <CalendarDays className="h-4 w-4 text-violet-300" />
+                        <CalendarDays className="h-4 w-4 text-violet-800" />
                         {formatEventDate(ticket)}
                       </p>
                       <p className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-orange-300" />
+                        <MapPin className="h-4 w-4 text-orange-800" />
                         {attendeeVenue(ticket.event || {})}
                       </p>
                     </div>
 
                     <Link
                       href={`/events/${ticket.eventId}`}
-                      className="mt-4 inline-flex text-xs font-black text-zinc-500 transition hover:text-white"
+                      className="mt-4 inline-flex text-xs font-black text-zinc-500 transition hover:text-zinc-950"
                     >
                       View event →
                     </Link>
@@ -170,7 +170,7 @@ export default function TicketWalletList({
 
                   <div className="flex shrink-0 flex-col gap-3 md:items-end">
                     {status ? (
-                      <span className={`text-xs font-bold ${cancelled ? "text-red-300" : ticket.checkedIn ? "text-yellow-300" : "text-zinc-400"}`}>
+                      <span className={`text-xs font-bold ${cancelled ? "text-red-300" : ticket.checkedIn ? "text-yellow-300" : "text-zinc-700"}`}>
                         {status}
                       </span>
                     ) : null}
@@ -181,6 +181,7 @@ export default function TicketWalletList({
                     >
                       Open ticket
                     </Link>
+                    {ticket.stripeCheckoutSessionId && <a href="/my-tickets?view=history" className="inline-flex min-h-11 items-center justify-center text-sm font-bold text-violet-900 underline underline-offset-4">Purchase details</a>}
                   </div>
                 </div>
 
@@ -216,7 +217,7 @@ function WalletTab({
       className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-xs font-black transition ${
         active
           ? "border-violet-400/40 bg-violet-400/15 text-white"
-          : "border-white/10 bg-white/[0.025] text-zinc-500 hover:text-white"
+          : "border-white/10 bg-white/[0.025] text-zinc-500 hover:text-zinc-950"
       }`}
     >
       {label}
