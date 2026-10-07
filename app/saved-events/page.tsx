@@ -49,7 +49,7 @@ export default function SavedEventsPage() {
       <DiscoveryNav />
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-14">
-        <p className="text-sm uppercase tracking-[0.3em] text-orange-400">
+        <p className="text-sm font-bold uppercase tracking-[0.3em] text-orange-800">
           Your Collection
         </p>
 

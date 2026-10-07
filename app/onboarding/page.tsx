@@ -23,7 +23,7 @@ export default function OnboardingPage() {
         </Link>
 
         <div className="mt-10 max-w-3xl">
-          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-orange-400">
+          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-orange-800">
             Welcome to Function Hour
           </p>
 
@@ -39,15 +39,15 @@ export default function OnboardingPage() {
         <div className="mt-10 grid gap-5 lg:grid-cols-2">
           <Link
             href="/onboarding/attendee"
-            className="group relative overflow-hidden rounded-[2rem] border border-violet-400/20 bg-gradient-to-br from-violet-600/20 via-white/[0.04] to-black p-6 shadow-2xl shadow-violet-950/30 transition hover:-translate-y-1 hover:border-violet-300/40 sm:p-8"
+            className="group relative overflow-hidden rounded-[2rem] border border-violet-200 bg-gradient-to-br from-violet-50 via-white to-violet-100 p-6 shadow-xl shadow-violet-950/10 transition hover:-translate-y-1 hover:border-violet-400 sm:p-8"
           >
             <div className="absolute right-[-15%] top-[-20%] h-48 w-48 rounded-full bg-violet-500/20 blur-3xl" />
 
-            <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-300/20 bg-violet-400/10 text-violet-200">
+            <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-300 bg-violet-100 text-violet-700">
               <Ticket className="h-6 w-6" />
             </span>
 
-            <p className="relative mt-7 text-[10px] font-black uppercase tracking-[0.22em] text-violet-300">
+            <p className="relative mt-7 text-[10px] font-black uppercase tracking-[0.22em] text-violet-700">
               Attendee Mode
             </p>
 
@@ -67,15 +67,15 @@ export default function OnboardingPage() {
 
           <Link
             href="/host/profile"
-            className="group relative overflow-hidden rounded-[2rem] border border-orange-400/20 bg-gradient-to-br from-orange-500/15 via-white/[0.04] to-black p-6 shadow-2xl shadow-orange-950/20 transition hover:-translate-y-1 hover:border-orange-300/40 sm:p-8"
+            className="group relative overflow-hidden rounded-[2rem] border border-orange-200 bg-gradient-to-br from-orange-50 via-white to-orange-100 p-6 shadow-xl shadow-orange-950/10 transition hover:-translate-y-1 hover:border-orange-400 sm:p-8"
           >
             <div className="absolute right-[-15%] top-[-20%] h-48 w-48 rounded-full bg-orange-500/15 blur-3xl" />
 
-            <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-orange-300/20 bg-orange-400/10 text-orange-200">
+            <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-orange-300 bg-orange-100 text-orange-800">
               <CalendarDays className="h-6 w-6" />
             </span>
 
-            <p className="relative mt-7 text-[10px] font-black uppercase tracking-[0.22em] text-orange-300">
+            <p className="relative mt-7 text-[10px] font-black uppercase tracking-[0.22em] text-orange-800">
               Organizer Mode
             </p>
 
@@ -87,7 +87,7 @@ export default function OnboardingPage() {
               Create events, sell tickets, manage check-in, build campaigns, and run your operation.
             </p>
 
-            <span className="relative mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.07] px-5 text-sm font-black text-white">
+            <span className="onboarding-action relative mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-violet-700 px-5 text-sm font-black text-white">
               Open Organizer OS
               <Sparkles className="h-4 w-4 transition group-hover:rotate-6" />
             </span>

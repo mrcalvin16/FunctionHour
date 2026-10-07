@@ -90,7 +90,7 @@ export default function OrganizerPricingPage() {
             </div>
             <h1 className="mt-6 max-w-2xl text-5xl font-black leading-[.98] tracking-[-0.065em] sm:text-7xl">
               Keep more of
-              <span className="block bg-gradient-to-r from-violet-300 via-fuchsia-300 to-orange-300 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-violet-700 via-fuchsia-700 to-orange-800 bg-clip-text text-transparent">
                 your ticket sales.
               </span>
             </h1>
@@ -227,7 +227,7 @@ export default function OrganizerPricingPage() {
         </section>
 
         <section className="border-t border-zinc-200 py-14">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">FAQ</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-800">FAQ</p>
           <h2 className="mt-3 text-3xl font-black tracking-tight">The details, simply.</h2>
           <div className="mt-7 grid gap-3 md:grid-cols-2">
             {faqs.map((faq) => (

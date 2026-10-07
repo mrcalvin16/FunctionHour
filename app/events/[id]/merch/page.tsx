@@ -207,7 +207,7 @@ export default function EventMerchStore({
         )}
         <div className="flex flex-col gap-4 border-b border-white/[0.08] pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-800">
               Official event merch
             </p>
             <h1 className="mt-2 text-3xl font-black sm:text-5xl">
@@ -263,7 +263,7 @@ export default function EventMerchStore({
                               {product.productType ?? "Event merchandise"}
                             </p>
                           </div>
-                          <p className="font-black text-orange-300">
+                          <p className="font-black text-orange-800">
                             {currency(selectedVariant?.price ?? product.price)}
                           </p>
                         </div>
@@ -297,7 +297,7 @@ export default function EventMerchStore({
                         ) : null}
                         <div className="mt-4 flex items-center justify-between">
                           <span
-                            className={`text-[10px] font-black uppercase ${available ? "text-emerald-400" : "text-red-300"}`}
+                            className={`text-[10px] font-black uppercase ${available ? "text-emerald-700" : "text-red-700"}`}
                           >
                             {available ? `${available} available` : "Sold out"}
                           </span>
@@ -305,7 +305,7 @@ export default function EventMerchStore({
                             type="button"
                             onClick={() => addProduct(product)}
                             disabled={!available}
-                            className="min-h-10 rounded-xl bg-white px-4 text-xs font-black text-black disabled:opacity-30"
+                            className="min-h-10 rounded-xl bg-white px-4 text-xs font-black text-black disabled:border disabled:border-zinc-300 disabled:bg-zinc-100 disabled:text-zinc-700"
                           >
                             Add to cart
                           </button>
@@ -327,7 +327,7 @@ export default function EventMerchStore({
           <aside className="h-fit rounded-[1.75rem] border border-white/[0.08] bg-white/[0.04] p-5 lg:sticky lg:top-24">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black">Your cart</h2>
-              <span className="rounded-full bg-violet-400/10 px-2.5 py-1 text-[10px] font-black text-violet-300">
+              <span className="rounded-full bg-violet-400/10 px-2.5 py-1 text-[10px] font-black text-violet-800">
                 {cart.reduce((sum, item) => sum + item.quantity, 0)} items
               </span>
             </div>
@@ -399,7 +399,7 @@ export default function EventMerchStore({
                             : !supportsShipping
                         }
                         onClick={() => setFulfillment(method)}
-                        className={`min-h-10 rounded-xl text-xs font-black capitalize disabled:cursor-not-allowed disabled:opacity-30 ${fulfillment === method ? "bg-violet-500 text-white" : "border border-white/[0.08] text-zinc-500"}`}
+                        className={`min-h-10 rounded-xl text-xs font-black capitalize disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-700 ${fulfillment === method ? "bg-violet-500 text-white" : "border border-white/[0.08] text-zinc-500"}`}
                       >
                         {method}
                       </button>
@@ -421,7 +421,7 @@ export default function EventMerchStore({
                   <span>{currency(total + estimatedShipping)}</span>
                 </div>
                 {error ? (
-                  <p className="rounded-xl bg-red-400/10 p-3 text-xs text-red-300">
+                  <p className="rounded-xl bg-red-400/10 p-3 text-xs text-red-700">
                     {error}
                   </p>
                 ) : null}

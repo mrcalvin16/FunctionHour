@@ -16,7 +16,7 @@ export default function EventAnnouncements({
 
   return (
     <section className="mt-5 border-t border-white/10 pt-5">
-      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-orange-300/70">
+      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-orange-800">
         Organizer updates
       </p>
       <h2 className="mt-2 text-xl font-black tracking-tight">
