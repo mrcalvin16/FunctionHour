@@ -85,6 +85,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true, reference: created.id, notificationStatus });
   } catch (error) {
     console.error("[support.intake] Request failed", error);
-    return NextResponse.json({ error: "We could not submit your request. Please email operations@functionhour.com." }, { status: 503 });
+    return NextResponse.json({ error: "We could not submit your request. Please email support@functionhour.com." }, { status: 503 });
   }
 }

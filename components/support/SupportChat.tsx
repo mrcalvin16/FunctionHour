@@ -108,7 +108,7 @@ export default function SupportChat() {
             </form>}
             {notice && <div role="status" className="rounded-xl bg-zinc-100 p-3 text-sm font-semibold text-zinc-950">
               <p>{notice}</p>
-              {submissionFailed && <a href="mailto:operations@functionhour.com?subject=Function%20Hour%20support" className="mt-2 inline-block font-bold text-violet-800 underline underline-offset-2">Email Operations directly</a>}
+              {submissionFailed && <a href="mailto:support@functionhour.com?subject=Function%20Hour%20support" className="mt-2 inline-block font-bold text-violet-800 underline underline-offset-2">Email support directly</a>}
             </div>}
             </>}
           </div>
