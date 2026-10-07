@@ -33,10 +33,10 @@ export default function LaunchCountdown() {
   const values = [Math.floor(seconds / 86400), Math.floor(seconds / 3600) % 24, Math.floor(seconds / 60) % 60, seconds % 60];
   return <>
     <aside aria-label="Function Hour launches October 19, 2026" className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 pt-4">
-      <div className="flex max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-2xl border border-violet-200 bg-white px-4 py-2 shadow-sm">
-        <span aria-hidden="true" className="fh-launch-spark text-lg text-violet-700">✦</span>
+      <div className="flex max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-100 via-pink-50 to-orange-100 px-4 py-2 shadow-[0_4px_18px_rgba(124,58,237,.10)]">
+        <span aria-hidden="true" className="fh-launch-spark grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-600 to-orange-500 text-lg text-white">✦</span>
         <p className="text-xs font-bold text-violet-900">{launched ? "We’re live! Find your Function." : "The countdown is on · Oct 19"}</p>
-        {!launched && <div aria-hidden="true" className="flex gap-2">{values.map((value,index) => <span key={index} className="text-center"><span className="block min-w-7 font-mono text-sm font-bold tabular-nums text-zinc-950">{now === null ? "—" : String(value).padStart(2,"0")}</span><span className="block text-[9px] font-bold uppercase text-zinc-600">{["days","hrs","min","sec"][index]}</span></span>)}</div>}
+        {!launched && <div aria-hidden="true" className="flex gap-2">{values.map((value,index) => <span key={index} className={`rounded-lg border px-2 py-1 text-center ${index % 2 ? "border-orange-200 bg-orange-50" : "border-violet-200 bg-violet-50"}`}><span className={`block min-w-6 font-mono text-base font-black tabular-nums ${index % 2 ? "text-orange-900" : "text-violet-900"}`}>{now === null ? "—" : String(value).padStart(2,"0")}</span><span className="block text-[9px] font-bold uppercase text-zinc-600">{["days","hrs","min","sec"][index]}</span></span>)}</div>}
         <span className="sr-only">{launched ? "Function Hour has launched." : "Launches October 19 at midnight Central Time."}</span>
       </div>
     </aside>
