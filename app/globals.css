@@ -334,6 +334,10 @@ html.light .onboarding-action {
   color: #ffffff !important;
 }
 
+html.light .onboarding-attendee-action {
+  color: #18181b !important;
+}
+
 html.light ::-webkit-scrollbar-track {
   background: #f4f4f5;
 }
