@@ -114,7 +114,6 @@ export default function MapCanvas({
   onAvailabilityChange?: (available: boolean | null) => void;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [viewState, setViewState] = useState<ViewState>(DEFAULT_VIEW);
   const [locationStatus, setLocationStatus] = useState<
     "idle" | "loading" | "error"
   >("idle");
@@ -200,12 +199,10 @@ export default function MapCanvas({
 
   const focusEvent = (event: MapEvent) => {
     setSelectedId(event._id);
-    setViewState((current) => ({
-      ...current,
-      longitude: Number(event.longitude),
-      latitude: Number(event.latitude),
-      zoom: Math.max(current.zoom, 12),
-    }));
+    mapRef.current?.jumpTo({
+      center: [Number(event.longitude), Number(event.latitude)],
+      zoom: Math.max(mapRef.current?.getZoom() ?? 10, 12),
+    });
   };
 
   const useMyLocation = () => {
@@ -216,12 +213,7 @@ export default function MapCanvas({
     setLocationStatus("loading");
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        setViewState((current) => ({
-          ...current,
-          longitude: coords.longitude,
-          latitude: coords.latitude,
-          zoom: 12,
-        }));
+        mapRef.current?.jumpTo({ center: [coords.longitude, coords.latitude], zoom: 12 });
         setLocationStatus("idle");
       },
       () => setLocationStatus("error"),
@@ -282,9 +274,12 @@ export default function MapCanvas({
       </p>
       <Map
         ref={mapRef}
-        {...viewState}
-        onLoad={() => setMapLoaded(true)}
-        onMove={(event) => setViewState(event.viewState)}
+        initialViewState={DEFAULT_VIEW}
+        onLoad={() => { setMapLoaded(true); mapRef.current?.getMap().touchZoomRotate.disableRotation(); }}
+        dragPan={true}
+        touchZoomRotate={true}
+        dragRotate={false}
+        touchPitch={false}
         onClick={() => setSelectedId(null)}
         onError={(event) => {
           const message = String(event.error?.message ?? event.error ?? "");

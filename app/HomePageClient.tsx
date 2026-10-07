@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { usePreferredCity } from "@/hooks/usePreferredCity";
 import DiscoveryNav from "@/components/DiscoveryNav";
 import { matchesDiscoveryCity } from "@/lib/discoveryCities";
 import DiscoveryEmptyState from "./events/components/DiscoveryEmptyState";
@@ -25,7 +26,7 @@ function matches(event: DiscoveryEvent, search: string, category: string, city: 
 export default function HomePage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-  const [city, setCity] = useState("All Cities");
+  const [city, setCity] = usePreferredCity();
   const [view, setView] = useState<"all" | "mine">("all");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("");
   const events = useQuery(api.events.getAll, {});

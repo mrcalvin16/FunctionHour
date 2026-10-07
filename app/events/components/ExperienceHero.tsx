@@ -15,7 +15,7 @@ type ExperienceHeroProps = {
   category: string;
   setCategory: Dispatch<SetStateAction<string>>;
   city: string;
-  setCity: Dispatch<SetStateAction<string>>;
+  setCity: (city: string) => void;
   view: EventsView;
   setView: Dispatch<SetStateAction<EventsView>>;
   events: DiscoveryEvent[];
@@ -96,7 +96,7 @@ export default function ExperienceHero({
                 </button>
               )}
             </div>
-            <select aria-label="Filter by city" value={city} onChange={(event) => setCity(event.target.value)} className={controlClass}>
+            <select aria-label="Preferred event city (saved in this browser)" title="Preferred event city — saved in this browser; change anytime" value={city} onChange={(event) => setCity(event.target.value)} className={controlClass}>
               <option value="All Cities">All cities</option>
               {cityGroups.map((stateName) => (
                 <optgroup key={stateName} label={stateName}>

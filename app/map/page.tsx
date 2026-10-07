@@ -5,6 +5,8 @@ import { useQuery } from "convex/react";
 import Link from "next/link";
 import { ArrowLeft, List, MapPin, RotateCcw, Search } from "lucide-react";
 import { api } from "@/convex/_generated/api";
+import { usePreferredCity } from "@/hooks/usePreferredCity";
+import { getDiscoveryCityOptions, matchesDiscoveryCity } from "@/lib/discoveryCities";
 import MapCanvas, {
   type MapEvent,
   type TimeMode,
@@ -23,6 +25,8 @@ const categories = [
 
 export default function MapPage() {
   const events = useQuery(api.events.getMapEvents);
+  const [city, setCity] = usePreferredCity();
+  const cityOptions = useMemo(() => getDiscoveryCityOptions(events ?? []), [events]);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [timeMode, setTimeMode] = useState<TimeMode>("all");
@@ -32,6 +36,7 @@ export default function MapPage() {
     if (!events) return [];
     const term = search.trim().toLowerCase();
     return events.filter((event: MapEvent) => {
+      if (!matchesDiscoveryCity(event, city)) return false;
       const searchable = [
         event.name,
         event.description,
@@ -55,7 +60,7 @@ export default function MapPage() {
         searchable.includes(activeCategory.toLowerCase())
       );
     });
-  }, [activeCategory, events, search]);
+  }, [activeCategory, city, events, search]);
 
   const resetFilters = () => {
     setSearch("");
@@ -71,7 +76,7 @@ export default function MapPage() {
         <Link
           href="/"
           aria-label="Back to Function Hour home"
-          className="pointer-events-auto inline-flex min-h-11 items-center gap-2 rounded-full border border-zinc-200 bg-white/95 px-4 py-2 text-sm font-black shadow-lg shadow-zinc-900/10 backdrop-blur-xl transition hover:bg-orange-50"
+          className="fh-map-inverse pointer-events-auto inline-flex min-h-11 w-auto shrink-0 items-center gap-1.5 rounded-xl border border-violet-800 bg-violet-700 px-3 py-2 text-xs font-black text-white shadow-lg shadow-violet-900/25 transition hover:bg-violet-800 sm:px-4 sm:text-sm"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           <span className="hidden sm:inline">Function Hour</span>
@@ -81,7 +86,7 @@ export default function MapPage() {
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/events"
-          className="pointer-events-auto inline-flex min-h-11 items-center gap-2 rounded-full border border-zinc-200 bg-white/95 px-4 py-2 text-sm font-black shadow-lg shadow-zinc-900/10 backdrop-blur-xl transition hover:bg-orange-50"
+          className="fh-map-inverse pointer-events-auto inline-flex min-h-11 w-auto shrink-0 items-center gap-1.5 rounded-xl border border-violet-800 bg-violet-700 px-3 py-2 text-xs font-black text-white shadow-lg shadow-violet-900/25 transition hover:bg-violet-800 sm:px-4 sm:text-sm"
         >
           <List className="h-4 w-4" aria-hidden="true" />
           List view
@@ -123,6 +128,16 @@ export default function MapPage() {
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
             </button>
           )}
+        </label>
+
+        <label className="mt-3 flex items-center gap-2 text-xs font-bold text-zinc-800">
+          <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span className="sr-only">Preferred event city, saved in this browser</span>
+          <select value={city} onChange={(event) => setCity(event.target.value)} title="Saved in this browser; change anytime" className="min-h-11 min-w-0 flex-1 rounded-xl border border-zinc-300 bg-white px-3 text-sm text-zinc-950">
+            <option value="All Cities">All cities</option>
+            {cityOptions.map((item) => { const value = item.state ? `${item.city}, ${item.state}` : item.city; return <option key={value} value={value}>{value}</option>; })}
+            {city !== "All Cities" && !cityOptions.some((item) => (item.state ? `${item.city}, ${item.state}` : item.city) === city) && <option value={city}>{city}</option>}
+          </select>
         </label>
 
         <div role="group" aria-label="Filter map by category" className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">

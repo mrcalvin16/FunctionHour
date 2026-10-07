@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { usePreferredCity } from "@/hooks/usePreferredCity";
 import DiscoveryNav from "@/components/DiscoveryNav";
 import Footer from "@/components/Footer";
 import { matchesDiscoveryCity } from "@/lib/discoveryCities";
@@ -55,7 +56,7 @@ export default function EventsPage() {
   const [view, setView] = useState<"all" | "mine">("all");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-  const [city, setCity] = useState("All Cities");
+  const [city, setCity] = usePreferredCity();
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("");
 
   const events = useQuery(api.events.getAll, {});
@@ -66,7 +67,7 @@ export default function EventsPage() {
   useEffect(() => {
     const requestedCity = new URLSearchParams(window.location.search).get("city");
     if (requestedCity) setCity(requestedCity);
-  }, []);
+  }, [setCity]);
 
   const organizerStats = useMemo(() => {
     const counts = new Map<string, number>();
