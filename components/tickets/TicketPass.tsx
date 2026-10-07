@@ -53,7 +53,7 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
     : ticket.checkedIn
       ? "border-yellow-400/20 bg-yellow-400/10 text-yellow-200"
       : eventEnded
-        ? "border-white/10 bg-white/[0.04] text-zinc-400"
+        ? "border-white/10 bg-white/[0.04] text-zinc-700"
         : "border-emerald-400/20 bg-emerald-400/10 text-emerald-300";
 
   return (
@@ -67,7 +67,7 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
         {justPurchased && !isRevoked && <div role="status" className="mb-5 flex items-center gap-3 rounded-2xl border border-violet-200 bg-violet-50 p-5 text-zinc-900"><CheckCircle2 className="text-violet-700" /><div><p className="text-xl font-black">You’re going!</p><p className="text-sm text-zinc-700">Your free ticket is confirmed. Keep this pass ready for entry.</p></div></div>}
         <Link
           href="/my-tickets"
-          className="inline-flex min-h-11 items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-zinc-500 transition hover:text-white"
+          className="inline-flex min-h-11 items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-zinc-500 transition hover:text-zinc-950"
         >
           <ArrowLeft className="h-4 w-4" />
           My Tickets
@@ -87,7 +87,7 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
             ) : null}
 
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-orange-400">
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-orange-700">
                 Function Hour Entry Pass
               </p>
               {status !== "Ready for entry" ? (
@@ -140,8 +140,8 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
               <MiniDetail label="Organizer" value={ticket.organizerName || "Event organizer"} />
             </div>
 
-            <div className="mt-7 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-xs leading-5 text-zinc-400">
-              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-violet-300" />
+            <div className="mt-7 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-xs leading-5 text-zinc-700">
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-violet-800" />
               <p>
                 This pass is tied to your Function Hour account. Do not share
                 the QR code publicly.
@@ -188,6 +188,10 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
             ) : null}
           </aside>
         </div>
+        <footer className="mt-6 flex items-center justify-center gap-2 border-t border-zinc-200 pt-5">
+          <img src="/function-hour-mark.svg" alt="" aria-hidden="true" className="h-9 w-12 object-contain" />
+          <span className="text-lg font-black tracking-tight text-zinc-950">Function<span className="text-orange-700">Hour</span></span>
+        </footer>
       </section>
     </main>
   );
@@ -205,15 +209,15 @@ function PassDetail({
   detail?: string;
 }) {
   return (
-    <div className="flex min-w-0 gap-3 rounded-2xl border border-white/10 bg-black/25 p-4">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-400/10 text-violet-200">
+    <div className="flex min-w-0 gap-3 rounded-2xl border border-zinc-200 bg-white p-4">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ticket-pass-detail-icon bg-violet-50 text-violet-800">
         {icon}
       </span>
       <span className="min-w-0">
         <span className="block text-[9px] font-black uppercase tracking-[0.16em] text-zinc-600">
           {label}
         </span>
-        <span className="mt-1 block break-words text-sm font-bold text-zinc-200">
+        <span className="mt-1 block break-words text-sm font-bold text-zinc-950">
           {value}
         </span>
         {detail ? (
@@ -228,11 +232,11 @@ function PassDetail({
 
 function MiniDetail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
+    <div className="rounded-2xl border border-zinc-200 bg-white p-4">
       <p className="text-[9px] font-black uppercase tracking-[0.16em] text-zinc-600">
         {label}
       </p>
-      <p className="mt-2 truncate text-sm font-black text-white">{value}</p>
+      <p className="mt-2 break-words text-sm font-black text-zinc-950">{value}</p>
     </div>
   );
 }
