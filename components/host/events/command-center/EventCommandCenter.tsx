@@ -182,6 +182,27 @@ export default function EventCommandCenter({
     },
   ];
   const status = getEventStatus(event);
+  const doorView = pathname === `${basePath}/check-in`;
+
+  if (doorView) {
+    return (
+      <EventCommandContext.Provider value={{ event, role, capabilities }}>
+        <div className="min-h-[calc(100vh-78px)] bg-[#fffaf7]">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 bg-white px-4 py-3 sm:px-6">
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-violet-800">Function Hour · Door desk</p>
+              <p className="truncate text-sm font-black text-zinc-950 sm:text-base">{event.name}</p>
+            </div>
+            <div className="flex items-center gap-2 text-xs font-bold">
+              <Link href={role === "check_in_staff" ? "/host/check-in" : basePath} className="rounded-xl border border-zinc-300 px-3 py-2 text-zinc-800 hover:bg-zinc-50">{role === "check_in_staff" ? "My events" : "Event overview"}</Link>
+              <Link href="/" className="rounded-xl border border-zinc-300 px-3 py-2 text-zinc-800 hover:bg-zinc-50">Home</Link>
+            </div>
+          </div>
+          {children}
+        </div>
+      </EventCommandContext.Provider>
+    );
+  }
 
   return (
     <EventCommandContext.Provider
@@ -367,6 +388,8 @@ function getEventStatus(event: EventCommandEvent): {
   label: string;
   classes: string;
 } {
+  if (event.eventStatus === "cancelled") return { label: "Cancelled", classes: "border-red-400/20 bg-red-400/10 text-red-200" };
+  if (event.eventStatus === "postponed") return { label: "Postponed", classes: "border-amber-400/20 bg-amber-400/10 text-amber-200" };
   if (event.isPaused) {
     return {
       label: "Sales paused",
@@ -392,7 +415,7 @@ function getEventStatus(event: EventCommandEvent): {
   }
 
   return {
-    label: "Live",
+    label: "Scheduled",
     classes:
       "border-emerald-400/20 bg-emerald-400/10 text-emerald-200",
   };
