@@ -657,3 +657,6 @@ html.light .organizer-shell .organizer-event-cover .organizer-revenue-badge p {
 @media (prefers-reduced-motion: reduce) {
   .fh-launch-confetti { display: none; }
 }
+
+/* Entry-pass details remain legible on their white cards. */
+html.light .ticket-pass-detail-icon > svg { color: #5b21b6 !important; }
