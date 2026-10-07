@@ -14,6 +14,7 @@ export default function Footer({ homePrivacyOptOut = false }: { homePrivacyOptOu
           </p>
         </div>
         <nav aria-label="Legal and support" className="flex flex-wrap content-start gap-x-6 gap-y-3 text-sm text-zinc-700">
+          <Link href="/careers" className="transition hover:text-zinc-950">Careers</Link>
           <Link href="/organizer/pricing" className="transition hover:text-zinc-950">Organizer pricing</Link>
           <a href="https://www.instagram.com/functionhour/" target="_blank" rel="noreferrer" aria-label="Function Hour on Instagram" className="transition hover:text-zinc-950">Instagram · @FunctionHour ↗</a>
           <a href="https://www.tiktok.com/@functionhour" target="_blank" rel="noreferrer" aria-label="Function Hour on TikTok" className="transition hover:text-zinc-950">TikTok · @FunctionHour ↗</a>
