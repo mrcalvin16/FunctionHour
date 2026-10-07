@@ -184,6 +184,11 @@ export const getAll = query({
           activeTicketPrices.length > 0
             ? Math.min(...activeTicketPrices)
             : (event.price ?? 0);
+        const activeTicketTypes = ticketTypes.filter((ticketType) => ticketType.isActive !== false);
+        const soldOut = event.isSoldOut === true ||
+          (event.totalTickets !== undefined && event.totalTickets > 0 && (event.ticketsSold ?? 0) >= event.totalTickets) ||
+          (activeTicketTypes.length > 0 && activeTicketTypes.every((ticketType) =>
+            ticketType.isSoldOut || (ticketType.quantity !== undefined && (ticketType.sold ?? 0) >= ticketType.quantity)));
 
         const organizer = event.userId
           ? await ctx.db.query("users").withIndex("by_userId", (q) => q.eq("userId", event.userId)).first()
@@ -194,6 +199,7 @@ export const getAll = query({
           imageUrl,
           hasMerch,
           startingPrice,
+          isSoldOut: soldOut,
           organizerName: organizer?.organizerName || organizer?.name || "Organizer",
         };
       }),
@@ -431,6 +437,10 @@ export const updateEvent = mutation({
       throw new Error("Event not found.");
     }
 
+    if (args.eventDate !== undefined && event.salesEndAt !== undefined && event.salesEndAt > args.eventDate) {
+      throw new Error("Move or remove the ticket sales deadline before setting an earlier event date.");
+    }
+
     if (args.eventDate !== undefined || args.dateString !== undefined ||
       args.venueName !== undefined || args.venueAddress !== undefined || args.location !== undefined || args.city !== undefined || args.state !== undefined || args.latitude !== undefined || args.longitude !== undefined) {
       const hasTickets = await ctx.db.query("tickets").withIndex("by_event", (q) => q.eq("eventId", args.eventId)).take(1);
@@ -501,6 +511,28 @@ export const updateEvent = mutation({
     }
 
     return args.eventId;
+  },
+});
+
+export const updateTicketSalesSettings = mutation({
+  args: {
+    eventId: v.id("events"),
+    salesEndAt: v.optional(v.union(v.number(), v.null())),
+    isSoldOut: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    await requireEventCapability(ctx, args.eventId, "manage_tickets");
+    const event = await ctx.db.get(args.eventId);
+    if (!event || event.isDemo) throw new Error("Ticket sales settings are unavailable for this event.");
+    if (args.salesEndAt === undefined && args.isSoldOut === undefined) return;
+    if (args.salesEndAt !== null && args.salesEndAt !== undefined &&
+      (!Number.isSafeInteger(args.salesEndAt) || args.salesEndAt > event.eventDate)) {
+      throw new Error("Sales must end no later than the event start time.");
+    }
+    await ctx.db.patch(args.eventId, {
+      ...(args.salesEndAt !== undefined && { salesEndAt: args.salesEndAt ?? undefined }),
+      ...(args.isSoldOut !== undefined && { isSoldOut: args.isSoldOut }),
+    });
   },
 });
 

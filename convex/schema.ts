@@ -93,6 +93,8 @@ eventInteractions: defineTable({
     demoKey: v.optional(v.string()),
     demoHidden: v.optional(v.boolean()),
     eventStatus: v.optional(v.union(v.literal("scheduled"), v.literal("postponed"), v.literal("cancelled"))),
+    salesEndAt: v.optional(v.number()),
+    isSoldOut: v.optional(v.boolean()),
     payoutHoldClearedAt: v.optional(v.number()),
     payoutHoldClearedBy: v.optional(v.string()),
     payoutHoldReviewNote: v.optional(v.string()),

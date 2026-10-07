@@ -2,6 +2,10 @@ type EventDateFields = {
   dateString?: string;
   eventDate?: number;
   eventStatus?: "scheduled" | "postponed" | "cancelled";
+  salesEndAt?: number;
+  isSoldOut?: boolean;
+  totalTickets?: number;
+  ticketsSold?: number;
 };
 
 export function getEventEndTimestamp(event: EventDateFields) {
@@ -29,5 +33,11 @@ export function requireEventSalesOpen(event: EventDateFields) {
   }
   if (!isEventUpcoming(event)) {
     throw new Error("Ticket sales have ended for this event.");
+  }
+  if (event.isSoldOut || (event.totalTickets !== undefined && event.totalTickets > 0 && (event.ticketsSold ?? 0) >= event.totalTickets)) {
+    throw new Error("This event is sold out.");
+  }
+  if (event.salesEndAt !== undefined && Date.now() >= event.salesEndAt) {
+    throw new Error("The organizer's ticket sales deadline has passed.");
   }
 }

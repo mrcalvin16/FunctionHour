@@ -17,6 +17,8 @@ export type DiscoveryEvent = {
   startingPrice?: number;
   ticketsSold?: number;
   totalTickets?: number;
+  salesEndAt?: number;
+  isSoldOut?: boolean;
   isPromoted?: boolean;
   promotionEndsAt?: number;
   featuredWeight?: number;
@@ -49,6 +51,12 @@ export function getBuyerPriceLabel(event: Pick<DiscoveryEvent, "startingPrice" |
 export function getFromPriceLabel(event: Pick<DiscoveryEvent, "startingPrice" | "price">) {
   const price = getBuyerPriceLabel(event);
   return price === "Free" ? price : `From ${price}`;
+}
+
+export function getTicketListingLabel(event: Pick<DiscoveryEvent, "startingPrice" | "price" | "isSoldOut" | "salesEndAt">) {
+  if (event.isSoldOut) return "Sold out";
+  if (event.salesEndAt !== undefined && Date.now() >= event.salesEndAt) return "Sales closed";
+  return getFromPriceLabel(event);
 }
 
 export function getEventTimestamp(event: DiscoveryEvent) {

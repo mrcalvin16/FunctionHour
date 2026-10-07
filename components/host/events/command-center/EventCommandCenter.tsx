@@ -57,6 +57,7 @@ export type EventCommandEvent = {
   entryNotes?: string;
   isPaused?: boolean;
   isSoldOut?: boolean;
+  salesEndAt?: number;
   eventStatus?: "scheduled" | "postponed" | "cancelled";
 };
 

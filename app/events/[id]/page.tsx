@@ -104,7 +104,11 @@ export default function EventDetailPage({
 
   const event = useQuery(api.events.getById, { eventId });
   const eventChanges = useQuery(api.eventOperations.getPublicChanges, { eventId });
-  const salesOpen = event ? isEventUpcoming(event) && event.eventStatus !== "cancelled" && event.eventStatus !== "postponed" : false;
+  const [salesClock, setSalesClock] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setSalesClock(Date.now()), 15_000);
+    return () => window.clearInterval(timer);
+  }, []);
   const eventAccess = useQuery(
     api.eventAccess.getMyEventAccess,
     isLoaded && isSignedIn ? { eventId } : "skip",
@@ -129,6 +133,20 @@ export default function EventDetailPage({
     () => ticketTypes?.filter((ticket) => ticket.isActive !== false) ?? [],
     [ticketTypes],
   );
+  const eventSoldOut = Boolean(event && (event.isSoldOut ||
+    (event.totalTickets !== undefined && event.totalTickets > 0 && (event.ticketsSold ?? 0) >= event.totalTickets)));
+  const allTicketTypesUnavailable = activeTicketTypes.length > 0 && activeTicketTypes.every((ticket) =>
+    ticket.isSoldOut || ticket.salesPaused || (ticket.quantity !== undefined && (ticket.sold ?? 0) >= ticket.quantity));
+  const allTicketTypesSoldOut = activeTicketTypes.length > 0 && activeTicketTypes.every((ticket) =>
+    ticket.isSoldOut || (ticket.quantity !== undefined && (ticket.sold ?? 0) >= ticket.quantity));
+  const salesState = !event || ticketTypes === undefined ? "loading" :
+    event.eventStatus === "cancelled" ? "cancelled" :
+    event.eventStatus === "postponed" ? "postponed" :
+    !isEventUpcoming(event, salesClock) ? "ended" :
+    eventSoldOut || allTicketTypesSoldOut ? "sold_out" :
+    event.salesEndAt !== undefined && salesClock >= event.salesEndAt ? "deadline" :
+    allTicketTypesUnavailable ? "unavailable" : "open";
+  const salesOpen = salesState === "open";
 
   const startingPrice =
     ticketTypes === undefined
@@ -583,9 +601,8 @@ export default function EventDetailPage({
                 {activeTicketTypes.map((ticket) => {
                   const soldOut =
                     ticket.isSoldOut ||
-                    ticket.salesPaused ||
                     Boolean(
-                      ticket.quantity && (ticket.sold ?? 0) >= ticket.quantity,
+                      ticket.quantity !== undefined && (ticket.sold ?? 0) >= ticket.quantity,
                     );
 
                   return (
@@ -600,7 +617,7 @@ export default function EventDetailPage({
                         <p
                           className={`mt-0.5 text-xs ${soldOut ? "text-red-300" : "text-white/40"}`}
                         >
-                          {soldOut ? "Sold out" : "Available"}
+                          {soldOut ? "Sold out" : ticket.salesPaused ? "Sales paused" : "Available"}
                         </p>
                       </div>
                       <p className="shrink-0 text-sm font-black">
@@ -630,8 +647,9 @@ export default function EventDetailPage({
                   <p className="mt-1 font-semibold text-black dark:text-white">This is a sample event created to demonstrate the FunctionHour experience. No real event or ticket purchase is associated with this listing.</p>
                 </div>
               ) : !salesOpen ? (
-                <div className="w-full rounded-xl border border-white/10 bg-white/5 px-5 py-4 text-center font-bold text-zinc-400">
-                  {event.eventStatus === "cancelled" ? "Event cancelled — ticket sales closed" : event.eventStatus === "postponed" ? "Event postponed — ticket sales paused" : "Ticket sales ended"}
+                <div className="w-full rounded-xl border border-white/20 bg-white/5 px-5 py-4 text-center font-bold text-white">
+                  {salesState === "cancelled" ? "Event cancelled — ticket sales closed" : salesState === "postponed" ? "Event postponed — ticket sales paused" : salesState === "sold_out" ? "Sold out" : salesState === "deadline" ? "Ticket sales have closed" : salesState === "unavailable" ? "Tickets currently unavailable" : salesState === "loading" ? "Checking ticket availability…" : "Ticket sales ended"}
+                  {salesState === "sold_out" && <Link href="/events" className="mt-2 block text-sm text-violet-200 underline">Explore other events</Link>}
                 </div>
               ) : !isLoaded ? (
                 <button
@@ -743,7 +761,7 @@ export default function EventDetailPage({
             <span className="max-w-[60%] rounded-xl border border-violet-300/50 bg-violet-50 px-4 py-3 text-center text-xs font-bold text-violet-950 dark:border-violet-300/20 dark:bg-violet-400/10 dark:text-violet-100">Demo Event · Sample listing</span>
           ) : !salesOpen ? (
             <span className="shrink-0 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 font-black text-zinc-400">
-              {event.eventStatus === "cancelled" ? "Event Cancelled" : event.eventStatus === "postponed" ? "Event Postponed" : "Sales Ended"}
+              {salesState === "cancelled" ? "Event Cancelled" : salesState === "postponed" ? "Event Postponed" : salesState === "sold_out" ? "Sold Out" : salesState === "deadline" ? "Sales Closed" : salesState === "unavailable" ? "Unavailable" : salesState === "loading" ? "Checking…" : "Sales Ended"}
             </span>
           ) : !isLoaded ? (
             <button

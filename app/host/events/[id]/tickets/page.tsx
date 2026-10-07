@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -23,6 +23,7 @@ export default function HostEventTicketsPage({
   const removeTicketType = useMutation(api.ticketTypes.remove);
   const toggleTicketSoldOut = useMutation(api.ticketTypes.toggleSoldOut);
   const toggleTicketSalesPaused = useMutation(api.ticketTypes.toggleSalesPaused);
+  const updateTicketSalesSettings = useMutation(api.events.updateTicketSalesSettings);
 
   const createAddOn = useMutation(api.ticketAddOns.create);
   const removeAddOn = useMutation(api.ticketAddOns.remove);
@@ -43,6 +44,36 @@ export default function HostEventTicketsPage({
   const [addOnRequired, setAddOnRequired] = useState(false);
 
   const [message, setMessage] = useState("");
+  const [salesDeadline, setSalesDeadline] = useState("");
+  const [savingSales, setSavingSales] = useState(false);
+
+  useEffect(() => {
+    const timestamp = event.salesEndAt;
+    setSalesDeadline(timestamp === undefined ? "" : new Date(timestamp - new Date(timestamp).getTimezoneOffset() * 60_000).toISOString().slice(0, 16));
+  }, [event._id, event.salesEndAt]);
+
+  async function saveSalesDeadline() {
+    const cutoff = salesDeadline ? new Date(salesDeadline).getTime() : null;
+    if (cutoff !== null && (!Number.isFinite(cutoff) || cutoff > event.eventDate)) {
+      setMessage("Choose a sales deadline no later than the event start time.");
+      return;
+    }
+    setSavingSales(true);
+    try {
+      await updateTicketSalesSettings({ eventId, salesEndAt: cutoff });
+      setMessage(cutoff === null ? "Sales deadline removed." : "Sales deadline saved. New ticket orders close at the selected time.");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to save sales deadline."); }
+    finally { setSavingSales(false); }
+  }
+
+  async function toggleEventSoldOut() {
+    setSavingSales(true);
+    try {
+      await updateTicketSalesSettings({ eventId, isSoldOut: !event.isSoldOut });
+      setMessage(event.isSoldOut ? "Event marked available. Ticket inventory and deadline still apply." : "Event marked sold out. New ticket orders are blocked.");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to update sales status."); }
+    finally { setSavingSales(false); }
+  }
 
   async function handleCreateTicketType(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -120,10 +151,26 @@ export default function HostEventTicketsPage({
         </div>
 
         {message && (
-          <div className="mb-6 rounded-2xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-200">
+          <div role="status" className="mb-6 rounded-2xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-200">
             {message}
           </div>
         )}
+
+        <section className="mb-8 rounded-[2rem] border border-violet-400/25 bg-violet-400/[0.08] p-5 sm:p-6">
+          <h3 className="text-xl font-black">Sales window & availability</h3>
+          <p className="mt-2 text-sm text-zinc-200">Set when new ticket orders stop. Times use your device timezone. You can close sales immediately by choosing a time in the past, or mark the whole event sold out. Existing Stripe Checkout sessions may finish before they expire.</p>
+          <div className="mt-5 flex flex-wrap items-end gap-3">
+            <label className="min-w-[230px] flex-1 text-sm font-bold text-white">Sell tickets until
+              <input aria-label="Ticket sales deadline" type="datetime-local" value={salesDeadline} onChange={(e) => setSalesDeadline(e.target.value)} className="mt-2 block w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-zinc-950" />
+            </label>
+            <button type="button" disabled={savingSales} onClick={saveSalesDeadline} className="rounded-xl bg-white px-5 py-3 text-sm font-black text-zinc-950 disabled:opacity-50">Save deadline</button>
+            <button type="button" disabled={savingSales || !event.salesEndAt} onClick={() => { setSalesDeadline(""); setSavingSales(true); updateTicketSalesSettings({ eventId, salesEndAt: null }).then(() => setMessage("Sales deadline removed.")).catch((error) => setMessage(error instanceof Error ? error.message : "Unable to clear deadline.")).finally(() => setSavingSales(false)); }} className="rounded-xl border border-white/40 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">Remove deadline</button>
+          </div>
+          <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/15 pt-5">
+            <button type="button" disabled={savingSales} onClick={toggleEventSoldOut} className={`rounded-xl px-5 py-3 text-sm font-black disabled:opacity-50 ${event.isSoldOut ? "bg-emerald-300 text-zinc-950" : "bg-orange-500 text-zinc-950"}`}>{event.isSoldOut ? "Mark event available" : "Mark event sold out"}</button>
+            <p className="text-sm font-semibold text-zinc-200">{event.isSoldOut ? "Event manually marked sold out" : event.salesEndAt && Date.now() >= event.salesEndAt ? "Sales deadline passed" : event.salesEndAt ? `Scheduled to close ${new Date(event.salesEndAt).toLocaleString()}` : "No early sales deadline"}</p>
+          </div>
+        </section>
 
         <div className="grid gap-8 lg:grid-cols-2">
           <form
