@@ -263,7 +263,7 @@ export default function EventOverview() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.23em] text-violet-300">
-                Launch readiness
+                Event setup
               </p>
               <h2 className="mt-2 text-xl font-black tracking-tight">
                 Event health
@@ -324,10 +324,6 @@ export default function EventOverview() {
             >
               Complete event setup
             </Link>
-          ) : readinessPercent === 100 ? (
-            <p className="mt-5 text-center text-xs font-black text-emerald-300">
-              ✓ Event setup is ready
-            </p>
           ) : null}
         </aside>
       </section>

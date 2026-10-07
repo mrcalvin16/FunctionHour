@@ -101,14 +101,6 @@ export default function CheckInWorkspace({
         <NoAccessState />
       ) : (
         <>
-          <EventDayControls
-            scannerActive={scannerActive}
-            currentGate={gate}
-            throughput={workspace.throughput}
-            isOnline={isOnline}
-            onScannerActiveChange={setScannerActive}
-          />
-
           <AttendanceProgress
             eventName={workspace.event.name}
             dateString={workspace.event.dateString}
@@ -119,13 +111,7 @@ export default function CheckInWorkspace({
             attendancePercentage={attendancePercentage}
           />
 
-          <StatsGrid
-            checkedIn={workspace.stats.checkedIn}
-            remaining={workspace.stats.remaining}
-            totalGuests={workspace.stats.totalGuests}
-            orders={workspace.stats.orders}
-            attendancePercentage={attendancePercentage}
-          />
+          <EventDayControls scannerActive={scannerActive} currentGate={gate} throughput={workspace.throughput} isOnline={isOnline} onScannerActiveChange={setScannerActive} />
 
           <CheckInContent
             scannerActive={scannerActive}
@@ -149,6 +135,10 @@ export default function CheckInWorkspace({
             onUndo={handleUndo}
           />
           {eventId && <GateIssuePanel eventId={eventId} />}
+          <details className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <summary className="cursor-pointer text-sm font-bold text-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-orange-600">Attendance details</summary>
+            <div className="mt-4"><StatsGrid checkedIn={workspace.stats.checkedIn} remaining={workspace.stats.remaining} totalGuests={workspace.stats.totalGuests} orders={workspace.stats.orders} attendancePercentage={attendancePercentage} /></div>
+          </details>
         </>
       )}
 

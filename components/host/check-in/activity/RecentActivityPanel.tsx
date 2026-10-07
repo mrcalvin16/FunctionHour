@@ -22,7 +22,7 @@ export default function RecentActivityPanel({
   formatTime,
 }: RecentActivityPanelProps) {
   return (
-            <aside className="min-w-0 rounded-3xl border border-zinc-200 bg-white shadow-sm xl:sticky xl:top-24 xl:h-fit">
+            <div className="min-w-0 bg-white">
               <div className="border-b border-zinc-200 p-5">
                 <div className="flex items-center justify-between">
                   <div>
@@ -89,6 +89,6 @@ export default function RecentActivityPanel({
                   </p>
                 </div>
               )}
-            </aside>
+            </div>
   );
 }

@@ -65,8 +65,8 @@ export default function CheckInContent({
   onUndo,
 }: CheckInContentProps) {
   return (
-    <section className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.55fr)]">
-      <div className="min-w-0 space-y-6">
+    <section className="min-w-0 space-y-5" aria-label="Door check-in tools">
+      <div className="grid min-w-0 gap-5 lg:grid-cols-2 lg:items-start">
         <ScannerPanel
           scannerActive={scannerActive}
           gate={gate}
@@ -90,12 +90,10 @@ export default function CheckInContent({
           onUndo={onUndo}
         />
       </div>
-
-      <RecentActivityPanel
-        recentActivity={recentActivity}
-        formatMethod={formatMethod}
-        formatTime={formatTime}
-      />
+      <details className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <summary className="cursor-pointer px-5 py-4 text-sm font-bold text-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-orange-600">Recent entries · {recentActivity.length} shown</summary>
+        <div className="border-t border-zinc-200"><RecentActivityPanel recentActivity={recentActivity} formatMethod={formatMethod} formatTime={formatTime} /></div>
+      </details>
     </section>
   );
 }
