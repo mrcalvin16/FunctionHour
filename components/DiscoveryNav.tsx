@@ -15,10 +15,8 @@ const browseLinks = [
 
 const accountLinks = [
   { href: "/saved-events", label: "Saved" },
-  { href: "/my-tickets", label: "My Tickets" },
-  { href: "/my-orders", label: "Orders" },
+  { href: "/my-tickets", label: "Tickets & Orders" },
   { href: "/my-event-passport", label: "Passport" },
-  { href: "/my-merch-orders", label: "Merch Orders" },
 ];
 
 const linkClass = "inline-flex min-h-11 items-center whitespace-nowrap rounded-full border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-400 hover:text-zinc-950";
