@@ -61,10 +61,11 @@ export default function SupportChat() {
   }
 
   const isFlyerStudio = pathname?.startsWith("/host/flyer-studio");
+  const isEventDetail = /^\/events\/[^/]+\/?$/.test(pathname || "");
   return (
-    <div className={`chev-support fixed z-[70] ${isFlyerStudio ? "bottom-3 left-3" : "bottom-5 right-5"}`}>
+    <div className={`chev-support fixed z-[70] ${isFlyerStudio ? "bottom-3 left-3" : isEventDetail ? "bottom-[calc(6.5rem+env(safe-area-inset-bottom))] right-4 sm:bottom-5 sm:right-5" : "bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 sm:bottom-5 sm:right-5"}`}>
       {open && (
-        <section aria-label="Chev support" className="mb-3 flex h-[min(620px,calc(100vh-7rem))] w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white text-zinc-950 shadow-2xl">
+        <section aria-label="Chev support" className={`mb-3 flex w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white text-zinc-950 shadow-2xl ${isEventDetail ? "h-[min(620px,calc(100dvh-11rem))] sm:h-[min(620px,calc(100dvh-7rem))]" : "h-[min(620px,calc(100dvh-7rem))]"}`}>
           <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
             <div><h2 className="font-bold">Chev</h2><p className="text-xs text-zinc-700">Function Hour help</p></div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close Chev" className="rounded-full p-2 hover:bg-zinc-100"><X size={20} /></button>
@@ -114,9 +115,9 @@ export default function SupportChat() {
           </div>
         </section>
       )}
-      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Close Chev" : "Open Chev"} className="chev-launcher ml-auto flex min-h-14 items-center gap-3 rounded-full px-4 py-2 pr-6 text-sm font-bold text-white shadow-xl transition-transform duration-200 hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Close Chev" : "Open Chev"} className="chev-launcher ml-auto flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold text-white shadow-xl transition-transform duration-200 hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 sm:h-14 sm:w-auto sm:gap-3 sm:px-4 sm:pr-6">
         <span className="relative grid h-9 w-9 place-items-center rounded-full bg-white/20 ring-1 ring-white/35"><MessageCircle size={20} strokeWidth={2.2} /><Sparkles size={10} className="absolute -right-1 -top-1 text-amber-200" aria-hidden="true" /></span>
-        <span>Help</span>
+        <span className="hidden sm:inline">Help</span>
       </button>
     </div>
   );
