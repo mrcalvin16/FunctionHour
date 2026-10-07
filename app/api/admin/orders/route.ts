@@ -6,7 +6,8 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
 import { getConvexClient } from "@/lib/convex";
-import { escapeEmailHtml, sendTransactionalEmail } from "@/lib/email/server";
+import { sendTransactionalEmail } from "@/lib/email/server";
+import { ticketConfirmationEmail } from "@/lib/email/ticketConfirmation";
 import { getStripeClient } from "@/lib/stripe/server";
 import { evaluateTicketRecovery } from "@/lib/ticketRecovery";
 
@@ -196,10 +197,13 @@ export async function POST(request: Request) {
         const eventName = session.metadata.eventName || "your event";
         const ticketsUrl = new URL("/my-tickets", process.env.NEXT_PUBLIC_APP_URL || requestOrigin).toString();
           await sendTransactionalEmail({
-          to: buyerEmail, subject: `Your Function Hour tickets for ${eventName}`,
+          to: buyerEmail,
+          ...ticketConfirmationEmail({
+            eventName, ticketTypeName: session.metadata.ticketTypeName,
+            quantity: selection.quantity, ticketsUrl, buyerEmail,
+            total: (session.amount_total ?? 0) / 100, currency: session.currency || "usd",
+          }),
           idempotencyKey: `paid-ticket-${sessionId}`,
-          text: `Your payment is confirmed. ${selection.quantity} ticket(s) for ${eventName} are ready. Open your tickets: ${ticketsUrl}`,
-          html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#171717"><h1>Your tickets are ready</h1><p>${selection.quantity} ticket(s) for ${escapeEmailHtml(eventName)}</p><p><a href="${ticketsUrl}">Open My Tickets</a></p></div>`,
           });
           emailStatus = "accepted";
         } catch (error) { console.error("[admin.orders] Recovery email failed", { sessionId, error }); }
