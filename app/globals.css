@@ -641,3 +641,19 @@ html.light button .event-filter-icon { color: #5b21b6 !important; }
 html.light .organizer-shell .organizer-event-cover .organizer-revenue-badge p {
   color: #18181b !important;
 }
+
+@keyframes fh-launch-spark {
+  0%, 100% { transform: rotate(-8deg) scale(1); }
+  50% { transform: rotate(8deg) scale(1.12); }
+}
+@keyframes fh-launch-confetti {
+  from { transform: translate3d(0, -20px, 0) rotate(0deg); opacity: 1; }
+  to { transform: translate3d(var(--confetti-drift), 105vh, 0) rotate(540deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fh-launch-spark { animation: fh-launch-spark 3s ease-in-out infinite; }
+  .fh-launch-confetti { animation: fh-launch-confetti 5s ease-out both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fh-launch-confetti { display: none; }
+}
