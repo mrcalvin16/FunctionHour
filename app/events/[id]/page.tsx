@@ -743,7 +743,7 @@ export default function EventDetailPage({
             <span className="max-w-[60%] rounded-xl border border-violet-300/50 bg-violet-50 px-4 py-3 text-center text-xs font-bold text-violet-950 dark:border-violet-300/20 dark:bg-violet-400/10 dark:text-violet-100">Demo Event · Sample listing</span>
           ) : !salesOpen ? (
             <span className="shrink-0 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 font-black text-zinc-400">
-              Sales Ended
+              {event.eventStatus === "cancelled" ? "Event Cancelled" : event.eventStatus === "postponed" ? "Event Postponed" : "Sales Ended"}
             </span>
           ) : !isLoaded ? (
             <button

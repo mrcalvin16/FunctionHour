@@ -54,7 +54,7 @@ export default function EventChangesPage() {
     finally { setBusy(false); }
   }
   return <div className="mx-auto max-w-4xl space-y-6 p-4 pb-12 text-white sm:p-8">
-    <div><p className="text-xs font-bold uppercase tracking-[.17em] text-orange-300">Event operations</p><h2 className="mt-2 text-3xl font-black">Event changes</h2><p className="mt-3 text-sm leading-6 text-zinc-200">Record a cancellation, postponement, new date, or venue change. Ticket sales pause while an event is cancelled or postponed. Send every buyer notice below; the list includes paid and complimentary ticket holders.</p></div>
+    <div><p className="text-xs font-bold uppercase tracking-[.17em] text-orange-300">Event operations</p><h2 className="mt-2 text-3xl font-black">Event changes</h2><p className="mt-3 text-sm leading-6 text-zinc-200">Record a cancellation, postponement, new date, or venue change. Ticket sales pause while an event is cancelled or postponed. Send every buyer notice below; the list includes paid and complimentary ticket holders. Refunds require separate Operations review in Stripe.</p></div>
     <div className="rounded-3xl border border-white/20 bg-white/5 p-5 sm:p-7">
       <label className="block text-sm font-bold">What changed?<select className="mt-2 w-full rounded-xl bg-white p-3 text-zinc-950" value={kind} onChange={(e) => setKind(e.target.value as ChangeKind)}>{Object.entries(labels).map(([key, value]) => <option key={key} value={key}>{value}</option>)}</select></label>
       {kind === "rescheduled" && <label className="mt-4 block text-sm font-bold">New date and time (your device timezone)<input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} className="mt-2 w-full rounded-xl bg-white p-3 text-zinc-950" /></label>}
