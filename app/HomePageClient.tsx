@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { usePreferredCity } from "@/hooks/usePreferredCity";
+import LaunchCountdown from "@/components/LaunchCountdown";
 import DiscoveryNav from "@/components/DiscoveryNav";
 import { matchesDiscoveryCity } from "@/lib/discoveryCities";
 import DiscoveryEmptyState from "./events/components/DiscoveryEmptyState";
@@ -50,6 +51,7 @@ export default function HomePage() {
   return (
     <main className="safe-x min-h-screen overflow-x-hidden bg-[#fffaf7] text-zinc-950">
       <DiscoveryNav />
+      <LaunchCountdown />
 
       <ExperienceHero search={search} setSearch={setSearch} category={category} setCategory={setCategory} city={city} setCity={setCity} view={view} setView={setView} events={((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event))} quickFilter={quickFilter} setQuickFilter={setQuickFilter} />
 
