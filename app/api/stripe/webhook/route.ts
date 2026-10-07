@@ -5,7 +5,8 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { getStripeClient } from "@/lib/stripe/server";
 import { createPrintfulOrder } from "@/lib/printful/server";
-import { escapeEmailHtml, sendTransactionalEmail } from "@/lib/email/server";
+import { sendTransactionalEmail } from "@/lib/email/server";
+import { ticketConfirmationEmail } from "@/lib/email/ticketConfirmation";
 
 type TicketMetadataLine = {
   ticketTypeId?: string;
@@ -289,10 +290,11 @@ export async function POST(req: Request) {
 
         await sendTransactionalEmail({
           to: buyerEmail,
-          subject: `Your Function Hour tickets for ${eventName}`,
+          ...ticketConfirmationEmail({
+            eventName, ticketTypeName, quantity, ticketsUrl, buyerEmail,
+            total: (session.amount_total ?? 0) / 100, currency: session.currency || "usd",
+          }),
           idempotencyKey: `paid-ticket-${session.id}`,
-          text: `Your payment is confirmed.\n\n${quantity} ${ticketTypeName} ticket(s) for ${eventName}\nTotal: ${new Intl.NumberFormat("en-US", { style: "currency", currency: (session.currency || "usd").toUpperCase() }).format((session.amount_total ?? 0) / 100)}\n\nOpen your tickets: ${ticketsUrl}`,
-          html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#171717"><p style="font-size:12px;font-weight:700;letter-spacing:.16em;color:#7c3aed">FUNCTION HOUR</p><h1 style="font-size:30px;line-height:1.15">Payment confirmed</h1><p>Your <strong>${quantity} ${escapeEmailHtml(ticketTypeName)} ticket(s)</strong> for <strong>${escapeEmailHtml(eventName)}</strong> are ready.</p><p style="margin:28px 0"><a href="${ticketsUrl}" style="background:#7c3aed;color:white;text-decoration:none;padding:14px 22px;border-radius:12px;font-weight:700">Open My Tickets</a></p><p style="font-size:13px;color:#666">A payment receipt is also provided through Stripe. Questions? Reply to this email.</p></div>`,
         });
         } catch (emailError) {
           console.error("Paid ticket email delivery failed:", emailError);
