@@ -57,6 +57,7 @@ export type EventCommandEvent = {
   entryNotes?: string;
   isPaused?: boolean;
   isSoldOut?: boolean;
+  eventStatus?: "scheduled" | "postponed" | "cancelled";
 };
 
 type EventCommandContextValue = {
@@ -170,6 +171,12 @@ export default function EventCommandCenter({
       label: "Settings",
       href: `${basePath}/edit`,
       icon: Settings,
+      requiredCapability: "manage_event",
+    },
+    {
+      label: "Event changes",
+      href: `${basePath}/changes`,
+      icon: CalendarDays,
       requiredCapability: "manage_event",
     },
   ];

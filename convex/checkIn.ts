@@ -373,6 +373,10 @@ export const checkInTicket = mutation({
       );
 
     const ticket = await ctx.db.get(args.ticketId);
+    const event = await ctx.db.get(args.eventId);
+    if (!event || event.eventStatus === "cancelled" || event.eventStatus === "postponed") {
+      throw new Error("Check-in is paused for this cancelled or postponed event.");
+    }
 
     if (!ticket || ticket.eventId !== args.eventId) {
       throw new Error("Ticket not found for this event.");

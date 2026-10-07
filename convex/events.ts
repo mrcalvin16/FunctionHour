@@ -431,6 +431,15 @@ export const updateEvent = mutation({
       throw new Error("Event not found.");
     }
 
+    if (args.eventDate !== undefined || args.dateString !== undefined ||
+      args.venueName !== undefined || args.venueAddress !== undefined || args.location !== undefined || args.city !== undefined || args.state !== undefined || args.latitude !== undefined || args.longitude !== undefined) {
+      const hasTickets = await ctx.db.query("tickets").withIndex("by_event", (q) => q.eq("eventId", args.eventId)).take(1);
+      const hasOrders = await ctx.db.query("ticketOrders").withIndex("by_event_and_paidAt", (q) => q.eq("eventId", args.eventId)).take(1);
+      if (hasTickets.length || hasOrders.length) {
+        throw new Error("This event has ticket holders. Use Event changes to notify them about date or venue updates.");
+      }
+    }
+
     validateTicketPurchaseLimit(args.maxTicketsPerOrder);
     await ctx.db.patch(args.eventId, {
       ...(args.maxTicketsPerOrder !== undefined && { maxTicketsPerOrder: args.maxTicketsPerOrder }),
@@ -926,12 +935,8 @@ export const getSellerEvents = query({
           imageUrl,
           metrics,
 
-          /*
-           * Compatibility field for the existing seller UI.
-           * This will be replaced by the real cancellation field
-           * when event cancellation is implemented.
-           */
-          is_cancelled: false,
+          // Compatibility field for the existing seller UI.
+          is_cancelled: event.eventStatus === "cancelled",
         };
       }),
     );

@@ -103,7 +103,8 @@ export default function EventDetailPage({
   const { isLoaded, isSignedIn } = useUser();
 
   const event = useQuery(api.events.getById, { eventId });
-  const salesOpen = event ? isEventUpcoming(event) : false;
+  const eventChanges = useQuery(api.eventOperations.getPublicChanges, { eventId });
+  const salesOpen = event ? isEventUpcoming(event) && event.eventStatus !== "cancelled" && event.eventStatus !== "postponed" : false;
   const eventAccess = useQuery(
     api.eventAccess.getMyEventAccess,
     isLoaded && isSignedIn ? { eventId } : "skip",
@@ -618,6 +619,10 @@ export default function EventDetailPage({
                 </p>
               )}
 
+            {eventChanges && eventChanges.length > 0 && <div className="mt-5 rounded-xl border border-orange-400/60 bg-orange-500/10 p-4 text-white" role="status">
+              <strong className="block text-base">Event update: {eventChanges[0].kind.replace("_", " ")}</strong>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-6">{eventChanges[0].message}</p>
+            </div>}
             <div className="mt-5">
               {event.isDemo ? (
                 <div className="w-full rounded-xl border-2 border-violet-400 bg-white px-5 py-4 text-center text-sm leading-6 text-black shadow-sm dark:border-violet-300/50 dark:bg-zinc-900 dark:text-white">
@@ -626,7 +631,7 @@ export default function EventDetailPage({
                 </div>
               ) : !salesOpen ? (
                 <div className="w-full rounded-xl border border-white/10 bg-white/5 px-5 py-4 text-center font-bold text-zinc-400">
-                  Ticket sales ended
+                  {event.eventStatus === "cancelled" ? "Event cancelled — ticket sales closed" : event.eventStatus === "postponed" ? "Event postponed — ticket sales paused" : "Ticket sales ended"}
                 </div>
               ) : !isLoaded ? (
                 <button

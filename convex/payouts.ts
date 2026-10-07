@@ -117,6 +117,7 @@ export const getOrganizerPayoutSummary = query({
     if (events.length > 100) {
       throw new Error("Payout history is too large for automatic reconciliation.");
     }
+    const eventChangeHold = events.some((event) => (event.eventStatus === "cancelled" || event.eventStatus === "postponed") && !event.payoutHoldClearedAt);
 
     let earned = 0;
     let orderCount = 0;
@@ -156,7 +157,8 @@ export const getOrganizerPayoutSummary = query({
           .reduce((sum, item) => sum + item.amount, 0) * 100,
       ) / 100,
       requestedAmount: Math.round(requested * 100) / 100,
-      requestableAmount: Math.max(0, Math.round((earned - requested) * 100) / 100),
+      requestableAmount: eventChangeHold ? 0 : Math.max(0, Math.round((earned - requested) * 100) / 100),
+      eventChangeHold,
       pendingRequest: pendingRequest
         ? { amount: pendingRequest.amount, createdAt: pendingRequest.createdAt }
         : null,
@@ -191,6 +193,9 @@ export const createOrganizerPayoutRequest = mutation({
       .take(101);
     if (events.length > 100) {
       throw new Error("Payout history is too large for automatic reconciliation.");
+    }
+    if (events.some((event) => (event.eventStatus === "cancelled" || event.eventStatus === "postponed") && !event.payoutHoldClearedAt)) {
+      throw new Error("Payout requests are paused while an event change needs refund reconciliation. Contact Operations.");
     }
 
     let earned = 0;
@@ -251,6 +256,29 @@ export const getPendingPayoutRequests = query({
   },
 });
 
+export const listEventChangeHolds = query({
+  args: { serverSecret: v.string() },
+  handler: async (ctx, { serverSecret }) => {
+    assertServerSecret(serverSecret);
+    const events = await ctx.db.query("events").order("desc").take(500);
+    return events.filter((event) => (event.eventStatus === "cancelled" || event.eventStatus === "postponed") && !event.payoutHoldClearedAt)
+      .map((event) => ({ eventId: event._id, name: event.name, organizerId: event.userId, status: event.eventStatus }));
+  },
+});
+
+export const clearEventChangeHold = mutation({
+  args: { serverSecret: v.string(), eventId: v.id("events"), reviewedBy: v.string(), reviewNote: v.string() },
+  handler: async (ctx, args) => {
+    assertServerSecret(args.serverSecret);
+    const event = await ctx.db.get(args.eventId);
+    if (!event || (event.eventStatus !== "cancelled" && event.eventStatus !== "postponed")) throw new Error("No event-change hold found.");
+    const note = args.reviewNote.trim();
+    if (note.length < 20 || note.length > 500) throw new Error("Document refund and liability reconciliation (20–500 characters). ");
+    if (event.payoutHoldClearedAt) return;
+    await ctx.db.patch(args.eventId, { payoutHoldClearedAt: Date.now(), payoutHoldClearedBy: args.reviewedBy, payoutHoldReviewNote: note });
+  },
+});
+
 // The operations ledger includes completed and declined requests, not only the
 // actionable queue. Keep this bounded; an exact request ID can still be opened
 // through getPayoutRequestForReview when it ages out of the recent window.
@@ -292,6 +320,10 @@ export const beginOrganizerPayoutTransfer = mutation({
     assertServerSecret(args.serverSecret);
     const request = await ctx.db.get(args.requestId);
     if (!request || request.status !== "requested") throw new Error("Payout request is not pending approval.");
+    const events = await ctx.db.query("events").withIndex("by_userId", (q) => q.eq("userId", request.organizerId)).take(101);
+    if (events.length > 100 || events.some((event) => (event.eventStatus === "cancelled" || event.eventStatus === "postponed") && !event.payoutHoldClearedAt)) {
+      throw new Error("Event change hold: reconcile refunds before approving this transfer.");
+    }
     await ctx.db.patch(args.requestId, {
       status: "processing", reviewedBy: args.reviewedBy, updatedAt: Date.now(),
     });

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getStripeClient } from "@/lib/stripe/server";
 import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
 import PayoutRequestReview from "@/components/admin/PayoutRequestReview";
+import EventChangeHolds from "@/components/admin/EventChangeHolds";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +68,7 @@ export default async function FinanceAdminPage() {
       </section>
 
       <div id="payout-requests"><PayoutRequestReview /></div>
+      <EventChangeHolds />
 
       <section className="mt-8 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-zinc-950">Settlement rules</h2>
