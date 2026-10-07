@@ -22,9 +22,11 @@ export default function Footer({ homePrivacyOptOut = false }: { homePrivacyOptOu
           <Link href="/terms" className="transition hover:text-zinc-950">Terms</Link>
           <Link href="/privacy" className="transition hover:text-zinc-950">Privacy</Link>
           <Link href="/accessibility" className="transition hover:text-zinc-950">Accessibility</Link>
-          <a href="mailto:operations@functionhour.com?subject=Accessibility%20support" className="transition hover:text-zinc-950">Accessibility support</a>
+          <a href="mailto:support@functionhour.com?subject=Accessibility%20support" className="transition hover:text-zinc-950">Accessibility support</a>
           <PrivacyPreferences />
-          <a href="mailto:operations@functionhour.com" className="transition hover:text-zinc-950">Support</a>
+          <a href="mailto:support@functionhour.com" className="transition hover:text-zinc-950">Support</a>
+          <a href="mailto:sales@functionhour.com?subject=Hosting%20an%20event" className="transition hover:text-zinc-950">Organizer inquiries</a>
+          <a href="mailto:partnerships@functionhour.com?subject=Function%20Hour%20partnership" className="transition hover:text-zinc-950">Partnerships</a>
         </nav>
       </div>
     </footer>

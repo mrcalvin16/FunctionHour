@@ -222,6 +222,7 @@ export default function OrganizerPricingPage() {
                 </p>
               ))}
             </div>
+            <p className="mt-5 text-sm text-zinc-700">Questions about hosting an event? <a className="font-bold underline" href="mailto:sales@functionhour.com?subject=Hosting%20an%20event">Email our organizer team</a>.</p>
           </div>
         </section>
 

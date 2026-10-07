@@ -35,7 +35,7 @@ export default function AccessibilityPage() {
               If a page, ticket, checkout step, or organizer tool is difficult to use, contact us. Tell us what you were trying to do and we will work with you on an accessible way to get the information or service you need.
             </p>
             <a
-              href="mailto:operations@functionhour.com?subject=Accessibility%20support"
+              href="mailto:support@functionhour.com?subject=Accessibility%20support"
               className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl border border-violet-300 bg-violet-100 px-5 text-sm font-bold text-violet-950 transition hover:border-violet-400 hover:bg-violet-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-900"
             >
               <Mail className="h-4 w-4 text-violet-900" aria-hidden="true" />
