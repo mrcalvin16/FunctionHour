@@ -59,7 +59,7 @@ export default function OnboardingPage() {
               Manage tickets, save events, receive important updates, and discover the right crowd.
             </p>
 
-            <span className="relative mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-white px-5 text-sm font-black text-black">
+            <span className="onboarding-attendee-action relative mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl border border-violet-200 bg-white px-5 text-sm font-black text-zinc-950">
               Set up attendee profile
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
             </span>
