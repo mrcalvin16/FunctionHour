@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalQuery, mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 
 const DEMO_ORGANIZERS = [
   { id: "demo-orbit-social", name: "Orbit Social Club", bio: "Thoughtfully hosted gatherings for curious people and good conversation.", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=320&h=320&fit=crop&crop=faces", bannerUrl: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1600&h=650&fit=crop" },
@@ -171,5 +171,66 @@ export const count = internalQuery({
   handler: async (ctx) => {
     const events = (await ctx.db.query("events").collect()).filter((event) => event.isDemo === true);
     return { count: events.length, activeCount: events.filter((event) => event.demoHidden !== true).length, cities: events.reduce<Record<string, number>>((counts, event) => ({ ...counts, [event.city ?? "Unknown"]: (counts[event.city ?? "Unknown"] ?? 0) + 1 }), {}) };
+  },
+});
+
+
+/** CLI-only: enrich existing sample listings without resetting events or inventory. */
+export const seedExtras = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const knownKeys = new Set(EVENTS.map((event) => event.key));
+    let eventCount = 0;
+    let merchCreated = 0;
+    let addOnsCreated = 0;
+    for (const organizer of DEMO_ORGANIZERS) {
+      const events = await ctx.db.query("events")
+        .withIndex("by_userId", (q) => q.eq("userId", organizer.id)).take(100);
+      for (const event of events) {
+        if (!event.isDemo || !event.demoKey || !knownKeys.has(event.demoKey)) continue;
+        eventCount++;
+        const products = await ctx.db.query("merch")
+          .withIndex("by_eventId", (q) => q.eq("eventId", event._id)).take(100);
+        const samples = [
+          { key: "tee", name: "Event Tee", price: 28, inventory: 80, sizes: ["S", "M", "L", "XL", "2XL"], image: "photo-1521572163474-6864f9cf17ab", featured: true },
+          { key: "tote", name: "Souvenir Tote", price: 18, inventory: 60, sizes: [], image: "photo-1590874103328-eac38a683ce7", featured: false },
+          { key: "hoodie", name: "Limited Edition Hoodie", price: 55, inventory: 25, sizes: ["S", "M", "L", "XL"], image: "photo-1556821840-3a63f95609a7", featured: false },
+        ];
+        for (const sample of samples) {
+          const sku = `demo:${event.demoKey}:${sample.key}`;
+          if (products.some((product) => product.sku === sku)) continue;
+          await ctx.db.insert("merch", {
+            eventId: event._id, organizerId: organizer.id,
+            name: `${event.name} — ${sample.name}`,
+            description: `Demo merchandise for ${event.name}. Sample image for illustration; event pickup only. Not available for real purchase.`,
+            sku, productType: sample.key, currency: "usd", status: "published",
+            fulfillmentMethod: "pickup", pickupAtEvent: true,
+            price: sample.price, inventory: sample.inventory, reserved: 0, sold: 0,
+            sizes: sample.sizes, featured: sample.featured,
+            limitedDrop: sample.key === "hoodie", isActive: true, isPreorder: false,
+            imageUrl: `https://images.unsplash.com/${sample.image}?auto=format&fit=crop&w=800&q=80`,
+            createdAt: now, updatedAt: now,
+          });
+          merchCreated++;
+        }
+        const extras = await ctx.db.query("ticketAddOns")
+          .withIndex("by_event", (q) => q.eq("eventId", event._id)).take(100);
+        for (const extra of [
+          { name: "Demo VIP Upgrade", price: 35, quantity: 30, description: "Sample priority entry and reserved viewing area. Admission ticket required; this optional upgrade does not include entry." },
+          { name: "Demo Lounge Access", price: 20, quantity: 40, description: "Sample access to a relaxed lounge space during the event. Admission ticket required." },
+          { name: "Demo Souvenir Bundle", price: 12, quantity: 75, description: "Sample keepsake wristband and event postcard, collected at the venue. Admission ticket required." },
+        ]) {
+          if (extras.some((existing) => existing.name === extra.name)) continue;
+          await ctx.db.insert("ticketAddOns", {
+            eventId: event._id, ...extra, isRequired: false,
+            isActive: true, isSoldOut: false, createdAt: now,
+          });
+          addOnsCreated++;
+        }
+      }
+    }
+    if (eventCount < 10) throw new Error("At least 10 known demo events must exist before adding sample extras. No changes were saved.");
+    return { eventCount, merchCreated, addOnsCreated };
   },
 });
