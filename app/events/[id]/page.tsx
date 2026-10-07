@@ -243,7 +243,7 @@ export default function EventDetailPage({
             href="/"
             className="text-xs font-black tracking-[0.22em] text-white"
           >
-            FUNCTION<span className="text-violet-400">HOUR</span>
+            FUNCTION<span className="text-violet-700">HOUR</span>
           </Link>
         </div>
 
@@ -259,7 +259,7 @@ export default function EventDetailPage({
               </div>
 
               <div className="p-5 sm:p-7">
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-violet-300/80">
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-violet-700">
                   {event.category || "Experience"}
                 </p>
 
@@ -359,7 +359,7 @@ export default function EventDetailPage({
 
               <Link
                 href={`/organizers/${event.userId}`}
-                className="mt-5 inline-flex min-h-11 items-center text-sm font-bold text-violet-200 transition hover:text-white"
+                className="mt-5 inline-flex min-h-11 items-center text-sm font-bold text-violet-700 transition hover:text-violet-900"
               >
                 View Organizer Profile →
               </Link>
@@ -383,7 +383,7 @@ export default function EventDetailPage({
               <div className="order-5 mt-5 rounded-[1.5rem] border border-white/10 bg-[#111] p-5 sm:mt-6 sm:p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.3em] text-violet-300/70">
+                    <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.3em] text-violet-700">
                       Launch Creative
                     </p>
                     <h2 className="mt-2 text-2xl sm:text-3xl font-black tracking-[-0.04em] sm:tracking-tight">
@@ -410,7 +410,7 @@ export default function EventDetailPage({
                           {creative.title || "Event Flyer"}
                         </h3>
 
-                        <span className="rounded-full border border-violet-300/20 bg-gradient-to-r from-violet-500/20 to-orange-500/20 px-3 py-1 text-[11px] sm:text-xs font-black text-violet-100 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
+                        <span className="rounded-full border border-violet-300/20 bg-gradient-to-r from-violet-500/20 to-orange-500/20 px-3 py-1 text-[11px] sm:text-xs font-black text-violet-800 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
                           {creative.style || "Luxury"}
                         </span>
                       </div>
@@ -462,7 +462,7 @@ export default function EventDetailPage({
               <div className="order-4 mt-5 sm:mt-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.3em] text-orange-300/70">
+                    <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.3em] text-orange-800">
                       Event Commerce
                     </p>
                     <h2 className="mt-2 text-2xl sm:text-3xl font-black tracking-[-0.04em] sm:tracking-tight">
@@ -649,7 +649,7 @@ export default function EventDetailPage({
               ) : !salesOpen ? (
                 <div className="w-full rounded-xl border border-white/20 bg-white/5 px-5 py-4 text-center font-bold text-white">
                   {salesState === "cancelled" ? "Event cancelled — ticket sales closed" : salesState === "postponed" ? "Event postponed — ticket sales paused" : salesState === "sold_out" ? "Sold out" : salesState === "deadline" ? "Ticket sales have closed" : salesState === "unavailable" ? "Tickets currently unavailable" : salesState === "loading" ? "Checking ticket availability…" : "Ticket sales ended"}
-                  {salesState === "sold_out" && <Link href="/events" className="mt-2 block text-sm text-violet-200 underline">Explore other events</Link>}
+                  {salesState === "sold_out" && <Link href="/events" className="mt-2 block text-sm text-violet-700 underline">Explore other events</Link>}
                 </div>
               ) : !isLoaded ? (
                 <button
@@ -722,7 +722,7 @@ export default function EventDetailPage({
             {event.refundContactEmail && (
               <a
                 href={`mailto:${event.refundContactEmail}`}
-                className="mt-3 inline-block text-sm font-semibold text-orange-300 hover:text-orange-200"
+                className="mt-3 inline-block text-sm font-semibold text-orange-800 hover:text-orange-900"
               >
                 Contact {event.refundContactEmail}
               </a>

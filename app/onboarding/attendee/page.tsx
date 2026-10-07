@@ -128,7 +128,7 @@ export default function AttendeeOnboardingPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#07060c] px-5 text-white">
         <section className="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/[0.04] p-7 text-center shadow-2xl shadow-black/40">
-          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-400/10 text-violet-200">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-400/10 text-violet-700">
             <TicketCheck className="h-6 w-6" />
           </span>
 
@@ -172,7 +172,7 @@ export default function AttendeeOnboardingPage() {
         <div className="rounded-[2rem] border border-white/[0.09] bg-[#0d0b16]/90 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-400">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-orange-800">
                 Attendee Setup
               </p>
               <p className="mt-2 text-xs font-bold text-zinc-600">
@@ -180,7 +180,7 @@ export default function AttendeeOnboardingPage() {
               </p>
             </div>
 
-            <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.16em] text-emerald-300">
+            <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.16em] text-emerald-700">
               Ticket ready
             </span>
           </div>
@@ -301,7 +301,7 @@ export default function AttendeeOnboardingPage() {
         </div>
 
         <aside className="h-fit rounded-[2rem] border border-white/[0.09] bg-gradient-to-br from-violet-600/15 via-white/[0.04] to-orange-500/10 p-6 shadow-2xl shadow-black/30 lg:sticky lg:top-6">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-400/20 bg-orange-400/10 text-orange-200">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-400/20 bg-orange-400/10 text-orange-800">
             <Sparkles className="h-5 w-5" />
           </span>
 
@@ -321,7 +321,7 @@ export default function AttendeeOnboardingPage() {
               "Verified post-event ratings",
             ].map((benefit) => (
               <div key={benefit} className="flex items-start gap-3 text-xs text-zinc-300">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-700">
                   <Check className="h-3 w-3" />
                 </span>
                 <span className="leading-5">{benefit}</span>
@@ -359,7 +359,7 @@ function PreferenceCard({
       <span
         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${
           selected
-            ? "border-orange-400/30 bg-orange-400/10 text-orange-200"
+            ? "border-orange-400/30 bg-orange-400/10 text-orange-800"
             : "border-white/10 bg-white/[0.03] text-zinc-600"
         }`}
       >

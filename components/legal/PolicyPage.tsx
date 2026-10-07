@@ -24,13 +24,13 @@ export default function PolicyPage({
       <div className="mx-auto max-w-4xl px-6 py-16 sm:py-24">
         <Link
           href="/"
-          className="text-sm font-semibold text-orange-400 transition hover:text-orange-300"
+          className="text-sm font-semibold text-orange-800 transition hover:text-orange-900"
         >
           ← Back to Function Hour
         </Link>
 
         <header className="mt-10 border-b border-white/10 pb-10">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-orange-400">
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-orange-800">
             {eyebrow}
           </p>
           <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
@@ -61,14 +61,14 @@ export default function PolicyPage({
             Contact Function Hour at{" "}
             <a
               href="mailto:operations@functionhour.com"
-              className="font-semibold text-orange-400 hover:text-orange-300"
+              className="font-semibold text-orange-800 hover:text-orange-900"
             >
               operations@functionhour.com
             </a>{" "}
             or{" "}
             <a
               href="tel:+15043967476"
-              className="font-semibold text-orange-400 hover:text-orange-300"
+              className="font-semibold text-orange-800 hover:text-orange-900"
             >
               504-396-7476
             </a>

@@ -212,7 +212,7 @@ export default function OrganizerProfilePage({
 
         <div className="mt-12 flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-violet-300/60">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-violet-700">
               Curated by {displayName}
             </p>
 
@@ -282,7 +282,7 @@ export default function OrganizerProfilePage({
                       {getFromPriceLabel(event)}
                     </div>
 
-                    <div className="text-sm font-bold text-violet-200 transition group-hover:text-white">
+                    <div className="text-sm font-bold text-violet-700 transition group-hover:text-violet-900">
                       View Event →
                     </div>
                   </div>

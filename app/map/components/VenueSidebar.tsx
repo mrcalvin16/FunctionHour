@@ -21,7 +21,7 @@ export default function VenueSidebar({
       <section className="rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/15 to-violet-500/10 p-5">
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-orange-300">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-orange-800">
               Trending Tonight
             </p>
 
@@ -64,7 +64,7 @@ export default function VenueSidebar({
                       "Venue TBA"}
                   </p>
 
-                  <div className="mt-3 flex items-center gap-3 text-xs text-orange-200">
+                  <div className="mt-3 flex items-center gap-3 text-xs text-orange-800">
                     <span>
                       {event.city || "City"}
                     </span>
