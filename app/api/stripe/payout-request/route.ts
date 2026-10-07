@@ -50,6 +50,7 @@ export async function GET() {
       transferredAmount: data.summary.transferredAmount,
       requestedAmount: data.summary.requestedAmount,
       requestableAmount: data.requestableAmount,
+      eventChangeHold: data.summary.eventChangeHold,
       pendingRequest: data.summary.pendingRequest,
     });
   } catch (error) {
@@ -86,7 +87,7 @@ export async function POST(httpRequest: Request) {
     }
     if (data.requestableAmount <= 0) {
       return NextResponse.json(
-        { error: "There are no eligible funds currently available to transfer." },
+        { error: data.summary.eventChangeHold ? "Payout requests are paused while Operations reconciles a cancelled or postponed event." : "There are no eligible funds currently available to transfer." },
         { status: 409 },
       );
     }

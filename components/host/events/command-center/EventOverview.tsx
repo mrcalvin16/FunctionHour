@@ -174,6 +174,16 @@ export default function EventOverview() {
               />
             ) : null}
 
+            {capabilities.includes("manage_event") ? (
+              <QuickAction
+                href={`${basePath}/changes`}
+                title="Event changes"
+                detail="Cancel, postpone, or update venue and notify buyers"
+                icon={CircleAlert}
+                accent="orange"
+              />
+            ) : null}
+
             {capabilities.includes("manage_tickets") ? (
               <QuickAction
                 href={`${basePath}/tickets`}

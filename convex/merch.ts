@@ -183,6 +183,7 @@ export const reserveCartForCheckout = mutation({
     const event = await ctx.db.get(args.eventId);
     if (!event) throw new Error("Event not found.");
     if (event.isDemo) throw new Error("Demo events cannot start merchandise checkout.");
+    if (event.eventStatus === "cancelled" || event.eventStatus === "postponed") throw new Error("Checkout is paused for this event.");
     const now = Date.now();
     const expiresAt = now + 30 * 60 * 1_000;
     const reservationDocumentId = await ctx.db.insert(

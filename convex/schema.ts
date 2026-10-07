@@ -92,6 +92,10 @@ eventInteractions: defineTable({
     isDemo: v.optional(v.boolean()),
     demoKey: v.optional(v.string()),
     demoHidden: v.optional(v.boolean()),
+    eventStatus: v.optional(v.union(v.literal("scheduled"), v.literal("postponed"), v.literal("cancelled"))),
+    payoutHoldClearedAt: v.optional(v.number()),
+    payoutHoldClearedBy: v.optional(v.string()),
+    payoutHoldReviewNote: v.optional(v.string()),
 
     userId: v.string(),
     organizerId: v.optional(v.string()),
@@ -169,6 +173,30 @@ eventInteractions: defineTable({
     .index("by_stripeCheckoutSessionId", ["stripeCheckoutSessionId"])
     .index("by_stripePaymentIntentId", ["stripePaymentIntentId"])
     .index("by_qrCode", ["qrCode"]),
+
+  eventChanges: defineTable({
+    eventId: v.id("events"),
+    kind: v.union(v.literal("cancelled"), v.literal("postponed"), v.literal("rescheduled"), v.literal("venue_changed")),
+    message: v.string(),
+    previousDate: v.number(),
+    nextDate: v.optional(v.number()),
+    previousVenue: v.optional(v.string()),
+    nextVenue: v.optional(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    queuedCount: v.number(),
+    sentCount: v.number(),
+    queueComplete: v.boolean(),
+  }).index("by_eventId_and_createdAt", ["eventId", "createdAt"]),
+
+  eventChangeNotices: defineTable({
+    changeId: v.id("eventChanges"),
+    email: v.string(),
+    status: v.union(v.literal("pending"), v.literal("sent")),
+    createdAt: v.number(),
+    sentAt: v.optional(v.number()),
+  }).index("by_changeId_and_status", ["changeId", "status"])
+    .index("by_changeId_and_email", ["changeId", "email"]),
 
   ticketOrders: defineTable({
     eventId: v.id("events"),
@@ -314,6 +342,17 @@ eventInteractions: defineTable({
     .index("by_event", ["eventId"])
     .index("by_event_time", ["eventId", "checkedInAt"])
     .index("by_ticket", ["ticketId"]),
+
+  gateIssues: defineTable({
+    eventId: v.id("events"),
+    category: v.union(v.literal("scan_failed"), v.literal("pass_missing"), v.literal("duplicate"), v.literal("offline"), v.literal("other")),
+    note: v.string(),
+    status: v.union(v.literal("open"), v.literal("resolved")),
+    reportedBy: v.string(),
+    createdAt: v.number(),
+    resolvedAt: v.optional(v.number()),
+    resolvedBy: v.optional(v.string()),
+  }).index("by_eventId_and_createdAt", ["eventId", "createdAt"]),
 
   eventRatings: defineTable({
     eventId: v.id("events"),

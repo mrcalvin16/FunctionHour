@@ -7,7 +7,7 @@ import { api } from "@/convex/_generated/api";
 
 type ConnectStatus = "loading" | "not_connected" | "incomplete" | "pending" | "active" | "error";
 type StatusResponse = { status: Exclude<ConnectStatus, "loading" | "error">; accountId: string | null; chargesEnabled?: boolean; payoutsEnabled?: boolean; detailsSubmitted?: boolean; requirementsDue?: number; error?: string };
-type PayoutRequestStatus = { connected: boolean; accountReady: boolean; earnedAmount: number; transferredAmount: number; requestableAmount: number; pendingRequest: { amount: number; createdAt: number } | null };
+type PayoutRequestStatus = { connected: boolean; accountReady: boolean; earnedAmount: number; transferredAmount: number; requestableAmount: number; eventChangeHold?: boolean; pendingRequest: { amount: number; createdAt: number } | null };
 
 export default function PayoutsWorkspace() {
   const analytics = useQuery(api.analytics.getOrganizerAnalytics, {});
@@ -115,6 +115,7 @@ export default function PayoutsWorkspace() {
           <div className="mt-5 rounded-2xl border border-white/[0.08] bg-black/20 p-4 text-sm">
             <p className="font-bold">Eligible funds</p>
             <p className="mt-1 text-2xl font-black">{requestStatus ? currency(requestStatus.requestableAmount) : "—"}</p>
+            {requestStatus?.eventChangeHold && <p role="status" className="mt-2 text-xs font-bold text-amber-200">Payout requests are paused while Operations reconciles a cancelled or postponed event. Contact operations@functionhour.com.</p>}
             {requestStatus?.pendingRequest ? <p className="mt-1 text-xs text-orange-300">Your {currency(requestStatus.pendingRequest.amount)} request from {new Date(requestStatus.pendingRequest.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} is awaiting Operations review.</p> : <p className="mt-1 text-xs text-zinc-300">Requests are limited to recorded net ticket sales and currently available Stripe funds.</p>}
             <button type="button" onClick={() => void requestFunds()} disabled={busy || status !== "active" || Boolean(requestStatus?.pendingRequest) || !(requestStatus?.requestableAmount ?? 0)} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 text-xs font-black text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-40">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}

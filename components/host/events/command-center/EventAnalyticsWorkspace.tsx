@@ -19,6 +19,7 @@ import RecentEventSales from "./RecentEventSales";
 import TicketTypePerformance from "./TicketTypePerformance";
 import GateThroughput from "./GateThroughput";
 import PaymentReconciliation from "./PaymentReconciliation";
+import PostEventWorkspace from "./PostEventWorkspace";
 import { useEventCommandCenter } from "./EventCommandCenter";
 
 export default function EventAnalyticsWorkspace() {
@@ -133,6 +134,8 @@ export default function EventAnalyticsWorkspace() {
           tone="blue"
         />
       </section>
+
+      <PostEventWorkspace />
 
       <AnalyticsTrendChart
         data={analytics?.series}

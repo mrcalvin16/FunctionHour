@@ -15,6 +15,7 @@ import { useCheckInWorkspace } from "./hooks/useCheckInWorkspace";
 import type { Id } from "@/convex/_generated/dataModel";
 import OfflineQueueStatus from "./cards/OfflineQueueStatus";
 import EventDayControls from "./cards/EventDayControls";
+import GateIssuePanel from "./cards/GateIssuePanel";
 
 export default function CheckInWorkspace({
   initialEventId,
@@ -147,6 +148,7 @@ export default function CheckInWorkspace({
             }
             onUndo={handleUndo}
           />
+          {eventId && <GateIssuePanel eventId={eventId} />}
         </>
       )}
 

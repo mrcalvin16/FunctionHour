@@ -1029,6 +1029,11 @@ export const checkInTicket = mutation({
 
     await requireEventCapability(ctx, ticket.eventId, "check_in");
 
+    const event = await ctx.db.get(ticket.eventId);
+    if (!event || event.eventStatus === "cancelled" || event.eventStatus === "postponed") {
+      throw new Error("This event is cancelled or postponed. Check-in is unavailable.");
+    }
+
     if (!isTicketEligibleForAdmission(ticket)) {
       throw new Error("This ticket is no longer valid for admission.");
     }
