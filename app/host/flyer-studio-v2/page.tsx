@@ -1378,36 +1378,11 @@ export default function FlyerStudioV2Page() {
     setSelectedElementId("");
   }
 
-  const publishingActions = (
-    <>
-          <button
-            type="button"
-            onClick={() => setDesignCheckOpen(true)}
-            className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-black hover:bg-zinc-50"
-          >
-            Design Check{designCheckProblems ? ` · ${designCheckProblems}` : " ✓"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setSocialPackOpen(true)}
-            className="w-full rounded-xl border border-violet-400/40 bg-violet-500/15 px-3 py-2 text-sm font-black hover:bg-violet-500/25"
-          >
-            Create Social Pack
-          </button>
-          <button
-            type="button"
-            onClick={() => void downloadCanvas()}
-            disabled={isExporting}
-            className="w-full rounded-xl studio-primary bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2 text-sm font-black shadow-[0_4px_18px_rgba(124,58,237,.3)] hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50"
-          >
-            {isExporting ? "Exporting…" : exportReviewAcknowledged && eventDetailIssues.length ? "Export anyway" : "Download PNG"}
-          </button>
-    </>
-  );
+  const activeStage = designCheckOpen ? "review" : activeTool === "templates" || activeTool === "uploads" ? "start" : "design";
 
   return (
     <main className="flyer-studio-workspace min-h-screen bg-[#f6f5fa] text-zinc-950">
-      <header className="flex min-h-16 flex-col gap-3 border-b border-zinc-200 bg-white px-3 py-3 xl:flex-row xl:items-center xl:justify-between sm:px-5">
+      <header className="flex flex-col gap-4 border-b border-zinc-200 bg-white px-4 py-4 xl:flex-row xl:items-center xl:justify-between sm:px-6">
         <div className="flex min-w-0 items-center gap-2 sm:gap-4">
           <Link
             href={
@@ -1415,24 +1390,24 @@ export default function FlyerStudioV2Page() {
                 ? `/host/events/${selectedEventId}/flyers`
                 : "/host"
             }
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-bold text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
+            className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-zinc-200 px-3 text-sm font-bold text-zinc-800 hover:border-zinc-400 hover:bg-zinc-50"
           >
             <ChevronLeft size={16} aria-hidden="true" /> Back
           </Link>
-          <span className="hidden h-7 w-px bg-zinc-50 sm:block" aria-hidden="true" />
-          <span className="hidden h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-orange-400 text-sm font-black shadow-[0_0_24px_rgba(168,85,247,.25)] sm:flex" aria-hidden="true">FH</span>
+          <span className="hidden h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 via-fuchsia-600 to-orange-500 text-sm font-black text-white shadow-sm sm:flex" aria-hidden="true">FH</span>
           <div className="min-w-0">
-            <p className="text-sm font-black tracking-tight">Flyer Studio <span className="ml-1 rounded bg-zinc-50 px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-widest text-violet-700">Design workspace</span></p>
-            <p className="hidden truncate text-xs text-zinc-700 sm:block">{selectedEvent?.name || "Untitled flyer"} · {selectedFormat.label}</p>
+            <p className="text-lg font-black tracking-tight text-zinc-950">Flyer Studio</p>
+            <p className="max-w-[240px] truncate text-xs font-medium text-zinc-700 sm:max-w-sm">{selectedEvent?.name || "Untitled flyer"} · {selectedFormat.label}</p>
           </div>
         </div>
 
-        <div className="flex w-full flex-wrap items-center gap-2 xl:w-auto">
+        <div className="flex w-full flex-wrap items-center gap-2 xl:w-auto xl:justify-end">
+          <div className="inline-flex rounded-xl border border-zinc-200 bg-zinc-50 p-1" role="group" aria-label="Edit history">
           <button
             type="button"
             onClick={undo}
             disabled={!canUndo}
-            className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-bold hover:bg-zinc-50 disabled:opacity-30 sm:px-4"
+            className="rounded-lg px-3 py-2 text-sm font-bold text-zinc-800 hover:bg-white disabled:cursor-not-allowed disabled:text-zinc-500 sm:px-4"
           >
             Undo
           </button>
@@ -1440,27 +1415,29 @@ export default function FlyerStudioV2Page() {
             type="button"
             onClick={redo}
             disabled={!canRedo}
-            className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-bold hover:bg-zinc-50 disabled:opacity-30 sm:px-4"
+            className="rounded-lg px-3 py-2 text-sm font-bold text-zinc-800 hover:bg-white disabled:cursor-not-allowed disabled:text-zinc-500 sm:px-4"
           >
             Redo
           </button>
+          </div>
           <button
             type="button"
             onClick={() => void saveCurrentDraft()}
             disabled={!selectedEventId || isSaving}
-            className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-bold hover:bg-zinc-50 disabled:opacity-30 sm:px-4"
+            className="min-h-11 rounded-xl border border-zinc-300 bg-white px-4 text-sm font-bold text-zinc-900 hover:border-violet-500 hover:bg-violet-50 disabled:cursor-not-allowed disabled:text-zinc-500"
           >
             {isSaving ? "Saving…" : "Save draft"}
           </button>
-          {saveStatus ? (
-            <span className="shrink-0 text-xs font-bold text-zinc-700">
-              {saveStatus}
-            </span>
-          ) : null}
-          {exportStatus && <span role="status" className="shrink-0 text-xs font-bold text-zinc-700">{exportStatus}</span>}
-          {!toolsOpen && <div className="grid w-full gap-2 sm:w-auto sm:grid-cols-3">{publishingActions}</div>}
+          <button type="button" onClick={() => setDesignCheckOpen(true)} className="min-h-11 rounded-xl border border-orange-300 bg-orange-50 px-4 text-sm font-bold text-orange-950 hover:border-orange-500 hover:bg-orange-100">
+            Review{designCheckProblems ? ` · ${designCheckProblems}` : " ✓"}
+          </button>
+          <button type="button" onClick={() => void downloadCanvas()} disabled={isExporting} className="studio-primary min-h-11 rounded-xl bg-gradient-to-r from-violet-700 to-fuchsia-700 px-5 text-sm font-black text-white shadow-[0_6px_18px_rgba(109,40,217,.24)] hover:from-violet-800 hover:to-fuchsia-800 disabled:cursor-wait disabled:opacity-60">
+            {isExporting ? "Exporting…" : exportReviewAcknowledged && eventDetailIssues.length ? "Export anyway" : "Download PNG"}
+          </button>
         </div>
       </header>
+
+      {(saveStatus || exportStatus) && <div className="flex flex-wrap gap-x-5 gap-y-1 border-b border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-800 sm:px-6" role="status">{saveStatus && <span>{saveStatus}</span>}{exportStatus && <span>{exportStatus}</span>}</div>}
 
       {selectedEvent && eventDetailIssues.length > 0 && (
         <section role="status" className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/30 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -1472,36 +1449,47 @@ export default function FlyerStudioV2Page() {
         </section>
       )}
 
-      <div className="flex min-h-12 flex-wrap items-center justify-between gap-2 border-b border-zinc-200 bg-white px-4 py-2 text-xs">
-        <div className="flex items-center gap-2 text-zinc-700"><span className="h-2 w-2 rounded-full bg-violet-400" aria-hidden="true" /><span>Creative workspace</span><span className="text-zinc-700">/</span><span className="font-semibold text-zinc-950">{selectedFormat.label}</span><span className="hidden text-zinc-700 sm:inline">· {elements.length} layers</span></div>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 bg-[#faf9fd] px-4 py-3 sm:px-6">
+        <nav aria-label="Design workflow" className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto sm:gap-2">
+          {([
+            { id: "start", number: "01", label: "Start", detail: "Template or image", action: () => { setActiveTool("templates"); setToolsOpen(true); } },
+            { id: "design", number: "02", label: "Design", detail: "Edit your flyer", action: () => { setActiveTool("elements"); setToolsOpen(true); } },
+            { id: "review", number: "03", label: "Review", detail: "Check & export", action: () => setDesignCheckOpen(true) },
+          ] as const).map((stage) => (
+            <button key={stage.id} type="button" onClick={stage.action} aria-current={activeStage === stage.id ? "step" : undefined} className={`flex min-w-[110px] items-center gap-2 rounded-xl border px-3 py-2 text-left transition sm:min-w-[150px] ${activeStage === stage.id ? "border-violet-300 bg-white shadow-sm ring-1 ring-violet-100" : "border-transparent text-zinc-700 hover:border-zinc-200 hover:bg-white"}`}>
+              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[11px] font-black ${activeStage === stage.id ? "bg-violet-700 text-white" : "bg-zinc-200 text-zinc-800"}`}>{stage.number}</span>
+              <span><span className="block text-xs font-black text-zinc-950">{stage.label}</span><span className="hidden text-[10px] font-medium text-zinc-700 sm:block">{stage.detail}</span></span>
+            </button>
+          ))}
+        </nav>
+        <div className="flex items-center gap-2 text-xs">
           <button type="button" onClick={() => setToolsOpen((open) => !open)} aria-expanded={toolsOpen} aria-controls="flyer-tool-panel" className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1.5 font-bold text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950">{toolsOpen ? <PanelLeftClose size={15} aria-hidden="true" /> : <PanelLeftOpen size={15} aria-hidden="true" />}{toolsOpen ? "Hide tools" : "Show tools"}</button>
           <button type="button" onClick={() => setInspectorOpen((open) => !open)} aria-expanded={inspectorOpen} aria-controls="flyer-inspector" className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1.5 font-bold text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950">{inspectorOpen ? <PanelRightClose size={15} aria-hidden="true" /> : <PanelRightOpen size={15} aria-hidden="true" />}{inspectorOpen ? "Hide inspector" : "Show inspector"}</button>
         </div>
       </div>
 
-      <nav aria-label="Flyer tools" className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-zinc-200 bg-white px-4 py-3 sm:px-5">
+      <nav aria-label="Flyer tools" className="flex items-center gap-3 overflow-x-auto border-b border-zinc-200 bg-white px-4 py-3 sm:px-6">
         {[
           { label: "Create", tools: ["templates", "uploads", "elements", "text"] },
           { label: "Style", tools: ["brand", "background"] },
           { label: "Arrange", tools: ["layers", "history"] },
         ].map((group) => (
-          <div key={group.label} className="flex min-w-0 items-center gap-1">
-            <span className="mr-1 hidden text-[10px] font-black uppercase tracking-widest text-zinc-600 sm:block">{group.label}</span>
+          <div key={group.label} className="flex shrink-0 items-center gap-1 rounded-2xl border border-zinc-200 bg-zinc-50 p-1">
+            <span className="mx-2 hidden text-[10px] font-black uppercase tracking-widest text-zinc-700 md:block">{group.label}</span>
             {group.tools.map((id) => {
               const tool = sidebarTools.find((item) => item.id === id)!;
               const Icon = sidebarIcons[tool.id];
-              return <button key={id} type="button" onClick={() => { if (activeTool === tool.id && toolsOpen) setToolsOpen(false); else { setActiveTool(tool.id); setToolsOpen(true); } }} aria-pressed={activeTool === tool.id && toolsOpen} className={`inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-bold transition ${activeTool === tool.id && toolsOpen ? "border border-violet-200 bg-violet-100 text-violet-900" : "text-zinc-700 hover:bg-zinc-100"}`}><Icon className="h-4 w-4" aria-hidden="true" />{tool.label}</button>;
+              return <button key={id} type="button" onClick={() => { setActiveTool(tool.id); setToolsOpen(true); }} aria-pressed={activeTool === tool.id && toolsOpen} className={`inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-xl px-3 text-xs font-bold transition ${activeTool === tool.id && toolsOpen ? "bg-violet-700 text-white shadow-sm" : "text-zinc-800 hover:bg-white hover:text-violet-800"}`}><Icon className="h-4 w-4" aria-hidden="true" />{tool.label}</button>;
             })}
           </div>
         ))}
       </nav>
 
-      <div className={`grid min-h-[calc(100vh-180px)] grid-cols-1 ${toolsOpen ? inspectorOpen ? "lg:grid-cols-[260px_minmax(0,1fr)_260px]" : "lg:grid-cols-[260px_minmax(0,1fr)]" : inspectorOpen ? "lg:grid-cols-[minmax(0,1fr)_260px]" : "lg:grid-cols-[minmax(0,1fr)]"}`}>
-        {toolsOpen && <aside id="flyer-tool-panel" aria-label={`${sidebarTools.find((tool) => tool.id === activeTool)?.label} tools`} className="flex min-h-0 flex-col border-b border-zinc-200 bg-white lg:max-h-[calc(100vh-180px)] lg:border-b-0 lg:border-r">
-          <div className="max-h-[50vh] min-h-0 flex-1 overflow-y-auto p-4 lg:max-h-none lg:p-5">
+      <div className={`grid min-h-[calc(100vh-240px)] grid-cols-1 ${toolsOpen ? inspectorOpen ? "lg:grid-cols-[280px_minmax(0,1fr)_280px]" : "lg:grid-cols-[280px_minmax(0,1fr)]" : inspectorOpen ? "lg:grid-cols-[minmax(0,1fr)_280px]" : "lg:grid-cols-[minmax(0,1fr)]"}`}>
+        {toolsOpen && <aside id="flyer-tool-panel" aria-label={`${sidebarTools.find((tool) => tool.id === activeTool)?.label} tools`} className="flex min-h-0 flex-col border-b border-zinc-200 bg-white lg:max-h-[calc(100vh-240px)] lg:border-b-0 lg:border-r">
+          <div className="max-h-[45vh] min-h-0 flex-1 overflow-y-auto p-4 lg:max-h-none lg:p-5">
           <div className="mb-5 flex items-center justify-between gap-2 border-b border-zinc-200 pb-3">
-            <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-700">Create & edit</p><h2 className="mt-1 text-lg font-black">{sidebarTools.find((tool) => tool.id === activeTool)?.label}</h2></div>
+            <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-700">{activeStage === "start" ? "01 · Start" : "02 · Design"}</p><h2 className="mt-1 text-lg font-black">{sidebarTools.find((tool) => tool.id === activeTool)?.label}</h2></div>
             <button type="button" onClick={() => setToolsOpen(false)} aria-label="Collapse tools" title="Collapse tools" className="rounded-lg border border-zinc-200 p-2 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"><ChevronLeft size={18} aria-hidden="true" /></button>
           </div>
           {activeTool === "templates" && (
@@ -1823,9 +1811,10 @@ export default function FlyerStudioV2Page() {
             </ToolPanel>
           )}
           </div>
-          <section aria-label="Review and export flyer" className="shrink-0 space-y-2 border-t border-zinc-200 bg-zinc-50 p-4 lg:p-5">
-            <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Review & export</p>
-            {publishingActions}
+          <section aria-label="Social formats" className="shrink-0 border-t border-zinc-200 bg-[#faf9fd] p-4 lg:p-5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-violet-700">More formats</p>
+            <p className="mt-1 text-xs leading-5 text-zinc-700">Ready for stories and posts? Fit this design to another size.</p>
+            <button type="button" onClick={() => setSocialPackOpen(true)} className="mt-3 w-full rounded-xl border border-violet-300 bg-white px-4 py-3 text-sm font-black text-violet-900 hover:border-violet-600 hover:bg-violet-50">Create Social Pack →</button>
           </section>
         </aside>}
 
@@ -1861,7 +1850,7 @@ export default function FlyerStudioV2Page() {
           onFinishInlineEditing={finishInlineEditing}
           updateElement={updateElement}
         />
-        {inspectorOpen && <div id="flyer-inspector" className="min-w-0 border-t border-zinc-200 bg-white lg:max-h-[calc(100vh-180px)] lg:overflow-y-auto lg:border-l lg:border-t-0">
+        {inspectorOpen && <div id="flyer-inspector" className="min-w-0 border-t border-zinc-200 bg-white lg:max-h-[calc(100vh-240px)] lg:overflow-y-auto lg:border-l lg:border-t-0">
           <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3"><div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-700">Inspector</p><p className="mt-0.5 truncate text-sm font-bold">{selectedElement?.name || "Nothing selected"}</p></div><button type="button" onClick={() => setInspectorOpen(false)} aria-label="Collapse inspector" title="Collapse inspector" className="rounded-lg border border-zinc-200 p-2 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"><ChevronRight size={18} aria-hidden="true" /></button></div>
           <PropertiesPanel
           selectedElement={selectedElement}
