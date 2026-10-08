@@ -105,8 +105,8 @@ export default function CanvasStage({
     backgroundPresets[0];
 
   return (
-    <section aria-label="Flyer canvas workspace" className="order-first relative flex min-h-[70vh] min-w-0 flex-col bg-[#e9e7ee] text-zinc-950 lg:order-none lg:min-h-0">
-      <div className="flex min-h-[56px] flex-wrap items-center justify-between gap-2 border-b border-black/10 bg-[#fcfbff] px-3 py-2 sm:px-4">
+    <section aria-label="Flyer canvas workspace" className="relative flex min-h-[58vh] min-w-0 flex-col bg-[#eeedf3] text-zinc-950 lg:min-h-0">
+      <div className="flex min-h-[64px] flex-wrap items-center justify-between gap-3 border-b border-zinc-200 bg-white px-4 py-3">
         <label className="flex min-w-0 items-center gap-2 text-xs font-bold text-zinc-700">
           Format
           <select aria-label="Canvas format" value={format} onChange={(event) => onFormatChange(event.target.value as typeof format)} className="h-10 max-w-[200px] rounded-xl border border-zinc-300 bg-white px-3 text-sm font-bold text-zinc-900">
@@ -114,27 +114,31 @@ export default function CanvasStage({
           </select>
         </label>
         <div className="flex max-w-full flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1 rounded-xl border border-zinc-200 bg-zinc-50 p-1" role="group" aria-label="Canvas tools">
           {(["select", "marquee", "hand"] as const).map((tool) => (
-            <button key={tool} type="button" aria-pressed={canvasTool === tool} onClick={() => onCanvasToolChange(tool)} className={`rounded-lg border px-2 py-2 text-xs font-black capitalize ${canvasTool === tool ? "border-violet-600 bg-violet-600 text-white" : "border-black/10 bg-white text-zinc-900"}`}>{tool === "marquee" ? "Select area" : tool}</button>
+            <button key={tool} type="button" aria-pressed={canvasTool === tool} onClick={() => onCanvasToolChange(tool)} className={`rounded-lg px-3 py-2 text-xs font-black capitalize transition ${canvasTool === tool ? "bg-violet-700 text-white shadow-sm" : "text-zinc-800 hover:bg-white"}`}>{tool === "marquee" ? "Select area" : tool}</button>
           ))}
+          </div>
+          <div className="flex items-center gap-1 rounded-xl border border-zinc-200 bg-white p-1" role="group" aria-label="Canvas zoom">
           <button
             type="button"
             onClick={() => onZoomChange(Math.max(25, zoom - 5))}
-            className="rounded-lg border border-black/10 px-3 py-2 text-sm font-black"
+            className="rounded-lg px-3 py-2 text-sm font-black text-zinc-800 hover:bg-zinc-100"
           >
             −
           </button>
-          <span className="min-w-12 text-center text-xs font-black">
+          <span className="min-w-12 text-center text-xs font-black text-zinc-900">
             {zoom}%
           </span>
-          <input aria-label="Scrub canvas zoom" type="range" min={25} max={250} value={zoom} onChange={(event) => onZoomChange(Number(event.target.value))} className="w-16 accent-violet-600 sm:w-24" />
+          <input aria-label="Scrub canvas zoom" type="range" min={25} max={250} value={zoom} onChange={(event) => onZoomChange(Number(event.target.value))} className="hidden w-16 accent-violet-700 sm:block sm:w-20" />
           <button
             type="button"
             onClick={() => onZoomChange(Math.min(250, zoom + 5))}
-            className="rounded-lg border border-black/10 px-3 py-2 text-sm font-black"
+            className="rounded-lg px-3 py-2 text-sm font-black text-zinc-800 hover:bg-zinc-100"
           >
             +
           </button>
+          </div>
         </div>
       </div>
 
@@ -144,7 +148,7 @@ export default function CanvasStage({
       </div>
 
       <div ref={viewportRef} className={`flex flex-1 items-start overflow-auto p-4 sm:p-8 lg:p-12 ${canvasTool === "hand" ? "cursor-grab active:cursor-grabbing" : ""}`}
-        style={{ backgroundImage: "radial-gradient(#c7c3d2 0.8px, transparent 0.8px)", backgroundSize: "18px 18px" }}
+        style={{ backgroundImage: "radial-gradient(#d3d0db 0.7px, transparent 0.7px)", backgroundSize: "24px 24px" }}
         onPointerDown={(event) => { if (canvasTool !== "hand" || !viewportRef.current) return; panRef.current = { x: event.clientX, y: event.clientY, left: viewportRef.current.scrollLeft, top: viewportRef.current.scrollTop }; event.currentTarget.setPointerCapture(event.pointerId); event.preventDefault(); }}
         onPointerMove={(event) => { if (!panRef.current || !viewportRef.current) return; viewportRef.current.scrollLeft = panRef.current.left - event.clientX + panRef.current.x; viewportRef.current.scrollTop = panRef.current.top - event.clientY + panRef.current.y; }}
         onPointerUp={() => { panRef.current = null; }}
