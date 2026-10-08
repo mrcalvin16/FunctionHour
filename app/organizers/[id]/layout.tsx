@@ -6,7 +6,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const canonical = `/organizers/${encodeURIComponent(id)}`;
   let title = "Organizer profile | Function Hour";
-  let description = "Discover upcoming events from this Function Hour organizer.";
+  let description = "Meet this Function Hour organizer, discover upcoming experiences, and explore their past events.";
   let image = "/opengraph-image";
   try {
     const data = await getConvexClient().query(api.organizers.getOrganizerByUserId, { userId: id });
