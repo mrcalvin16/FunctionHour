@@ -1,8 +1,25 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { isEventUpcoming } from "./eventDates";
+import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
+import type { Doc } from "./_generated/dataModel";
+import { getEventEndTimestamp, isEventPast, isEventUpcoming } from "./eventDates";
 
-async function getCurrentUserDoc(ctx: any) {
+function publicEventSummary(event: Doc<"events">) {
+  return {
+    _id: event._id,
+    name: event.name,
+    description: event.description,
+    category: event.category,
+    location: event.location,
+    venueName: event.venueName,
+    city: event.city,
+    dateString: event.dateString,
+    eventDate: event.eventDate,
+    imageStorageId: event.imageStorageId,
+    imageUrl: event.imageUrl,
+  };
+}
+
+async function getCurrentUserDoc(ctx: QueryCtx | MutationCtx) {
   const identity = await ctx.auth.getUserIdentity();
 
   if (!identity) {
@@ -12,23 +29,23 @@ async function getCurrentUserDoc(ctx: any) {
   const subject = identity.subject;
   const tokenIdentifier = identity.tokenIdentifier;
 
-  let user =
+  const user =
     (await ctx.db
       .query("users")
-      .withIndex("by_clerkId", (q: any) =>
+      .withIndex("by_clerkId", (q) =>
         q.eq("clerkId", subject)
       )
       .first()) ||
     (await ctx.db
       .query("users")
-      .withIndex("by_userId", (q: any) =>
+      .withIndex("by_userId", (q) =>
         q.eq("userId", subject)
       )
       .first()) ||
     (tokenIdentifier
       ? await ctx.db
           .query("users")
-          .withIndex("by_tokenIdentifier", (q: any) =>
+          .withIndex("by_tokenIdentifier", (q) =>
             q.eq("tokenIdentifier", tokenIdentifier)
           )
           .first()
@@ -100,7 +117,7 @@ export const updateMyOrganizerProfile = mutation({
 
     const { identity, user } = result;
 
-    const patch: any = {
+    const patch: Partial<Omit<Doc<"users">, "_id" | "_creationTime">> = {
       updatedAt: Date.now(),
       isOrganizer: true,
     };
@@ -131,7 +148,7 @@ export const updateMyOrganizerProfile = mutation({
         args.avatarStorageId
       );
 
-      patch.avatarUrl = avatarUrl;
+      patch.avatarUrl = avatarUrl ?? "";
     }
 
     if (args.bannerStorageId !== undefined) {
@@ -141,34 +158,34 @@ export const updateMyOrganizerProfile = mutation({
         args.bannerStorageId
       );
 
-      patch.bannerUrl = bannerUrl;
+      patch.bannerUrl = bannerUrl ?? "";
     }
 
     // Existing user: patch every matching user record to avoid stale duplicate profiles
     if (user) {
-      const matches: any[] = [];
+      const matches: Doc<"users">[] = [];
 
       const byUserId = await ctx.db
         .query("users")
-        .withIndex("by_userId", (q: any) => q.eq("userId", identity.subject))
+        .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
         .collect();
 
       const byClerkId = await ctx.db
         .query("users")
-        .withIndex("by_clerkId", (q: any) => q.eq("clerkId", identity.subject))
+        .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
         .collect();
 
       const byToken = identity.tokenIdentifier
         ? await ctx.db
             .query("users")
-            .withIndex("by_tokenIdentifier", (q: any) =>
+            .withIndex("by_tokenIdentifier", (q) =>
               q.eq("tokenIdentifier", identity.tokenIdentifier)
             )
             .collect()
         : [];
 
       for (const item of [...byUserId, ...byClerkId, ...byToken]) {
-        if (!matches.find((m: any) => m._id === item._id)) {
+        if (!matches.find((m) => m._id === item._id)) {
           matches.push(item);
         }
       }
@@ -213,10 +230,16 @@ export const getOrganizerByUserId = query({
     const rawEvents = await ctx.db
       .query("events")
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .collect();
+      .order("desc")
+      .take(501);
+
+    const now = Date.now();
+    const publicEvents = rawEvents.slice(0, 500).filter((event) => event.demoHidden !== true);
 
     const events = await Promise.all(
-      rawEvents.filter((event) => event.demoHidden !== true && isEventUpcoming(event)).map(async (event) => {
+      publicEvents.filter((event) => isEventUpcoming(event, now)).sort((a, b) =>
+        (getEventEndTimestamp(a) || 0) - (getEventEndTimestamp(b) || 0)
+      ).map(async (event) => {
         const ticketTypes = await ctx.db
           .query("ticketTypes")
           .withIndex("by_event", (q) => q.eq("eventId", event._id))
@@ -226,7 +249,10 @@ export const getOrganizerByUserId = query({
           .map((ticketType) => ticketType.price);
 
         return {
-          ...event,
+          ...publicEventSummary(event),
+          price: event.price,
+          isSoldOut: event.isSoldOut || Boolean(event.totalTickets && (event.ticketsSold ?? 0) >= event.totalTickets),
+          salesEndAt: event.salesEndAt,
           startingPrice: activePrices.length
             ? Math.min(...activePrices)
             : (event.price ?? 0),
@@ -251,7 +277,18 @@ export const getOrganizerByUserId = query({
     if (!organizer && rawEvents.length === 0) return null;
 
     return {
-      organizer: organizer ?? {
+      // Only intentionally public profile fields belong on this signed-out API.
+      organizer: organizer ? {
+        userId: args.userId,
+        organizerName: organizer.organizerName ?? "",
+        name: organizer.name ?? "",
+        bio: organizer.bio ?? "",
+        avatarUrl: organizer.avatarStorageId ? await ctx.storage.getUrl(organizer.avatarStorageId) : organizer.avatarUrl ?? "",
+        bannerUrl: organizer.bannerStorageId ? await ctx.storage.getUrl(organizer.bannerStorageId) : organizer.bannerUrl ?? "",
+        website: organizer.website ?? "",
+        instagram: organizer.instagram ?? "",
+        isVerifiedOrganizer: organizer.isVerifiedOrganizer === true,
+      } : {
         userId: args.userId,
         organizerName: "Function Hour Organizer",
         name: "Function Hour Organizer",
@@ -263,6 +300,10 @@ export const getOrganizerByUserId = query({
         isVerifiedOrganizer: false,
       },
       events,
+      pastEvents: publicEvents.filter((event) => isEventPast(event, now)).sort((a, b) =>
+        getEventEndTimestamp(b) - getEventEndTimestamp(a)
+      ).map(publicEventSummary),
+      historyLimited: rawEvents.length > 500,
     };
   },
 });
