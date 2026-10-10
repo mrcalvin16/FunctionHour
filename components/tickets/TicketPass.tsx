@@ -1,6 +1,7 @@
 "use client";
 
 import { attendeeEventDate, attendeeVenue } from "@/lib/attendeeDisplay";
+import OfflineTicketDownload from "./OfflineTicketDownload";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import QRCode from "react-qr-code";
@@ -155,6 +156,7 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
             </p>
 
             <div
+              id="entry-ticket-qr"
               className={`mt-5 rounded-[1.75rem] bg-white p-5 shadow-[0_20px_70px_rgba(255,255,255,0.12)] ${isRevoked ? "opacity-35" : ""}`}
             >
               <QRCode
@@ -171,6 +173,17 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
             <p className="mt-5 font-mono text-sm font-black tracking-[0.22em] text-white">
               {shortCode}
             </p>
+
+            {!isRevoked && !ticket.checkedIn && !eventEnded ? (
+              <OfflineTicketDownload
+                ticketId={String(ticket._id)}
+                eventName={ticket.event.name}
+                date={attendeeEventDate(ticket.event)}
+                venue={attendeeVenue(ticket.event)}
+                holderName={ticket.holder.name}
+                ticketType={ticket.ticketTypeName || "Standard admission"}
+              />
+            ) : null}
 
             <div className="mt-6 flex items-start gap-2 text-left text-[11px] leading-5 text-zinc-500">
               <Clock3 className="mt-0.5 h-4 w-4 shrink-0" />
