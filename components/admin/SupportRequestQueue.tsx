@@ -4,7 +4,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 type Case = {
   _id: string; category: string; email: string; name?: string; message: string;
-  eventUrl?: string; pagePath: string; status: "new" | "in_progress" | "resolved";
+  eventUrl?: string; pagePath: string; status: "new" | "in_progress" | "waiting_on_organizer" | "resolved";
   priority?: "standard" | "urgent"; assignedTo?: string; followUpAt?: number;
   lastReplyAt?: number; notificationStatus: "pending" | "delivered" | "failed";
   createdAt: number; updatedAt: number;
@@ -53,7 +53,7 @@ export default function SupportRequestQueue() {
     if (filter === "open" && item.status === "resolved") return false;
     if (filter === "urgent" && item.priority !== "urgent") return false;
     if (filter === "overdue" && (!item.followUpAt || item.followUpAt >= Date.now() || item.status === "resolved")) return false;
-    if (["new", "in_progress", "resolved"].includes(filter) && item.status !== filter) return false;
+    if (["new", "in_progress", "waiting_on_organizer", "resolved"].includes(filter) && item.status !== filter) return false;
     const text = `${item._id} ${item.email} ${item.name || ""} ${item.category} ${item.message}`.toLowerCase();
     return text.includes(search.trim().toLowerCase());
   }).sort((a, b) => {
@@ -93,7 +93,7 @@ export default function SupportRequestQueue() {
     <p className="mt-2 text-sm text-zinc-700">{openCount} open · {overdueCount} overdue follow-ups in the latest 100 requests. Replies go through operations@functionhour.com; recording one here does not send an email.</p>
     <div className="mt-5 flex flex-col gap-3 sm:flex-row">
       <label className="flex-1 text-sm font-semibold">Search cases<input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Email, reference, category, message" className="mt-1 block min-h-11 w-full rounded-xl border border-zinc-300 bg-white px-4" /></label>
-      <label className="text-sm font-semibold">View<select value={filter} onChange={(event) => setFilter(event.target.value)} className="mt-1 block min-h-11 rounded-xl border border-zinc-300 bg-white px-4"><option value="open">Open</option><option value="new">New</option><option value="in_progress">In progress</option><option value="urgent">Urgent</option><option value="overdue">Overdue follow-up</option><option value="resolved">Resolved</option><option value="all">All</option></select></label>
+      <label className="text-sm font-semibold">View<select value={filter} onChange={(event) => setFilter(event.target.value)} className="mt-1 block min-h-11 rounded-xl border border-zinc-300 bg-white px-4"><option value="open">Open</option><option value="new">New</option><option value="in_progress">In progress</option><option value="waiting_on_organizer">Waiting on organizer</option><option value="urgent">Urgent</option><option value="overdue">Overdue follow-up</option><option value="resolved">Resolved</option><option value="all">All</option></select></label>
     </div>
     {error && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-900">{error}</p>}
     {notice && <p role="status" className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">{notice}</p>}
@@ -119,7 +119,7 @@ export default function SupportRequestQueue() {
         {selected.lastReplyAt && <p className="mt-2 text-xs text-zinc-700">Last reply recorded {new Date(selected.lastReplyAt).toLocaleString()}</p>}
         <div className="mt-5 grid gap-3 border-t border-zinc-200 pt-5 sm:grid-cols-2">
           <label className="text-xs font-semibold">Priority<select value={selected.priority || "standard"} disabled={busy} onChange={(event) => void update(selected._id, "priority", { priority: event.target.value as Case["priority"] })} className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white p-2 text-sm"><option value="standard">Standard</option><option value="urgent">Urgent</option></select></label>
-          <label className="text-xs font-semibold">Status<select value={selected.status} disabled={busy} onChange={(event) => { const status = event.target.value as Case["status"]; if (status === "resolved") { setError("Add a resolution note below, then select Resolve."); return; } void update(selected._id, "status", { status }); }} className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white p-2 text-sm"><option value="new">New</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option></select></label>
+          <label className="text-xs font-semibold">Status<select value={selected.status} disabled={busy} onChange={(event) => { const status = event.target.value as Case["status"]; if (status === "resolved") { setError("Add a resolution note below, then select Resolve."); return; } void update(selected._id, "status", { status }); }} className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white p-2 text-sm"><option value="new">New</option><option value="in_progress">In review</option><option value="waiting_on_organizer">Waiting on organizer</option><option value="resolved">Resolved</option></select></label>
         </div>
         <form onSubmit={(event) => setFollowUpDate(event, selected)} className="mt-4 flex flex-wrap items-end gap-2"><label className="text-xs font-semibold">Follow up at<input type="datetime-local" value={followUp} onChange={(event) => setFollowUp(event.target.value)} className="mt-1 block min-h-10 rounded-lg border border-zinc-300 bg-white p-2 text-sm" /></label><button type="submit" disabled={busy} className="rounded-lg border border-zinc-300 px-3 py-2 text-xs font-bold">Set reminder</button>{selected.followUpAt && <button type="button" disabled={busy} onClick={() => void update(selected._id, "follow_up")} className="rounded-lg border px-3 py-2 text-xs font-bold">Clear</button>}</form>
         <p className="mt-1 text-xs text-zinc-600">Follow-up is an admin queue reminder; it does not send a notification.</p>

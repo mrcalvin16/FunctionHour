@@ -640,6 +640,10 @@ export default function EventDetailPage({
               <strong className="block text-base">Event update: {eventChanges[0].kind.replace("_", " ")}</strong>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6">{eventChanges[0].message}</p>
             </div>}
+            <div className="mt-5 rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm leading-6 text-white">
+              <span className="font-black">Refund terms: </span>{event.refundPolicy || "All sales are final unless otherwise stated by the event host."}
+              {event.refundDeadline && <span className="block text-white/80">Deadline: {event.refundDeadline}</span>}
+            </div>
             <div className="mt-5">
               {event.isDemo ? (
                 <div className="w-full rounded-xl border-2 border-violet-400 bg-white px-5 py-4 text-center text-sm leading-6 text-black shadow-sm dark:border-violet-300/50 dark:bg-zinc-900 dark:text-white">
@@ -691,7 +695,8 @@ export default function EventDetailPage({
               <ShareEventButton
                 eventId={event._id}
                 title={event.name}
-                location={event.location}
+                location={attendeeVenue(event)}
+                date={formatEventDate(event)}
               />
             </div>
           </aside>

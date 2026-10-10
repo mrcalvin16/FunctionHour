@@ -9,16 +9,27 @@ const category = v.union(
 export const create = internalMutation({
   args: {
     category, email: v.string(), name: v.optional(v.string()), message: v.string(),
-    eventUrl: v.optional(v.string()), pagePath: v.string(),
+    eventUrl: v.optional(v.string()), pagePath: v.string(), statusTokenHash: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     if (args.email.length > 254 || args.message.length > 2000 || args.message.length < 10 ||
         args.name?.length && args.name.length > 100 || args.eventUrl?.length && args.eventUrl.length > 400 ||
-        args.pagePath.length > 300) throw new Error("Invalid support request.");
+        args.pagePath.length > 300 || args.statusTokenHash && !/^[a-f0-9]{64}$/.test(args.statusTokenHash)) throw new Error("Invalid support request.");
     const now = Date.now();
     return ctx.db.insert("supportRequests", {
       ...args, status: "new", notificationStatus: "pending", createdAt: now, updatedAt: now,
     });
+  },
+});
+
+export const getCustomerStatus = internalQuery({
+  args: { id: v.id("supportRequests"), statusTokenHash: v.string() },
+  handler: async (ctx, args) => {
+    const item = await ctx.db.get(args.id);
+    if (!item?.statusTokenHash || item.statusTokenHash !== args.statusTokenHash) return null;
+    // Only disclose operational status. Notes, messages, email and operator IDs are private.
+    return { status: item.status, createdAt: item.createdAt, updatedAt: item.updatedAt,
+      followUpAt: item.followUpAt };
   },
 });
 
@@ -45,7 +56,7 @@ export const updateCase = internalMutation({
     id: v.id("supportRequests"), actorId: v.string(),
     action: v.union(v.literal("claim"), v.literal("release"), v.literal("priority"),
       v.literal("status"), v.literal("note"), v.literal("follow_up"), v.literal("reply_recorded")),
-    status: v.optional(v.union(v.literal("new"), v.literal("in_progress"), v.literal("resolved"))),
+    status: v.optional(v.union(v.literal("new"), v.literal("in_progress"), v.literal("waiting_on_organizer"), v.literal("resolved"))),
     priority: v.optional(v.union(v.literal("standard"), v.literal("urgent"))),
     note: v.optional(v.string()), followUpAt: v.optional(v.number()),
   },
@@ -56,7 +67,7 @@ export const updateCase = internalMutation({
     const now = Date.now();
     let detail: string;
     const patch: { assignedTo?: string | undefined; priority?: "standard" | "urgent";
-      status?: "new" | "in_progress" | "resolved"; followUpAt?: number | undefined;
+      status?: "new" | "in_progress" | "waiting_on_organizer" | "resolved"; followUpAt?: number | undefined;
       lastReplyAt?: number; updatedAt: number } = { updatedAt: now };
     switch (args.action) {
       case "claim":

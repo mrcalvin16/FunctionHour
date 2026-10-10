@@ -34,7 +34,7 @@ export async function POST(request: Request) {
   const parsed = z.object({
     id: z.string().regex(/^[a-z0-9]{20,40}$/),
     action: z.enum(["claim", "release", "priority", "status", "note", "follow_up", "reply_recorded"]),
-    status: z.enum(["new", "in_progress", "resolved"]).optional(),
+    status: z.enum(["new", "in_progress", "waiting_on_organizer", "resolved"]).optional(),
     priority: z.enum(["standard", "urgent"]).optional(),
     note: z.string().trim().max(1000).optional(),
     followUpAt: z.number().int().nonnegative().optional(),
