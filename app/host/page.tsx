@@ -259,6 +259,10 @@ export default function HostPage() {
   const displayedEvents =
     hostedEvents.slice(0, 4);
 
+  const nextEvent = hostedEvents.find(
+    (event) => !event.eventDate || event.eventDate >= Date.now()
+  );
+
   const notifications = useMemo<
     DashboardNotification[] | undefined
   >(() => {
@@ -376,33 +380,47 @@ export default function HostPage() {
 
   return (
     <main className="mx-auto max-w-[1500px] space-y-6 px-4 py-5 text-zinc-950 sm:px-7 sm:py-8">
-      <section className="relative overflow-hidden rounded-[28px] bg-[#24143e] px-6 py-7 text-white shadow-[0_18px_48px_rgba(37,22,65,.14)] sm:px-9 sm:py-9">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-14 -top-28 h-80 w-80 rounded-full bg-violet-500/30 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute bottom-[-110px] right-[22%] h-64 w-64 rounded-full bg-orange-400/15 blur-3xl" />
-        <div className="relative flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-orange-200">Organizer overview</p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Your events are in motion.</h2>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-violet-100">
-              See how things are going, take care of what needs attention, and keep your next event moving.
+      <section className="relative overflow-hidden rounded-[30px] border border-[#eadff9] bg-[#fffaf4] p-5 shadow-[0_18px_50px_rgba(42,24,68,.08)] sm:p-8">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-24 -top-36 h-80 w-80 rounded-full border-[48px] border-orange-100/75" />
+        <div aria-hidden="true" className="pointer-events-none absolute bottom-[-9rem] left-[38%] h-64 w-64 rounded-full bg-violet-100/55 blur-3xl" />
+        <div className="relative grid items-stretch gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(300px,.82fr)] lg:gap-9">
+          <div className="flex flex-col justify-center py-2">
+            <p className="inline-flex w-fit items-center gap-2 rounded-full border border-violet-200 bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.15em] text-violet-800">
+              <span className="h-2 w-2 rounded-full bg-orange-500" /> Organizer OS
             </p>
-            <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold">
-              <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5">{stats.upcomingEvents} upcoming event{stats.upcomingEvents === 1 ? "" : "s"}</span>
-              {notifications && notifications.length > 0 ? (
-                <a href="#overview-attention" className="rounded-full border border-orange-200/40 bg-orange-400/15 px-3 py-1.5 text-orange-100 hover:bg-orange-400/25">
-                  {notifications.length} item{notifications.length === 1 ? "" : "s"} to review ↓
-                </a>
-              ) : null}
+            <h2 className="mt-5 max-w-xl text-3xl font-black leading-[1.06] tracking-[-0.05em] text-[#24143e] sm:text-5xl">
+              Make every event <span className="text-violet-700">count.</span>
+            </h2>
+            <p className="mt-4 max-w-lg text-sm leading-6 text-zinc-700 sm:text-base">
+              Your lineup, guests, and next steps in one place.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Link href="/host/create" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#5422a5] px-5 text-sm font-black text-white organizer-os-solid-action hover:bg-[#42177f]">+ Create event</Link>
+              <Link href="/host/events" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-violet-200 bg-white px-5 text-sm font-bold text-violet-900 hover:bg-violet-50">Manage events →</Link>
             </div>
+            {notifications && notifications.length > 0 ? (
+              <a href="#overview-attention" className="mt-5 w-fit text-xs font-bold text-orange-800 underline decoration-orange-300 underline-offset-4 hover:text-orange-900">
+                {notifications.length} item{notifications.length === 1 ? "" : "s"} need your attention ↓
+              </a>
+            ) : null}
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/host/events" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/35 bg-white/10 px-5 text-sm font-bold text-white hover:bg-white/20">Manage events</Link>
-            <Link href="/host/create" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-orange-300 px-5 text-sm font-black text-[#24143e] hover:bg-orange-200">+ Create event</Link>
+          <div className="organizer-overview-spotlight relative isolate flex min-h-[230px] flex-col justify-between overflow-hidden rounded-[24px] bg-[#24143e] p-5 text-white sm:p-6">
+            {nextEvent?.imageUrl ? <img src={nextEvent.imageUrl} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" /> : null}
+            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-br from-[#24143e]/95 via-[#341c5b]/90 to-[#b44d2d]/75" />
+            <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full border-[22px] border-white/15" />
+            <p className="relative text-[11px] font-black uppercase tracking-[0.2em] text-orange-200">{nextEvent ? "Coming up next" : "Your next chapter"}</p>
+            <div className="relative mt-8">
+              <h3 className="line-clamp-2 text-2xl font-black tracking-[-0.035em] sm:text-3xl">{nextEvent?.name ?? "Your next great event starts here."}</h3>
+              <p className="mt-2 text-sm text-violet-100">{nextEvent ? formatEventDate(nextEvent) : "Create an event and your next date will appear here."}</p>
+              <Link href={nextEvent ? `/host/events/${nextEvent._id}` : "/host/create"} className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-white/40 bg-[#513577] px-4 text-sm font-bold text-white hover:bg-[#664395]">
+                {nextEvent ? "Open event →" : "Start an event →"}
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      <section aria-label="Organizer metrics" className="grid gap-3 sm:grid-cols-3">
+      <section aria-label="Organizer metrics" className="grid gap-3 sm:grid-cols-3 lg:grid-cols-[1.2fr_1fr_1fr]">
         <MetricCard label="Gross ticket sales" value={money(stats.grossSales)} detail="Across your events" accent="violet" />
         <MetricCard label="Tickets sold" value={String(stats.ticketsSold)} detail={`${stats.sellThrough}% of listed capacity`} accent="orange" />
         <MetricCard label="Upcoming attendees" value={String(stats.upcomingAttendees)} detail="Tickets for upcoming events" accent="blue" />
@@ -443,13 +461,14 @@ export default function HostPage() {
 }
 
 function MetricCard({ label, value, detail, accent }: { label: string; value: string; detail: string; accent: "violet" | "orange" | "blue" }) {
-  const colors = { violet: "bg-violet-600", orange: "bg-orange-500", blue: "bg-blue-600" };
+  const colors = { violet: "bg-violet-700", orange: "bg-orange-500", blue: "bg-blue-600" };
   return (
-    <article className="relative overflow-hidden rounded-[24px] border border-zinc-200 bg-white p-5 shadow-[0_10px_32px_rgba(38,25,65,.05)] sm:p-6">
+    <article className={`relative overflow-hidden rounded-[24px] border p-5 shadow-[0_10px_32px_rgba(38,25,65,.05)] sm:p-6 ${accent === "violet" ? "border-violet-200 bg-[#f3edff]" : "border-zinc-200 bg-white"}`}>
       <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 ${colors[accent]}`} />
-      <p className="text-xs font-bold text-zinc-600">{label}</p>
-      <p className="mt-3 break-words text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">{value}</p>
-      <p className="mt-2 text-xs text-zinc-600">{detail}</p>
+      <span aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full border-[17px] border-violet-200/40" />
+      <p className="relative text-xs font-bold text-zinc-700">{label}</p>
+      <p className="relative mt-3 break-words text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">{value}</p>
+      <p className="relative mt-2 text-xs text-zinc-700">{detail}</p>
     </article>
   );
 }
@@ -489,7 +508,7 @@ function EventCard({ event }: { event: HostedEvent }) {
           <span className="shrink-0 text-xs font-semibold text-zinc-700">{sold}{capacity > 0 ? ` / ${capacity}` : ""} sold</span>
         </div>
       </div>
-      <Link href={`/host/events/${event._id}`} aria-label={`Open command center for ${event.name ?? "event"}`} className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-violet-700 px-4 text-xs font-bold text-white hover:bg-violet-800">
+      <Link href={`/host/events/${event._id}`} aria-label={`Open command center for ${event.name ?? "event"}`} className="organizer-os-solid-action inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-violet-700 px-4 text-xs font-bold text-white hover:bg-violet-800">
         Manage →
       </Link>
     </article>
@@ -506,7 +525,7 @@ function EmptyEvents() {
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-2xl font-black text-violet-700">+</div>
       <h3 className="mt-4 text-lg font-black text-zinc-950">Create your first event</h3>
       <p className="mx-auto mt-2 max-w-md text-sm text-zinc-700">Once your event is live, tickets and activity will appear here.</p>
-      <Link href="/host/create" className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-violet-700 px-5 text-sm font-bold text-white hover:bg-violet-800">Create event</Link>
+      <Link href="/host/create" className="organizer-os-solid-action mt-5 inline-flex min-h-11 items-center rounded-xl bg-violet-700 px-5 text-sm font-bold text-white hover:bg-violet-800">Create event</Link>
     </div>
   );
 }
