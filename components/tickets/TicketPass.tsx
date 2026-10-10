@@ -18,7 +18,10 @@ import {
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
-export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
+export default function TicketPass({ ticketId, walletAvailability }: {
+  ticketId: Id<"tickets">;
+  walletAvailability: { apple: boolean; google: boolean };
+}) {
   const [justPurchased, setJustPurchased] = useState(false);
   useEffect(() => { setJustPurchased(new URLSearchParams(window.location.search).get("purchase") === "complete"); }, []);
   const ticket = useQuery(api.tickets.getTicketDetails, { ticketId });
@@ -41,6 +44,9 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
     ticket.event.dateString,
   );
   const eventEnded = eventTime !== null && eventTime < Date.now();
+  const canSave = !isRevoked && !ticket.checkedIn && !eventEnded &&
+    ticket.status !== "refunded" && ticket.event.eventStatus !== "cancelled" &&
+    ticket.event.eventStatus !== "postponed";
   const status = isRevoked
     ? "Cancelled"
     : ticket.checkedIn
@@ -171,6 +177,13 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
             <p className="mt-5 font-mono text-sm font-black tracking-[0.22em] text-white">
               {shortCode}
             </p>
+
+            {canSave && (walletAvailability.apple || walletAvailability.google) ? (
+              <div className="mt-5 flex w-full flex-col gap-2">
+                {walletAvailability.apple ? <a href={`/api/wallet/tickets/${ticket._id}/apple`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-4 text-sm font-bold text-zinc-950 hover:bg-violet-100">Add to Apple Wallet</a> : null}
+                {walletAvailability.google ? <a href={`/api/wallet/tickets/${ticket._id}/google`} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/40 px-4 text-sm font-bold text-white hover:bg-white/10">Add to Google Wallet</a> : null}
+              </div>
+            ) : null}
 
             <div className="mt-6 flex items-start gap-2 text-left text-[11px] leading-5 text-zinc-500">
               <Clock3 className="mt-0.5 h-4 w-4 shrink-0" />
