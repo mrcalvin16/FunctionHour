@@ -74,14 +74,7 @@ const navigation: NavGroup[] = [
   },
   {
     label: "Planning",
-    items: [
-      {
-        label: "Budget Planner",
-        description: "Event costs & projections",
-        href: "/host/planner",
-        icon: "budget",
-      },
-    ],
+    items: [{ label: "Budget Planner", description: "Event costs & projections", href: "/host/planner", icon: "budget" }],
   },
   {
     label: "Tickets",
@@ -91,7 +84,6 @@ const navigation: NavGroup[] = [
         description: "Complimentary tickets",
         href: "/host/comp-tickets",
         icon: "comp",
-        accent: "orange",
       },
       {
         label: "Check In",
@@ -227,7 +219,7 @@ const pageMetadata: Record<
     description: "Create event marketing assets",
   },
   "/host/flyer-studio-v2": {
-    title: "AI Studio",
+    title: "Flyer Studio",
     description: "Create event marketing assets",
   },
   "/host/creative-library": {
@@ -238,13 +230,10 @@ const pageMetadata: Record<
     title: "Merch",
     description: "Manage products and merchandise",
   },
+  "/host/planner": { title: "Budget Planner", description: "Plan income and expenses for each event" },
   "/host/analytics": {
     title: "Analytics",
     description: "Track performance across your events",
-  },
-  "/host/planner": {
-    title: "Budget Planner",
-    description: "Plan income and expenses for each event",
   },
   "/host/audience": {
     title: "Audience",
@@ -331,15 +320,12 @@ export default function OrganizerShell({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   return (
-    <div className="organizer-shell min-h-screen bg-[#07060c] text-white">
+    <div className="organizer-shell min-h-screen bg-[#f7f5fb] text-zinc-950">
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute left-[10%] top-[-15%] h-[520px] w-[520px] rounded-full bg-violet-700/10 blur-[160px]" />
+        <div className="absolute left-[10%] top-[-15%] h-[520px] w-[520px] rounded-full bg-violet-300/20 blur-[160px]" />
 
-        <div className="absolute bottom-[-20%] right-[-10%] h-[580px] w-[580px] rounded-full bg-orange-500/[0.07] blur-[170px]" />
+        <div className="absolute bottom-[-20%] right-[-10%] h-[580px] w-[580px] rounded-full bg-orange-200/20 blur-[170px]" />
 
-        <div className="absolute inset-0 opacity-[0.018]">
-          <div className="h-full w-full bg-[linear-gradient(to_right,rgba(255,255,255,0.18)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.18)_1px,transparent_1px)] bg-[size:64px_64px]" />
-        </div>
       </div>
 
       <Sidebar
@@ -398,41 +384,19 @@ function Sidebar({
     <aside
       id="organizer-navigation"
       className={[
-        "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-white/[0.07] bg-[#090812]/95 shadow-[20px_0_80px_rgba(0,0,0,0.35)] backdrop-blur-2xl transition-all duration-300",
+        "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-zinc-200 bg-white shadow-[8px_0_36px_rgba(45,25,70,0.05)] transition-all duration-300",
         collapsed ? "lg:w-[92px]" : "lg:w-[272px]",
         mobileOpen
           ? "w-[min(290px,calc(100vw-24px))] translate-x-0"
           : "w-[min(290px,calc(100vw-24px))] -translate-x-full lg:translate-x-0",
       ].join(" ")}
     >
-      <div className="flex min-h-[82px] items-center border-b border-white/[0.06] px-5">
+      <div className="flex min-h-[82px] items-center border-b border-zinc-100 px-5">
         <Link href="/host" onClick={onMobileClose} className="min-w-0 flex-1">
-          <div
-            className={[
-              "font-black tracking-[-0.06em]",
-              collapsed ? "text-center text-xl" : "text-[24px]",
-            ].join(" ")}
-          >
-            {collapsed ? (
-              <span className="bg-gradient-to-r from-violet-400 to-orange-400 bg-clip-text text-transparent">
-                FH
-              </span>
-            ) : (
-              <>
-                <span className="text-white">FUNCTION</span>
-
-                <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-orange-400 bg-clip-text text-transparent">
-                  HOUR
-                </span>
-              </>
-            )}
+          <div className="flex items-center gap-2.5">
+            <img src="/function-hour-mark.svg" alt="" className="h-10 w-10 shrink-0 object-contain" />
+            {!collapsed && <div><p className="text-lg font-black tracking-[-0.055em] text-zinc-950">Function<span className="bg-gradient-to-r from-violet-700 to-orange-500 bg-clip-text text-transparent">Hour</span></p><p className="text-[9px] font-black uppercase tracking-[0.2em] text-violet-700">Organizer OS</p></div>}
           </div>
-
-          {!collapsed && (
-            <p className="mt-1 text-center text-[9px] font-black uppercase tracking-[0.3em] text-violet-400">
-              Organizer OS
-            </p>
-          )}
         </Link>
 
         <button
@@ -452,7 +416,7 @@ function Sidebar({
             className={groupIndex === 0 ? "" : "mt-5"}
           >
             {group.label && !collapsed && (
-              <p className="mb-2 px-3 text-[9px] font-black uppercase tracking-[0.22em] text-zinc-600">
+              <p className="mb-2 px-3 text-[10px] font-black uppercase tracking-[0.17em] text-violet-700">
                 {group.label}
               </p>
             )}
@@ -472,11 +436,11 @@ function Sidebar({
         ))}
       </nav>
 
-      <div className="border-t border-white/[0.06] p-3">
+      <div className="border-t border-zinc-100 p-3">
         <button
           type="button"
           onClick={onCollapse}
-          className="hidden min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 text-xs font-bold text-zinc-400 transition hover:bg-white/[0.07] hover:text-white lg:flex"
+          className="hidden min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-xs font-bold text-zinc-700 transition hover:bg-violet-50 hover:text-violet-800 lg:flex"
         >
           <Icon name={collapsed ? "expand" : "collapse"} />
 
@@ -510,10 +474,10 @@ function SidebarItem({
         className={[
           "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition",
           active
-            ? "bg-white/10 text-white"
+            ? "bg-violet-950/25 text-white"
             : item.accent === "orange"
               ? "text-orange-400"
-              : "text-violet-300",
+              : "text-violet-700",
         ].join(" ")}
       >
         <Icon name={item.icon} />
@@ -528,7 +492,7 @@ function SidebarItem({
                 active
                   ? "text-white"
                   : item.accent === "orange"
-                    ? "text-orange-300"
+                    ? "text-orange-800"
                     : "text-zinc-800",
               ].join(" ")}
             >
@@ -539,10 +503,10 @@ function SidebarItem({
               className={[
                 "mt-0.5 block truncate text-[10px]",
                 active
-                  ? "text-violet-950"
+                  ? "text-white"
                   : item.accent === "orange"
-                    ? "text-orange-900"
-                    : "text-zinc-700",
+                    ? "text-orange-800"
+                    : "text-zinc-600",
               ].join(" ")}
             >
               {item.description}
@@ -565,10 +529,10 @@ function SidebarItem({
     "group flex min-h-[54px] w-full items-center gap-2 rounded-xl px-2 text-left transition",
     collapsed ? "justify-center" : "",
     active
-      ? "border border-violet-400/30 bg-gradient-to-r from-violet-600/80 to-fuchsia-600/30 shadow-[0_0_28px_rgba(124,58,237,0.18)]"
+      ? "border border-violet-500 bg-gradient-to-r from-violet-700 to-fuchsia-600 shadow-[0_8px_18px_rgba(124,58,237,0.18)]"
       : item.soon
         ? "cursor-default"
-        : "border border-transparent hover:border-white/[0.06] hover:bg-white/[0.04]",
+        : "border border-transparent hover:border-violet-100 hover:bg-violet-50",
   ].join(" ");
 
   if (!item.href || item.soon) {
@@ -606,7 +570,7 @@ function TopBar({
   onOpenMenu: () => void;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-[#08070e]/85 backdrop-blur-2xl">
+    <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur-2xl">
       <div className="flex min-h-[78px] items-center gap-3 px-4 sm:px-6">
         <button
           type="button"
@@ -624,7 +588,7 @@ function TopBar({
             {title}
           </h1>
 
-          <p className="hidden truncate text-xs text-zinc-500 sm:block">
+          <p className="hidden truncate text-xs text-zinc-600 sm:block">
             {description}
           </p>
         </div>
@@ -639,27 +603,13 @@ function TopBar({
             Home
           </Link>
 
-          <Link
-            href="/host/events"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-xs font-black transition hover:bg-white/[0.07]"
-          >
-            My Events
-          </Link>
-
-          <Link
-            href="/host/flyer-studio-v2"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-xs font-black transition hover:bg-white/[0.07]"
-          >
-            AI Studio
-          </Link>
-
-          <Link
-            href="/host/create"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-500 px-5 text-xs font-black shadow-[0_0_30px_rgba(139,92,246,0.3)] transition hover:scale-[1.02]"
-          >
-            <span className="text-lg leading-none">+</span>
-            Create Event
-          </Link>
+          {title !== "Overview" && (
+            <>
+              <Link href="/host/events" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-black text-zinc-800 transition hover:bg-violet-50">My Events</Link>
+              <Link href="/host/flyer-studio-v2" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-black text-zinc-800 transition hover:bg-violet-50">Flyer Studio</Link>
+              <Link href="/host/create" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-700 via-fuchsia-600 to-orange-500 px-5 text-xs font-black text-white shadow-[0_8px_24px_rgba(139,92,246,0.2)] transition hover:brightness-110"><span className="text-lg leading-none">+</span>Create Event</Link>
+            </>
+          )}
         </div>
 
         <div className="ml-1 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
@@ -797,16 +747,11 @@ function Icon({ name }: { name: IconName | string }) {
         <circle cx="8.5" cy="8.5" r="1.2" />
       </>
     ),
+    budget: (<><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8M8 11h2m4 0h2M8 15h2m4 0h2" /></>),
     analytics: (
       <>
         <path d="M12 3v9h9" />
         <path d="M20.5 15a9 9 0 1 1-11-11" />
-      </>
-    ),
-    budget: (
-      <>
-        <rect x="4" y="3" width="16" height="18" rx="2" />
-        <path d="M8 7h8M8 11h2m4 0h2M8 15h2m4 0h2" />
       </>
     ),
     reports: (
