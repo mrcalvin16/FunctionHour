@@ -31,25 +31,25 @@ const activityStyles: Record<
   sale: {
     icon: ShoppingBag,
     iconClasses:
-      "border-violet-400/20 bg-violet-400/10 text-violet-300",
+      "border-violet-200 bg-violet-50 text-violet-800",
     label: "Sale",
   },
   check_in: {
     icon: ScanLine,
     iconClasses:
-      "border-emerald-400/20 bg-emerald-400/10 text-emerald-300",
+      "border-emerald-200 bg-emerald-50 text-emerald-800",
     label: "Check-in",
   },
   comp: {
     icon: TicketCheck,
     iconClasses:
-      "border-orange-400/20 bg-orange-400/10 text-orange-300",
+      "border-orange-200 bg-orange-50 text-orange-800",
     label: "Comp ticket",
   },
   boost: {
     icon: Rocket,
     iconClasses:
-      "border-fuchsia-400/20 bg-fuchsia-400/10 text-fuchsia-300",
+      "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-800",
     label: "Boost",
   },
 };
@@ -116,11 +116,11 @@ export default function RecentActivity({
         <ActivityLoading />
       ) : items.length === 0 ? (
         <div className="px-6 py-12 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.03] text-zinc-500">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-50 text-zinc-700">
             <ScanLine className="h-5 w-5" />
           </div>
 
-          <p className="mt-4 font-black text-white">
+          <p className="mt-4 font-black text-zinc-950">
             No activity yet
           </p>
 
@@ -176,17 +176,17 @@ export default function RecentActivity({
 
 function ActivityLoading() {
   return (
-    <div className="divide-y divide-white/[0.06]">
+    <div className="divide-y divide-zinc-100">
       {[1, 2, 3, 4].map((item) => (
         <div
           key={item}
           className="flex animate-pulse items-center gap-4 px-5 py-4"
         >
-          <span className="h-11 w-11 rounded-2xl bg-white/[0.05]" />
+          <span className="h-11 w-11 rounded-2xl bg-zinc-100" />
 
           <span className="flex-1">
-            <span className="block h-3 w-2/3 rounded-full bg-white/[0.06]" />
-            <span className="mt-3 block h-2 w-1/2 rounded-full bg-white/[0.04]" />
+            <span className="block h-3 w-2/3 rounded-full bg-zinc-100" />
+            <span className="mt-3 block h-2 w-1/2 rounded-full bg-zinc-100" />
           </span>
         </div>
       ))}
