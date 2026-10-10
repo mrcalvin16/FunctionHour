@@ -29,22 +29,22 @@ const severityStyles: Record<
   urgent: {
     icon: AlertTriangle,
     classes:
-      "border-red-400/20 bg-red-400/10 text-red-300",
+      "border-red-200 bg-red-50 text-red-800",
   },
   warning: {
     icon: AlertTriangle,
     classes:
-      "border-amber-400/20 bg-amber-400/10 text-amber-300",
+      "border-amber-200 bg-amber-50 text-amber-800",
   },
   info: {
     icon: Info,
     classes:
-      "border-blue-400/20 bg-blue-400/10 text-blue-300",
+      "border-blue-200 bg-blue-50 text-blue-800",
   },
   success: {
     icon: CircleCheck,
     classes:
-      "border-emerald-400/20 bg-emerald-400/10 text-emerald-300",
+      "border-emerald-200 bg-emerald-50 text-emerald-800",
   },
 };
 
@@ -64,7 +64,7 @@ export default function NotificationCenter({
           </h2>
         </div>
 
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-orange-400/20 bg-orange-400/10 text-orange-300">
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-orange-200 bg-orange-50 text-orange-800">
           <BellRing className="h-4 w-4" />
         </span>
       </div>
@@ -74,17 +74,17 @@ export default function NotificationCenter({
           {[1, 2].map((item) => (
             <div
               key={item}
-              className="h-[78px] animate-pulse rounded-2xl bg-white/[0.04]"
+              className="h-[78px] animate-pulse rounded-2xl bg-zinc-100"
             />
           ))}
         </div>
       ) : notifications.length === 0 ? (
         <div className="px-6 py-10 text-center">
-          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-800">
             <CircleCheck className="h-5 w-5" />
           </span>
 
-          <p className="mt-4 font-black text-white">
+          <p className="mt-4 font-black text-zinc-950">
             You’re all clear
           </p>
 
