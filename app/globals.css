@@ -211,6 +211,23 @@ html.light .organizer-shell [class*="text-emerald-4"] {
   color: #047857 !important;
 }
 
+/* The OS keeps a few deliberate dark surfaces inside its light layout.
+   Give their text explicit contrast after the shared light-mode overrides. */
+html.light .organizer-shell .organizer-overview-spotlight,
+html.light .organizer-shell .organizer-overview-spotlight :is(h3, p, a) {
+  color: #ffffff !important;
+}
+
+html.light .organizer-shell .organizer-overview-spotlight > p {
+  color: #fed7aa !important;
+}
+
+html.light .organizer-shell .organizer-os-solid-action,
+html.light .organizer-shell :is(a, button)[class*="bg-violet-7"].text-white,
+html.light .organizer-shell :is(a, button)[class*="bg-violet-8"].text-white {
+  color: #ffffff !important;
+}
+
 /* Event artwork and the selected OS navigation item keep white labels against
    their saturated backgrounds while the surrounding dashboard stays light. */
 html.light .organizer-shell .organizer-event-cover :is(p, span) {
