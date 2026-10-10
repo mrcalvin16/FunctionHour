@@ -23,7 +23,7 @@ const quickActions: QuickAction[] = [
     href: "/host/create",
     icon: Plus,
     accent:
-      "border-orange-400/20 bg-orange-400/10 text-orange-300",
+      "border-orange-200 bg-orange-50 text-orange-800",
   },
   {
     label: "Check In",
@@ -31,7 +31,7 @@ const quickActions: QuickAction[] = [
     href: "/host/check-in",
     icon: ScanLine,
     accent:
-      "border-emerald-400/20 bg-emerald-400/10 text-emerald-300",
+      "border-emerald-200 bg-emerald-50 text-emerald-800",
   },
   {
     label: "Comp Tickets",
@@ -39,7 +39,7 @@ const quickActions: QuickAction[] = [
     href: "/host/comp-tickets",
     icon: TicketCheck,
     accent:
-      "border-violet-400/20 bg-violet-400/10 text-violet-300",
+      "border-violet-200 bg-violet-50 text-violet-800",
   },
   {
     label: "Flyer Studio",
@@ -47,7 +47,7 @@ const quickActions: QuickAction[] = [
     href: "/host/flyer-studio-v2",
     icon: Palette,
     accent:
-      "border-fuchsia-400/20 bg-fuchsia-400/10 text-fuchsia-300",
+      "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-800",
   },
   {
     label: "Analytics",
@@ -55,7 +55,7 @@ const quickActions: QuickAction[] = [
     href: "/host/analytics",
     icon: BarChart3,
     accent:
-      "border-blue-400/20 bg-blue-400/10 text-blue-300",
+      "border-blue-200 bg-blue-50 text-blue-800",
   },
 ];
 
