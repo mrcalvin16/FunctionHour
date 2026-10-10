@@ -23,6 +23,7 @@ export default function SupportChat() {
   const [notice, setNotice] = useState("");
   const [submissionFailed, setSubmissionFailed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [statusPath, setStatusPath] = useState("");
 
   function ask(value: string) {
     if (!value.trim()) return;
@@ -49,6 +50,7 @@ export default function SupportChat() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Unable to submit your request.");
+      setStatusPath(result.statusPath || "");
       setMessage("");
       setShowForm(false);
       setSubmitted(true);
@@ -75,6 +77,8 @@ export default function SupportChat() {
               <div role="status" className="rounded-2xl border border-violet-200 bg-violet-50 p-5 text-sm leading-6">
                 <h3 className="text-xl font-bold text-zinc-950">Thank you! Your request was sent.</h3>
                 <p className="mt-3 text-zinc-800">We’ll follow up by email at <strong>{email}</strong>. We aim to respond within 2 business days; timing may vary with request volume.</p>
+                {statusPath && <Link href={statusPath} className="mt-4 inline-flex rounded-xl bg-violet-700 px-4 py-2 font-bold text-white hover:bg-violet-800">Track this request →</Link>}
+                {statusPath && <p className="mt-2 text-xs text-zinc-700">Save the status link to return later. Keep it private.</p>}
                 <button type="button" onClick={() => { setSubmitted(false); setAnswer(null); setQuestion(""); }} className="mt-5 font-bold text-violet-800 underline underline-offset-2">Back to help</button>
               </div>
             ) : <>
@@ -109,7 +113,7 @@ export default function SupportChat() {
             </form>}
             {notice && <div role="status" className="rounded-xl bg-zinc-100 p-3 text-sm font-semibold text-zinc-950">
               <p>{notice}</p>
-              {submissionFailed && <a href="mailto:support@functionhour.com?subject=Function%20Hour%20support" className="mt-2 inline-block font-bold text-violet-800 underline underline-offset-2">Email support directly</a>}
+              {submissionFailed && <a href="mailto:operations@functionhour.com?subject=Function%20Hour%20support" className="mt-2 inline-block font-bold text-violet-800 underline underline-offset-2">Email Operations directly</a>}
             </div>}
             </>}
           </div>

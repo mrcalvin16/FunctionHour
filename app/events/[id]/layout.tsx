@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { getConvexClient } from "@/lib/convex";
+import { attendeeEventDate, attendeeVenue } from "@/lib/attendeeDisplay";
 
 export async function generateMetadata({
   params,
@@ -18,7 +19,7 @@ export async function generateMetadata({
     if (!event) return { title: "Event Not Found" };
 
     const title = event.name || "Function Hour Event";
-    const description = event.description || `View ${title} on Function Hour.`;
+    const description = `${attendeeEventDate(event)} · ${attendeeVenue(event)}. ${event.description || `Explore ${title} on Function Hour.`}`.slice(0, 280);
     const canonical = `/events/${id}`;
 
     return {

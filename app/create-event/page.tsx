@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
@@ -10,7 +10,7 @@ import OrganizerAccessGate from "@/components/OrganizerAccessGate";
 
 function CreateEventPageContent() {
   const router = useRouter();
-  const {isLoaded, isSignedIn, getToken} = useAuth();
+  const {isLoaded, isSignedIn, userId, getToken} = useAuth();
 
   const generateUploadUrl = useMutation(api.events.generateUploadUrl);
   const createEvent = useMutation(api.events.createEvent);
@@ -38,6 +38,43 @@ function CreateEventPageContent() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [draftNotice, setDraftNotice] = useState("");
+  const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
+  const checklist = useMemo(() => [
+    { label: "Event name and description", ready: Boolean(name.trim() && description.trim()) },
+    { label: "Venue, address, and city", ready: Boolean(venueName.trim() && venueAddress.trim() && city.trim() && stateValue.trim()) },
+    { label: "Future date and time", ready: Boolean(eventDate && new Date(eventDate).getTime() > Date.now()) },
+    { label: "Ticket price and capacity", ready: price !== "" && Number(price) >= 0 && Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 },
+    { label: "Refund terms", ready: Boolean(refundPolicy.trim()) },
+    { label: "Event image (recommended)", ready: Boolean(image), optional: true },
+  ], [name, description, venueName, venueAddress, city, stateValue, eventDate, price, totalTickets, refundPolicy, image]);
+
+  useEffect(() => {
+    if (!draftKey) return;
+    try {
+      const raw = window.localStorage.getItem(draftKey);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as Record<string, string>;
+      setName(draft.name || ""); setDescription(draft.description || ""); setCategory(draft.category || "Party");
+      setVenueName(draft.venueName || ""); setVenueAddress(draft.venueAddress || "");
+      setCity(draft.city || ""); setStateValue(draft.stateValue || ""); setEventDate(draft.eventDate || "");
+      setPrice(draft.price || ""); setTotalTickets(draft.totalTickets || "");
+      setDressCode(draft.dressCode || ""); setAgeRequirement(draft.ageRequirement || "21+");
+      setParkingInfo(draft.parkingInfo || ""); setEntryNotes(draft.entryNotes || "");
+      setRefundPolicy(draft.refundPolicy || "");
+      setDraftNotice("Your draft was restored on this device. Reattach the event image before publishing.");
+    } catch { setDraftNotice("A saved draft could not be restored."); }
+  }, [draftKey]);
+
+  function saveDraft() {
+    if (!draftKey) return;
+    try {
+      window.localStorage.setItem(draftKey, JSON.stringify({ name, description, category, venueName,
+        venueAddress, city, stateValue, eventDate, price, totalTickets, dressCode, ageRequirement,
+        parkingInfo, entryNotes, refundPolicy }));
+      setDraftNotice("Draft saved on this device. Event images are not saved with local drafts.");
+    } catch { setDraftNotice("Unable to save a draft on this device."); }
+  }
 
   async function geocodeAddress(fullLocation: string) {
     const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
@@ -101,10 +138,15 @@ function CreateEventPageContent() {
       !city ||
       !stateValue ||
       !eventDate ||
-      !price ||
+      price === "" ||
       !totalTickets
     ) {
       setError("Please fill out all required fields.");
+      return;
+    }
+
+    if (checklist.some((item) => !item.ready && !item.optional)) {
+      setError("Complete the required publishing details, including refund terms, before publishing.");
       return;
     }
 
@@ -163,6 +205,7 @@ function CreateEventPageContent() {
         imageStorageId,
       });
 
+      if (draftKey) window.localStorage.removeItem(draftKey);
       router.push(`/events/${eventId}`);
     } catch (err) {
       console.error(err);
@@ -198,6 +241,17 @@ function CreateEventPageContent() {
             onSubmit={handleSubmit}
             className="space-y-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6"
           >
+            <div className="rounded-2xl border border-violet-300/30 bg-violet-950/30 p-5">
+              <h2 className="text-lg font-black text-white">Before you publish</h2>
+              <p className="mt-1 text-sm text-zinc-200">Save a draft anytime. Visitors will see this event as soon as you publish it.</p>
+              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                {checklist.map((item) => <li key={item.label} className={`text-sm font-semibold ${item.ready ? "text-emerald-200" : "text-zinc-200"}`}>
+                  <span aria-hidden="true">{item.ready ? "✓" : "○"}</span> {item.label}
+                </li>)}
+              </ul>
+              {draftNotice && <p role="status" className="mt-3 text-sm text-white">{draftNotice}</p>}
+              <button type="button" onClick={saveDraft} className="mt-4 rounded-xl border border-white/50 px-4 py-2 text-sm font-bold text-white hover:bg-white/10">Save draft on this device</button>
+            </div>
             {error && (
               <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
                 {error}
@@ -356,10 +410,10 @@ function CreateEventPageContent() {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || checklist.some((item) => !item.ready && !item.optional)}
               className="w-full rounded-2xl bg-white px-5 py-4 font-black text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? "Creating Event..." : "Create Event"}
+              {isSubmitting ? "Publishing event..." : "Publish event"}
             </button>
           </form>
         )}

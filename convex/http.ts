@@ -34,6 +34,22 @@ http.route({
 });
 
 http.route({
+  path: "/support/requests/status", method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    if (!authorized(request)) return new Response("Forbidden", { status: 403 });
+    try {
+      const input = await request.json() as { id: Id<"supportRequests">; statusTokenHash: string };
+      if (!/^[a-z0-9]{20,40}$/.test(input.id) || !/^[a-f0-9]{64}$/.test(input.statusTokenHash)) {
+        return new Response("Invalid request", { status: 400 });
+      }
+      const result = await ctx.runQuery(internal.supportRequests.getCustomerStatus, input);
+      return result ? Response.json(result, { headers: { "Cache-Control": "no-store" } })
+        : new Response("Not found", { status: 404 });
+    } catch { return new Response("Invalid request", { status: 400 }); }
+  }),
+});
+
+http.route({
   path: "/support/requests/activity", method: "POST",
   handler: httpAction(async (ctx, request) => {
     if (!authorized(request)) return new Response("Forbidden", { status: 403 });
@@ -55,7 +71,7 @@ http.route({
       const input = await request.json() as {
         id: Id<"supportRequests">; actorId: string;
         action: "claim" | "release" | "priority" | "status" | "note" | "follow_up" | "reply_recorded";
-        status?: "new" | "in_progress" | "resolved";
+        status?: "new" | "in_progress" | "waiting_on_organizer" | "resolved";
         priority?: "standard" | "urgent";
         note?: string; followUpAt?: number;
       };

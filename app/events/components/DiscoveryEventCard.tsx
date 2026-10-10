@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import EventImage from "./EventImage";
-import { getTicketListingLabel, getEventCategory, getEventTimestamp, type DiscoveryEvent } from "../eventPresentation";
+import { getTicketListingLabel, getEventCategory, getEventTimestamp, getEventLocation, type DiscoveryEvent } from "../eventPresentation";
+import ShareEventButton from "@/components/share/ShareEventButton";
 
 type CardEvent = DiscoveryEvent & {
   organizerName?: string;
@@ -52,11 +53,7 @@ export default function DiscoveryEventCard({
   const organizerName = getOrganizerName(event);
   const priceLabel = getTicketListingLabel(event);
 
-  const location =
-    event.location ||
-    event.venueName ||
-    event.city ||
-    "Location coming soon";
+  const location = getEventLocation(event) || "Location coming soon";
 
   const schedule = getEventSchedule(event);
 
@@ -180,7 +177,8 @@ export default function DiscoveryEventCard({
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <ShareEventButton eventId={event._id} title={event.name || "Event"} location={location} date={schedule.date} compact />
             {event.hasMerch && (
               <Link href={`/events/${event._id}/merch`} aria-label={`Shop merchandise for ${event.name}`} className="inline-flex items-center rounded-full border border-zinc-300 bg-white px-4 py-3 text-xs font-black text-zinc-900 transition hover:border-orange-400 hover:text-orange-800">
                 Shop merch

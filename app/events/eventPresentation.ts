@@ -19,6 +19,7 @@ export type DiscoveryEvent = {
   totalTickets?: number;
   salesEndAt?: number;
   isSoldOut?: boolean;
+  eventStatus?: "scheduled" | "postponed" | "cancelled";
   isPromoted?: boolean;
   promotionEndsAt?: number;
   featuredWeight?: number;
@@ -53,20 +54,23 @@ export function getFromPriceLabel(event: Pick<DiscoveryEvent, "startingPrice" | 
   return price === "Free" ? price : `From ${price}`;
 }
 
-export function getTicketListingLabel(event: Pick<DiscoveryEvent, "startingPrice" | "price" | "isSoldOut" | "salesEndAt">) {
+export function getTicketListingLabel(event: Pick<DiscoveryEvent, "startingPrice" | "price" | "isSoldOut" | "salesEndAt" | "eventStatus" | "eventDate" | "dateString">) {
+  if (event.eventStatus === "cancelled") return "Cancelled";
+  if (event.eventStatus === "postponed") return "Postponed";
+  if (!isEventUpcoming(event)) return "Event ended";
   if (event.isSoldOut) return "Sold out";
   if (event.salesEndAt !== undefined && Date.now() >= event.salesEndAt) return "Sales closed";
   return getFromPriceLabel(event);
 }
 
-export function getEventTimestamp(event: DiscoveryEvent) {
+export function getEventTimestamp(event: Pick<DiscoveryEvent, "eventDate" | "dateString">) {
   if (Number.isFinite(event.eventDate)) return Number(event.eventDate);
   if (!event.dateString) return NaN;
   return Date.parse(event.dateString);
 }
 
 export function isEventUpcoming(
-  event: DiscoveryEvent,
+  event: Pick<DiscoveryEvent, "eventDate" | "dateString">,
   referenceTime = Date.now(),
 ) {
   const dateOnly = event.dateString?.match(/^\d{4}-\d{2}-\d{2}$/);

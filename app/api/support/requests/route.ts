@@ -4,6 +4,7 @@ import { z } from "zod";
 import { checkRateLimit, getClientKey } from "@/lib/supportRateLimit";
 import { supportStore } from "@/lib/supportRequests";
 import { escapeEmailHtml, sendTransactionalEmail } from "@/lib/email/server";
+import { createHash, randomBytes } from "node:crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -55,13 +56,16 @@ export async function POST(request: Request) {
     // A signed-in user may submit for another address, but the email is treated as unverified.
     const email = verifiedEmail?.emailAddress ?? input.data.email;
     const message = redactSensitive(input.data.message);
+    const statusToken = randomBytes(32).toString("hex");
+    const statusTokenHash = createHash("sha256").update(statusToken).digest("hex");
     const eventUrl = input.data.eventUrl && /^\/events\/[a-zA-Z0-9_-]+(?:\?.*)?$/.test(input.data.eventUrl)
       ? input.data.eventUrl : undefined;
     const data = {
       category: input.data.category, email, name: input.data.name || undefined, message,
-      eventUrl, pagePath: safePath(input.data.pagePath),
+      eventUrl, pagePath: safePath(input.data.pagePath), statusTokenHash,
     };
     const created = await supportStore("/support/requests", "POST", data) as { id: string };
+    const statusPath = `/support/status?reference=${encodeURIComponent(created.id)}#token=${statusToken}`;
     let notificationStatus: "delivered" | "failed" = "failed";
     try {
       const text = `New Function Hour support request\n\nReference: ${created.id}\nCategory: ${data.category}\nFrom: ${data.name || "Not provided"} <${data.email}>\nPage: ${data.pagePath}\nEvent: ${data.eventUrl || "Not provided"}\n\n${data.message}\n\nReview: https://functionhour.com/admin/support`;
@@ -82,9 +86,23 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error("[support.intake] Notification status update failed", { id: created.id, error });
     }
-    return NextResponse.json({ received: true, reference: created.id, notificationStatus });
+    try {
+      const statusUrl = new URL(statusPath, appOrigin).toString();
+      await sendTransactionalEmail({
+        to: data.email,
+        subject: "We received your Function Hour request",
+        text: `Thank you for contacting Function Hour. Your reference is ${created.id}. Operations aims to respond within 2 business days; timing may vary with request volume. Track your request: ${statusUrl}\n\nKeep this link private. If you need to add details, reply to this email.`,
+        html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#171717"><h1>We received your request</h1><p>Thanks for reaching out. Operations aims to respond within 2 business days; timing may vary with request volume.</p><p>Reference: <strong>${escapeEmailHtml(created.id)}</strong></p><p><a href="${escapeEmailHtml(statusUrl)}" style="display:inline-block;background:#6d28d9;color:#ffffff;padding:14px 20px;border-radius:12px;text-decoration:none;font-weight:bold">Track your request</a></p><p style="font-size:13px;color:#52525b">Keep this link private. You can reply to this email if you need to add details.</p></div>`,
+        replyTo: "operations@functionhour.com",
+        idempotencyKey: `support-ack-${created.id}`,
+      });
+    } catch (error) {
+      console.error("[support.intake] Customer acknowledgement failed", { id: created.id, error });
+    }
+    return NextResponse.json({ received: true, reference: created.id,
+      statusPath });
   } catch (error) {
     console.error("[support.intake] Request failed", error);
-    return NextResponse.json({ error: "We could not submit your request. Please email support@functionhour.com." }, { status: 503 });
+    return NextResponse.json({ error: "We could not submit your request. Please email operations@functionhour.com." }, { status: 503 });
   }
 }
