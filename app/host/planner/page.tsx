@@ -1,352 +1,108 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import type { Doc, Id } from "@/convex/_generated/dataModel";
 
-type Todo = {
-  id: number;
-  text: string;
-  done: boolean;
-};
-
-type Expense = {
-  id: number;
-  name: string;
-  category: string;
-  amount: string;
-};
-
-const expenseCategories = [
-  "Venue",
-  "Talent",
-  "Marketing",
-  "Security",
-  "Staffing",
-  "Production",
-  "Decor",
-  "Food & Beverage",
-  "Merch",
-  "Other",
-];
+const money = (value: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+const categories = ["Venue", "Talent", "Production", "Staffing", "Security", "Marketing", "Food & beverage", "Other"];
+type Event = { _id: Id<"events">; name: string; price?: number; totalTickets?: number };
 
 export default function HostPlannerPage() {
-  const [notes, setNotes] = useState("");
-  const [todoText, setTodoText] = useState("");
-
-  const [ticketPrice, setTicketPrice] = useState("35");
-  const [projectedTickets, setProjectedTickets] = useState("100");
-  const [platformFee, setPlatformFee] = useState("7");
-
-  const [expenseName, setExpenseName] = useState("");
-  const [expenseCategory, setExpenseCategory] = useState("Venue");
-  const [expenseAmount, setExpenseAmount] = useState("");
-
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-
-  const projectedGross = Number(ticketPrice || 0) * Number(projectedTickets || 0);
-  const projectedFees = projectedGross * (Number(platformFee || 0) / 100);
-  const projectedNet = projectedGross - projectedFees;
-
-  const totalExpenses = useMemo(() => {
-    return expenses.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
-  }, [expenses]);
-
-  const projectedProfit = projectedNet - totalExpenses;
-
-  function addTodo() {
-    if (!todoText.trim()) return;
-
-    setTodos((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        text: todoText.trim(),
-        done: false,
-      },
-    ]);
-
-    setTodoText("");
-  }
-
-  function addExpense() {
-    if (!expenseName.trim() || !expenseAmount.trim()) return;
-
-    setExpenses((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        name: expenseName.trim(),
-        category: expenseCategory,
-        amount: expenseAmount,
-      },
-    ]);
-
-    setExpenseName("");
-    setExpenseAmount("");
-  }
-
+  const { user, isLoaded } = useUser();
+  const events = useQuery(api.events.getMyEvents, user ? {} : "skip");
+  const [selected, setSelected] = useState<string>("");
+  const event = events?.find((item) => item._id === selected) ?? events?.[0];
   return (
-    <main className="min-h-screen overflow-hidden bg-black px-5 py-8 text-white">
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute left-[-10%] top-[-10%] h-[420px] w-[420px] rounded-full bg-orange-500/20 blur-[130px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] h-[500px] w-[500px] rounded-full bg-white/10 blur-[150px]" />
+    <main className="mx-auto w-full max-w-6xl px-4 py-7 text-slate-950 sm:px-7">
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+        <div><p className="text-xs font-bold uppercase tracking-[.2em] text-violet-700">Organizer OS / Planning</p><h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Budget Planner</h1><p className="mt-2 text-sm text-slate-700">Build a budget for each event. Save projections and track income and costs as you plan.</p></div>
+        <Link href="/host" className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:border-violet-500">Back to overview</Link>
       </div>
-
-      <section className="relative mx-auto max-w-7xl">
-        <div className="mb-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-xl">
-          <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-orange-300">
-                Function Hour Command Center
-              </p>
-
-              <h1 className="mt-3 text-5xl font-black tracking-tight">
-                Budget Planner
-              </h1>
-
-              <p className="mt-3 max-w-2xl text-zinc-400">
-                Plan expenses, project revenue, track tasks, and keep organizer notes in one place.
-              </p>
-            </div>
-
-            <Link
-              href="/host"
-              className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-black hover:border-orange-400/50"
-            >
-              Back to Host Dashboard
-            </Link>
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-4">
-          <Stat title="Projected Gross" value={`$${projectedGross.toLocaleString()}`} />
-          <Stat title="Platform Fees" value={`$${Math.round(projectedFees).toLocaleString()}`} />
-          <Stat title="Expenses" value={`$${totalExpenses.toLocaleString()}`} />
-          <Stat
-            title="Projected Profit"
-            value={`$${Math.round(projectedProfit).toLocaleString()}`}
-            positive={projectedProfit >= 0}
-          />
-        </div>
-
-        <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_.9fr]">
-          <section className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl backdrop-blur-xl">
-            <h2 className="text-2xl font-black">Projected Revenue</h2>
-
-            <div className="mt-5 grid gap-4 sm:grid-cols-3">
-              <Field
-                label="Ticket Price"
-                value={ticketPrice}
-                setValue={setTicketPrice}
-                type="number"
-              />
-
-              <Field
-                label="Projected Tickets"
-                value={projectedTickets}
-                setValue={setProjectedTickets}
-                type="number"
-              />
-
-              <Field
-                label="Platform Fee %"
-                value={platformFee}
-                setValue={setPlatformFee}
-                type="number"
-              />
-            </div>
-
-            <div className="mt-6 rounded-3xl border border-orange-400/20 bg-orange-500/10 p-5">
-              <p className="text-sm font-bold text-orange-200">
-                Estimated net revenue after platform fees
-              </p>
-              <p className="mt-2 text-5xl font-black">
-                ${Math.round(projectedNet).toLocaleString()}
-              </p>
-            </div>
-          </section>
-
-          <section className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl backdrop-blur-xl">
-            <h2 className="text-2xl font-black">To-Do List</h2>
-
-            <div className="mt-5 flex gap-3">
-              <input
-                value={todoText}
-                onChange={(e) => setTodoText(e.target.value)}
-                placeholder="Add task..."
-                className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-black px-4 py-3 outline-none focus:border-orange-400"
-              />
-
-              <button
-                type="button"
-                onClick={addTodo}
-                className="rounded-2xl bg-white px-5 py-3 font-black text-black"
-              >
-                Add
-              </button>
-            </div>
-
-            <div className="mt-5 space-y-3">
-              {todos.length === 0 ? (
-                <p className="rounded-2xl border border-dashed border-white/10 p-5 text-sm text-zinc-500">
-                  No tasks yet.
-                </p>
-              ) : (
-                todos.map((todo) => (
-                  <button
-                    key={todo.id}
-                    type="button"
-                    onClick={() =>
-                      setTodos((prev) =>
-                        prev.map((item) =>
-                          item.id === todo.id ? { ...item, done: !item.done } : item
-                        )
-                      )
-                    }
-                    className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-black p-4 text-left"
-                  >
-                    <span
-                      className={`h-5 w-5 rounded-full border ${
-                        todo.done
-                          ? "border-orange-400 bg-orange-400"
-                          : "border-white/30"
-                      }`}
-                    />
-                    <span className={todo.done ? "text-zinc-500 line-through" : ""}>
-                      {todo.text}
-                    </span>
-                  </button>
-                ))
-              )}
-            </div>
-          </section>
-        </div>
-
-        <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_.9fr]">
-          <section className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl backdrop-blur-xl">
-            <h2 className="text-2xl font-black">Expense Tracking</h2>
-
-            <div className="mt-5 grid gap-3 md:grid-cols-[1fr_180px_160px_auto]">
-              <input
-                value={expenseName}
-                onChange={(e) => setExpenseName(e.target.value)}
-                placeholder="Expense name"
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 outline-none focus:border-orange-400"
-              />
-
-              <select
-                value={expenseCategory}
-                onChange={(e) => setExpenseCategory(e.target.value)}
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 outline-none focus:border-orange-400"
-              >
-                {expenseCategories.map((category) => (
-                  <option key={category}>{category}</option>
-                ))}
-              </select>
-
-              <input
-                value={expenseAmount}
-                onChange={(e) => setExpenseAmount(e.target.value)}
-                type="number"
-                min="0"
-                placeholder="Amount"
-                className="rounded-2xl border border-white/10 bg-black px-4 py-3 outline-none focus:border-orange-400"
-              />
-
-              <button
-                type="button"
-                onClick={addExpense}
-                className="rounded-2xl bg-orange-500 px-5 py-3 font-black text-black"
-              >
-                Add
-              </button>
-            </div>
-
-            <div className="mt-5 space-y-3">
-              {expenses.length === 0 ? (
-                <p className="rounded-2xl border border-dashed border-white/10 p-5 text-sm text-zinc-500">
-                  No expenses added yet.
-                </p>
-              ) : (
-                expenses.map((expense) => (
-                  <div
-                    key={expense.id}
-                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-black p-4"
-                  >
-                    <div>
-                      <p className="font-black">{expense.name}</p>
-                      <p className="text-xs text-zinc-500">{expense.category}</p>
-                    </div>
-
-                    <p className="font-black text-orange-300">
-                      ${Number(expense.amount || 0).toLocaleString()}
-                    </p>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-
-          <section className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-6 shadow-2xl backdrop-blur-xl">
-            <h2 className="text-2xl font-black">Planning Notes</h2>
-
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Vendor notes, staffing plans, marketing ideas, venue reminders, sponsor details..."
-              className="mt-5 min-h-[370px] w-full rounded-3xl border border-white/10 bg-black p-5 leading-7 text-white outline-none focus:border-orange-400"
-            />
-          </section>
-        </div>
-      </section>
+      {!isLoaded || (user && events === undefined) ? <p role="status">Loading your events…</p> : !user ? <p>Sign in to manage your event budgets.</p> : !events?.length ? <div className="rounded-3xl border border-slate-200 bg-white p-8"><h2 className="text-xl font-semibold">Start with an event</h2><p className="mt-2 text-slate-700">Create an event to give its budget a dedicated home.</p><Link className="mt-5 inline-block rounded-xl bg-violet-700 px-5 py-3 font-semibold text-white" href="/host/create">Create event</Link></div> : <>
+        <label htmlFor="budget-event" className="block text-sm font-semibold text-slate-800">Plan for event</label>
+        <select id="budget-event" value={event?._id ?? ""} onChange={(e) => setSelected(e.target.value)} className="mt-2 w-full max-w-xl rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 focus:border-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-200">
+          {events.map(item => <option key={item._id} value={item._id}>{item.name}</option>)}
+        </select>
+        {event && <BudgetEditor key={event._id} event={event} userId={user.id} />}
+      </>}
     </main>
   );
 }
 
-function Stat({
-  title,
-  value,
-  positive = true,
-}: {
-  title: string;
-  value: string;
-  positive?: boolean;
-}) {
-  return (
-    <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl">
-      <p className="text-xs font-black uppercase tracking-[0.25em] text-zinc-500">
-        {title}
-      </p>
-      <p className={`mt-3 text-3xl font-black ${positive ? "text-white" : "text-red-300"}`}>
-        {value}
-      </p>
-    </div>
-  );
+function BudgetEditor({ event, userId }: { event: Event; userId: string }) {
+  const plan = useQuery(api.budget.getPlan, { eventId: event._id });
+  const items = useQuery(api.budget.getItems, { eventId: event._id });
+  if (plan === undefined || items === undefined) return <p className="mt-8" role="status">Loading budget…</p>;
+  return <BudgetWorkspace key={plan?._id ?? "new"} event={event} userId={userId} items={items} plan={plan} />;
 }
 
-function Field({
-  label,
-  value,
-  setValue,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  setValue: (value: string) => void;
-  type?: string;
-}) {
-  return (
-    <div>
-      <label className="mb-2 block text-xs font-black uppercase tracking-wide text-zinc-500">
-        {label}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        className="w-full rounded-2xl border border-white/10 bg-black px-4 py-3 outline-none focus:border-orange-400"
-      />
+function BudgetWorkspace({ event, userId, items, plan }: { event: Event; userId: string; items: Doc<"budgetItems">[]; plan: Doc<"budgetPlans"> | null }) {
+  const [ticketPrice, setTicketPrice] = useState(String(plan?.ticketPrice ?? event.price ?? 0));
+  const [expectedTickets, setExpectedTickets] = useState(String(plan?.expectedTickets ?? event.totalTickets ?? 0));
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState(categories[0]);
+  const [type, setType] = useState<"expense" | "income">("expense");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const savePlan = useMutation(api.budget.savePlan);
+  const addItem = useMutation(api.budget.addItem);
+  const deleteItem = useMutation(api.budget.deleteItem);
+  const price = Number(ticketPrice) || 0;
+  const tickets = Number(expectedTickets) || 0;
+  const ticketRevenue = price * tickets;
+  const otherIncome = items.filter(i => i.type === "income").reduce((sum, i) => sum + i.amount, 0);
+  const expenses = items.filter(i => i.type === "expense").reduce((sum, i) => sum + i.amount, 0);
+  const balance = ticketRevenue + otherIncome - expenses;
+  const breakEven = price > 0 ? Math.max(0, Math.ceil((expenses - otherIncome) / price)) : null;
+  async function saveScenario(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!Number.isFinite(Number(ticketPrice)) || Number(ticketPrice) < 0 || Number(ticketPrice) > 1000000 || !Number.isSafeInteger(Number(expectedTickets)) || Number(expectedTickets) < 0 || Number(expectedTickets) > 1000000 || ticketPrice === "" || expectedTickets === "") { setMessage("Enter a valid nonnegative price and whole ticket count."); return; }
+    setBusy(true); setMessage("");
+    try { await savePlan({ eventId: event._id, ticketPrice: Number(ticketPrice), expectedTickets: Number(expectedTickets) }); setMessage("Projection saved for this event."); }
+    catch { setMessage("Could not save the projection. Please try again."); }
+    finally { setBusy(false); }
+  }
+  async function addLine(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const value = Number(amount);
+    if (!name.trim() || !Number.isFinite(value) || value <= 0 || value > 100000000) { setMessage("Enter a line item name and a positive amount."); return; }
+    setBusy(true); setMessage("");
+    try { await addItem({ eventId: event._id, userId, name: name.trim(), amount: value, type, notes: category }); setName(""); setAmount(""); setMessage("Line item added."); }
+    catch { setMessage("Could not add the line item. Please try again."); }
+    finally { setBusy(false); }
+  }
+  async function removeLine(itemId: Id<"budgetItems">) {
+    setBusy(true); setMessage("");
+    try { await deleteItem({ itemId }); setMessage("Line item removed."); }
+    catch { setMessage("Could not remove the line item. Please try again."); }
+    finally { setBusy(false); }
+  }
+  const input = "w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-950 focus:border-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-200";
+  const card = "rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7";
+  return <div className="mt-7 space-y-6">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <Metric title="Projected ticket income" value={money(ticketRevenue)} />
+      <Metric title="Other income" value={money(otherIncome)} />
+      <Metric title="Planned expenses" value={money(expenses)} />
+      <Metric title="Estimated balance" value={money(balance)} highlight />
     </div>
-  );
+    <p className="text-sm text-slate-700">Planning estimates only. Balance excludes payment processing, taxes, refunds, and other adjustments; it is not your available payout balance.</p>
+    <div className="grid gap-6 lg:grid-cols-2">
+      <section className={card}><h2 className="text-xl font-bold">Ticket projection</h2><p className="mt-1 text-sm text-slate-700">Choose an expected ticket price and turnout.</p>
+        <form onSubmit={saveScenario} className="mt-5 space-y-4"><label className="block text-sm font-semibold">Average ticket price ($)<input className={`mt-2 ${input}`} type="number" inputMode="decimal" min="0" max="1000000" step="0.01" value={ticketPrice} onChange={e => setTicketPrice(e.target.value)} required /></label><label className="block text-sm font-semibold">Expected tickets sold<input className={`mt-2 ${input}`} type="number" inputMode="numeric" min="0" max="1000000" step="1" value={expectedTickets} onChange={e => setExpectedTickets(e.target.value)} required /></label><button disabled={busy} type="submit" className="rounded-xl bg-violet-700 px-5 py-3 text-sm font-bold text-white hover:bg-violet-800 disabled:opacity-50">Save projection</button></form>
+        <div className="mt-6 rounded-2xl bg-violet-50 p-4"><p className="text-sm font-semibold text-violet-900">Break even on planned costs</p><p className="mt-1 text-2xl font-bold text-violet-950">{breakEven === null ? "Set a ticket price" : `${breakEven.toLocaleString()} tickets`}</p></div>
+      </section>
+      <section className={card}><h2 className="text-xl font-bold">Add a budget item</h2><p className="mt-1 text-sm text-slate-700">Track costs and income separate from ticket sales.</p>
+        <form onSubmit={addLine} className="mt-5 space-y-4"><label className="block text-sm font-semibold">Type<select className={`mt-2 ${input}`} value={type} onChange={e => setType(e.target.value as "expense" | "income")}><option value="expense">Expense</option><option value="income">Other income</option></select></label><label className="block text-sm font-semibold">Name<input className={`mt-2 ${input}`} maxLength={120} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Venue rental" required /></label><div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm font-semibold">Category<select className={`mt-2 ${input}`} value={category} onChange={e => setCategory(e.target.value)}>{categories.map(c => <option key={c}>{c}</option>)}</select></label><label className="block text-sm font-semibold">Amount ($)<input className={`mt-2 ${input}`} type="number" inputMode="decimal" min="0.01" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} required /></label></div><button disabled={busy} type="submit" className="rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800 disabled:opacity-50">Add item</button></form>
+      </section>
+    </div>
+    <section className={card}><div className="flex flex-wrap items-end justify-between gap-2"><h2 className="text-xl font-bold">Budget breakdown</h2><span className="text-sm text-slate-700">{items.length} saved items</span></div>{items.length === 0 ? <p className="mt-5 rounded-xl bg-slate-50 p-5 text-slate-700">No line items yet. Add your first cost or source of income above.</p> : <ul className="mt-5 divide-y divide-slate-200">{items.map(item => <li key={item._id} className="flex flex-wrap items-center justify-between gap-3 py-4"><div><p className="font-semibold text-slate-950">{item.name}</p><p className="text-sm text-slate-700">{item.type === "income" ? "Income" : "Expense"}{item.notes ? ` · ${item.notes}` : ""}</p></div><div className="flex items-center gap-4"><span className={`font-bold ${item.type === "income" ? "text-emerald-800" : "text-slate-950"}`}>{item.type === "income" ? "+" : "−"}{money(item.amount)}</span><button type="button" disabled={busy} onClick={() => removeLine(item._id)} aria-label={`Remove ${item.name}`} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 disabled:opacity-50">Remove</button></div></li>)}</ul>}</section>
+    <p role="status" aria-live="polite" className="min-h-6 text-sm font-semibold text-violet-900">{message}</p>
+  </div>;
 }
+function Metric({ title, value, highlight = false }: { title: string; value: string; highlight?: boolean }) { return <div className={`rounded-2xl border p-5 ${highlight ? "border-violet-700 bg-violet-900 text-white" : "border-slate-200 bg-white text-slate-950"}`}><p className={`text-sm font-semibold ${highlight ? "text-violet-100" : "text-slate-700"}`}>{title}</p><p className="mt-2 text-2xl font-bold tabular-nums">{value}</p></div>; }

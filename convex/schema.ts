@@ -868,4 +868,11 @@ eventInteractions: defineTable({
     .index("by_event", ["eventId"])
     .index("by_user", ["userId"])
     .index("by_event_user", ["eventId", "userId"]),
+  budgetPlans: defineTable({
+    eventId: v.id("events"),
+    userId: v.string(),
+    ticketPrice: v.float64(),
+    expectedTickets: v.float64(),
+    updatedAt: v.float64(),
+  }).index("by_event_user", ["eventId", "userId"]),
 });

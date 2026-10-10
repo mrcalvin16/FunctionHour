@@ -39,6 +39,7 @@ type IconName =
   | "payouts"
   | "discounts"
   | "analytics"
+  | "budget"
   | "reports"
   | "audience";
 
@@ -70,6 +71,10 @@ const navigation: NavGroup[] = [
         icon: "events",
       },
     ],
+  },
+  {
+    label: "Planning",
+    items: [{ label: "Budget Planner", description: "Event costs & projections", href: "/host/planner", icon: "budget" }],
   },
   {
     label: "Tickets",
@@ -225,6 +230,7 @@ const pageMetadata: Record<
     title: "Merch",
     description: "Manage products and merchandise",
   },
+  "/host/planner": { title: "Budget Planner", description: "Plan income and expenses for each event" },
   "/host/analytics": {
     title: "Analytics",
     description: "Track performance across your events",
@@ -741,6 +747,7 @@ function Icon({ name }: { name: IconName | string }) {
         <circle cx="8.5" cy="8.5" r="1.2" />
       </>
     ),
+    budget: (<><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8M8 11h2m4 0h2M8 15h2m4 0h2" /></>),
     analytics: (
       <>
         <path d="M12 3v9h9" />
