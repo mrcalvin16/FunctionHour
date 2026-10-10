@@ -103,7 +103,7 @@ export default function OfflineTicketDownload({
           image.onerror = () => reject(new Error("QR image could not be drawn"));
           image.src = svgUrl;
         });
-        context.drawImage(image, 194, 570, 512, 512);
+        context.drawImage(image, 220, 600, 460, 460);
       } finally {
         URL.revokeObjectURL(svgUrl);
       }
@@ -111,7 +111,7 @@ export default function OfflineTicketDownload({
       context.textAlign = "center";
       context.fillStyle = "#18181b";
       context.font = "bold 24px monospace";
-      context.fillText(ticketId.slice(-8).toUpperCase(), WIDTH / 2, 1100);
+      context.fillText(ticketId.slice(-8).toUpperCase(), WIDTH / 2, 1110);
 
       const blob = await new Promise<Blob>((resolve, reject) =>
         canvas.toBlob((result) => result ? resolve(result) : reject(new Error("Image export failed")), "image/png"),
