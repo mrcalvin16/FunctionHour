@@ -1,6 +1,32 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
+export const getPlan = query({
+  args: { eventId: v.id("events") },
+  handler: async (ctx, { eventId }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    const event = await ctx.db.get(eventId);
+    if (!event || (event.userId !== identity.subject && event.organizerId !== identity.subject)) return null;
+    return ctx.db.query("budgetPlans").withIndex("by_event_user", q => q.eq("eventId", eventId).eq("userId", identity.subject)).unique();
+  },
+});
+
+export const savePlan = mutation({
+  args: { eventId: v.id("events"), ticketPrice: v.number(), expectedTickets: v.number() },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("You must be signed in.");
+    const event = await ctx.db.get(args.eventId);
+    if (!event || (event.userId !== identity.subject && event.organizerId !== identity.subject)) throw new Error("You cannot manage this event budget.");
+    if (!Number.isFinite(args.ticketPrice) || args.ticketPrice < 0 || args.ticketPrice > 1000000 || !Number.isSafeInteger(args.expectedTickets) || args.expectedTickets < 0 || args.expectedTickets > 1000000) throw new Error("Enter a valid ticket price and whole ticket count.");
+    const existing = await ctx.db.query("budgetPlans").withIndex("by_event_user", q => q.eq("eventId", args.eventId).eq("userId", identity.subject)).unique();
+    const values = { ticketPrice: args.ticketPrice, expectedTickets: args.expectedTickets, updatedAt: Date.now() };
+    if (existing) { await ctx.db.patch(existing._id, values); return existing._id; }
+    return ctx.db.insert("budgetPlans", { ...values, eventId: args.eventId, userId: identity.subject });
+  },
+});
+
 export const getItems = query({
   args: {
     eventId: v.id("events"),
