@@ -86,8 +86,13 @@ export async function POST(req: Request) {
 
   if (event.type === "account.updated" || event.type === "account.external_account.updated") {
     const isExternalAccount = event.type === "account.external_account.updated";
+    const connectedAccountId = event.account || String((event.data.object as { account?: string }).account || "");
+    if (isExternalAccount && !connectedAccountId.startsWith("acct_")) {
+      console.error("Stripe bank update without connected account id", { eventId: event.id });
+      return NextResponse.json({ received: true });
+    }
     const account = isExternalAccount
-      ? await getStripeClient().accounts.retrieve(event.account || String((event.data.object as { account?: string }).account || ""))
+      ? await getStripeClient().accounts.retrieve(connectedAccountId)
       : event.data.object as Stripe.Account;
     const changes = event.data.previous_attributes as Record<string, unknown> | undefined;
     const sensitive = isExternalAccount || (changes && ["external_accounts", "settings", "email", "business_profile", "individual", "company", "payouts_enabled"].some(key => key in changes));
