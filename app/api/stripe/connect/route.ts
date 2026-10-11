@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { api } from "@/convex/_generated/api";
 import { getConvexClient } from "@/lib/convex";
 import { getStripeClient } from "@/lib/stripe/server";
+import { sendSecurityAlert } from "@/lib/email/securityAlert";
 
 export async function GET() {
   try {
@@ -66,6 +67,9 @@ export async function POST(request: Request) {
         name: user.fullName || undefined,
         accountId,
       });
+      try {
+        await sendSecurityAlert({ to: email, action: "A Stripe payout account was connected to your organizer profile.", idempotencyKey: "connect-created-" + accountId });
+      } catch (alertError) { console.error("Connect alert failed", { accountId, alertError }); }
     }
 
     const connectedAccount = await stripe.accounts.retrieve(accountId);
