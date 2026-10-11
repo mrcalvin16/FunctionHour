@@ -161,7 +161,8 @@ export default function EventCheckoutPage({
   const displayedTotal =
     Math.max(0, total - appliedDiscountAmount) + platformFeeAmount;
   const paidPurchase = discountedTicketSubtotal > 0 || addOnTotal > 0;
-  const taxReady = !paidPurchase || (event ? isEventTaxReviewCurrent(event) : false);
+  const taxReady = !paidPurchase || (event ? isEventTaxReviewCurrent(event) &&
+    !(event.taxPolicy?.mode === "collect" && addOnTotal > 0 && !event.taxPolicy.addOnTaxRateId) : false);
   const taxPolicy = taxReady ? event?.taxPolicy : undefined;
   const estimatedAdmissionTax = taxPolicy?.mode === "collect" && taxPolicy.ratePercentage !== undefined
     ? estimateTicketTaxCents(Math.round(discountedTicketSubtotal * 100), taxPolicy.ratePercentage) / 100
