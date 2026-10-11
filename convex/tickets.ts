@@ -143,6 +143,12 @@ export const reserveTicketsForCheckout = mutation({
     quantity: v.number(),
     addOnIds: v.optional(v.array(v.id("ticketAddOns"))),
     acceptedPurchaseTerms: v.boolean(),
+    acceptedPolicy: v.object({
+      version: v.string(),
+      refundPolicy: v.string(),
+      refundDeadline: v.string(),
+      refundContactEmail: v.string(),
+    }),
   },
   handler: async (ctx, args) => {
     requireCheckoutSecret(args.checkoutSecret);
@@ -172,6 +178,13 @@ export const reserveTicketsForCheckout = mutation({
     }
 
     requireEventSalesOpen(event);
+
+    if (args.acceptedPolicy.version !== TICKET_PURCHASE_TERMS_VERSION ||
+        args.acceptedPolicy.refundPolicy !== eventRefundPolicyText(event.refundPolicy) ||
+        args.acceptedPolicy.refundDeadline !== (event.refundDeadline?.trim() || "") ||
+        args.acceptedPolicy.refundContactEmail !== (event.refundContactEmail?.trim() || "")) {
+      throw new Error("The event's purchase terms have changed. Refresh and review them before paying.");
+    }
 
     const duplicate = await ctx.db
       .query("ticketCheckoutReservations")
