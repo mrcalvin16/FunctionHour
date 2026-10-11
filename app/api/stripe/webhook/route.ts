@@ -391,6 +391,14 @@ export async function POST(req: Request) {
       stripePaymentIntentId,
       refundedAmount: charge.amount_refunded / 100,
     });
+    const receiptEmail = charge.receipt_email || charge.billing_details?.email;
+    if (receiptEmail) {
+      await sendSecurityAlert({
+        to: receiptEmail,
+        action: "A refund of $" + (charge.amount_refunded / 100).toFixed(2) + " was recorded for your payment.",
+        idempotencyKey: "refund-" + event.id,
+      });
+    }
   }
 
   if (event.type === "charge.dispute.created" || event.type === "charge.dispute.closed") {
