@@ -1,4 +1,5 @@
 import { assertTicketPurchaseQuantity } from "./ticketPurchaseLimit";
+import { organizerTicketProceeds } from "../lib/ticketTax";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
@@ -735,6 +736,8 @@ export const recordTicketOrder = mutation({
     buyerName: v.optional(v.string()),
     currency: v.string(),
     grossAmount: v.number(),
+    taxAmount: v.optional(v.number()),
+    taxJurisdiction: v.optional(v.string()),
     platformFeeAmount: v.optional(v.number()),
     quantity: v.number(),
     paidAt: v.number(),
@@ -768,8 +771,11 @@ export const recordTicketOrder = mutation({
     }
 
     const grossAmount = Math.max(0, args.grossAmount);
+    if (!Number.isFinite(args.taxAmount ?? 0) || (args.taxAmount ?? 0) < 0 ||
+        (args.taxAmount ?? 0) > grossAmount) throw new Error("Invalid tax amount.");
+    const taxAmount = args.taxAmount ?? 0;
     const platformFeeAmount = Math.min(
-      grossAmount,
+      grossAmount - taxAmount,
       Math.max(0, args.platformFeeAmount ?? 0),
     );
     const now = Date.now();
@@ -783,9 +789,11 @@ export const recordTicketOrder = mutation({
       buyerName: args.buyerName,
       currency: args.currency.toLowerCase(),
       grossAmount,
+      taxAmount,
+      taxJurisdiction: args.taxJurisdiction,
       platformFeeAmount,
       refundedAmount: 0,
-      netAmount: Math.max(0, grossAmount - platformFeeAmount),
+      netAmount: Math.max(0, grossAmount - platformFeeAmount - taxAmount),
       quantity: Math.max(1, Math.floor(args.quantity)),
       addOns: reservation?.addOns,
       purchaseTerms: reservation?.purchaseTerms,
@@ -919,9 +927,8 @@ export const recordTicketDispute = mutation({
     if (!order) return false;
     // Hold all of this order's proceeds while disputed or after a loss.
     // A win restores only the amount still due after any separate refund.
-    const proceeds = Math.max(0, order.grossAmount - (order.platformFeeAmount ?? 0));
     const netAmount = args.outcome === "won"
-      ? Math.max(0, proceeds - Math.min(proceeds, order.refundedAmount))
+      ? organizerTicketProceeds(order)
       : 0;
     await ctx.db.patch(order._id, {
       disputeStatus: args.outcome,
@@ -955,15 +962,10 @@ export const recordTicketRefund = mutation({
       Math.max(0, args.refundedAmount),
     );
     const fullyRefunded = refundedAmount >= order.grossAmount;
-    const ticketProceeds = Math.max(
-      0,
-      order.grossAmount - (order.platformFeeAmount ?? 0),
-    );
-
     await ctx.db.patch(order._id, {
       refundedAmount,
       netAmount: order.disputeStatus === "open" || order.disputeStatus === "lost"
-        ? 0 : Math.max(0, ticketProceeds - Math.min(ticketProceeds, refundedAmount)),
+        ? 0 : organizerTicketProceeds({ ...order, refundedAmount }),
       status: fullyRefunded ? "refunded" : "partially_refunded",
       updatedAt: Date.now(),
     });
