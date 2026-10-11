@@ -117,6 +117,7 @@ export async function POST(req: Request) {
       eventId,
       tickets,
       addOnIds,
+      acceptedPurchaseTerms,
       promoCode,
       buyerEmail: submittedBuyerEmail,
       buyerName: submittedBuyerName,
@@ -126,6 +127,12 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Missing ticket checkout details." },
         { status: 400 }
+      );
+    }
+    if (acceptedPurchaseTerms !== true) {
+      return NextResponse.json(
+        { error: "Review and accept the event refund and fee terms before payment." },
+        { status: 400 },
       );
     }
     if (addOnIds !== undefined && (!Array.isArray(addOnIds) || addOnIds.length > 20 ||
@@ -215,6 +222,7 @@ export async function POST(req: Request) {
         buyerName: buyerName || undefined,
         quantity,
         addOnIds: addOnIds as Id<"ticketAddOns">[] | undefined,
+        acceptedPurchaseTerms: true,
       }
     );
 
