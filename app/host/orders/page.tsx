@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "convex/react";
 import { Download, Search, ShoppingBag } from "lucide-react";
+import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 
 export default function OrdersPage() {
@@ -34,47 +35,6 @@ export default function OrdersPage() {
     }),
     [orders],
   );
-  function exportCsv() {
-    const rows = [
-      [
-        "Order",
-        "Event",
-        "Customer",
-        "Email",
-        "Quantity",
-        "Gross",
-        "Refunded",
-        "Net",
-        "Status",
-        "Paid At",
-      ],
-      ...visible.map((order) => [
-        order.stripeCheckoutSessionId,
-        order.eventName,
-        order.buyerName ?? "",
-        order.buyerEmail,
-        order.quantity,
-        order.grossAmount,
-        order.refundedAmount,
-        order.netAmount,
-        order.status,
-        new Date(order.paidAt).toISOString(),
-      ]),
-    ];
-    const csv = rows
-      .map((row) =>
-        row
-          .map((value) => `"${String(value).replaceAll('"', '""')}"`)
-          .join(","),
-      )
-      .join("\n");
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `functionhour-orders-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -89,14 +49,7 @@ export default function OrdersPage() {
             Stripe-confirmed ticket transactions and refund reconciliation.
           </p>
         </div>
-        <button
-          type="button"
-          disabled={!visible.length}
-          onClick={exportCsv}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 text-xs font-black disabled:opacity-40"
-        >
-          <Download className="h-4 w-4" /> Export CSV
-        </button>
+        <Link href="/host/exports" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 text-xs font-black text-white"><Download className="h-4 w-4" /> Secure exports</Link>
       </div>
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <Metric label="Gross sales" value={summary.gross} />
