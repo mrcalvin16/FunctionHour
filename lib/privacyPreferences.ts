@@ -12,8 +12,17 @@ export const defaultPrivacyPreferences: PrivacyPreferences = {
   doNotSellOrShare: false,
 };
 
+export function globalPrivacyControlEnabled(): boolean {
+  return typeof navigator !== "undefined" &&
+    (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true;
+}
+
 export function getPrivacyPreferences(): PrivacyPreferences {
   if (typeof window === "undefined") return defaultPrivacyPreferences;
+
+  if (globalPrivacyControlEnabled()) {
+    return { analytics: false, doNotSellOrShare: true };
+  }
 
   try {
     const stored = window.localStorage.getItem(PRIVACY_PREFERENCES_KEY);
@@ -34,8 +43,8 @@ export function savePrivacyPreferences(
   preferences: PrivacyPreferences,
 ): void {
   const normalized: PrivacyPreferences = {
-    analytics: preferences.analytics && !preferences.doNotSellOrShare,
-    doNotSellOrShare: preferences.doNotSellOrShare,
+    analytics: preferences.analytics && !preferences.doNotSellOrShare && !globalPrivacyControlEnabled(),
+    doNotSellOrShare: preferences.doNotSellOrShare || globalPrivacyControlEnabled(),
   };
 
   window.localStorage.setItem(
