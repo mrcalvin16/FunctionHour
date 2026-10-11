@@ -7,6 +7,9 @@ import { getStripeClient } from "@/lib/stripe/server";
 import { createPrintfulOrder } from "@/lib/printful/server";
 import { sendTransactionalEmail } from "@/lib/email/server";
 import { ticketConfirmationEmail } from "@/lib/email/ticketConfirmation";
+import { clerkClient } from "@clerk/nextjs/server";
+import { getConvexClient } from "@/lib/convex";
+import { sendSecurityAlert } from "@/lib/email/securityAlert";
 
 type TicketMetadataLine = {
   ticketTypeId?: string;
@@ -80,6 +83,36 @@ export async function POST(req: Request) {
     stripeEventType: event.type,
     livemode: event.livemode,
   });
+
+  if (event.type === "account.updated" || event.type === "account.external_account.updated") {
+    const isExternalAccount = event.type === "account.external_account.updated";
+    const connectedAccountId = event.account || String((event.data.object as { account?: string }).account || "");
+    if (isExternalAccount && !connectedAccountId.startsWith("acct_")) {
+      console.error("Stripe bank update without connected account id", { eventId: event.id });
+      return NextResponse.json({ received: true });
+    }
+    const account = isExternalAccount
+      ? await getStripeClient().accounts.retrieve(connectedAccountId)
+      : event.data.object as Stripe.Account;
+    const changes = event.data.previous_attributes as Record<string, unknown> | undefined;
+    const sensitive = isExternalAccount || (changes && ["external_accounts", "settings", "email", "business_profile", "individual", "company", "payouts_enabled"].some(key => key in changes));
+    if (sensitive) {
+      const userId = account.metadata?.clerkUserId;
+      const secret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
+      if (userId && secret) {
+        const record = await getConvexClient().query(api.payouts.getConnectRecord, { serverSecret: secret, clerkId: userId });
+        if (record.accountId === account.id) {
+          const user = await (await clerkClient()).users.getUser(userId);
+          const email = user.primaryEmailAddress?.emailAddress;
+          if (email) await sendSecurityAlert({
+            to: email, action: "Your Stripe payout account information changed.",
+            idempotencyKey: "stripe-account-updated-" + event.id,
+          });
+        }
+      }
+    }
+    return NextResponse.json({ received: true });
+  }
 
   if (event.type === "checkout.session.completed") {
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -363,6 +396,14 @@ export async function POST(req: Request) {
       stripePaymentIntentId,
       refundedAmount: charge.amount_refunded / 100,
     });
+    const receiptEmail = charge.receipt_email || charge.billing_details?.email;
+    if (receiptEmail) {
+      await sendSecurityAlert({
+        to: receiptEmail,
+        action: "Refund activity was recorded for your payment. Total refunded to date: $" + (charge.amount_refunded / 100).toFixed(2) + ".",
+        idempotencyKey: "refund-" + event.id,
+      });
+    }
   }
 
   if (event.type === "charge.dispute.created" || event.type === "charge.dispute.closed") {

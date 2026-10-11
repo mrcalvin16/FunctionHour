@@ -850,6 +850,13 @@ eventInteractions: defineTable({
   }).index("by_user", ["userId"]),
 
 
+  organizerExportAudit: defineTable({
+    eventId: v.id("events"),
+    actorId: v.string(),
+    type: v.union(v.literal("attendees"), v.literal("statement")),
+    rowCount: v.number(),
+    createdAt: v.number(),
+  }).index("by_event_and_createdAt", ["eventId", "createdAt"]),
   budgetItems: defineTable({
     eventId: v.id("events"),
     userId: v.string(),

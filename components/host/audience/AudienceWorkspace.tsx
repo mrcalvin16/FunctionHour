@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useQuery } from "convex/react";
 import {
   CheckCircle2,
@@ -60,42 +61,6 @@ export default function AudienceWorkspace() {
     });
   }, [attendance, audience, eventName, search]);
 
-  function exportCsv() {
-    const headings = [
-      "Name",
-      "Email",
-      "Tickets",
-      "Checked In",
-      "Events",
-      "Ticket Types",
-      "Last Activity",
-    ];
-    const rows = visibleGuests.map((guest) => [
-      guest.name,
-      guest.email,
-      guest.ticketCount,
-      guest.checkedInCount,
-      guest.eventNames.join("; "),
-      guest.ticketTypes.join("; "),
-      new Date(guest.lastActivityAt).toISOString(),
-    ]);
-    const csv = [headings, ...rows]
-      .map((row) =>
-        row
-          .map((value) => `"${String(value).replaceAll('"', '""')}"`)
-          .join(","),
-      )
-      .join("\n");
-    const url = URL.createObjectURL(
-      new Blob([csv], { type: "text/csv;charset=utf-8" }),
-    );
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `functionhour-audience-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -111,14 +76,7 @@ export default function AudienceWorkspace() {
             event.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={exportCsv}
-          disabled={!visibleGuests.length}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 text-xs font-black transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <Download className="h-4 w-4" /> Export CSV
-        </button>
+        <Link href="/host/exports" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 text-xs font-black text-white"><Download className="h-4 w-4" /> Secure exports</Link>
       </div>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

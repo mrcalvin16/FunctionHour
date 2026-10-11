@@ -30,6 +30,7 @@ import type * as events from "../events.js";
 import type * as followedOrganizers from "../followedOrganizers.js";
 import type * as merch from "../merch.js";
 import type * as organizers from "../organizers.js";
+import type * as organizerExports from "../organizerExports.js";
 import type * as payouts from "../payouts.js";
 import type * as ranking from "../ranking.js";
 import type * as savedEvents from "../savedEvents.js";
@@ -72,6 +73,7 @@ declare const fullApi: ApiFromModules<{
   followedOrganizers: typeof followedOrganizers;
   merch: typeof merch;
   organizers: typeof organizers;
+  organizerExports: typeof organizerExports;
   payouts: typeof payouts;
   ranking: typeof ranking;
   savedEvents: typeof savedEvents;
