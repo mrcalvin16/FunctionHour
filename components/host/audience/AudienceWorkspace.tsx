@@ -76,14 +76,7 @@ export default function AudienceWorkspace() {
             event.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={exportCsv}
-          disabled={!visibleGuests.length}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 text-xs font-black transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <Download className="h-4 w-4" /> Export CSV
-        </button>
+        <Link href="/host/exports" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 text-xs font-black text-white"><Download className="h-4 w-4" /> Secure exports</Link>
       </div>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
