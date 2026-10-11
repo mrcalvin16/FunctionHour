@@ -12,6 +12,11 @@ import {
 import { requireEventCapability } from "./eventAccess";
 import { requireEventSalesOpen } from "./eventDates";
 import { isTicketEligibleForAdmission } from "./ticketAdmission";
+import {
+  eventRefundPolicyText,
+  SERVICE_FEE_REFUND_POLICY,
+  TICKET_PURCHASE_TERMS_VERSION,
+} from "../lib/ticketPurchaseTerms";
 
 const CHECKOUT_RESERVATION_MS = 32 * 60 * 1000;
 const addOnLine = v.object({
@@ -137,9 +142,14 @@ export const reserveTicketsForCheckout = mutation({
     buyerName: v.optional(v.string()),
     quantity: v.number(),
     addOnIds: v.optional(v.array(v.id("ticketAddOns"))),
+    acceptedPurchaseTerms: v.boolean(),
   },
   handler: async (ctx, args) => {
     requireCheckoutSecret(args.checkoutSecret);
+
+    if (!args.acceptedPurchaseTerms) {
+      throw new Error("Review and accept the purchase terms before checkout.");
+    }
 
     if (
       !Number.isSafeInteger(args.quantity) ||
@@ -269,6 +279,14 @@ export const reserveTicketsForCheckout = mutation({
 
     const now = Date.now();
     const expiresAt = now + CHECKOUT_RESERVATION_MS;
+    const purchaseTerms = {
+      version: TICKET_PURCHASE_TERMS_VERSION,
+      refundPolicy: eventRefundPolicyText(event.refundPolicy),
+      refundDeadline: event.refundDeadline?.trim() || undefined,
+      refundContactEmail: event.refundContactEmail?.trim() || undefined,
+      feeRefundability: SERVICE_FEE_REFUND_POLICY,
+      acceptedAt: now,
+    };
 
     await ctx.db.patch(args.eventId, {
       ticketsSold: (event.ticketsSold ?? 0) + args.quantity,
@@ -285,6 +303,7 @@ export const reserveTicketsForCheckout = mutation({
       unitPrice,
       addOns,
       status: "pending",
+      purchaseTerms,
       expiresAt,
       createdAt: now,
       updatedAt: now,
@@ -756,6 +775,7 @@ export const recordTicketOrder = mutation({
       netAmount: Math.max(0, grossAmount - platformFeeAmount),
       quantity: Math.max(1, Math.floor(args.quantity)),
       addOns: reservation?.addOns,
+      purchaseTerms: reservation?.purchaseTerms,
       discountCodeId: args.discountCodeId,
       discountAmount: Math.max(0, args.discountAmount ?? 0),
       status: "paid",
