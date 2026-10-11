@@ -153,6 +153,14 @@ eventInteractions: defineTable({
     stripeCheckoutSessionId: v.optional(v.string()),
     stripePaymentIntentId: v.optional(v.string()),
 
+    // Order-level extras are attached to the first pass for event staff.
+    addOns: v.optional(v.array(v.object({
+      addOnId: v.id("ticketAddOns"),
+      name: v.string(),
+      unitPrice: v.number(),
+      quantity: v.number(),
+    }))),
+
     // Complimentary and manually issued ticket metadata
     ticketSource: v.optional(
       v.union(
@@ -216,6 +224,12 @@ eventInteractions: defineTable({
     quantity: v.float64(),
     discountCodeId: v.optional(v.id("discountCodes")),
     discountAmount: v.optional(v.float64()),
+    addOns: v.optional(v.array(v.object({
+      addOnId: v.id("ticketAddOns"),
+      name: v.string(),
+      unitPrice: v.number(),
+      quantity: v.number(),
+    }))),
     status: v.union(
       v.literal("paid"),
       v.literal("partially_refunded"),
@@ -311,6 +325,12 @@ eventInteractions: defineTable({
     buyerName: v.optional(v.string()),
     quantity: v.float64(),
     unitPrice: v.float64(),
+    addOns: v.optional(v.array(v.object({
+      addOnId: v.id("ticketAddOns"),
+      name: v.string(),
+      unitPrice: v.number(),
+      quantity: v.number(),
+    }))),
     status: v.union(
       v.literal("pending"),
       v.literal("completed"),
@@ -545,6 +565,7 @@ eventInteractions: defineTable({
     price: v.float64(),
 
     quantity: v.optional(v.float64()),
+    sold: v.optional(v.float64()),
 
     isRequired: v.optional(v.boolean()),
     isActive: v.optional(v.boolean()),
@@ -883,3 +904,4 @@ eventInteractions: defineTable({
     updatedAt: v.float64(),
   }).index("by_event_user", ["eventId", "userId"]),
 });
+
