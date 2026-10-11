@@ -118,6 +118,7 @@ export async function POST(req: Request) {
       tickets,
       addOnIds,
       acceptedPurchaseTerms,
+      acceptedPolicy,
       promoCode,
       buyerEmail: submittedBuyerEmail,
       buyerName: submittedBuyerName,
@@ -134,6 +135,12 @@ export async function POST(req: Request) {
         { error: "Review and accept the event refund and fee terms before payment." },
         { status: 400 },
       );
+    }
+    if (!acceptedPolicy || typeof acceptedPolicy !== "object" ||
+        ["version", "refundPolicy", "refundDeadline", "refundContactEmail"].some(
+          (field) => typeof acceptedPolicy[field] !== "string" || acceptedPolicy[field].length > 5000,
+        )) {
+      return NextResponse.json({ error: "Refresh and review the event purchase terms." }, { status: 400 });
     }
     if (addOnIds !== undefined && (!Array.isArray(addOnIds) || addOnIds.length > 20 ||
         addOnIds.some((id) => typeof id !== "string") ||
@@ -223,6 +230,7 @@ export async function POST(req: Request) {
         quantity,
         addOnIds: addOnIds as Id<"ticketAddOns">[] | undefined,
         acceptedPurchaseTerms: true,
+        acceptedPolicy,
       }
     );
 
@@ -387,6 +395,7 @@ export async function POST(req: Request) {
       "not enough tickets remaining",
       "add-on is sold out",
       "required add-ons",
+      "purchase terms have changed",
       "checkout in progress",
       "checkout is already being prepared",
       "previous checkout expired",
