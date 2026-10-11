@@ -108,8 +108,8 @@ export async function POST(httpRequest: Request) {
     const email = user.primaryEmailAddress?.emailAddress;
     if (email) {
       try {
-        await sendSecurityAlert({ to: email, action: "A payout request for $" + payoutRequest.amount.toFixed(2) + " was submitted.", idempotencyKey: "payout-request-" + payoutRequest._id });
-      } catch (alertError) { console.error("Payout alert failed", { requestId: payoutRequest._id, alertError }); }
+        await sendSecurityAlert({ to: email, action: "A payout request for $" + payoutRequest.amount.toFixed(2) + " was submitted.", idempotencyKey: "payout-request-" + payoutRequest.requestId });
+      } catch (alertError) { console.error("Payout alert failed", { requestId: payoutRequest.requestId, alertError }); }
     }
     return NextResponse.json({
       success: true,
