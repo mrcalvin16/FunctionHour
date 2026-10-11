@@ -1,9 +1,10 @@
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
+import type { NextRequest } from "next/server";
 import { sendSecurityAlert } from "@/lib/email/securityAlert";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   if (!process.env.CLERK_WEBHOOK_SIGNING_SECRET) {
     return new Response("Webhook unavailable", { status: 503 });
   }
