@@ -26,6 +26,8 @@ This file records product behavior and questions for counsel and Operations. It 
 ## Dependency gate
 
 - CI checks high and critical advisories in production dependencies with `npm audit --omit=dev --audit-level=high`.
-- Review the full audit report, including low and development dependency findings, on a regular schedule. Record the advisory, affected path, fix or documented rationale, owner, and review date. Never silently waive a production high or critical finding.
+- On October 11, 2026, the updated lockfile had **zero production advisories** in `npm audit --omit=dev`. The earlier production findings in Next.js, `sharp`, and `source-map-js` were resolved by updating those packages.
+- The full audit still reported seven high and two moderate development-tool findings after nonbreaking `npm audit fix`. The remaining chains run through Tailwind CSS 3 and Next's ESLint plugin via `braces`/`micromatch`/`fast-glob`, plus `postcss-nested`/`postcss-selector-parser`. The installed `braces@3.0.3` is the latest published major-3 release and is still flagged; npm proposes a breaking Tailwind CSS 4 migration. These packages are omitted from the production audit but run in build or developer tooling. Owner: Engineering. Reassess the Tailwind migration, patched upstream releases, and the full audit before each launch milestone; do not silently waive production high or critical findings.
+- Record future advisories with the affected path, fix or rationale, owner, and review date.
 
 References: [Stripe separate charges and transfers](https://docs.stripe.com/connect/separate-charges-and-transfers), [California AG privacy opt-out guidance](https://oag.ca.gov/news/press-releases/following-data-privacy-day-attorney-general-bonta-reminds-consumers-their-right).
