@@ -228,6 +228,14 @@ html.light .organizer-shell :is(a, button)[class*="bg-violet-8"].text-white {
   color: #ffffff !important;
 }
 
+/* The budget planner uses saturated actions and a dark balance tile inside the
+   light Organizer OS. Override the shared light-text reset only in this tool. */
+html.light .organizer-shell .budget-planner button.budget-planner-action,
+html.light .organizer-shell .budget-planner .budget-planner-balance,
+html.light .organizer-shell .budget-planner .budget-planner-balance p {
+  color: #ffffff !important;
+}
+
 /* Event artwork and the selected OS navigation item keep white labels against
    their saturated backgrounds while the surrounding dashboard stays light. */
 html.light .organizer-shell .organizer-event-cover :is(p, span) {
