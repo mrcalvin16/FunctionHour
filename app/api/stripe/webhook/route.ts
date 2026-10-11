@@ -395,7 +395,7 @@ export async function POST(req: Request) {
     if (receiptEmail) {
       await sendSecurityAlert({
         to: receiptEmail,
-        action: "A refund of $" + (charge.amount_refunded / 100).toFixed(2) + " was recorded for your payment.",
+        action: "Refund activity was recorded for your payment. Total refunded to date: $" + (charge.amount_refunded / 100).toFixed(2) + ".",
         idempotencyKey: "refund-" + event.id,
       });
     }
