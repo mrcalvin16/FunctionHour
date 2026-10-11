@@ -11,6 +11,7 @@ import { isEventUpcoming } from "../../eventPresentation";
 import {
   eventRefundPolicyText,
   SERVICE_FEE_REFUND_POLICY,
+  TICKET_PURCHASE_TERMS_VERSION,
 } from "@/lib/ticketPurchaseTerms";
 
 export default function EventCheckoutPage({
@@ -171,6 +172,7 @@ export default function EventCheckoutPage({
     setMessage("");
 
     if (!isLoaded) return;
+    if (!event) { setMessage("Event details are still loading. Please try again."); return; }
     if (salesClosed) { setMessage("Ticket sales are closed or sold out for this event."); return; }
 
     if (!isSignedIn) {
@@ -229,6 +231,12 @@ export default function EventCheckoutPage({
           ],
           addOnIds: selectedAddOns.map((addOn) => addOn._id),
           acceptedPurchaseTerms,
+          acceptedPolicy: {
+            version: TICKET_PURCHASE_TERMS_VERSION,
+            refundPolicy: eventRefundPolicyText(event.refundPolicy),
+            refundDeadline: event.refundDeadline?.trim() || "",
+            refundContactEmail: event.refundContactEmail?.trim() || "",
+          },
           successPath: "/onboarding/attendee",
           cancelPath: `/events/${eventId}/checkout`,
           buyerName: buyerName.trim(),
