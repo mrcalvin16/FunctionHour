@@ -41,6 +41,7 @@ import type * as ticketAddOns from "../ticketAddOns.js";
 import type * as ticketTypes from "../ticketTypes.js";
 import type * as tickets from "../tickets.js";
 import type * as platformActivity from "../platformActivity.js";
+import type * as taxSettings from "../taxSettings.js";
 import type * as users from "../users.js";
 import type * as waitingList from "../waitingList.js";
 
@@ -84,6 +85,7 @@ declare const fullApi: ApiFromModules<{
   ticketTypes: typeof ticketTypes;
   tickets: typeof tickets;
   platformActivity: typeof platformActivity;
+  taxSettings: typeof taxSettings;
   users: typeof users;
   waitingList: typeof waitingList;
 }>;
