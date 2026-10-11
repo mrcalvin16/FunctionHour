@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PolicyPage from "@/components/legal/PolicyPage";
+import { SERVICE_FEE_REFUND_POLICY } from "@/lib/ticketPurchaseTerms";
 
 export const metadata: Metadata = {
   title: "Refund Policy",
@@ -51,10 +52,9 @@ export default function RefundPolicyPage() {
           title: "Fees and processing",
           content: (
             <p>
-              Any approved amount, treatment of platform or payment-processing fees,
-              and processing timing will be disclosed with the refund decision.
-              Banks and card issuers may require additional time to post an approved
-              refund.
+              {SERVICE_FEE_REFUND_POLICY} The amount approved is communicated
+              before processing. Banks and card issuers may require additional
+              time to post an approved refund.
             </p>
           ),
         },
