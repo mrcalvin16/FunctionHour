@@ -116,6 +116,7 @@ export async function POST(req: Request) {
     const {
       eventId,
       tickets,
+      addOnIds,
       promoCode,
       buyerEmail: submittedBuyerEmail,
       buyerName: submittedBuyerName,
@@ -126,6 +127,11 @@ export async function POST(req: Request) {
         { error: "Missing ticket checkout details." },
         { status: 400 }
       );
+    }
+    if (addOnIds !== undefined && (!Array.isArray(addOnIds) || addOnIds.length > 20 ||
+        addOnIds.some((id) => typeof id !== "string") ||
+        new Set(addOnIds).size !== addOnIds.length)) {
+      return NextResponse.json({ error: "Invalid add-on selection." }, { status: 400 });
     }
 
     checkoutStage = "authentication";
@@ -208,6 +214,7 @@ export async function POST(req: Request) {
         buyerEmail,
         buyerName: buyerName || undefined,
         quantity,
+        addOnIds: addOnIds as Id<"ticketAddOns">[] | undefined,
       }
     );
 
@@ -266,8 +273,8 @@ export async function POST(req: Request) {
       ? Math.round(ticketUnitAmount * 0.037) + 178
       : 0;
     const platformFeeAmount = (platformFeeUnitAmount * quantity) / 100;
-    const lineItems = [
-      {
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+      ...(ticketUnitAmount > 0 ? [{
         quantity,
         price_data: {
           currency: "usd",
@@ -277,7 +284,7 @@ export async function POST(req: Request) {
             description: reservation.ticketTypeDescription || "Event ticket",
           },
         },
-      },
+      }] : []),
       ...(platformFeeUnitAmount > 0
         ? [{
             quantity,
@@ -291,6 +298,17 @@ export async function POST(req: Request) {
             },
           }]
         : []),
+      ...reservation.addOns.filter((addOn) => addOn.unitPrice > 0).map((addOn) => ({
+        quantity: addOn.quantity,
+        price_data: {
+          currency: "usd",
+          unit_amount: Math.round(addOn.unitPrice * 100),
+          product_data: {
+            name: `${reservation.eventName} — ${addOn.name}`,
+            description: "Event add-on",
+          },
+        },
+      })),
     ];
 
     const successUrl = `${appUrl}/my-tickets?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
@@ -359,6 +377,8 @@ export async function POST(req: Request) {
       "Ticket type not found",
       "not currently available",
       "not enough tickets remaining",
+      "add-on is sold out",
+      "required add-ons",
       "checkout in progress",
       "checkout is already being prepared",
       "previous checkout expired",
@@ -404,3 +424,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

@@ -271,6 +271,7 @@ export async function POST(req: Request) {
           eventId: eventId as Id<"events">,
           stripeCheckoutSessionId: session.id,
           stripePaymentIntentId,
+          reservationId,
           buyerUserId,
           buyerEmail,
           buyerName,
@@ -368,6 +369,14 @@ export async function POST(req: Request) {
 
   if (event.type === "checkout.session.expired") {
     const session = event.data.object as Stripe.Checkout.Session;
+    if (session.metadata?.checkoutType === "ticket" &&
+        session.metadata.reservationId && process.env.NEXT_PUBLIC_CONVEX_URL) {
+      const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL);
+      await convex.mutation(api.tickets.releaseCheckoutReservation, {
+        checkoutSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
+        reservationId: session.metadata.reservationId,
+      });
+    }
     if (
       session.metadata?.checkoutType === "merch" &&
       process.env.NEXT_PUBLIC_CONVEX_URL
@@ -435,3 +444,4 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ received: true });
 }
+
