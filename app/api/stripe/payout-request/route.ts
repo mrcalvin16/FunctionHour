@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { api } from "@/convex/_generated/api";
 import { getConvexClient } from "@/lib/convex";
 import { getStripeClient } from "@/lib/stripe/server";
+import { sendSecurityAlert } from "@/lib/email/securityAlert";
 
 export const dynamic = "force-dynamic";
 
@@ -104,6 +105,12 @@ export async function POST(httpRequest: Request) {
         ) * 100) / 100,
       },
     );
+    const email = user.primaryEmailAddress?.emailAddress;
+    if (email) {
+      try {
+        await sendSecurityAlert({ to: email, action: "A payout request for $" + payoutRequest.amount.toFixed(2) + " was submitted.", idempotencyKey: "payout-request-" + payoutRequest._id });
+      } catch (alertError) { console.error("Payout alert failed", { requestId: payoutRequest._id, alertError }); }
+    }
     return NextResponse.json({
       success: true,
       amount: payoutRequest.amount,
