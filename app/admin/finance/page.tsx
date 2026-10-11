@@ -49,6 +49,7 @@ export default async function FinanceAdminPage() {
           Review organizer verification
         </a>
         <a href="/admin/payouts" className="ml-3 mt-4 inline-flex rounded-xl border border-violet-300 px-4 py-2 text-xs font-semibold text-violet-800 hover:bg-violet-50">View payout ledger</a>
+        <a href="/admin/ticket-tax" className="ml-3 mt-4 inline-flex rounded-xl border border-violet-300 px-4 py-2 text-xs font-semibold text-violet-800 hover:bg-violet-50">Review event taxes</a>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">
           Stripe is the source of truth for funds. Function Hour can display this balance and reconcile transfers, fees, refunds, and disputes, but does not hold money in the application database.
         </p>
@@ -75,7 +76,7 @@ export default async function FinanceAdminPage() {
         <ul className="mt-4 space-y-2 text-sm leading-6 text-zinc-600">
           <li>• Paid ticket charges land on Function Hour’s Stripe balance; organizer payout setup does not block checkout.</li>
           <li>• Organizers can request their available net ticket proceeds; Operations reviews each request before a transfer.</li>
-          <li>• Organizers remain responsible for event taxes and event-level obligations.</li>
+          <li>• Tax charged at checkout is excluded from organizer proceeds. Operations must review collection and remittance for each event jurisdiction.</li>
           <li>• Refunds, disputes, and transfers remain visible to Operations for reconciliation.</li>
           <li>• Organizers remain responsible for their tax reporting and payments.</li>
           <li>• This page is restricted to Function Hour Operations admins.</li>
