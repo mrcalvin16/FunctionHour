@@ -18,23 +18,34 @@ export default function SecureEventExports() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ eventId: selected?._id, type }),
     });
+    if (response.status === 403) {
+      const body = await response.json().catch(() => ({}));
+      // Clerk returns this hint for step-up verification. It must reach
+      // useReverification so the sign-in prompt can open and retry the request.
+      if (body.clerk_error?.reason === "reverification-error") return body;
+      throw new Error(body.error || "You do not have access to this export.");
+    }
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
       throw new Error(body.error || "Export could not be created.");
     }
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `functionhour-${type}-${selected?._id}.csv`;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    return response.blob();
   });
   async function download(type: "attendees" | "statement") {
     if (!selected || busy) return;
     setBusy(true); setError("");
-    try { await exportVerified(type); }
-    catch (error) { setError(error instanceof Error ? error.message : "Verification was cancelled."); }
+    try {
+      const result = await exportVerified(type);
+      if (!(result instanceof Blob)) return;
+      const url = URL.createObjectURL(result);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `functionhour-${type}-${selected._id}.csv`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Verification was cancelled.");
+    }
     finally { setBusy(false); }
   }
   return <section className="rounded-2xl border border-white/15 bg-white/5 p-5 text-white">
