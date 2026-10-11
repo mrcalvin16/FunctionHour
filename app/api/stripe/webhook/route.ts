@@ -84,10 +84,13 @@ export async function POST(req: Request) {
     livemode: event.livemode,
   });
 
-  if (event.type === "account.updated") {
-    const account = event.data.object as Stripe.Account;
+  if (event.type === "account.updated" || event.type === "account.external_account.updated") {
+    const isExternalAccount = event.type === "account.external_account.updated";
+    const account = isExternalAccount
+      ? await getStripeClient().accounts.retrieve(event.account || String((event.data.object as { account?: string }).account || ""))
+      : event.data.object as Stripe.Account;
     const changes = event.data.previous_attributes as Record<string, unknown> | undefined;
-    const sensitive = changes && ["external_accounts", "settings", "email", "business_profile", "individual", "company", "payouts_enabled"].some(key => key in changes);
+    const sensitive = isExternalAccount || (changes && ["external_accounts", "settings", "email", "business_profile", "individual", "company", "payouts_enabled"].some(key => key in changes));
     if (sensitive) {
       const userId = account.metadata?.clerkUserId;
       const secret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
