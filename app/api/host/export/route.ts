@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 function csvCell(value: string) {
   // Quoting alone does not prevent formula execution in spreadsheet applications.
-  const safe = /^[\\s]*[=+@-]/.test(value) ? "'" + value : value;
+  const safe = /^\s*[=+@-]/.test(value) ? "'" + value : value;
   return '"' + safe.replaceAll('"', '""') + '"';
 }
 
