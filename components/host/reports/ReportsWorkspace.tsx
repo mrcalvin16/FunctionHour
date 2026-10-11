@@ -8,7 +8,6 @@ import {
   CalendarDays,
   Download,
   Eye,
-  Printer,
   TicketCheck,
   TrendingUp,
 } from "lucide-react";
@@ -53,9 +52,6 @@ export default function ReportsWorkspace() {
           <p className="mt-2 text-sm text-zinc-500">Generate clear, exportable reports from live organizer data.</p>
         </div>
         <div className="flex gap-2 print:hidden">
-          <button type="button" onClick={() => window.print()} disabled={isLoading} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.04] px-4 text-xs font-black hover:bg-white/[0.08] disabled:opacity-40">
-            <Printer className="h-4 w-4" /> Print
-          </button>
           <Link href="/host/exports" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 text-xs font-black hover:brightness-110 disabled:opacity-40"><Download className="h-4 w-4" /> Secure exports</Link>
         </div>
       </div>
