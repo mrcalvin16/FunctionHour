@@ -230,6 +230,14 @@ eventInteractions: defineTable({
       unitPrice: v.number(),
       quantity: v.number(),
     }))),
+    purchaseTerms: v.optional(v.object({
+      version: v.string(),
+      refundPolicy: v.string(),
+      refundDeadline: v.optional(v.string()),
+      refundContactEmail: v.optional(v.string()),
+      feeRefundability: v.string(),
+      acceptedAt: v.number(),
+    })),
     status: v.union(
       v.literal("paid"),
       v.literal("partially_refunded"),
@@ -331,6 +339,14 @@ eventInteractions: defineTable({
       unitPrice: v.number(),
       quantity: v.number(),
     }))),
+    purchaseTerms: v.optional(v.object({
+      version: v.string(),
+      refundPolicy: v.string(),
+      refundDeadline: v.optional(v.string()),
+      refundContactEmail: v.optional(v.string()),
+      feeRefundability: v.string(),
+      acceptedAt: v.number(),
+    })),
     status: v.union(
       v.literal("pending"),
       v.literal("completed"),

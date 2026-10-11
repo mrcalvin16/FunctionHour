@@ -61,12 +61,12 @@ const faqs = [
   {
     question: "What about card processing?",
     answer:
-      "Function Hour creates the payment through Stripe Connect. The organizer receives the ticket price, while Function Hour retains its disclosed service fee. Stripe processing and any applicable taxes are handled within the payment flow.",
+      "Function Hour creates the payment through Stripe. The buyer sees the full charge, including the Function Hour service fee, before paying. We do not add a separate card-processing charge at checkout. Any applicable tax is shown before payment; tax reporting obligations depend on the parties and location.",
   },
   {
     question: "How do organizer payouts work?",
     answer:
-      "Buyers can purchase tickets while charges settle in Function Hour’s Stripe account. After connecting and verifying a Stripe payout account, organizers can request eligible ticket proceeds from the Payouts page. A request shows as awaiting review while Function Hour Operations checks available funds, refunds, and disputes. We do not currently promise a fixed review or transfer date. Once approved, funds transfer to the organizer’s connected Stripe account; Stripe determines the bank payout date. Contact operations@functionhour.com about a pending request. Organizers are responsible for their own taxes.",
+      "Buyers can purchase tickets while charges settle in Function Hour’s Stripe account. After connecting and verifying a Stripe payout account, organizers can request eligible ticket proceeds from the Payouts page. A request shows as awaiting review while Function Hour Operations checks available funds, refunds, and disputes. We do not currently promise a fixed review or transfer date. Once approved, funds transfer to the organizer’s connected Stripe account; Stripe determines the bank payout date. Contact operations@functionhour.com about a pending request. Organizers must report their income as applicable; Function Hour may also have separate tax and payment reporting obligations.",
   },
 ];
 
@@ -250,3 +250,4 @@ export default function OrganizerPricingPage() {
     </main>
   );
 }
+

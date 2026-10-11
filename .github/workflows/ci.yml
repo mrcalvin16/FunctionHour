@@ -48,8 +48,9 @@ jobs:
       - name: Security regression checks
         run: npm run test:security
 
-      - name: Block critical production vulnerabilities
-        run: npm audit --omit=dev --audit-level=critical
+      - name: Block high and critical production vulnerabilities
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Build application
         run: npm run build
+

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   defaultPrivacyPreferences,
   getPrivacyPreferences,
+  globalPrivacyControlEnabled,
   savePrivacyPreferences,
   type PrivacyPreferences as PreferenceValues,
 } from "@/lib/privacyPreferences";
@@ -17,6 +18,7 @@ export default function PrivacyPreferences() {
   const [mode, setMode] = useState<DialogMode>("manage");
   const [preferences, setPreferences] = useState<PreferenceValues>(defaultPrivacyPreferences);
   const [savedMessage, setSavedMessage] = useState("");
+  const [globalControl, setGlobalControl] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,6 +40,7 @@ export default function PrivacyPreferences() {
   }, [open]);
 
   function showPreferences(nextMode: DialogMode) {
+    setGlobalControl(globalPrivacyControlEnabled());
     setMode(nextMode);
     setPreferences(
       nextMode === "opt-out"
@@ -108,13 +111,14 @@ export default function PrivacyPreferences() {
             <p id="privacy-preferences-description" className="mt-4 text-sm leading-6 text-zinc-300">
               Choose how Function Hour uses optional event-view analytics in this browser. Essential account, ticketing, payment, fraud-prevention, and security functions remain on.
             </p>
+            {globalControl && <p className="mt-3 rounded-xl border border-violet-300/40 bg-violet-400/10 p-3 text-sm text-white">Your browser sends a Global Privacy Control signal. Optional event-view analytics are off while this signal is active.</p>}
 
             <div className="mt-6 space-y-4">
               <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                 <input
                   type="checkbox"
                   checked={preferences.analytics}
-                  disabled={preferences.doNotSellOrShare}
+                  disabled={preferences.doNotSellOrShare || globalControl}
                   onChange={(event) =>
                     setPreferences((current) => ({ ...current, analytics: event.target.checked }))
                   }
@@ -132,6 +136,7 @@ export default function PrivacyPreferences() {
                 <input
                   type="checkbox"
                   checked={preferences.doNotSellOrShare}
+                  disabled={globalControl}
                   onChange={(event) =>
                     setPreferences((current) => ({
                       analytics: event.target.checked ? false : current.analytics,

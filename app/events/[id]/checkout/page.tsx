@@ -8,6 +8,11 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { isEventUpcoming } from "../../eventPresentation";
+import {
+  eventRefundPolicyText,
+  SERVICE_FEE_REFUND_POLICY,
+  TICKET_PURCHASE_TERMS_VERSION,
+} from "@/lib/ticketPurchaseTerms";
 
 export default function EventCheckoutPage({
   params,
@@ -46,6 +51,7 @@ export default function EventCheckoutPage({
   const [message, setMessage] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [promoToValidate, setPromoToValidate] = useState("");
+  const [acceptedPurchaseTerms, setAcceptedPurchaseTerms] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -166,6 +172,7 @@ export default function EventCheckoutPage({
     setMessage("");
 
     if (!isLoaded) return;
+    if (!event) { setMessage("Event details are still loading. Please try again."); return; }
     if (salesClosed) { setMessage("Ticket sales are closed or sold out for this event."); return; }
 
     if (!isSignedIn) {
@@ -180,6 +187,11 @@ export default function EventCheckoutPage({
 
     if (activeTicketTypes.length > 0 && !selectedTicketType) {
       setMessage("Please select a ticket option.");
+      return;
+    }
+
+    if (Number(total) > 0 && !acceptedPurchaseTerms) {
+      setMessage("Review and accept the event refund and fee terms before payment.");
       return;
     }
 
@@ -218,6 +230,13 @@ export default function EventCheckoutPage({
             },
           ],
           addOnIds: selectedAddOns.map((addOn) => addOn._id),
+          acceptedPurchaseTerms,
+          acceptedPolicy: {
+            version: TICKET_PURCHASE_TERMS_VERSION,
+            refundPolicy: eventRefundPolicyText(event.refundPolicy),
+            refundDeadline: event.refundDeadline?.trim() || "",
+            refundContactEmail: event.refundContactEmail?.trim() || "",
+          },
           successPath: "/onboarding/attendee",
           cancelPath: `/events/${eventId}/checkout`,
           buyerName: buyerName.trim(),
@@ -500,7 +519,7 @@ export default function EventCheckoutPage({
               )}
 
               <p className="text-[11px] leading-5 text-zinc-500 dark:text-white/40">
-                Service fee: 3.7% + $1.78 per paid ticket. Card processing may apply separately.
+                Service fee: 3.7% + $1.78 per paid ticket, included in the total above. No additional card-processing charge is added at checkout.
               </p>
 
               <div className="border-t border-zinc-200 pt-4 dark:border-white/10">
@@ -513,6 +532,21 @@ export default function EventCheckoutPage({
             <p className="mt-3 text-center text-[11px] leading-5 text-zinc-500 dark:text-white/40">
               Secure payment is processed by Stripe. Organizer payout setup does not affect your purchase.
             </p>
+
+            {Number(total) > 0 && (
+              <section aria-labelledby="purchase-terms-heading" className="mt-5 rounded-2xl border border-zinc-300 bg-zinc-50 p-4 text-sm text-zinc-900 dark:border-white/20 dark:bg-white/10 dark:text-white">
+                <h2 id="purchase-terms-heading" className="font-black">Refund and fee terms</h2>
+                <p className="mt-2"><strong>Event policy:</strong> {eventRefundPolicyText(event.refundPolicy)}</p>
+                {event.refundDeadline && <p className="mt-2"><strong>Refund deadline:</strong> {event.refundDeadline}</p>}
+                {event.refundContactEmail && <p className="mt-2"><strong>Refund contact:</strong> {event.refundContactEmail}</p>}
+                <p className="mt-2">{SERVICE_FEE_REFUND_POLICY}</p>
+                <p className="mt-2">See the <Link className="font-semibold underline" href="/refund-policy" target="_blank">full refund policy</Link> and <Link className="font-semibold underline" href="/terms" target="_blank">terms of service</Link>.</p>
+                <label className="mt-4 flex items-start gap-3 font-semibold">
+                  <input type="checkbox" checked={acceptedPurchaseTerms} onChange={(e) => setAcceptedPurchaseTerms(e.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-violet-700" />
+                  I have reviewed the event refund policy and Function Hour fee terms for this purchase.
+                </label>
+              </section>
+            )}
 
             <div className="mt-6">
               {!isLoaded ? (

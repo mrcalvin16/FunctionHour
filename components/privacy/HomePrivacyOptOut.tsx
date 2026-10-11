@@ -3,14 +3,17 @@
 import { useEffect, useState } from "react";
 import {
   getPrivacyPreferences,
+  globalPrivacyControlEnabled,
   savePrivacyPreferences,
 } from "@/lib/privacyPreferences";
 
 export default function HomePrivacyOptOut() {
   const [optedOut, setOptedOut] = useState(false);
   const [message, setMessage] = useState("");
+  const [globalControl, setGlobalControl] = useState(false);
 
   useEffect(() => {
+    setGlobalControl(globalPrivacyControlEnabled());
     setOptedOut(getPrivacyPreferences().doNotSellOrShare);
   }, []);
 
@@ -23,6 +26,7 @@ export default function HomePrivacyOptOut() {
         analytics: optedOut ? false : current.analytics,
         doNotSellOrShare: optedOut,
       });
+      setOptedOut(getPrivacyPreferences().doNotSellOrShare);
       setMessage("Your choice is saved in this browser.");
     } catch {
       setMessage("We could not save your choice. Please check browser storage settings and try again.");
@@ -41,11 +45,13 @@ export default function HomePrivacyOptOut() {
           <input
             type="checkbox"
             checked={optedOut}
+            disabled={globalControl}
             onChange={(event) => { setOptedOut(event.target.checked); setMessage(""); }}
             className="mt-0.5 h-5 w-5 shrink-0 accent-violet-700"
           />
           Do not sell or share my personal information
         </label>
+        {globalControl && <p className="mt-2 text-xs font-semibold text-violet-800">Your browser’s Global Privacy Control signal keeps this choice on.</p>}
         <div className="mt-4 flex flex-wrap items-center gap-4">
           <button type="submit" className="min-h-11 rounded-full bg-zinc-950 px-6 text-sm font-black text-white hover:bg-zinc-800">
             Save my choice

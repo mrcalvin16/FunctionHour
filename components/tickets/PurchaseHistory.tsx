@@ -28,6 +28,13 @@ export default function PurchaseHistory() {
       {entry.kind === "ticket" ? <div className="mt-3 space-y-3">
         <p className="text-sm text-zinc-700">{entry.order.quantity} {entry.order.quantity === 1 ? "ticket" : "tickets"}{entry.order.refundedAmount > 0 ? ` · Refunded ${money(entry.order.refundedAmount, order.currency)}` : ""}</p>
         {(entry.order.addOns ?? []).map(addOn => <p key={addOn.addOnId} className="text-sm text-zinc-700">{addOn.name} × {addOn.quantity} · {money(addOn.unitPrice * addOn.quantity, order.currency)}</p>)}
+        {entry.order.purchaseTerms && <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-800">
+          <p className="font-bold">Refund terms accepted at purchase</p>
+          <p className="mt-1">{entry.order.purchaseTerms.refundPolicy}</p>
+          {entry.order.purchaseTerms.refundDeadline && <p className="mt-1">Deadline: {entry.order.purchaseTerms.refundDeadline}</p>}
+          <p className="mt-1">{entry.order.purchaseTerms.feeRefundability}</p>
+          <p className="mt-1 text-xs text-zinc-600">Accepted {date(entry.order.purchaseTerms.acceptedAt)} · Version {entry.order.purchaseTerms.version}</p>
+        </div>}
         <p className="text-sm text-zinc-700">{entry.order.status === "refunded" ? "This order was refunded." : entry.order.ticketCount >= entry.order.quantity ? "Your passes are available in Your tickets." : "Payment recorded. Tickets are still processing."}</p>
         <div className="flex flex-wrap gap-3">{tickets.filter(ticket => ticket.stripeCheckoutSessionId === entry.order.stripeCheckoutSessionId).map(ticket => <Link key={ticket._id} href={`/tickets/${ticket._id}`} className="inline-flex min-h-11 items-center rounded-xl border border-violet-200 bg-violet-50 px-4 text-sm font-bold text-violet-900">View ticket</Link>)}<Link href={`/events/${entry.order.eventId}`} className="inline-flex min-h-11 items-center px-2 text-sm font-bold text-zinc-800 underline underline-offset-4">View event</Link></div>
       </div> : <div className="mt-3 space-y-3">
