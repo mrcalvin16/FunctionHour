@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useQuery } from "convex/react";
 import {
   CheckCircle2,
@@ -59,42 +60,6 @@ export default function AudienceWorkspace() {
       return matchesSearch && matchesEvent && matchesAttendance;
     });
   }, [attendance, audience, eventName, search]);
-
-  function exportCsv() {
-    const headings = [
-      "Name",
-      "Email",
-      "Tickets",
-      "Checked In",
-      "Events",
-      "Ticket Types",
-      "Last Activity",
-    ];
-    const rows = visibleGuests.map((guest) => [
-      guest.name,
-      guest.email,
-      guest.ticketCount,
-      guest.checkedInCount,
-      guest.eventNames.join("; "),
-      guest.ticketTypes.join("; "),
-      new Date(guest.lastActivityAt).toISOString(),
-    ]);
-    const csv = [headings, ...rows]
-      .map((row) =>
-        row
-          .map((value) => `"${String(value).replaceAll('"', '""')}"`)
-          .join(","),
-      )
-      .join("\n");
-    const url = URL.createObjectURL(
-      new Blob([csv], { type: "text/csv;charset=utf-8" }),
-    );
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `functionhour-audience-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
 
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
