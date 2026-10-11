@@ -27,6 +27,7 @@ export default function PurchaseHistory() {
       <details className="mt-4 border-t border-zinc-200 pt-3"><summary className="cursor-pointer py-2 text-sm font-bold text-zinc-800">Order details</summary><p className="mt-2 break-all text-xs text-zinc-600">Reference: {order._id}</p>
       {entry.kind === "ticket" ? <div className="mt-3 space-y-3">
         <p className="text-sm text-zinc-700">{entry.order.quantity} {entry.order.quantity === 1 ? "ticket" : "tickets"}{entry.order.refundedAmount > 0 ? ` · Refunded ${money(entry.order.refundedAmount, order.currency)}` : ""}</p>
+        {(entry.order.addOns ?? []).map(addOn => <p key={addOn.addOnId} className="text-sm text-zinc-700">{addOn.name} × {addOn.quantity} · {money(addOn.unitPrice * addOn.quantity, order.currency)}</p>)}
         <p className="text-sm text-zinc-700">{entry.order.status === "refunded" ? "This order was refunded." : entry.order.ticketCount >= entry.order.quantity ? "Your passes are available in Your tickets." : "Payment recorded. Tickets are still processing."}</p>
         <div className="flex flex-wrap gap-3">{tickets.filter(ticket => ticket.stripeCheckoutSessionId === entry.order.stripeCheckoutSessionId).map(ticket => <Link key={ticket._id} href={`/tickets/${ticket._id}`} className="inline-flex min-h-11 items-center rounded-xl border border-violet-200 bg-violet-50 px-4 text-sm font-bold text-violet-900">View ticket</Link>)}<Link href={`/events/${entry.order.eventId}`} className="inline-flex min-h-11 items-center px-2 text-sm font-bold text-zinc-800 underline underline-offset-4">View event</Link></div>
       </div> : <div className="mt-3 space-y-3">
@@ -38,3 +39,4 @@ export default function PurchaseHistory() {
     </article>;
   })}</div>;
 }
+
