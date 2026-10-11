@@ -99,7 +99,7 @@ export default function EventCheckoutPage({
 
   const selectedAddOns = useMemo(() => {
     return activeAddOns.filter((addOn) =>
-      selectedAddOnIds.includes(addOn._id)
+      addOn.isRequired || selectedAddOnIds.includes(addOn._id)
     );
   }, [activeAddOns, selectedAddOnIds]);
 
@@ -197,6 +197,7 @@ export default function EventCheckoutPage({
         const ticketId = await createTicket({
           eventId,
           ticketTypeId: selectedTicketType?._id,
+          addOnIds: selectedAddOns.map((addOn) => addOn._id),
         });
 
         router.push(`/tickets/${ticketId}?purchase=complete`);
@@ -216,6 +217,7 @@ export default function EventCheckoutPage({
               quantity,
             },
           ],
+          addOnIds: selectedAddOns.map((addOn) => addOn._id),
           successPath: "/onboarding/attendee",
           cancelPath: `/events/${eventId}/checkout`,
           buyerName: buyerName.trim(),
@@ -384,20 +386,22 @@ export default function EventCheckoutPage({
 
                 <div className="mt-5 space-y-4">
                   {activeAddOns.map((addOn) => {
-                    const selected = selectedAddOnIds.includes(addOn._id);
+                    const selected = addOn.isRequired || selectedAddOnIds.includes(addOn._id);
+                    const soldOut = addOn.isSoldOut ||
+                      (addOn.quantity !== undefined && (addOn.sold ?? 0) >= addOn.quantity);
 
                     return (
                       <button
                         key={addOn._id}
                         type="button"
                         aria-pressed={selected}
-                        disabled={!!addOn.isSoldOut}
+                        disabled={!!addOn.isRequired || soldOut}
                         onClick={() => toggleAddOn(addOn._id)}
                         className={`w-full rounded-2xl border p-5 text-left transition ${
                           selected
                             ? "border-orange-400 bg-orange-100 text-orange-950 shadow-lg shadow-orange-500/10 hover:bg-orange-200 dark:bg-orange-500 dark:text-white dark:shadow-orange-500/20 dark:hover:bg-orange-400/20"
                             : "border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-400 dark:border-white/10 dark:bg-black dark:text-white dark:hover:border-white/30"
-                        } ${addOn.isSoldOut ? "cursor-not-allowed opacity-50" : ""}`}
+                        } ${soldOut ? "cursor-not-allowed opacity-50" : ""}`}
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div>
@@ -595,3 +599,4 @@ export default function EventCheckoutPage({
     </main>
   );
 }
+
