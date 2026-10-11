@@ -344,15 +344,135 @@ html.light .organizer-profile-counts span {
 /* The broad light-mode text override also matches support buttons. Keep
    lettering white on their saturated surfaces in every theme. */
 .chev-support .chev-primary-action,
-html.light .chev-support .chev-primary-action,
-.chev-support .chev-launcher,
-html.light .chev-support .chev-launcher {
+html.light .chev-support .chev-primary-action {
   color: #ffffff !important;
 }
 
-.chev-launcher {
-  background: linear-gradient(125deg, #4c1d95 0%, #6d28d9 58%, #c2410c 130%);
-  box-shadow: 0 10px 28px rgba(76, 29, 149, 0.3), 0 2px 8px rgba(24, 24, 27, 0.15);
+.chev-header {
+  background: linear-gradient(110deg, #fff0e7 0%, #fffaf5 52%, #f5edff 100%);
+}
+
+.chev-body {
+  background: linear-gradient(180deg, #fffdfb 0%, #ffffff 32%);
+  overscroll-behavior: contain;
+}
+
+.chev-primary-action {
+  background: linear-gradient(105deg, #9a3412, #6d28d9);
+  box-shadow: 0 7px 18px rgba(109, 40, 217, 0.16);
+}
+
+.chev-primary-action:hover {
+  filter: brightness(1.08);
+}
+
+.chev-support .chev-launcher,
+html.light .chev-support .chev-launcher {
+  color: #18181b !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 25px rgba(46, 16, 101, 0.18), 0 2px 6px rgba(24, 24, 27, 0.12);
+}
+
+.chev-launcher:hover {
+  transform: translateY(-2px);
+  border-color: #fdba74;
+  box-shadow: 0 12px 28px rgba(46, 16, 101, 0.22);
+}
+
+.chev-mascot {
+  display: grid;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  transform-origin: 50% 75%;
+}
+
+.chev-mascot--large {
+  width: 96px;
+  height: 96px;
+}
+
+.chev-mascot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.chev-mascot[data-mood="welcome"] img {
+  animation: chev-wave 850ms ease-out both;
+}
+
+.chev-mascot[data-mood="thinking"] img {
+  animation: chev-think 900ms ease-in-out infinite;
+}
+
+.chev-mascot[data-mood="responding"] img {
+  animation: chev-respond 480ms ease-out both;
+}
+
+.chev-mascot[data-mood="celebrating"] img {
+  animation: chev-celebrate 700ms ease-out both;
+}
+
+.chev-thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 64px;
+  padding: 4px 0;
+}
+
+.chev-thinking > span:not(.sr-only) {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #9a3412;
+  animation: chev-dots 850ms ease-in-out infinite alternate;
+}
+
+.chev-thinking > span:nth-child(3) { animation-delay: 130ms; }
+.chev-thinking > span:nth-child(4) { animation-delay: 260ms; }
+
+.chev-celebration .chev-mascot {
+  margin: 0 auto 8px;
+}
+
+@keyframes chev-wave {
+  0% { transform: rotate(-8deg) translateY(5px); opacity: .75; }
+  55% { transform: rotate(6deg) translateY(-3px); opacity: 1; }
+  100% { transform: rotate(0) translateY(0); opacity: 1; }
+}
+
+@keyframes chev-think {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-3px) rotate(2deg); }
+}
+
+@keyframes chev-respond {
+  from { transform: translateY(5px) scale(.97); opacity: .85; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes chev-celebrate {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  40% { transform: translateY(-8px) rotate(-5deg); }
+  70% { transform: translateY(-2px) rotate(5deg); }
+}
+
+@keyframes chev-dots {
+  to { transform: translateY(-3px); opacity: .45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chev-support *,
+  .chev-support *::before,
+  .chev-support *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }
 
 html.light .onboarding-action {

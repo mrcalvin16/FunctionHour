@@ -1,12 +1,24 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageCircle, Send, Sparkles, X } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { answerSupportQuestion, supportCategories, type SupportCategory } from "@/lib/supportFaq";
 
 const questions = ["Where are my tickets?", "How do refunds work?", "Report an event", "Where are my merch orders?"];
+
+type ChevMood = "welcome" | "thinking" | "responding" | "celebrating";
+
+function ChevMascot({ mood, size = "small" }: { mood: ChevMood; size?: "small" | "large" }) {
+  return (
+    <span className={`chev-mascot chev-mascot--${size}`} data-mood={mood} aria-hidden="true">
+      <Image src="/chev-mascot.webp" alt="" width={size === "large" ? 96 : 52}
+        height={size === "large" ? 96 : 52} sizes={size === "large" ? "96px" : "52px"} />
+    </span>
+  );
+}
 
 export default function SupportChat() {
   const pathname = usePathname();
@@ -24,11 +36,30 @@ export default function SupportChat() {
   const [submissionFailed, setSubmissionFailed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [statusPath, setStatusPath] = useState("");
+  const [mood, setMood] = useState<ChevMood>("welcome");
+  const moodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const launcherRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => () => {
+    if (moodTimer.current) clearTimeout(moodTimer.current);
+  }, []);
+
+  function closeChat() {
+    setOpen(false);
+    launcherRef.current?.focus();
+  }
+
+  function showResponse() {
+    setMood("thinking");
+    if (moodTimer.current) clearTimeout(moodTimer.current);
+    moodTimer.current = setTimeout(() => setMood("responding"), 450);
+  }
 
   function ask(value: string) {
     if (!value.trim()) return;
     setQuestion(value);
     setAnswer(answerSupportQuestion(value));
+    showResponse();
     if (/report|unsafe|scam/i.test(value)) setCategory("report_event");
     else if (/refund|cancel/i.test(value)) setCategory("refund");
     else if (/merch|shipping/i.test(value)) setCategory("merch");
@@ -40,6 +71,7 @@ export default function SupportChat() {
     event.preventDefault();
     if (busy) return;
     setBusy(true);
+    setMood("thinking");
     setNotice("");
     setSubmissionFailed(false);
     try {
@@ -54,9 +86,11 @@ export default function SupportChat() {
       setMessage("");
       setShowForm(false);
       setSubmitted(true);
+      setMood("celebrating");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Unable to submit your request.");
       setSubmissionFailed(true);
+      setMood("responding");
     } finally {
       setBusy(false);
     }
@@ -67,14 +101,23 @@ export default function SupportChat() {
   return (
     <div className={`chev-support fixed z-[70] ${isFlyerStudio ? "bottom-3 left-3" : isEventDetail ? "bottom-[calc(6.5rem+env(safe-area-inset-bottom))] right-4 sm:bottom-5 sm:right-5" : "bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 sm:bottom-5 sm:right-5"}`}>
       {open && (
-        <section aria-label="Chev support" className={`mb-3 flex w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white text-zinc-950 shadow-2xl ${isEventDetail ? "h-[min(620px,calc(100dvh-11rem))] sm:h-[min(620px,calc(100dvh-7rem))]" : "h-[min(620px,calc(100dvh-7rem))]"}`}>
-          <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
-            <div><h2 className="font-bold">Chev</h2><p className="text-xs text-zinc-700">Function Hour help</p></div>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close Chev" className="rounded-full p-2 hover:bg-zinc-100"><X size={20} /></button>
+        <section id="chev-panel" aria-label="Chev support" onKeyDown={(event) => {
+          if (event.key === "Escape") closeChat();
+        }} className={`chev-panel mb-3 flex w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[1.75rem] border border-orange-200 bg-white text-zinc-950 shadow-2xl ${isEventDetail ? "h-[min(620px,calc(100dvh-11rem))] sm:h-[min(620px,calc(100dvh-7rem))]" : "h-[min(620px,calc(100dvh-7rem))]"}`}>
+          <header className="chev-header flex items-center justify-between gap-3 border-b border-orange-100 px-4 py-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <ChevMascot mood={mood} />
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-orange-800">Function Hour support</p>
+                <h2 className="text-lg font-black leading-tight text-zinc-950">Chev <span className="ml-1 align-middle text-xs font-semibold text-zinc-700">Here to help</span></h2>
+              </div>
+            </div>
+            <button type="button" onClick={closeChat} aria-label="Close Chev" className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-zinc-200 bg-white text-zinc-950 hover:bg-orange-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><X size={20} aria-hidden="true" /></button>
           </header>
-          <div className="flex-1 space-y-4 overflow-y-auto p-4">
+          <div className="chev-body flex-1 space-y-4 overflow-y-auto p-4">
             {submitted ? (
-              <div role="status" className="rounded-2xl border border-violet-200 bg-violet-50 p-5 text-sm leading-6">
+              <div role="status" className="chev-celebration rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm leading-6">
+                <ChevMascot mood="celebrating" size="large" />
                 <h3 className="text-xl font-bold text-zinc-950">Thank you! Your request was sent.</h3>
                 <p className="mt-3 text-zinc-800">We’ll follow up by email at <strong>{email}</strong>. We aim to respond within 2 business days; timing may vary with request volume.</p>
                 {statusPath && <Link href={statusPath} className="mt-4 inline-flex rounded-xl bg-violet-700 px-4 py-2 font-bold text-white hover:bg-violet-800">Track this request →</Link>}
@@ -82,13 +125,17 @@ export default function SupportChat() {
                 <button type="button" onClick={() => { setSubmitted(false); setAnswer(null); setQuestion(""); }} className="mt-5 font-bold text-violet-800 underline underline-offset-2">Back to help</button>
               </div>
             ) : <>
-            <p className="rounded-2xl bg-violet-50 p-3 text-sm leading-6">Hi! I use Function Hour’s help pages to answer common questions. For account, payment, ticket, refund, or safety issues, you can send a request to Operations.</p>
+            <div className="chev-message flex items-start gap-3" aria-live="polite">
+              <ChevMascot mood={mood} />
+              <p className="rounded-2xl rounded-tl-sm border border-orange-100 bg-orange-50 p-3 text-sm leading-6 text-zinc-900">Hi! I use Function Hour’s help pages to answer common questions. For account, payment, ticket, refund, or safety issues, you can send a request to Operations.</p>
+            </div>
+            {mood === "thinking" && !busy && <span className="chev-thinking" role="status"><span className="sr-only">Chev is finding an answer</span><span /><span /><span /></span>}
             {!showForm && (
               <>
                 <div className="flex flex-wrap gap-2">
-                  {questions.map((item) => <button key={item} type="button" onClick={() => ask(item)} className="rounded-full border border-zinc-300 px-3 py-2 text-xs font-semibold hover:bg-zinc-100">{item}</button>)}
+                  {questions.map((item) => <button key={item} type="button" onClick={() => ask(item)} className="rounded-full border border-orange-200 bg-white px-3 py-2 text-xs font-semibold text-zinc-900 hover:border-orange-400 hover:bg-orange-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">{item}</button>)}
                 </div>
-                {answer && <div className="rounded-2xl border border-zinc-200 p-4 text-sm leading-6">
+                {answer && <div className="chev-answer rounded-2xl border border-zinc-200 bg-white p-4 text-sm leading-6" aria-live="polite">
                   <p className="font-semibold">{question}</p><p className="mt-2">{answer.text}</p>
                   <div className="mt-3 flex flex-wrap gap-2">{answer.links.map((link) => <Link key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-full bg-violet-100 px-3 py-1.5 text-xs font-bold text-violet-800">{link.label}</Link>)}</div>
                   {answer.requestHelp && <button type="button" onClick={() => { setShowForm(true); setNotice(""); }} className="mt-4 font-semibold text-violet-700 underline">Send a support request</button>}
@@ -96,9 +143,9 @@ export default function SupportChat() {
                 <form onSubmit={(event) => { event.preventDefault(); ask(question); }} className="flex gap-2">
                   <label htmlFor="chev-question" className="sr-only">Ask Chev</label>
                   <input id="chev-question" value={question} onChange={(event) => { setQuestion(event.target.value); setAnswer(null); }} maxLength={300} placeholder="Ask a question" className="min-w-0 flex-1 rounded-xl border border-zinc-300 px-3 py-2 text-sm" />
-                  <button type="submit" aria-label="Ask" className="rounded-xl bg-zinc-950 px-3 text-white"><Send size={16} /></button>
+                  <button type="submit" aria-label="Ask" className="grid min-h-11 min-w-11 place-items-center rounded-xl bg-zinc-950 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><Send size={16} /></button>
                 </form>
-                <button type="button" onClick={() => { setShowForm(true); setNotice(""); setSubmissionFailed(false); }} className="chev-primary-action w-full rounded-xl bg-violet-700 px-4 py-3 text-sm font-bold text-white hover:bg-violet-800">Contact Operations</button>
+                <button type="button" onClick={() => { setShowForm(true); setNotice(""); setSubmissionFailed(false); }} className="chev-primary-action w-full rounded-xl px-4 py-3 text-sm font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">Contact Operations</button>
               </>
             )}
             {showForm && <form onSubmit={submit} className="space-y-3 text-sm">
@@ -109,7 +156,7 @@ export default function SupportChat() {
               <label className="block font-semibold">Email for a reply<input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} maxLength={254} className="mt-1 w-full rounded-xl border border-zinc-300 p-3" /></label>
               <label className="block font-semibold">What happened?<textarea required minLength={10} maxLength={2000} rows={4} value={message} onChange={(event) => setMessage(event.target.value)} className="mt-1 w-full rounded-xl border border-zinc-300 p-3" /></label>
               <label className="sr-only">Website<input tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} /></label>
-              <div className="flex gap-2"><button type="button" onClick={() => setShowForm(false)} className="rounded-xl border border-zinc-300 px-4 py-3 font-semibold">Back</button><button type="submit" disabled={busy} className="chev-primary-action flex-1 rounded-xl bg-violet-700 px-4 py-3 font-bold text-white disabled:opacity-50">{busy ? "Sending…" : "Send request"}</button></div>
+              <div className="flex gap-2"><button type="button" onClick={() => setShowForm(false)} className="rounded-xl border border-zinc-300 px-4 py-3 font-semibold">Back</button><button type="submit" disabled={busy} className="chev-primary-action flex-1 rounded-xl px-4 py-3 font-bold text-white disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">{busy ? "Sending…" : "Send request"}</button></div>
             </form>}
             {notice && <div role="status" className="rounded-xl bg-zinc-100 p-3 text-sm font-semibold text-zinc-950">
               <p>{notice}</p>
@@ -119,9 +166,13 @@ export default function SupportChat() {
           </div>
         </section>
       )}
-      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Close Chev" : "Open Chev"} className="chev-launcher ml-auto flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold text-white shadow-xl transition-transform duration-200 hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 sm:h-14 sm:w-auto sm:gap-3 sm:px-4 sm:pr-6">
-        <span className="relative grid h-9 w-9 place-items-center rounded-full bg-white/20 ring-1 ring-white/35"><MessageCircle size={20} strokeWidth={2.2} /><Sparkles size={10} className="absolute -right-1 -top-1 text-amber-200" aria-hidden="true" /></span>
-        <span className="hidden sm:inline">Help</span>
+      <button ref={launcherRef} type="button" onClick={() => {
+        if (open) closeChat();
+        else { setMood("welcome"); setOpen(true); }
+      }} aria-controls="chev-panel" aria-expanded={open} aria-label={open ? "Close Chev" : "Open Chev, Function Hour help"}
+        className="chev-launcher ml-auto flex h-14 w-14 items-center justify-center rounded-full border border-orange-200 bg-white text-sm font-bold text-zinc-950 shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 sm:h-16 sm:w-auto sm:gap-2 sm:px-2 sm:pr-5">
+        <ChevMascot mood={open ? mood : "welcome"} />
+        <span className="hidden sm:inline">Ask Chev</span>
       </button>
     </div>
   );
