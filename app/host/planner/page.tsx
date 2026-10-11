@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
+import { downloadBudgetPdf } from "@/lib/plannerPdf";
 
 const money = (value: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 const categories = ["Venue", "Talent", "Production", "Staffing", "Security", "Marketing", "Food & beverage", "Other"];
@@ -85,6 +86,7 @@ function BudgetWorkspace({ event, userId, items, plan }: { event: Event; userId:
   const input = "w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-950 focus:border-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-200";
   const card = "rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7";
   return <div className="mt-7 space-y-6">
+    <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">Plan for {event.name}</h2><button type="button" onClick={() => downloadBudgetPdf({ event: event.name, ticketPrice: price, expectedTickets: tickets, items })} className="budget-planner-action min-h-11 rounded-xl bg-violet-700 px-5 py-3 text-sm font-bold text-white hover:bg-violet-800">Download PDF</button></div>
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <Metric title="Projected ticket income" value={money(ticketRevenue)} />
       <Metric title="Other income" value={money(otherIncome)} />
