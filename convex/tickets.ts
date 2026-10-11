@@ -14,6 +14,42 @@ import { requireEventSalesOpen } from "./eventDates";
 import { isTicketEligibleForAdmission } from "./ticketAdmission";
 
 const CHECKOUT_RESERVATION_MS = 32 * 60 * 1000;
+const addOnLine = v.object({
+  addOnId: v.id("ticketAddOns"),
+  name: v.string(),
+  unitPrice: v.number(),
+  quantity: v.number(),
+});
+
+async function selectAddOns(
+  ctx: MutationCtx,
+  eventId: Id<"events">,
+  selectedIds: Id<"ticketAddOns">[],
+) {
+  if (selectedIds.length > 20 || new Set(selectedIds).size !== selectedIds.length) {
+    throw new Error("Invalid add-on selection.");
+  }
+  const available = await ctx.db.query("ticketAddOns")
+    .withIndex("by_event", (q) => q.eq("eventId", eventId)).take(100);
+  const selected = new Set(selectedIds);
+  for (const addOn of available) {
+    if (addOn.isActive !== false && addOn.isRequired && !selected.has(addOn._id)) {
+      throw new Error("Select all required add-ons.");
+    }
+  }
+  return await Promise.all(selectedIds.map(async (id) => {
+    const addOn = await ctx.db.get(id);
+    if (!addOn || addOn.eventId !== eventId || addOn.isActive === false || addOn.isSoldOut ||
+        (addOn.quantity !== undefined && (addOn.sold ?? 0) >= addOn.quantity)) {
+      throw new Error("An add-on is sold out or unavailable.");
+    }
+    if (!Number.isFinite(addOn.price) || addOn.price < 0 ||
+        Math.abs(Math.round(addOn.price * 100) - addOn.price * 100) > 1e-6) {
+      throw new Error("An add-on has an invalid price.");
+    }
+    return { addOnId: id, name: addOn.name, unitPrice: addOn.price, quantity: 1 };
+  }));
+}
 
 type TicketIdentity = {
   subject: string;
@@ -100,6 +136,7 @@ export const reserveTicketsForCheckout = mutation({
     buyerEmail: v.string(),
     buyerName: v.optional(v.string()),
     quantity: v.number(),
+    addOnIds: v.optional(v.array(v.id("ticketAddOns"))),
   },
   handler: async (ctx, args) => {
     requireCheckoutSecret(args.checkoutSecret);
@@ -153,7 +190,9 @@ export const reserveTicketsForCheckout = mutation({
         await releaseReservation(ctx, existingReservation.reservationId);
       } else if (
         existingReservation.ticketTypeId === args.ticketTypeId &&
-        existingReservation.quantity === args.quantity
+        existingReservation.quantity === args.quantity &&
+        JSON.stringify((existingReservation.addOns ?? []).map((line) => line.addOnId).sort()) ===
+          JSON.stringify([...(args.addOnIds ?? [])].sort())
       ) {
         if (!existingReservation.stripeCheckoutSessionId) {
           throw new Error("Your checkout is already being prepared.");
@@ -166,6 +205,7 @@ export const reserveTicketsForCheckout = mutation({
           ticketTypeDescription: undefined,
           quantity: existingReservation.quantity,
           unitPrice: existingReservation.unitPrice,
+          addOns: existingReservation.addOns ?? [],
           expiresAt: existingReservation.expiresAt,
           stripeCheckoutSessionId: existingReservation.stripeCheckoutSessionId,
         };
@@ -216,8 +256,15 @@ export const reserveTicketsForCheckout = mutation({
       });
     }
 
-    if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+    const addOns = await selectAddOns(ctx, args.eventId, args.addOnIds ?? []);
+    if (!Number.isFinite(unitPrice) || unitPrice < 0 ||
+        (unitPrice === 0 && addOns.every((line) => line.unitPrice === 0))) {
       throw new Error("This ticket does not require paid checkout.");
+    }
+
+    for (const line of addOns) {
+      const addOn = await ctx.db.get(line.addOnId);
+      if (addOn) await ctx.db.patch(line.addOnId, { sold: (addOn.sold ?? 0) + 1 });
     }
 
     const now = Date.now();
@@ -236,6 +283,7 @@ export const reserveTicketsForCheckout = mutation({
       buyerName: args.buyerName,
       quantity: args.quantity,
       unitPrice,
+      addOns,
       status: "pending",
       expiresAt,
       createdAt: now,
@@ -255,6 +303,7 @@ export const reserveTicketsForCheckout = mutation({
       ticketTypeDescription,
       quantity: args.quantity,
       unitPrice,
+      addOns,
       expiresAt,
       stripeCheckoutSessionId: undefined,
     };
@@ -311,6 +360,13 @@ async function releaseReservation(ctx: MutationCtx, reservationId: string) {
     }
   }
 
+  for (const line of reservation.addOns ?? []) {
+    const addOn = await ctx.db.get(line.addOnId);
+    if (addOn) await ctx.db.patch(line.addOnId, {
+      sold: Math.max(0, (addOn.sold ?? 0) - line.quantity),
+    });
+  }
+
   await ctx.db.patch(reservation._id, {
     status: "released",
     updatedAt: Date.now(),
@@ -345,6 +401,7 @@ export const createTicket = mutation({
   args: {
     eventId: v.id("events"),
     ticketTypeId: v.optional(v.id("ticketTypes")),
+    addOnIds: v.optional(v.array(v.id("ticketAddOns"))),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -386,6 +443,15 @@ export const createTicket = mutation({
 
     requireEventSalesOpen(event);
 
+    if (event.totalTickets !== undefined && event.totalTickets > 0 &&
+        (event.ticketsSold ?? 0) >= event.totalTickets) {
+      throw new Error("There are not enough tickets remaining.");
+    }
+    const addOns = await selectAddOns(ctx, args.eventId, args.addOnIds ?? []);
+    if (addOns.some((line) => line.unitPrice > 0)) {
+      throw new Error("Paid add-ons require checkout.");
+    }
+
     let ticketTypeName: string | undefined;
     if (args.ticketTypeId) {
       const ticketType = await ctx.db.get(args.ticketTypeId);
@@ -414,7 +480,13 @@ export const createTicket = mutation({
       ticketTypeId: args.ticketTypeId,
       ticketTypeName,
       unitPrice: 0,
+      addOns,
     });
+
+    for (const line of addOns) {
+      const addOn = await ctx.db.get(line.addOnId);
+      if (addOn) await ctx.db.patch(line.addOnId, { sold: (addOn.sold ?? 0) + line.quantity });
+    }
 
     await ctx.db.patch(args.eventId, {
       ticketsSold: (event.ticketsSold ?? 0) + 1,
@@ -517,6 +589,12 @@ export const createTicketsAfterPayment = mutation({
             });
           }
         }
+        for (const line of reservation.addOns ?? []) {
+          const addOn = await ctx.db.get(line.addOnId);
+          if (addOn) await ctx.db.patch(line.addOnId, {
+            sold: (addOn.sold ?? 0) + line.quantity,
+          });
+        }
       }
 
       for (let i = 0; i < reservation.quantity; i++) {
@@ -528,6 +606,7 @@ export const createTicketsAfterPayment = mutation({
           ticketTypeId: reservation.ticketTypeId,
           ticketTypeName: reservation.ticketTypeName,
           unitPrice: reservation.unitPrice,
+          addOns: i === 0 ? reservation.addOns : undefined,
           stripeCheckoutSessionId: args.stripeCheckoutSessionId,
           stripePaymentIntentId: args.stripePaymentIntentId,
           ticketSource: "stripe",
@@ -617,6 +696,7 @@ export const recordTicketOrder = mutation({
     webhookSecret: v.string(),
     eventId: v.id("events"),
     stripeCheckoutSessionId: v.string(),
+    reservationId: v.optional(v.string()),
     stripePaymentIntentId: v.optional(v.string()),
     buyerUserId: v.optional(v.string()),
     buyerEmail: v.string(),
@@ -644,6 +724,17 @@ export const recordTicketOrder = mutation({
     const event = await ctx.db.get(args.eventId);
     if (!event) throw new Error("Event not found.");
 
+    const reservation = args.reservationId
+      ? await ctx.db.query("ticketCheckoutReservations")
+          .withIndex("by_reservationId", (q) => q.eq("reservationId", args.reservationId!))
+          .unique()
+      : null;
+    if (args.reservationId && (!reservation || reservation.status !== "completed" ||
+        reservation.eventId !== args.eventId ||
+        reservation.stripeCheckoutSessionId !== args.stripeCheckoutSessionId)) {
+      throw new Error("Ticket order does not match its completed reservation.");
+    }
+
     const grossAmount = Math.max(0, args.grossAmount);
     const platformFeeAmount = Math.min(
       grossAmount,
@@ -664,6 +755,7 @@ export const recordTicketOrder = mutation({
       refundedAmount: 0,
       netAmount: Math.max(0, grossAmount - platformFeeAmount),
       quantity: Math.max(1, Math.floor(args.quantity)),
+      addOns: reservation?.addOns,
       discountCodeId: args.discountCodeId,
       discountAmount: Math.max(0, args.discountAmount ?? 0),
       status: "paid",
@@ -844,6 +936,13 @@ export const recordTicketRefund = mutation({
     });
 
     if (!fullyRefunded || order.status === "refunded") return true;
+
+    for (const line of order.addOns ?? []) {
+      const addOn = await ctx.db.get(line.addOnId);
+      if (addOn) await ctx.db.patch(line.addOnId, {
+        sold: Math.max(0, (addOn.sold ?? 0) - line.quantity),
+      });
+    }
 
     const tickets = await ctx.db
       .query("tickets")
@@ -1264,3 +1363,4 @@ export const getAttendeesByEvent = query({
     return attendees;
   },
 });
+
