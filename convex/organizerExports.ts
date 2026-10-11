@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { requireIdentity } from "./eventAccess";
 
 export const getEventExport = query({
@@ -48,5 +48,27 @@ export const getEventExport = query({
         new Date(order.paidAt).toISOString(),
       ]),
     };
+  },
+});
+
+export const recordExport = mutation({
+  args: {
+    eventId: v.id("events"),
+    type: v.union(v.literal("attendees"), v.literal("statement")),
+    rowCount: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await requireIdentity(ctx);
+    const event = await ctx.db.get(args.eventId);
+    if (!event || (event.userId !== identity.subject && event.organizerId !== identity.subject)) {
+      throw new Error("Only the event owner can export this data.");
+    }
+    if (!Number.isSafeInteger(args.rowCount) || args.rowCount < 0 || args.rowCount > 5000) {
+      throw new Error("Invalid row count.");
+    }
+    await ctx.db.insert("organizerExportAudit", {
+      eventId: args.eventId, actorId: identity.subject,
+      type: args.type, rowCount: args.rowCount, createdAt: Date.now(),
+    });
   },
 });
