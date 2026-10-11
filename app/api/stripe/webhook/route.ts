@@ -43,38 +43,45 @@ export async function POST(req: Request) {
   }
 
   let event: Stripe.Event;
+  let signatureSource: "platform" | "connect" = "platform";
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const connectWebhookSecret = process.env.STRIPE_CONNECT_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
-    console.error(
-      "[stripe.webhook] Request rejected: signing secret is not configured",
-      {
-        ...requestContext,
-        signingSecretConfigured: false,
-      },
-    );
-    return NextResponse.json(
-      { error: "Webhook is not configured" },
-      { status: 500 },
-    );
+    console.error("[stripe.webhook] Platform signing secret is not configured", requestContext);
+    return NextResponse.json({ error: "Webhook is not configured" }, { status: 500 });
   }
 
   try {
-    event = getStripeClient().webhooks.constructEvent(
-      body,
-      signature,
-      webhookSecret,
-    );
-  } catch (error) {
-    console.error("[stripe.webhook] Signature verification failed", {
-      ...requestContext,
-      ...safeErrorDetails(error),
-      stripeSignatureHeaderPresent: true,
-      stripeSignatureHeaderLength: signature.length,
-      signingSecretConfigured: true,
-      signingSecretHasExpectedPrefix: webhookSecret.startsWith("whsec_"),
+    event = getStripeClient().webhooks.constructEvent(body, signature, webhookSecret);
+  } catch (platformError) {
+    if (!connectWebhookSecret || connectWebhookSecret === webhookSecret) {
+      console.error("[stripe.webhook] Signature verification failed", {
+        ...requestContext, ...safeErrorDetails(platformError),
+        connectSecretConfigured: Boolean(connectWebhookSecret),
+      });
+      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+    }
+    try {
+      event = getStripeClient().webhooks.constructEvent(body, signature, connectWebhookSecret);
+      signatureSource = "connect";
+    } catch (connectError) {
+      console.error("[stripe.webhook] Signature verification failed for both destinations", {
+        ...requestContext, ...safeErrorDetails(connectError),
+      });
+      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+    }
+  }
+
+  // A connected-account destination is authorized only for payout account alerts.
+  // It cannot trigger platform checkout fulfillment, refunds, or disputes.
+  if (signatureSource === "connect" &&
+      event.type !== "account.updated" &&
+      event.type !== "account.external_account.updated") {
+    console.error("[stripe.webhook] Unexpected connected-account event", {
+      eventId: event.id, eventType: event.type,
     });
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+    return NextResponse.json({ error: "Unsupported connected-account event" }, { status: 400 });
   }
 
   console.info("[stripe.webhook] Signature verified", {
