@@ -62,6 +62,11 @@ export const create = mutation({
       "manage_tickets"
     );
 
+    if (!Number.isFinite(args.price) || args.price < 0 || Math.abs(Math.round(args.price * 100) - args.price * 100) > 1e-6 ||
+        (args.quantity !== undefined && (!Number.isSafeInteger(args.quantity) || args.quantity < 1))) {
+      throw new Error("Enter a valid add-on price and quantity.");
+    }
+
     return await ctx.db.insert("ticketAddOns", {
       ...args,
       isActive: true,
@@ -88,7 +93,11 @@ export const update = mutation({
   handler: async (ctx, args) => {
     const { addOnId, ...rest } = args;
 
-    await requireAddOnAccess(ctx, addOnId);
+    const addOn = await requireAddOnAccess(ctx, addOnId);
+    if ((rest.price !== undefined && (!Number.isFinite(rest.price) || rest.price < 0 || Math.abs(Math.round(rest.price * 100) - rest.price * 100) > 1e-6)) ||
+        (rest.quantity !== undefined && (!Number.isSafeInteger(rest.quantity) || rest.quantity < Math.max(1, addOn.sold ?? 0)))) {
+      throw new Error("Enter a valid add-on price and quantity.");
+    }
 
     await ctx.db.patch(addOnId, rest);
 
@@ -131,3 +140,4 @@ export const toggleSoldOut = mutation({
     return true;
   },
 });
+
