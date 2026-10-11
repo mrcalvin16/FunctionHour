@@ -7,6 +7,9 @@ import { getStripeClient } from "@/lib/stripe/server";
 import { createPrintfulOrder } from "@/lib/printful/server";
 import { sendTransactionalEmail } from "@/lib/email/server";
 import { ticketConfirmationEmail } from "@/lib/email/ticketConfirmation";
+import { clerkClient } from "@clerk/nextjs/server";
+import { getConvexClient } from "@/lib/convex";
+import { sendSecurityAlert } from "@/lib/email/securityAlert";
 
 type TicketMetadataLine = {
   ticketTypeId?: string;
@@ -80,6 +83,28 @@ export async function POST(req: Request) {
     stripeEventType: event.type,
     livemode: event.livemode,
   });
+
+  if (event.type === "account.updated") {
+    const account = event.data.object as Stripe.Account;
+    const changes = event.data.previous_attributes as Record<string, unknown> | undefined;
+    const sensitive = changes && ["external_accounts", "settings", "email", "business_profile", "individual", "company", "payouts_enabled"].some(key => key in changes);
+    if (sensitive) {
+      const userId = account.metadata?.clerkUserId;
+      const secret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
+      if (userId && secret) {
+        const record = await getConvexClient().query(api.payouts.getConnectRecord, { serverSecret: secret, clerkId: userId });
+        if (record.accountId === account.id) {
+          const user = await (await clerkClient()).users.getUser(userId);
+          const email = user.primaryEmailAddress?.emailAddress;
+          if (email) await sendSecurityAlert({
+            to: email, action: "Your Stripe payout account information changed.",
+            idempotencyKey: "stripe-account-updated-" + event.id,
+          });
+        }
+      }
+    }
+    return NextResponse.json({ received: true });
+  }
 
   if (event.type === "checkout.session.completed") {
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
