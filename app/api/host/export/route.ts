@@ -1,5 +1,5 @@
 import { auth, reverificationErrorResponse } from "@clerk/nextjs/server";
-import { fetchQuery } from "convex/nextjs";
+import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { NextResponse } from "next/server";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -32,6 +32,8 @@ export async function POST(request: Request) {
     if (!token) return NextResponse.json({ error: "Session expired." }, { status: 401 });
     const result = await fetchQuery(api.organizerExports.getEventExport,
       { eventId: eventId as Id<"events">, type }, { token });
+    await fetchMutation(api.organizerExports.recordExport,
+      { eventId: eventId as Id<"events">, type, rowCount: result.rows.length }, { token });
     const headers = type === "attendees"
       ? ["Name", "Email", "Ticket type", "Status", "Checked in", "Purchased at"]
       : ["Order", "Customer", "Email", "Quantity", "Currency", "Gross", "Refunded", "Net", "Status", "Paid at"];
