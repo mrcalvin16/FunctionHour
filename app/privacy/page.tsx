@@ -99,6 +99,8 @@ export default function PrivacyPage() {
                 future event-view analytics from this browser. It does not remove
                 activity already recorded or change essential account, ticketing,
                 payment, fraud-prevention, or security processing.
+                We also honor a browser Global Privacy Control signal by turning
+                off optional event-view analytics in that browser.
               </p>
               <p>
                 You may also request access to, correction of, or deletion of
