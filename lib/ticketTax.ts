@@ -1,5 +1,6 @@
 export type TicketTaxPolicy = {
   mode: "collect" | "exempt";
+  collector?: "platform" | "organizer";
   taxRateId?: string;
   serviceFeeTaxRateId?: string;
   addOnTaxRateId?: string;
@@ -40,9 +41,11 @@ export function estimateTicketTaxCents(taxableCents: number, percentage: number)
 
 export function organizerTicketProceeds(order: {
   grossAmount: number; platformFeeAmount?: number; taxAmount?: number;
+  taxCollector?: "platform" | "organizer" | "none";
   refundedAmount: number;
 }): number {
-  const proceeds = Math.max(0, order.grossAmount - (order.platformFeeAmount ?? 0) - (order.taxAmount ?? 0));
+  const platformTax = order.taxCollector === "organizer" ? 0 : (order.taxAmount ?? 0);
+  const proceeds = Math.max(0, order.grossAmount - (order.platformFeeAmount ?? 0) - platformTax);
   // Stripe's aggregate refunded amount does not tell us which lines or taxes
   // were refunded. Withhold the full refund from proceeds until reconciliation
   // rather than overpaying an organizer based on a guessed tax allocation.
