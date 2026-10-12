@@ -39,14 +39,22 @@ export default function SupportChat() {
   const [mood, setMood] = useState<ChevMood>("welcome");
   const moodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
+  const restoreLauncherFocus = useRef(false);
 
   useEffect(() => () => {
     if (moodTimer.current) clearTimeout(moodTimer.current);
   }, []);
 
+  useEffect(() => {
+    if (!open && restoreLauncherFocus.current) {
+      launcherRef.current?.focus();
+      restoreLauncherFocus.current = false;
+    }
+  }, [open]);
+
   function minimizeChat() {
+    restoreLauncherFocus.current = true;
     setOpen(false);
-    launcherRef.current?.focus();
   }
 
   function closeChat() {
@@ -118,10 +126,7 @@ export default function SupportChat() {
           <header className="chev-header flex items-center justify-between gap-3 border-b border-orange-100 px-4 py-3">
             <div className="flex min-w-0 items-center gap-3">
               <ChevMascot mood={mood} />
-              <div className="min-w-0">
-                <p className="hidden min-[400px]:block text-[10px] font-black uppercase tracking-[0.16em] text-orange-800">Function Hour support</p>
-                <h2 className="text-lg font-black leading-tight text-zinc-950">Chev <span className="ml-1 hidden align-middle text-xs font-semibold text-zinc-700 min-[400px]:inline">Here to help</span></h2>
-              </div>
+              <h2 className="text-lg font-black leading-tight text-zinc-950">Chev</h2>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
               <button type="button" onClick={minimizeChat} aria-label="Minimize Chev (keep this conversation)" title="Minimize" className="chev-panel-control chev-panel-control--minimize grid h-11 w-11 place-items-center rounded-full border border-orange-300 bg-orange-50 hover:bg-orange-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><Minus size={22} strokeWidth={2.5} aria-hidden="true" /></button>
@@ -139,9 +144,8 @@ export default function SupportChat() {
                 <button type="button" onClick={() => { setSubmitted(false); setAnswer(null); setQuestion(""); }} className="mt-5 font-bold text-violet-800 underline underline-offset-2">Back to help</button>
               </div>
             ) : <>
-            <div className="chev-message flex items-start gap-3" aria-live="polite">
-              <ChevMascot mood={mood} />
-              <p className="rounded-2xl rounded-tl-sm border border-orange-100 bg-orange-50 p-3 text-sm leading-6 text-zinc-900">Hi! I use Function Hour’s help pages to answer common questions. For account, payment, ticket, refund, or safety issues, you can send a request to Operations.</p>
+            <div className="chev-message" aria-live="polite">
+              <p className="rounded-2xl border border-orange-100 bg-orange-50 p-3 text-sm leading-6 text-zinc-900">Hi, I’m Chev. I use Function Hour’s help pages to answer common questions. For account, payment, ticket, refund, or safety issues, you can send a request to Operations.</p>
             </div>
             {mood === "thinking" && !busy && <span className="chev-thinking" role="status"><span className="sr-only">Chev is finding an answer</span><span /><span /><span /></span>}
             {!showForm && (
@@ -180,14 +184,13 @@ export default function SupportChat() {
           </div>
         </section>
       )}
-      <button ref={launcherRef} type="button" onClick={() => {
-        if (open) minimizeChat();
-        else { setMood("welcome"); setOpen(true); }
-      }} aria-controls="chev-panel" aria-expanded={open} aria-label={open ? "Minimize Chev" : "Open Chev, Function Hour help"}
+      {!open && <button ref={launcherRef} type="button" onClick={() => {
+        setMood("welcome"); setOpen(true);
+      }} aria-controls="chev-panel" aria-expanded={false} aria-label="Open Chev, Function Hour help"
         className="chev-launcher ml-auto flex h-14 w-14 items-center justify-center rounded-full border border-orange-200 bg-white text-sm font-bold text-zinc-950 shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 sm:h-16 sm:w-auto sm:gap-2 sm:px-2 sm:pr-5">
-        <ChevMascot mood={open ? mood : "welcome"} />
+        <ChevMascot mood="welcome" />
         <span className="hidden sm:inline">Ask Chev</span>
-      </button>
+      </button>}
     </div>
   );
 }
