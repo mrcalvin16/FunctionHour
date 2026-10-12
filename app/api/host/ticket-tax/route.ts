@@ -63,3 +63,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not save tax settings. Try again or contact support." }, { status: 502 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const requestOrigin = new URL(request.url).origin;
+  const appOrigin = process.env.NEXT_PUBLIC_APP_URL
+    ? new URL(process.env.NEXT_PUBLIC_APP_URL).origin : requestOrigin;
+  const origin = request.headers.get("origin");
+  if (origin !== requestOrigin && origin !== appOrigin) {
+    return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+  }
+  const user = await currentUser();
+  if (!user) return NextResponse.json({ error: "Sign in to manage event taxes." }, { status: 401 });
+  const parsed = z.object({ eventId: z.string().min(1).max(100) }).safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: "Invalid event." }, { status: 400 });
+  const secret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
+  if (!secret) return NextResponse.json({ error: "Tax settings are not configured." }, { status: 503 });
+  try {
+    await getConvexClient().mutation(api.taxSettings.removeOrganizerTaxPolicy, {
+      serverSecret: secret, eventId: parsed.data.eventId as Id<"events">, organizerUserId: user.id,
+    });
+    return NextResponse.json({ saved: true }, { headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("[host.ticket-tax] Unable to remove organizer tax settings", { eventId: parsed.data.eventId, error });
+    return NextResponse.json({ error: "Could not remove the organizer tax setting." }, { status: 502 });
+  }
+}
