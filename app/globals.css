@@ -352,6 +352,30 @@ html.light .chev-support .chev-primary-action {
   background: linear-gradient(110deg, #fff0e7 0%, #fffaf5 52%, #f5edff 100%);
 }
 
+/* Keep panel controls visible even when broad light-mode icon rules apply. */
+.chev-support .chev-panel-control--minimize,
+html.light .chev-support .chev-panel-control--minimize {
+  background: #fff7ed !important;
+  border-color: #fdba74 !important;
+  color: #9a3412 !important;
+}
+.chev-support .chev-panel-control--minimize svg,
+html.light .chev-support .chev-panel-control--minimize svg {
+  color: #9a3412 !important;
+  stroke: currentColor;
+}
+.chev-support .chev-panel-control--close,
+html.light .chev-support .chev-panel-control--close {
+  background: #18181b !important;
+  border-color: #18181b !important;
+  color: #ffffff !important;
+}
+.chev-support .chev-panel-control--close svg,
+html.light .chev-support .chev-panel-control--close svg {
+  color: #ffffff !important;
+  stroke: currentColor;
+}
+
 .chev-body {
   background: linear-gradient(180deg, #fffdfb 0%, #ffffff 32%);
   overscroll-behavior: contain;

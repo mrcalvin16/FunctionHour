@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Send, X } from "lucide-react";
+import { Minus, Send, X } from "lucide-react";
 import { answerSupportQuestion, supportCategories, type SupportCategory } from "@/lib/supportFaq";
 
 const questions = ["Where are my tickets?", "How do refunds work?", "Report an event", "Where are my merch orders?"];
@@ -44,9 +44,20 @@ export default function SupportChat() {
     if (moodTimer.current) clearTimeout(moodTimer.current);
   }, []);
 
-  function closeChat() {
+  function minimizeChat() {
     setOpen(false);
     launcherRef.current?.focus();
+  }
+
+  function closeChat() {
+    minimizeChat();
+    setQuestion("");
+    setAnswer(null);
+    setShowForm(false);
+    setMessage("");
+    setNotice("");
+    setSubmitted(false);
+    setStatusPath("");
   }
 
   function showResponse() {
@@ -102,17 +113,20 @@ export default function SupportChat() {
     <div className={`chev-support fixed z-[70] ${isFlyerStudio ? "bottom-3 left-3" : isEventDetail ? "bottom-[calc(6.5rem+env(safe-area-inset-bottom))] right-4 sm:bottom-5 sm:right-5" : "bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 sm:bottom-5 sm:right-5"}`}>
       {open && (
         <section id="chev-panel" aria-label="Chev support" onKeyDown={(event) => {
-          if (event.key === "Escape") closeChat();
+          if (event.key === "Escape") minimizeChat();
         }} className={`chev-panel mb-3 flex w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[1.75rem] border border-orange-200 bg-white text-zinc-950 shadow-2xl ${isEventDetail ? "h-[min(620px,calc(100dvh-11rem))] sm:h-[min(620px,calc(100dvh-7rem))]" : "h-[min(620px,calc(100dvh-7rem))]"}`}>
           <header className="chev-header flex items-center justify-between gap-3 border-b border-orange-100 px-4 py-3">
             <div className="flex min-w-0 items-center gap-3">
               <ChevMascot mood={mood} />
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-orange-800">Function Hour support</p>
-                <h2 className="text-lg font-black leading-tight text-zinc-950">Chev <span className="ml-1 align-middle text-xs font-semibold text-zinc-700">Here to help</span></h2>
+                <p className="hidden min-[400px]:block text-[10px] font-black uppercase tracking-[0.16em] text-orange-800">Function Hour support</p>
+                <h2 className="text-lg font-black leading-tight text-zinc-950">Chev <span className="ml-1 hidden align-middle text-xs font-semibold text-zinc-700 min-[400px]:inline">Here to help</span></h2>
               </div>
             </div>
-            <button type="button" onClick={closeChat} aria-label="Close Chev" className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-zinc-200 bg-white text-zinc-950 hover:bg-orange-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><X size={20} aria-hidden="true" /></button>
+            <div className="flex shrink-0 items-center gap-1.5">
+              <button type="button" onClick={minimizeChat} aria-label="Minimize Chev (keep this conversation)" title="Minimize" className="chev-panel-control chev-panel-control--minimize grid h-11 w-11 place-items-center rounded-full border border-orange-300 bg-orange-50 hover:bg-orange-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><Minus size={22} strokeWidth={2.5} aria-hidden="true" /></button>
+              <button type="button" onClick={closeChat} aria-label="Close Chev (clear this conversation)" title="Close" className="chev-panel-control chev-panel-control--close grid h-11 w-11 place-items-center rounded-full border border-zinc-900 bg-zinc-900 hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"><X size={20} strokeWidth={2.5} aria-hidden="true" /></button>
+            </div>
           </header>
           <div className="chev-body flex-1 space-y-4 overflow-y-auto p-4">
             {submitted ? (
@@ -167,9 +181,9 @@ export default function SupportChat() {
         </section>
       )}
       <button ref={launcherRef} type="button" onClick={() => {
-        if (open) closeChat();
+        if (open) minimizeChat();
         else { setMood("welcome"); setOpen(true); }
-      }} aria-controls="chev-panel" aria-expanded={open} aria-label={open ? "Close Chev" : "Open Chev, Function Hour help"}
+      }} aria-controls="chev-panel" aria-expanded={open} aria-label={open ? "Minimize Chev" : "Open Chev, Function Hour help"}
         className="chev-launcher ml-auto flex h-14 w-14 items-center justify-center rounded-full border border-orange-200 bg-white text-sm font-bold text-zinc-950 shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 sm:h-16 sm:w-auto sm:gap-2 sm:px-2 sm:pr-5">
         <ChevMascot mood={open ? mood : "welcome"} />
         <span className="hidden sm:inline">Ask Chev</span>
