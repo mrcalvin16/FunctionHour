@@ -56,7 +56,7 @@ export default async function FinanceAdminPage() {
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="Available in Stripe" value={money(available, currency)} note="Ready for transfers or payouts" />
+        <Metric label="Available in Stripe" value={money(available, currency)} note="Includes tax reserves; review obligations before transfers" />
         <Metric label="Pending in Stripe" value={money(pending, currency)} note="Not available yet" />
         <Metric label="Organizer transfers" value={money(totals.transfers, currency)} note="Last 100 balance transactions" />
         <Metric label="Refunds + disputes" value={money(totals.refunds + totals.disputes, currency)} note="Last 100 balance transactions" />
