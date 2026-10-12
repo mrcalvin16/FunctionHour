@@ -3,6 +3,7 @@
 import { use, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ShareEventButton from "@/components/share/ShareEventButton";
+import ContactOrganizer from "@/components/organizers/ContactOrganizer";
 import { useMutation, useQuery } from "convex/react";
 import { useUser, SignInButton } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
@@ -357,12 +358,15 @@ export default function EventDetailPage({
                 </div>
               )}
 
-              <Link
-                href={`/organizers/${event.userId}`}
-                className="mt-5 inline-flex min-h-11 items-center text-sm font-bold text-violet-700 transition hover:text-violet-900"
-              >
-                View Organizer Profile →
-              </Link>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <Link
+                  href={`/organizers/${event.userId}`}
+                  className="inline-flex min-h-11 items-center text-sm font-bold text-violet-300 transition hover:text-violet-200"
+                >
+                  View Organizer Profile →
+                </Link>
+                {!event.isDemo && <ContactOrganizer organizerUserId={event.userId} organizerName={organizerName} eventId={event._id} appearance="dark" />}
+              </div>
 
               <div className="mt-6 sm:mt-8">
                 <VenueRules

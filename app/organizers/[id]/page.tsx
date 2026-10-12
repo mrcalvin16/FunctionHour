@@ -7,6 +7,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import DiscoveryNav from "@/components/DiscoveryNav";
+import ContactOrganizer from "@/components/organizers/ContactOrganizer";
 import EventImage from "@/components/events/EventImage";
 import { formatEventDate, getEventCategory, getEventLocation, getTicketListingLabel, type DiscoveryEvent } from "@/app/events/eventPresentation";
 import { ArrowUpRight, BadgeCheck, CalendarDays, Check, Globe, Instagram, MapPin, Users } from "lucide-react";
@@ -73,15 +74,18 @@ export default function OrganizerProfilePage({ params }: { params: Promise<{ id:
             <div className="-mt-12 flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-violet-100 text-3xl font-black text-violet-900 shadow-sm sm:-mt-16 sm:h-32 sm:w-32">
               {organizer.avatarUrl ? <img src={organizer.avatarUrl} alt={displayName} className="h-full w-full object-cover" /> : displayName.charAt(0).toUpperCase()}
             </div>
-            <button type="button" onClick={() => void follow()} disabled={!isLoaded || followBusy || userId === id} aria-pressed={Boolean(isFollowing)} className={`inline-flex min-h-11 items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${isFollowing ? "border border-violet-300 bg-violet-50 text-violet-900 hover:bg-violet-100" : "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-sm hover:brightness-95"}`}>
-              {isFollowing && <Check size={16} aria-hidden="true" />}{userId === id ? "Your organizer profile" : followBusy ? "Updating…" : isFollowing ? "Following" : "Follow organizer"}
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <ContactOrganizer organizerUserId={id} organizerName={displayName} />
+              <button type="button" onClick={() => void follow()} disabled={!isLoaded || followBusy || userId === id} aria-pressed={Boolean(isFollowing)} className={`inline-flex min-h-11 items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${isFollowing ? "border border-violet-300 bg-violet-50 text-violet-900 hover:bg-violet-100" : "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-sm hover:brightness-95"}`}>
+                {isFollowing && <Check size={16} aria-hidden="true" />}{userId === id ? "Your organizer profile" : followBusy ? "Updating…" : isFollowing ? "Following" : "Follow organizer"}
+              </button>
+            </div>
           </div>
           <div className="mt-5 flex items-center gap-2"><h1 id="organizer-name" className="min-w-0 break-words text-3xl font-black tracking-tight sm:text-4xl">{displayName}</h1>{organizer.isVerifiedOrganizer && <span role="img" aria-label="Verified organizer" title="Verified organizer" className="shrink-0"><BadgeCheck className="h-7 w-7 fill-blue-500 stroke-white" aria-hidden="true" /></span>}</div>
           <p className="mt-2 text-sm font-medium text-zinc-700">Organizer on Function Hour</p>
           {followError && <p role="alert" className="mt-3 text-sm font-semibold text-red-800">{followError}</p>}
           <div className="mt-6 grid grid-cols-3 divide-x divide-zinc-200 rounded-2xl border border-zinc-200 bg-zinc-50 py-4">
-            {[{ label: "Upcoming", value: events.length }, { label: "Past events", value: pastEvents.length }, { label: "Followers", value: followerCount }].map((stat) => <div key={stat.label} className="px-2 text-center"><p className="text-2xl font-black sm:text-3xl">{stat.value ?? "—"}</p><p className="mt-1 text-xs font-semibold text-zinc-700 sm:text-sm">{stat.label}</p></div>)}
+            {[{ label: "Events hosted", value: data.historyLimited ? `${allEvents.length}+` : allEvents.length }, { label: "Followers", value: followerCount }, { label: "Upcoming", value: events.length }].map((stat) => <div key={stat.label} className="px-2 text-center"><p className="text-2xl font-black sm:text-3xl">{stat.value ?? "—"}</p><p className="mt-1 text-xs font-semibold text-zinc-700 sm:text-sm">{stat.label}</p></div>)}
           </div>
         </div>
       </section>
