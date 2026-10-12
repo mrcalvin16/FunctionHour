@@ -43,11 +43,8 @@ export function organizerTicketProceeds(order: {
   refundedAmount: number;
 }): number {
   const proceeds = Math.max(0, order.grossAmount - (order.platformFeeAmount ?? 0) - (order.taxAmount ?? 0));
-  // A Stripe refund includes the tax portion. For newly taxed orders, reduce
-  // organizer proceeds in the same proportion instead of deducting tax twice.
-  if (order.taxAmount && order.grossAmount > 0) {
-    return proceeds * Math.max(0, 1 - order.refundedAmount / order.grossAmount);
-  }
-  // Preserve legacy order accounting for purchases made before tax tracking.
+  // Stripe's aggregate refunded amount does not tell us which lines or taxes
+  // were refunded. Withhold the full refund from proceeds until reconciliation
+  // rather than overpaying an organizer based on a guessed tax allocation.
   return Math.max(0, proceeds - Math.min(proceeds, order.refundedAmount));
 }
