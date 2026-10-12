@@ -119,8 +119,8 @@ export default function SupportChat() {
             <div className="flex min-w-0 items-center gap-3">
               <ChevMascot mood={mood} />
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-orange-800">Function Hour support</p>
-                <h2 className="text-lg font-black leading-tight text-zinc-950">Chev <span className="ml-1 align-middle text-xs font-semibold text-zinc-700">Here to help</span></h2>
+                <p className="hidden min-[400px]:block text-[10px] font-black uppercase tracking-[0.16em] text-orange-800">Function Hour support</p>
+                <h2 className="text-lg font-black leading-tight text-zinc-950">Chev <span className="ml-1 hidden align-middle text-xs font-semibold text-zinc-700 min-[400px]:inline">Here to help</span></h2>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
