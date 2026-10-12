@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -148,6 +149,7 @@ export default function HostEventTicketsPage({
             Configure paid ticket tiers, VIP packages, sections, parking, merch
             bundles, and event extras for {event.name}.
           </p>
+          <Link href={`/host/events/${id}/tax`} className="mt-4 inline-flex rounded-xl border border-violet-400 px-4 py-2 text-sm font-bold text-violet-200 hover:bg-violet-500/10">Organizer tax settings →</Link>
         </div>
 
         {message && (
