@@ -39,6 +39,20 @@ export const setOrganizerTaxPolicy = mutation({
   },
 });
 
+export const removeOrganizerTaxPolicy = mutation({
+  args: { serverSecret: v.string(), eventId: v.id("events"), organizerUserId: v.string() },
+  handler: async (ctx, args) => {
+    const secret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
+    if (!secret || args.serverSecret !== secret) throw new Error("Unauthorized tax settings.");
+    const event = await ctx.db.get(args.eventId);
+    if (!event || (event.userId !== args.organizerUserId && event.organizerId !== args.organizerUserId)) {
+      throw new Error("Event owner not found.");
+    }
+    if (event.taxPolicy?.collector !== "organizer") throw new Error("No organizer tax policy to remove.");
+    await ctx.db.patch(args.eventId, { taxPolicy: undefined });
+  },
+});
+
 // Only the Operations API can call this with the server-side secret. Organizer
 // event edits never authorize a tax exemption or a tax rate.
 export const setEventTaxPolicy = mutation({
