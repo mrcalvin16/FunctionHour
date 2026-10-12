@@ -46,15 +46,15 @@ export default function TicketTaxReviewPage() {
           reason: reason.trim() }),
       });
       const data = await response.json();
-      setResult(response.ok ? "Tax review saved. Paid checkout can use this venue policy." : (data.error || "Review failed."));
+      setResult(response.ok ? "Function Hour collection policy saved for this venue." : (data.error || "Review failed."));
     } catch { setResult("Could not reach the review service."); }
     finally { setBusy(false); }
   }
 
   return <main className="mx-auto max-w-2xl px-5 py-10 text-zinc-950">
     <Link href="/admin/finance" className="text-sm font-semibold text-violet-800">← Finance</Link>
-    <h1 className="mt-4 text-3xl font-bold">Ticket tax review</h1>
-    <p className="mt-3 text-sm leading-6 text-zinc-700">Review each in-person event venue with your tax adviser before enabling paid checkout. Enter a verified exclusive Stripe tax rate for admission. Enter a separate service fee rate when that fee is taxable. Paid add-ons require their own reviewed rate. Document untaxed fee treatment or exemptions in the basis. This setting does not file or remit taxes.</p>
+    <h1 className="mt-4 text-3xl font-bold">Function Hour tax collection</h1>
+    <p className="mt-3 text-sm leading-6 text-zinc-700">Configure Function Hour collection when it applies to this event. This overrides organizer tax settings. Paid checkout does not wait for an event review. Enter separate rates for the service fee or add-ons when applicable. Stripe manual rates calculate tax; they do not file or remit it.</p>
     <form onSubmit={save} className="mt-6 space-y-5 rounded-2xl border border-zinc-300 bg-white p-6 shadow-sm">
       <label className="block text-sm font-semibold">Event ID<input required value={eventId} onChange={e => { setEventId(e.target.value); setPreview(null); }} className="mt-2 w-full rounded-lg border border-zinc-400 p-3" /></label>
       <button type="button" disabled={busy || !eventId.trim()} onClick={loadEvent} className="rounded-xl border border-violet-700 px-4 py-2 font-semibold text-violet-800 disabled:opacity-50">Load event venue</button>
