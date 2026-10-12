@@ -161,9 +161,8 @@ export default function EventCheckoutPage({
   const displayedTotal =
     Math.max(0, total - appliedDiscountAmount) + platformFeeAmount;
   const paidPurchase = discountedTicketSubtotal > 0 || addOnTotal > 0;
-  const taxReady = !paidPurchase || (event ? isEventTaxReviewCurrent(event) &&
-    !(event.taxPolicy?.mode === "collect" && addOnTotal > 0 && !event.taxPolicy.addOnTaxRateId) : false);
-  const taxPolicy = taxReady ? event?.taxPolicy : undefined;
+  const taxSettingsStale = Boolean(event?.taxPolicy && !isEventTaxReviewCurrent(event));
+  const taxPolicy = taxSettingsStale ? undefined : event?.taxPolicy;
   const estimatedAdmissionTax = taxPolicy?.mode === "collect" && taxPolicy.ratePercentage !== undefined
     ? estimateTicketTaxCents(Math.round(discountedTicketSubtotal * 100), taxPolicy.ratePercentage) / 100
     : 0;
@@ -171,7 +170,7 @@ export default function EventCheckoutPage({
     ? null : 0;
   // An add-on may be merchandise and have a different rate. Stripe presents
   // its verified tax and final total before the buyer confirms payment.
-  const addOnTaxPending = taxPolicy?.mode === "collect" && addOnTotal > 0;
+  const addOnTaxPending = Boolean(taxPolicy?.mode === "collect" && taxPolicy.addOnTaxRateId && addOnTotal > 0);
 
   function toggleAddOn(addOnId: string) {
     setSelectedAddOnIds((current) =>
@@ -531,7 +530,8 @@ export default function EventCheckoutPage({
                 </div>
               )}
 
-              {paidPurchase && !taxReady && <p role="status" className="text-sm font-semibold text-amber-800">Ticket tax review is pending. Paid checkout will be available after Operations completes the venue review.</p>}
+              {taxSettingsStale && <p role="status" className="text-sm font-semibold text-amber-800">The venue changed. The organizer needs to update the tax settings before checkout.</p>}
+
               {taxPolicy?.mode === "collect" && <div className="flex justify-between gap-4 text-sm"><span>Estimated admission tax</span><span>${estimatedAdmissionTax.toFixed(2)}</span></div>}
               {estimatedFeeTax === null && <p className="text-xs text-zinc-700">Service fee tax is calculated at Stripe checkout.</p>}
               {addOnTaxPending && <p className="text-xs text-zinc-700">Add-on tax is calculated at Stripe checkout.</p>}
@@ -626,7 +626,7 @@ export default function EventCheckoutPage({
                   <button
                     data-cta="ticket_checkout"
                     onClick={handleReserveTicket}
-                    disabled={submitting || !taxReady}
+                    disabled={submitting || taxSettingsStale}
                     className="mt-3 min-h-12 w-full rounded-2xl bg-white px-5 py-4 font-black text-black hover:bg-zinc-200 disabled:opacity-50"
                   >
                     {submitting
