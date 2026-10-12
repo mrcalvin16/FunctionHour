@@ -177,6 +177,10 @@ export async function POST(request: Request) {
       buyerUserId: session.metadata.buyerUserId || undefined,
       buyerEmail, buyerName: session.metadata.buyerName || undefined,
       currency: session.currency || "usd", grossAmount: (session.amount_total ?? 0) / 100,
+      taxAmount: (session.total_details?.amount_tax ?? 0) / 100,
+      taxCollector: session.metadata.taxCollector === "organizer" ? "organizer" :
+        session.metadata.taxCollector === "none" ? "none" : "platform",
+      taxJurisdiction: session.metadata.taxJurisdiction || undefined,
       platformFeeAmount: Number(session.metadata.platformFeeAmount || 0),
       quantity: selection.quantity, paidAt: session.created * 1000,
       discountCodeId: session.metadata.discountCodeId

@@ -6,6 +6,7 @@ import { getConvexClient } from "@/lib/convex";
 import { getStripeClient } from "@/lib/stripe/server";
 import { createHash } from "node:crypto";
 import Stripe from "stripe";
+import { isEventTaxReviewCurrent } from "@/lib/ticketTax";
 
 type CheckoutTicketRequest = {
   ticketTypeId?: string;
@@ -204,6 +205,7 @@ export async function POST(req: Request) {
         { status: 409 },
       );
     }
+    // In-person admissions use the venue's configured tax treatment.
     const checkoutSecret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
     if (!checkoutSecret) {
       return NextResponse.json(
@@ -275,6 +277,22 @@ export async function POST(req: Request) {
 
     const validDiscount = discount?.valid === true ? discount : null;
     const checkoutTotal = validDiscount?.finalTotal ?? ticketSubtotal;
+    if (checkoutEvent.taxPolicy && !isEventTaxReviewCurrent(checkoutEvent)) {
+      await releaseReservationSafely(activeReservationId, checkoutSecret);
+      return NextResponse.json({ error: "The event venue changed. The organizer needs to update the tax settings before checkout." }, { status: 409 });
+    }
+    const taxPolicy = checkoutEvent.taxPolicy;
+    const taxRateId = taxPolicy?.mode === "collect" ? taxPolicy.taxRateId : undefined;
+    for (const rateId of [taxRateId, taxPolicy?.serviceFeeTaxRateId, taxPolicy?.addOnTaxRateId].filter((id): id is string => Boolean(id))) {
+      const rate = await getStripeClient().taxRates.retrieve(rateId);
+      if (!rate.active || rate.inclusive ||
+          (rateId === taxRateId && rate.percentage !== taxPolicy?.ratePercentage) ||
+          (rate.country && rate.country !== "US") ||
+          (rate.state && rate.state.toUpperCase() !== checkoutEvent.state?.trim().toUpperCase())) {
+        await releaseReservationSafely(activeReservationId, checkoutSecret);
+        return NextResponse.json({ error: "The configured tax rate is unavailable. Please contact the organizer." }, { status: 409 });
+      }
+    }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -292,6 +310,7 @@ export async function POST(req: Request) {
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       ...(ticketUnitAmount > 0 ? [{
         quantity,
+        ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
         price_data: {
           currency: "usd",
           unit_amount: ticketUnitAmount,
@@ -304,6 +323,7 @@ export async function POST(req: Request) {
       ...(platformFeeUnitAmount > 0
         ? [{
             quantity,
+            ...(taxPolicy?.serviceFeeTaxRateId ? { tax_rates: [taxPolicy.serviceFeeTaxRateId] } : {}),
             price_data: {
               currency: "usd",
               unit_amount: platformFeeUnitAmount,
@@ -316,6 +336,7 @@ export async function POST(req: Request) {
         : []),
       ...reservation.addOns.filter((addOn) => addOn.unitPrice > 0).map((addOn) => ({
         quantity: addOn.quantity,
+        ...(taxPolicy?.addOnTaxRateId ? { tax_rates: [taxPolicy.addOnTaxRateId] } : {}),
         price_data: {
           currency: "usd",
           unit_amount: Math.round(addOn.unitPrice * 100),
@@ -357,6 +378,8 @@ export async function POST(req: Request) {
           discountCode: validDiscount?.code ?? "",
           discountAmount: String(validDiscount?.discountAmount ?? 0),
           platformFeeAmount: String(platformFeeAmount),
+          taxJurisdiction: taxPolicy ? `${checkoutEvent.city}, ${checkoutEvent.state} ${taxPolicy.venuePostalCode}` : "",
+          taxCollector: taxPolicy?.mode === "collect" ? (taxPolicy.collector || "platform") : "none",
         },
         payment_intent_data: {
           receipt_email: buyerEmail,
