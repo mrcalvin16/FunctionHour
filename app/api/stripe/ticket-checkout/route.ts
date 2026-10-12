@@ -205,8 +205,7 @@ export async function POST(req: Request) {
         { status: 409 },
       );
     }
-    // A buyer can live anywhere in the US. For an in-person admission, this
-    // review is keyed to the event venue and must be renewed after a move.
+    // In-person admissions use the venue's configured tax treatment.
     const checkoutSecret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
     if (!checkoutSecret) {
       return NextResponse.json(
@@ -278,18 +277,12 @@ export async function POST(req: Request) {
 
     const validDiscount = discount?.valid === true ? discount : null;
     const checkoutTotal = validDiscount?.finalTotal ?? ticketSubtotal;
-    const hasPaidAddOns = reservation.addOns.some((addOn) => addOn.unitPrice > 0);
-    if ((checkoutTotal > 0 || hasPaidAddOns) && !isEventTaxReviewCurrent(checkoutEvent)) {
+    if (checkoutEvent.taxPolicy && !isEventTaxReviewCurrent(checkoutEvent)) {
       await releaseReservationSafely(activeReservationId, checkoutSecret);
-      return NextResponse.json({ error: "Ticket tax settings for this event are awaiting review. Please contact the organizer." }, { status: 409 });
+      return NextResponse.json({ error: "The event venue changed. The organizer needs to update the tax settings before checkout." }, { status: 409 });
     }
     const taxPolicy = checkoutEvent.taxPolicy;
     const taxRateId = taxPolicy?.mode === "collect" ? taxPolicy.taxRateId : undefined;
-    if (taxPolicy?.mode === "collect" && hasPaidAddOns &&
-        !taxPolicy.addOnTaxRateId) {
-      await releaseReservationSafely(activeReservationId, checkoutSecret);
-      return NextResponse.json({ error: "Add-on tax settings are awaiting review for this event." }, { status: 409 });
-    }
     for (const rateId of [taxRateId, taxPolicy?.serviceFeeTaxRateId, taxPolicy?.addOnTaxRateId].filter((id): id is string => Boolean(id))) {
       const rate = await getStripeClient().taxRates.retrieve(rateId);
       if (!rate.active || rate.inclusive ||
@@ -297,7 +290,7 @@ export async function POST(req: Request) {
           (rate.country && rate.country !== "US") ||
           (rate.state && rate.state.toUpperCase() !== checkoutEvent.state?.trim().toUpperCase())) {
         await releaseReservationSafely(activeReservationId, checkoutSecret);
-        return NextResponse.json({ error: "Event tax settings changed and need Operations review." }, { status: 409 });
+        return NextResponse.json({ error: "The configured tax rate is unavailable. Please contact the organizer." }, { status: 409 });
       }
     }
 
@@ -386,7 +379,7 @@ export async function POST(req: Request) {
           discountAmount: String(validDiscount?.discountAmount ?? 0),
           platformFeeAmount: String(platformFeeAmount),
           taxJurisdiction: taxPolicy ? `${checkoutEvent.city}, ${checkoutEvent.state} ${taxPolicy.venuePostalCode}` : "",
-          taxReviewMode: taxPolicy?.mode || "free",
+          taxCollector: taxPolicy?.mode === "collect" ? (taxPolicy.collector || "platform") : "none",
         },
         payment_intent_data: {
           receipt_email: buyerEmail,
