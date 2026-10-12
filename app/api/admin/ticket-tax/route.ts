@@ -6,11 +6,13 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
 import { getConvexClient } from "@/lib/convex";
 import { getStripeClient } from "@/lib/stripe/server";
+import { eventTaxLocationKey } from "@/lib/ticketTax";
 
 export const dynamic = "force-dynamic";
 
 const input = z.object({
   eventId: z.string().min(1),
+  venueConfirmation: z.string().min(1),
   venuePostalCode: z.string().regex(/^\d{5}(?:-\d{4})?$/),
   mode: z.enum(["collect", "exempt"]),
   taxRateId: z.string().regex(/^txr_[A-Za-z0-9]+$/).optional(),
@@ -18,6 +20,28 @@ const input = z.object({
   addOnTaxRateId: z.string().regex(/^txr_[A-Za-z0-9]+$/).optional(),
   reason: z.string().trim().min(10).max(500),
 });
+
+export async function GET(request: Request) {
+  if (!(await hasFunctionHourAdminAccess())) {
+    return NextResponse.json({ error: "Not authorized." }, { status: 403 });
+  }
+  const eventId = new URL(request.url).searchParams.get("eventId")?.trim();
+  if (!eventId || eventId.length > 100) {
+    return NextResponse.json({ error: "Enter an event ID." }, { status: 400 });
+  }
+  try {
+    const event = await getConvexClient().query(api.events.getById, { eventId: eventId as Id<"events"> });
+    if (!event || event.isDemo) return NextResponse.json({ error: "Event not found." }, { status: 404 });
+    return NextResponse.json({ event: { id: eventId, name: event.name,
+      venueName: event.venueName || null, venueAddress: event.venueAddress || null,
+      city: event.city || null, state: event.state || null,
+      venueConfirmation: eventTaxLocationKey(event),
+      reviewed: event.taxPolicy?.reviewedAt || null,
+    } }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return NextResponse.json({ error: "Unable to load this event." }, { status: 502 });
+  }
+}
 
 export async function POST(request: Request) {
   const requestOrigin = new URL(request.url).origin;
@@ -32,7 +56,7 @@ export async function POST(request: Request) {
   }
   const parsed = input.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Complete the tax review fields." }, { status: 400 });
-  const { eventId, mode, taxRateId, serviceFeeTaxRateId, addOnTaxRateId, venuePostalCode, reason } = parsed.data;
+  const { eventId, venueConfirmation, mode, taxRateId, serviceFeeTaxRateId, addOnTaxRateId, venuePostalCode, reason } = parsed.data;
   if ((mode === "collect" && !taxRateId) || (mode === "exempt" && (taxRateId || serviceFeeTaxRateId || addOnTaxRateId))) {
     return NextResponse.json({ error: "Select a rate for collection or no rates for an exemption." }, { status: 400 });
   }
@@ -41,6 +65,9 @@ export async function POST(request: Request) {
     const event = await convex.query(api.events.getById, { eventId: eventId as Id<"events"> });
     if (!event || event.isDemo || !event.venueAddress || !event.city || !event.state) {
       return NextResponse.json({ error: "Complete the event venue before tax review." }, { status: 409 });
+    }
+    if (venueConfirmation !== eventTaxLocationKey(event)) {
+      return NextResponse.json({ error: "The venue changed since preview. Load the event again." }, { status: 409 });
     }
     let ratePercentage: number | undefined;
     for (const rateId of [taxRateId, serviceFeeTaxRateId, addOnTaxRateId].filter((id): id is string => Boolean(id))) {
