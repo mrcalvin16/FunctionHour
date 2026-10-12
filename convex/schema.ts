@@ -110,6 +110,7 @@ eventInteractions: defineTable({
     state: v.optional(v.string()),
     taxPolicy: v.optional(v.object({
       mode: v.union(v.literal("collect"), v.literal("exempt")),
+      collector: v.optional(v.union(v.literal("platform"), v.literal("organizer"))),
       taxRateId: v.optional(v.string()),
       serviceFeeTaxRateId: v.optional(v.string()),
       addOnTaxRateId: v.optional(v.string()),
@@ -230,6 +231,7 @@ eventInteractions: defineTable({
     currency: v.string(),
     grossAmount: v.float64(),
     taxAmount: v.optional(v.float64()),
+    taxCollector: v.optional(v.union(v.literal("platform"), v.literal("organizer"), v.literal("none"))),
     taxJurisdiction: v.optional(v.string()),
     platformFeeAmount: v.optional(v.float64()),
     refundedAmount: v.float64(),
