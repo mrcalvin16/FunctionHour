@@ -737,6 +737,7 @@ export const recordTicketOrder = mutation({
     currency: v.string(),
     grossAmount: v.number(),
     taxAmount: v.optional(v.number()),
+    taxCollector: v.optional(v.union(v.literal("platform"), v.literal("organizer"), v.literal("none"))),
     taxJurisdiction: v.optional(v.string()),
     platformFeeAmount: v.optional(v.number()),
     quantity: v.number(),
@@ -775,7 +776,7 @@ export const recordTicketOrder = mutation({
         (args.taxAmount ?? 0) > grossAmount) throw new Error("Invalid tax amount.");
     const taxAmount = args.taxAmount ?? 0;
     const platformFeeAmount = Math.min(
-      grossAmount - taxAmount,
+      grossAmount - (args.taxCollector === "organizer" ? 0 : taxAmount),
       Math.max(0, args.platformFeeAmount ?? 0),
     );
     const now = Date.now();
@@ -790,10 +791,11 @@ export const recordTicketOrder = mutation({
       currency: args.currency.toLowerCase(),
       grossAmount,
       taxAmount,
+      taxCollector: args.taxCollector,
       taxJurisdiction: args.taxJurisdiction,
       platformFeeAmount,
       refundedAmount: 0,
-      netAmount: Math.max(0, grossAmount - platformFeeAmount - taxAmount),
+      netAmount: Math.max(0, grossAmount - platformFeeAmount - (args.taxCollector === "organizer" ? 0 : taxAmount)),
       quantity: Math.max(1, Math.floor(args.quantity)),
       addOns: reservation?.addOns,
       purchaseTerms: reservation?.purchaseTerms,
