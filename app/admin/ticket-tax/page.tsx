@@ -13,15 +13,33 @@ export default function TicketTaxReviewPage() {
   const [reason, setReason] = useState("");
   const [result, setResult] = useState("");
   const [busy, setBusy] = useState(false);
+  const [preview, setPreview] = useState<{ id: string; name: string; venueName: string | null;
+    venueAddress: string | null; city: string | null; state: string | null; venueConfirmation: string } | null>(null);
+
+  async function loadEvent() {
+    setBusy(true);
+    setPreview(null);
+    setResult("");
+    try {
+      const response = await fetch(`/api/admin/ticket-tax?eventId=${encodeURIComponent(eventId.trim())}`,
+        { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok) setResult(data.error || "Event lookup failed.");
+      else setPreview(data.event);
+    } catch { setResult("Could not load event venue."); }
+    finally { setBusy(false); }
+  }
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!preview || preview.id !== eventId.trim()) { setResult("Load and check the event venue first."); return; }
     setBusy(true);
     setResult("");
     try {
       const response = await fetch("/api/admin/ticket-tax", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eventId: eventId.trim(), venuePostalCode: venuePostalCode.trim(),
+        body: JSON.stringify({ eventId: eventId.trim(), venueConfirmation: preview.venueConfirmation,
+          venuePostalCode: venuePostalCode.trim(),
           mode, taxRateId: mode === "collect" ? taxRateId.trim() : undefined,
           serviceFeeTaxRateId: mode === "collect" && serviceFeeTaxRateId.trim() ? serviceFeeTaxRateId.trim() : undefined,
           addOnTaxRateId: mode === "collect" && addOnTaxRateId.trim() ? addOnTaxRateId.trim() : undefined,
@@ -38,7 +56,9 @@ export default function TicketTaxReviewPage() {
     <h1 className="mt-4 text-3xl font-bold">Ticket tax review</h1>
     <p className="mt-3 text-sm leading-6 text-zinc-700">Review each in-person event venue with your tax adviser before enabling paid checkout. Enter a verified exclusive Stripe tax rate for admission. Enter a separate service fee rate when that fee is taxable. Paid add-ons require their own reviewed rate. Document untaxed fee treatment or exemptions in the basis. This setting does not file or remit taxes.</p>
     <form onSubmit={save} className="mt-6 space-y-5 rounded-2xl border border-zinc-300 bg-white p-6 shadow-sm">
-      <label className="block text-sm font-semibold">Event ID<input required value={eventId} onChange={e => setEventId(e.target.value)} className="mt-2 w-full rounded-lg border border-zinc-400 p-3" /></label>
+      <label className="block text-sm font-semibold">Event ID<input required value={eventId} onChange={e => { setEventId(e.target.value); setPreview(null); }} className="mt-2 w-full rounded-lg border border-zinc-400 p-3" /></label>
+      <button type="button" disabled={busy || !eventId.trim()} onClick={loadEvent} className="rounded-xl border border-violet-700 px-4 py-2 font-semibold text-violet-800 disabled:opacity-50">Load event venue</button>
+      {preview && <div className="rounded-xl border border-violet-300 bg-violet-50 p-4 text-sm" role="status"><strong>{preview.name}</strong><p>{[preview.venueName, preview.venueAddress, preview.city, preview.state].filter(Boolean).join(", ")}</p><p className="mt-2">Confirm this exact venue against the ZIP and tax research before saving.</p></div>}
       <label className="block text-sm font-semibold">Venue ZIP<input required inputMode="numeric" pattern="[0-9]{5}(-[0-9]{4})?" value={venuePostalCode} onChange={e => setVenuePostalCode(e.target.value)} className="mt-2 w-full rounded-lg border border-zinc-400 p-3" /></label>
       <label className="block text-sm font-semibold">Review outcome<select value={mode} onChange={e => setMode(e.target.value as "collect" | "exempt")} className="mt-2 w-full rounded-lg border border-zinc-400 bg-white p-3"><option value="collect">Collect tax</option><option value="exempt">Reviewed exemption / no collection</option></select></label>
       {mode === "collect" && <>
@@ -47,7 +67,7 @@ export default function TicketTaxReviewPage() {
         <label className="block text-sm font-semibold">Stripe add-on tax rate ID, if selling paid add-ons<input value={addOnTaxRateId} onChange={e => setAddOnTaxRateId(e.target.value)} placeholder="txr_..." className="mt-2 w-full rounded-lg border border-zinc-400 p-3" /></label>
       </>}
       <label className="block text-sm font-semibold">Basis for rate or exemption<textarea required minLength={10} maxLength={500} value={reason} onChange={e => setReason(e.target.value)} className="mt-2 min-h-24 w-full rounded-lg border border-zinc-400 p-3" /></label>
-      <button disabled={busy} className="rounded-xl bg-violet-700 px-5 py-3 font-bold text-white disabled:opacity-60">{busy ? "Saving…" : "Save reviewed policy"}</button>
+      <button disabled={busy || !preview} className="rounded-xl bg-violet-700 px-5 py-3 font-bold text-white disabled:opacity-60">{busy ? "Saving…" : "Save reviewed policy"}</button>
       {result && <p role="status" className="text-sm font-semibold">{result}</p>}
     </form>
   </main>;
