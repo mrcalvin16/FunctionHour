@@ -12,7 +12,7 @@ export default async function DisputeEvidencePage({ params }: { params: Promise<
   const { id } = await params;
   if (!/^dp_[a-zA-Z0-9_]+$/.test(id)) notFound();
   let error = "";
-  let packet: Awaited<ReturnType<ReturnType<typeof getConvexClient>["query"]>> | null = null;
+  let packet: unknown = null;
   let dispute: Awaited<ReturnType<ReturnType<typeof getStripeClient>["disputes"]["retrieve"]>> | null = null;
   try {
     dispute = await getStripeClient().disputes.retrieve(id);
@@ -38,6 +38,7 @@ export default async function DisputeEvidencePage({ params }: { params: Promise<
     tickets: { id: string; status: string; revoked: boolean; checkedIn: boolean; checkedInAt: number | null; quantity: number }[];
     admission: { ticketId: string; method: string; checkedInAt: number; gate: string; staffRecorded: boolean }[];
     warnings: string[];
+    reversals: { ticketId: string; reversedAt: number; originalCheckInAt: number | null; originalMethod: string | null }[];
   };
   return <main className="mx-auto max-w-5xl space-y-6 px-5 py-10 text-zinc-900">
     <Link href="/admin/disputes" className="font-semibold text-violet-700">← Disputes</Link>
@@ -71,6 +72,7 @@ export default async function DisputeEvidencePage({ params }: { params: Promise<
         <h3 className="mt-5 font-semibold">Recorded admissions</h3>
         {evidence.admission.map((a, i) => <p key={i} className="mt-2 text-sm">{a.method === "qr" ? "QR scan" : "Manual/search record"} · {new Date(a.checkedInAt).toLocaleString()} · {a.gate} · Staff recorded: {a.staffRecorded ? "Yes" : "No"}</p>)}
         {!evidence.admission.length && <p className="mt-2 text-sm">No admission record found.</p>}
+        {evidence.reversals.map((rev, i) => <p key={i} className="mt-2 text-sm text-amber-800">Admission reversed: {rev.ticketId} · {new Date(rev.reversedAt).toLocaleString()} · original method: {rev.originalMethod || "unknown"}</p>)}
       </section>
       {evidence.warnings.length > 0 && <section className="rounded-xl bg-amber-50 p-5 text-amber-900"><h2 className="font-bold">Evidence limitations</h2>
         {evidence.warnings.map(w => <p key={w} className="mt-2">{w}</p>)}
