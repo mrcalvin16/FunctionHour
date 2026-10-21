@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { api } from "@/convex/_generated/api";
 import { getConvexClient } from "@/lib/convex";
+import { featuredCities, matchesDiscoveryCity } from "@/lib/discoveryCities";
 
 export const revalidate = 3600;
 
@@ -22,7 +23,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: "daily" as const,
         priority: 0.8,
       }));
-    return [...staticPages, ...eventPages];
+    const liveEvents = events.filter((event) => !event.isDemo && !event.demoHidden && event.eventStatus !== "cancelled" && event.eventStatus !== "postponed");
+    const cityPages: MetadataRoute.Sitemap = featuredCities
+      .filter(([city, state]) => liveEvents.some((event) => matchesDiscoveryCity(event, `${city}, ${state}`)))
+      .map(([city, state]) => ({
+        url: `${base}/cities/${`${city}-${state}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`,
+        changeFrequency: "daily" as const,
+        priority: 0.7,
+      }));
+    return [...staticPages, ...cityPages, ...eventPages];
   } catch (error) {
     console.error("Could not load event sitemap entries:", error);
     return staticPages;
