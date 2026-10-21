@@ -21,7 +21,13 @@ export const forPaymentIntent = query({
         checkedInAt: entry.checkedInAt, gate: entry.gate || "Main Gate",
         staffRecorded: Boolean(entry.staffUserId),
       }));
+    const reversals = (await ctx.db.query("checkInReversals")
+      .withIndex("by_event", q => q.eq("eventId", order.eventId)).take(2000))
+      .filter(item => tickets.some(ticket => ticket._id === item.ticketId))
+      .map(item => ({ ticketId: String(item.ticketId), reversedAt: item.reversedAt,
+        originalCheckInAt: item.originalCheckInAt || null, originalMethod: item.originalMethod || null }));
     return {
+      reversals,
       paymentIntentId: args.paymentIntentId, checkoutSessionId: order.stripeCheckoutSessionId,
       orderStatus: order.status, disputeStatus: order.disputeStatus || null,
       amount: order.grossAmount, refundedAmount: order.refundedAmount,
@@ -38,6 +44,7 @@ export const forPaymentIntent = query({
       warnings: [
         ...(tickets.length === 0 ? ["No matching ticket records found"] : []),
         ...(admission.some(item => item.method !== "qr") ? ["Some admission records are manual/search entries, not QR-verification proof"] : []),
+        ...(reversals.length > 0 ? ["One or more admissions were reversed; review audit history"] : []),
         ...(admission.length === 0 ? ["No recorded admissions found; this does not establish non-attendance"] : []),
       ],
     };
