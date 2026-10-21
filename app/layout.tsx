@@ -10,10 +10,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://functionhour.com"),
   title: {
-    default: "Function Hour | Find Your Function",
+    default: "FunctionHour | Discover Events, Buy Tickets & Host Events",
     template: "%s | Function Hour",
   },
-  description: "Find events, make plans, and host unforgettable functions near you.",
+  description: "Discover local events, parties, nightlife, festivals and experiences on FunctionHour. Buy tickets, explore what’s happening near you, or create your own event.",
   applicationName: "Function Hour",
   appleWebApp: {
     capable: true,
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Function Hour",
     url: "https://functionhour.com",
-    title: "Function Hour | Find Your Function",
+    title: "FunctionHour | Discover Events, Buy Tickets & Host Events",
     description: "Good events. Better hours. Find your next function.",
     images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Function Hour" }],
   },
