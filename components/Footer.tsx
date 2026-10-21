@@ -20,6 +20,7 @@ export default function Footer({ homePrivacyOptOut = false }: { homePrivacyOptOu
           <a href="https://www.tiktok.com/@functionhour" target="_blank" rel="noreferrer" aria-label="Function Hour on TikTok" className="transition hover:text-zinc-950">TikTok · @FunctionHour ↗</a>
           <Link href="/refund-policy" className="transition hover:text-zinc-950">Refunds</Link>
           <Link href="/terms" className="transition hover:text-zinc-950">Terms</Link>
+          <Link href="/feedback" className="transition hover:text-zinc-950">Give feedback</Link>
           <Link href="/privacy" className="transition hover:text-zinc-950">Privacy</Link>
           <Link href="/accessibility" className="transition hover:text-zinc-950">Accessibility</Link>
           <a href="mailto:support@functionhour.com?subject=Accessibility%20support" className="transition hover:text-zinc-950">Accessibility support</a>

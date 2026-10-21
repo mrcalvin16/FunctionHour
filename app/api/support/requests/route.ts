@@ -19,7 +19,7 @@ const requestSchema = z.object({
 });
 
 function alertSeverity(category: string, message: string): "urgent" | "watch" | "routine" {
-  const critical = /\\b(chargeback|fraud|scam|stolen|unauthori[sz]ed|double charged|charged twice|security breach|data leak|discriminat(?:ion|ory)|assault|unsafe|injur(?:y|ies))\\b/i;
+  const critical = /\b(chargeback|fraud|scam|stolen|unauthori[sz]ed|double charged|charged twice|security breach|data leak|discriminat(?:ion|ory)|assault|unsafe|injur(?:y|ies))\b/i;
   if (critical.test(message)) return "urgent";
   if (["refund", "payment", "report_event", "ticket_help"].includes(category)) return "watch";
   return "routine";

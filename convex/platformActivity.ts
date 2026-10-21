@@ -59,7 +59,7 @@ export const launchOverview = query({
     const recentUsers = await ctx.db.query("users").order("desc").take(5001);
     const registrations = recentUsers.filter(u => u._creationTime >= since);
     const cases = await ctx.db.query("supportRequests").withIndex("by_createdAt", q => q.gte("createdAt", since)).order("desc").take(1001);
-    const negative = cases.filter(item => ["refund", "payment", "report_event", "ticket_help"].includes(item.category) || item.priority === "urgent");
+    const negative = cases.filter(item => ["refund", "payment", "report_event", "ticket_help"].includes(item.category) || item.priority === "urgent" || (item.category === "other" && item.message.startsWith("[Product Feedback] [negative]")));
     const buckets = Array.from({ length: args.days }, (_, i) => {
       const key = new Date(since + i * 86400000).toISOString().slice(0, 10);
       return { date: key, visits: 0, signups: 0 };
@@ -73,7 +73,25 @@ export const launchOverview = query({
       const bucket = daily.get(new Date(user._creationTime).toISOString().slice(0, 10));
       if (bucket) bucket.signups++;
     }
+    const ctas = await ctx.db.query("ctaActivity").withIndex("by_createdAt", q => q.gte("createdAt", since)).order("desc").take(5001);
+    const eventRecords = await ctx.db.query("events").order("desc").take(5001);
+    const recentEvents = eventRecords.filter(e => (e.createdAt ?? e._creationTime) >= since && !e.isDemo);
+    const orders = await ctx.db.query("ticketOrders").order("desc").take(5001);
+    const paidOrders = orders.filter(order => order.paidAt >= since && order.status === "paid");
+    const countCta = (key: string) => ctas.filter(click => click.cta === key).length;
+    const feedback = cases.filter(item => item.category === "other" && item.message.startsWith("[Product Feedback]"));
+    const organizerIds = new Set(recentEvents.map(event => event.userId));
+    const funnel = {
+      browseClicks: countCta("browse_events"),
+      signupClicks: countCta("sign_up"),
+      createEventClicks: countCta("create_event"),
+      ticketClicks: countCta("get_tickets") + countCta("ticket_checkout"),
+      checkoutOrders: paidOrders.length,
+      publishedEvents: recentEvents.length,
+      publishingOrganizers: organizerIds.size,
+    };
     return {
+      funnel, productFeedback: feedback.slice(0, 15).map(item => ({ id: item._id, message: item.message.slice(0, 300), status: item.status, createdAt: item.createdAt })),
       sessionEstimate: Math.min(visits.length, 5000), pageViews: visits.slice(0, 5000).reduce((n, v) => n + v.pageViews, 0),
       activeSessions30m: visits.filter(v => v.lastSeenAt >= now - 1800000).length,
       registrations: registrations.length, organizers: registrations.filter(u => u.isOrganizer).length,
@@ -84,7 +102,7 @@ export const launchOverview = query({
         id: item._id, category: item.category, message: item.message.slice(0, 220),
         status: item.status, priority: item.priority || "standard", createdAt: item.createdAt,
       })),
-      daily: buckets, limited: visits.length > 5000 || recentUsers.length > 5000 || cases.length > 1000,
+      daily: buckets, limited: visits.length > 5000 || recentUsers.length > 5000 || cases.length > 1000 || ctas.length > 5000 || eventRecords.length > 5000 || orders.length > 5000,
     };
   },
 });
