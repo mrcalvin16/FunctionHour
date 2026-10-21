@@ -18,6 +18,13 @@ const requestSchema = z.object({
   website: z.string().optional(), // Honeypot for automated submissions.
 });
 
+function alertSeverity(category: string, message: string): "urgent" | "watch" | "routine" {
+  const critical = /\\b(chargeback|fraud|scam|stolen|unauthori[sz]ed|double charged|charged twice|security breach|data leak|discriminat(?:ion|ory)|assault|unsafe|injur(?:y|ies))\\b/i;
+  if (critical.test(message)) return "urgent";
+  if (["refund", "payment", "report_event", "ticket_help"].includes(category)) return "watch";
+  return "routine";
+}
+
 function safePath(value: string | undefined) {
   return value && /^\/[a-zA-Z0-9/_?=&%.-]*$/.test(value) ? value : "/";
 }
@@ -66,13 +73,14 @@ export async function POST(request: Request) {
     };
     const created = await supportStore("/support/requests", "POST", data) as { id: string };
     const statusPath = `/support/status?reference=${encodeURIComponent(created.id)}#token=${statusToken}`;
+    const severity = alertSeverity(data.category, data.message);
     let notificationStatus: "delivered" | "failed" = "failed";
     try {
       const text = `New Function Hour support request\n\nReference: ${created.id}\nCategory: ${data.category}\nFrom: ${data.name || "Not provided"} <${data.email}>\nPage: ${data.pagePath}\nEvent: ${data.eventUrl || "Not provided"}\n\n${data.message}\n\nReview: https://functionhour.com/admin/support`;
       await sendTransactionalEmail({
         to: "operations@functionhour.com",
         replyTo: data.email,
-        subject: `Function Hour support: ${data.category.replaceAll("_", " ")}`,
+        subject: `${severity === "urgent" ? "🚨 URGENT" : severity === "watch" ? "⚠️ WATCH" : "New"} · Function Hour support: ${data.category.replaceAll("_", " ")}`,
         text,
         html: `<div style="font-family:Arial,sans-serif;max-width:640px;margin:auto;color:#171717"><h1>New support request</h1><p>Reference: ${escapeEmailHtml(created.id)}</p><p>Category: ${escapeEmailHtml(data.category)}</p><p>From: ${escapeEmailHtml(data.name || "Not provided")} &lt;${escapeEmailHtml(data.email)}&gt;</p><p>Page: ${escapeEmailHtml(data.pagePath)}</p><p>Event: ${escapeEmailHtml(data.eventUrl || "Not provided")}</p><p style="white-space:pre-wrap">${escapeEmailHtml(data.message)}</p><p><a href="https://functionhour.com/admin/support">Review in Operations</a></p></div>`,
         idempotencyKey: `support-request-${created.id}`,
