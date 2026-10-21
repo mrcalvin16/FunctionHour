@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Events",
+  title: "Discover Events, Parties & Experiences",
+  description: "Discover parties, festivals, nightlife, concerts and local experiences. Find your next event and buy tickets on FunctionHour.",
   alternates: { canonical: "/events" },
   openGraph: { url: "/events" },
 };
