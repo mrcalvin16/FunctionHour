@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import { stateCities, featuredCities } from "@/lib/discoveryCities";
 
 function cityHref(city: string, state: string) {
-  return `/events?city=${encodeURIComponent(`${city}, ${state}`)}`;
+  return `/cities/${`${city}-${state}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
 }
 
 export default function CitiesPage() {
