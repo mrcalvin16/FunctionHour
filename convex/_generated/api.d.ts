@@ -19,6 +19,7 @@ import type * as crons from "../crons.js";
 import type * as demoEvents from "../demoEvents.js";
 import type * as discountCodes from "../discountCodes.js";
 import type * as discoveryFollows from "../discoveryFollows.js";
+import type * as disputeEvidence from "../disputeEvidence.js";
 import type * as eventAccess from "../eventAccess.js";
 import type * as eventCreative from "../eventCreative.js";
 import type * as eventOperations from "../eventOperations.js";
@@ -63,6 +64,7 @@ declare const fullApi: ApiFromModules<{
   demoEvents: typeof demoEvents;
   discountCodes: typeof discountCodes;
   discoveryFollows: typeof discoveryFollows;
+  disputeEvidence: typeof disputeEvidence;
   eventAccess: typeof eventAccess;
   eventCreative: typeof eventCreative;
   eventOperations: typeof eventOperations;

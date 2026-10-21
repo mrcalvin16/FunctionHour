@@ -444,7 +444,7 @@ export const undoCheckIn = mutation({
   },
 
   handler: async (ctx, args) => {
-    await requireEventCapability(
+    const { identity } = await requireEventCapability(
       ctx,
       args.eventId,
       "check_in"
@@ -474,6 +474,14 @@ export const undoCheckIn = mutation({
       .order("desc")
       .first();
 
+    await ctx.db.insert("checkInReversals", {
+      eventId: args.eventId,
+      ticketId: ticket._id,
+      staffUserId: identity.subject,
+      originalCheckInAt: activity?.checkedInAt ?? ticket.checkedInAt,
+      originalMethod: activity?.method,
+      reversedAt: Date.now(),
+    });
     if (activity) {
       await ctx.db.delete(activity._id);
     }

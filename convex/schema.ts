@@ -2,6 +2,11 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  checkInReversals: defineTable({
+    eventId: v.id("events"), ticketId: v.id("tickets"),
+    staffUserId: v.string(), originalCheckInAt: v.optional(v.number()),
+    originalMethod: v.optional(v.string()), reversedAt: v.number(),
+  }).index("by_ticket", ["ticketId"]).index("by_event", ["eventId"]),
   visitorSessions: defineTable({
     sessionId: v.string(), firstSeenAt: v.number(), lastSeenAt: v.number(),
     pageViews: v.number(), firstPath: v.string(),
