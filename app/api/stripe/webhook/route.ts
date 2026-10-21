@@ -440,6 +440,22 @@ export async function POST(req: Request) {
           outcome,
         },
       );
+      if (event.type === "charge.dispute.created") {
+        try {
+          const due = dispute.evidence_details?.due_by
+            ? new Date(dispute.evidence_details.due_by * 1000).toISOString()
+            : "See Stripe Dashboard";
+          await sendTransactionalEmail({
+            to: "operations@functionhour.com",
+            subject: "🚨 FunctionHour chargeback opened — evidence review required",
+            text: `A Stripe dispute has opened. Dispute ID: ${dispute.id}. Amount: ${(dispute.amount/100).toFixed(2)} ${dispute.currency.toUpperCase()}. Reason: ${dispute.reason}. Evidence due: ${due}. Review: https://functionhour.com/admin/disputes. Verify QR versus manual check-in evidence before responding.`,
+            html: `<div style="font-family:Arial,sans-serif"><h1>Stripe chargeback opened</h1><p>Dispute: ${dispute.id}</p><p>Reason: ${dispute.reason}</p><p>Evidence due: ${due}</p><p><a href="https://functionhour.com/admin/disputes">Review dispute</a></p></div>`,
+            idempotencyKey: `stripe-dispute-open-${dispute.id}`,
+          });
+        } catch (notificationError) {
+          console.error("[stripe.webhook] Dispute alert delivery failed", notificationError);
+        }
+      }
       console.warn("[stripe.webhook] Payment dispute requires finance reconciliation", {
         disputeId: dispute.id, paymentIntentId, outcome,
       });
