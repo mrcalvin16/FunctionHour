@@ -23,7 +23,7 @@ export default async function DisputesPage() {
         <td className="border-b p-3">{new Intl.NumberFormat("en-US",{style:"currency",currency:d.currency.toUpperCase()}).format(d.amount/100)}</td>
         <td className="border-b p-3">{d.reason}</td><td className="border-b p-3">{d.status}</td>
         <td className="border-b p-3">{d.evidence_details?.due_by ? new Date(d.evidence_details.due_by*1000).toLocaleString() : "Not provided"}</td>
-        <td className="border-b p-3"><a className="font-semibold text-violet-700" target="_blank" rel="noopener noreferrer" href={`https://dashboard.stripe.com/disputes/${encodeURIComponent(d.id)}`}>Review in Stripe ↗</a></td></tr>)}</tbody></table>
+        <td className="border-b p-3"><a className="font-semibold text-violet-700" target="_blank" rel="noopener noreferrer" href={`https://dashboard.stripe.com/disputes/${encodeURIComponent(d.id)}`}>Review in Stripe ↗</a><br/><Link className="mt-1 inline-block font-semibold text-violet-700" href={`/admin/disputes/${encodeURIComponent(d.id)}`}>Evidence review →</Link></td></tr>)}</tbody></table>
       {!disputes.length && !error && <p className="py-6 text-zinc-600">No Stripe disputes returned.</p>}</div>
     </section>
     <div className="rounded-xl bg-amber-50 p-5 text-sm text-amber-900">
