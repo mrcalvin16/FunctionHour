@@ -33,3 +33,58 @@ export const overview = query({
     };
   },
 });
+
+export const recordVisit = mutation({
+  args: { serverSecret: v.string(), sessionId: v.string(), path: v.string() },
+  handler: async (ctx, args) => {
+    requireServer(args.serverSecret);
+    if (!/^[a-f0-9-]{36}$/.test(args.sessionId) || !/^\/[a-zA-Z0-9/_:-]*$/.test(args.path) || args.path.length > 160) throw new Error("Invalid visit");
+    const now = Date.now();
+    const existing = await ctx.db.query("visitorSessions").withIndex("by_sessionId", (q) => q.eq("sessionId", args.sessionId)).first();
+    if (existing) {
+      if (now - existing.lastSeenAt < 10000) return;
+      await ctx.db.patch(existing._id, { lastSeenAt: now, pageViews: existing.pageViews + 1 });
+    } else {
+      await ctx.db.insert("visitorSessions", { sessionId: args.sessionId, firstSeenAt: now, lastSeenAt: now, pageViews: 1, firstPath: args.path });
+    }
+  },
+});
+export const launchOverview = query({
+  args: { serverSecret: v.string(), days: v.number() },
+  handler: async (ctx, args) => {
+    requireServer(args.serverSecret);
+    if (![1, 7, 30].includes(args.days)) throw new Error("Invalid period");
+    const now = Date.now(), since = now - args.days * 86400000;
+    const visits = await ctx.db.query("visitorSessions").withIndex("by_firstSeenAt", q => q.gte("firstSeenAt", since)).order("desc").take(5001);
+    const recentUsers = await ctx.db.query("users").order("desc").take(5001);
+    const registrations = recentUsers.filter(u => u._creationTime >= since);
+    const cases = await ctx.db.query("supportRequests").withIndex("by_createdAt", q => q.gte("createdAt", since)).order("desc").take(1001);
+    const negative = cases.filter(item => ["refund", "payment", "report_event", "ticket_help"].includes(item.category) || item.priority === "urgent");
+    const buckets = Array.from({ length: args.days }, (_, i) => {
+      const key = new Date(since + i * 86400000).toISOString().slice(0, 10);
+      return { date: key, visits: 0, signups: 0 };
+    });
+    const daily = new Map(buckets.map(b => [b.date, b]));
+    for (const visit of visits.slice(0, 5000)) {
+      const bucket = daily.get(new Date(visit.firstSeenAt).toISOString().slice(0, 10));
+      if (bucket) bucket.visits++;
+    }
+    for (const user of registrations) {
+      const bucket = daily.get(new Date(user._creationTime).toISOString().slice(0, 10));
+      if (bucket) bucket.signups++;
+    }
+    return {
+      sessionEstimate: Math.min(visits.length, 5000), pageViews: visits.slice(0, 5000).reduce((n, v) => n + v.pageViews, 0),
+      activeSessions30m: visits.filter(v => v.lastSeenAt >= now - 1800000).length,
+      registrations: registrations.length, organizers: registrations.filter(u => u.isOrganizer).length,
+      supportRequests: cases.length, negativeSignals: negative.length,
+      unresolvedNegative: negative.filter(item => item.status !== "resolved").length,
+      urgent: cases.filter(item => item.priority === "urgent" && item.status !== "resolved").length,
+      recentNegative: negative.slice(0, 12).map(item => ({
+        id: item._id, category: item.category, message: item.message.slice(0, 220),
+        status: item.status, priority: item.priority || "standard", createdAt: item.createdAt,
+      })),
+      daily: buckets, limited: visits.length > 5000 || recentUsers.length > 5000 || cases.length > 1000,
+    };
+  },
+});

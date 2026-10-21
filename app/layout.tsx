@@ -1,4 +1,5 @@
 import CtaTracker from "@/components/CtaTracker";
+import VisitorTracker from "@/components/VisitorTracker";
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import ConvexClientProvider from "./ConvexClientProvider";
@@ -87,6 +88,7 @@ export default function RootLayout({
           <ConvexClientProvider>
             <SyncUserWithConvex />
             <CtaTracker />
+            <VisitorTracker />
             <BackToHome />
             <div id="main-content" tabIndex={-1}>
               {children}

@@ -2,6 +2,10 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  visitorSessions: defineTable({
+    sessionId: v.string(), firstSeenAt: v.number(), lastSeenAt: v.number(),
+    pageViews: v.number(), firstPath: v.string(),
+  }).index("by_sessionId", ["sessionId"]).index("by_firstSeenAt", ["firstSeenAt"]),
   ctaActivity: defineTable({ cta: v.string(), path: v.string(), createdAt: v.number() }).index("by_createdAt", ["createdAt"]),
 
 
