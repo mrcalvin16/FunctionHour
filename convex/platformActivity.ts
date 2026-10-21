@@ -59,7 +59,7 @@ export const launchOverview = query({
     const recentUsers = await ctx.db.query("users").order("desc").take(5001);
     const registrations = recentUsers.filter(u => u._creationTime >= since);
     const cases = await ctx.db.query("supportRequests").withIndex("by_createdAt", q => q.gte("createdAt", since)).order("desc").take(1001);
-    const negative = cases.filter(item => ["refund", "payment", "report_event", "ticket_help"].includes(item.category) || item.priority === "urgent");
+    const negative = cases.filter(item => ["refund", "payment", "report_event", "ticket_help"].includes(item.category) || item.priority === "urgent" || (item.category === "other" && item.message.startsWith("[Product Feedback] [negative]")));
     const buckets = Array.from({ length: args.days }, (_, i) => {
       const key = new Date(since + i * 86400000).toISOString().slice(0, 10);
       return { date: key, visits: 0, signups: 0 };
@@ -89,8 +89,6 @@ export const launchOverview = query({
       checkoutOrders: paidOrders.length,
       publishedEvents: recentEvents.length,
       publishingOrganizers: organizerIds.size,
-      organizerActivationRate: registrations.filter(u => u.isOrganizer).length
-        ? Math.round(100 * organizerIds.size / registrations.filter(u => u.isOrganizer).length) : null,
     };
     return {
       funnel, productFeedback: feedback.slice(0, 15).map(item => ({ id: item._id, message: item.message.slice(0, 300), status: item.status, createdAt: item.createdAt })),
