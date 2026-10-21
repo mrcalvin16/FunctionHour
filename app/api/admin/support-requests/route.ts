@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { hasFunctionHourAdminAccess } from "@/lib/adminAccess";
 import { supportStore } from "@/lib/supportRequests";
+import { sendTransactionalEmail, escapeEmailHtml } from "@/lib/email/server";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,21 @@ export async function POST(request: Request) {
     const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: "Not authorized." }, { status: 403 });
     await supportStore("/support/requests/case", "POST", { ...parsed.data, actorId: userId });
+    if (parsed.data.action === "priority" && parsed.data.priority === "urgent") {
+      try {
+        const caseId = parsed.data.id;
+        const url = "https://functionhour.com/admin/support";
+        await sendTransactionalEmail({
+          to: "operations@functionhour.com",
+          subject: "🚨 URGENT · FunctionHour support case escalated",
+          text: `A support case was escalated to urgent. Reference: ${caseId}. Open ${url} to review and assign.`,
+          html: `<div style="font-family:Arial,sans-serif"><h1>Urgent support escalation</h1><p>Case: ${escapeEmailHtml(caseId)}</p><p><a href="${url}">Review support queue</a></p></div>`,
+          idempotencyKey: `support-urgent-${caseId}`,
+        });
+      } catch (alertError) {
+        console.error("[support.admin] Urgent escalation email failed", alertError);
+      }
+    }
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("[support.admin] Update failed", error);
