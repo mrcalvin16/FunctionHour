@@ -3,6 +3,7 @@ import OrderRecoveryDesk from "@/components/admin/OrderRecoveryDesk";
 
 export default function AdminPage() {
   const sections = [
+    { title: "Chargeback defense", description: "Review Stripe disputes, evidence deadlines and payout risk.", href: "/admin/disputes", action: "Review disputes" },
     { title: "Launch watchtower", description: "Watch visitors, new registrations and negative feedback.", href: "/admin/launch", action: "Monitor launch" },
     { title: "Users & activity", description: "Recent registrations, onboarding status, and CTA clicks.", href: "/admin/activity", action: "View activity" },
     {
