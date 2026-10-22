@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import OrganizerPortalLink from "@/components/OrganizerPortalLink";
+import { ticketFeeCents, TICKET_SERVICE_RATE, TICKET_SERVICE_FLAT_CENTS } from "@/lib/ticketServiceFee";
 import {
   ArrowDownRight,
   ArrowRight,
@@ -19,10 +20,8 @@ export const metadata: Metadata = {
     "Clear, competitive pricing for event organizers. No monthly subscription. 3.7% + $1.78 per paid ticket—one cent below Eventbrite's published per-ticket fee.",
 };
 
-const SERVICE_RATE = 0.037;
-const FLAT_FEE_CENTS = 178;
 const EXAMPLE_TICKET_CENTS = 2000;
-const exampleFeeCents = Math.round(EXAMPLE_TICKET_CENTS * SERVICE_RATE) + FLAT_FEE_CENTS;
+const exampleFeeCents = ticketFeeCents(EXAMPLE_TICKET_CENTS);
 const dollars = (cents: number) => (cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
 
 const features = [
@@ -62,7 +61,7 @@ const faqs = [
   {
     question: "What is Function Hour’s ticket fee?",
     answer:
-      "Function Hour charges 3.7% + $1.78 per paid ticket. This buyer-paid fee is itemized in checkout; free tickets have no service fee.",
+      "Function Hour charges 3.7% + $1.78 per paid ticket. This buyer-paid fee is itemized in checkout; free admission has no ticket service fee, including when paid add-ons are purchased separately.",
   },
   {
     question: "What about card processing?",
@@ -152,7 +151,7 @@ export default function OrganizerPricingPage() {
                 ))}
               </ul>
               <p className="mt-6 border-t border-zinc-200 pt-5 text-[11px] leading-5 text-zinc-500">
-                Example: a {dollars(EXAMPLE_TICKET_CENTS)} ticket has a {dollars(exampleFeeCents)} Function Hour service fee ({dollars(Math.round(EXAMPLE_TICKET_CENTS * SERVICE_RATE))} + {dollars(FLAT_FEE_CENTS)}), for a {dollars(EXAMPLE_TICKET_CENTS + exampleFeeCents)} total before any applicable taxes.
+                Example: a {dollars(EXAMPLE_TICKET_CENTS)} ticket has a {dollars(exampleFeeCents)} Function Hour service fee ({dollars(Math.round(EXAMPLE_TICKET_CENTS * TICKET_SERVICE_RATE))} + {dollars(TICKET_SERVICE_FLAT_CENTS)}), for a {dollars(EXAMPLE_TICKET_CENTS + exampleFeeCents)} total before any applicable taxes.
               </p>
             </div>
           </div>

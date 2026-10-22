@@ -7,6 +7,7 @@ import { getStripeClient } from "@/lib/stripe/server";
 import { createHash } from "node:crypto";
 import Stripe from "stripe";
 import { isEventTaxReviewCurrent } from "@/lib/ticketTax";
+import { allocateTicketCents, ticketFeeCents } from "@/lib/ticketServiceFee";
 
 type CheckoutTicketRequest = {
   ticketTypeId?: string;
@@ -302,38 +303,37 @@ export async function POST(req: Request) {
         quantity,
       },
     ];
-    const ticketUnitAmount = Math.round((checkoutTotal / quantity) * 100);
-    const platformFeeUnitAmount = ticketUnitAmount > 0
-      ? Math.round(ticketUnitAmount * 0.037) + 178
-      : 0;
-    const platformFeeAmount = (platformFeeUnitAmount * quantity) / 100;
+    // Preserve the exact discounted subtotal in cents, even when it cannot be
+    // divided evenly across multiple tickets (e.g. $10 less $1 over 3 tickets).
+    const ticketGroups = allocateTicketCents(Math.round(checkoutTotal * 100), quantity);
+    const platformFeeAmount = ticketGroups.reduce(
+      (sum, group) => sum + ticketFeeCents(group.unitCents) * group.quantity, 0,
+    ) / 100;
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
-      ...(ticketUnitAmount > 0 ? [{
-        quantity,
+      ...ticketGroups.filter((group) => group.unitCents > 0).map((group) => ({
+        quantity: group.quantity,
         ...(taxRateId ? { tax_rates: [taxRateId] } : {}),
         price_data: {
           currency: "usd",
-          unit_amount: ticketUnitAmount,
+          unit_amount: group.unitCents,
           product_data: {
             name: `${reservation.eventName} — ${reservation.ticketTypeName || "Standard Admission"}`,
             description: reservation.ticketTypeDescription || "Event ticket",
           },
         },
-      }] : []),
-      ...(platformFeeUnitAmount > 0
-        ? [{
-            quantity,
-            ...(taxPolicy?.serviceFeeTaxRateId ? { tax_rates: [taxPolicy.serviceFeeTaxRateId] } : {}),
-            price_data: {
-              currency: "usd",
-              unit_amount: platformFeeUnitAmount,
-              product_data: {
-                name: "Function Hour service fee",
-                description: "3.7% + $1.78 per paid ticket",
-              },
-            },
-          }]
-        : []),
+      })),
+      ...ticketGroups.filter((group) => ticketFeeCents(group.unitCents) > 0).map((group) => ({
+        quantity: group.quantity,
+        ...(taxPolicy?.serviceFeeTaxRateId ? { tax_rates: [taxPolicy.serviceFeeTaxRateId] } : {}),
+        price_data: {
+          currency: "usd",
+          unit_amount: ticketFeeCents(group.unitCents),
+          product_data: {
+            name: "Function Hour service fee",
+            description: "3.7% + $1.78 per paid ticket",
+          },
+        },
+      })),
       ...reservation.addOns.filter((addOn) => addOn.unitPrice > 0).map((addOn) => ({
         quantity: addOn.quantity,
         ...(taxPolicy?.addOnTaxRateId ? { tax_rates: [taxPolicy.addOnTaxRateId] } : {}),

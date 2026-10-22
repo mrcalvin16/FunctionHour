@@ -8,6 +8,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { estimateTicketTaxCents, isEventTaxReviewCurrent } from "@/lib/ticketTax";
+import { ticketFeeTotalCents } from "@/lib/ticketServiceFee";
 import { isEventUpcoming } from "../../eventPresentation";
 import {
   eventRefundPolicyText,
@@ -143,21 +144,15 @@ export default function EventCheckoutPage({
       : "skip"
   );
   const appliedDiscountAmount =
-    discount?.valid === true ? discount.discountAmount ?? 0 : 0;
+    discount?.valid === true ? Math.round((discount.discountAmount ?? 0) * 100) / 100 : 0;
 
   const discountedTicketSubtotal = Math.max(
     0,
     Number(basePrice) * quantity - appliedDiscountAmount,
   );
-  const platformFeeAmount =
-    discountedTicketSubtotal > 0
-      ? quantity *
-        (Math.round(
-          Math.round((discountedTicketSubtotal / quantity) * 100) * 0.037,
-        ) + 
-          178) /
-        100
-      : 0;
+  const platformFeeAmount = ticketFeeTotalCents(
+    Math.round(discountedTicketSubtotal * 100), quantity,
+  ) / 100;
   const displayedTotal =
     Math.max(0, total - appliedDiscountAmount) + platformFeeAmount;
   const paidPurchase = discountedTicketSubtotal > 0 || addOnTotal > 0;
@@ -537,12 +532,12 @@ export default function EventCheckoutPage({
               {addOnTaxPending && <p className="text-xs text-zinc-700">Add-on tax is calculated at Stripe checkout.</p>}
 
               <p className="text-[11px] leading-5 text-zinc-500 dark:text-white/40">
-                Service fee: 3.7% + $1.78 per paid ticket, included in the total above. No additional card-processing charge is added at checkout.
+                Service fee: 3.7% + $1.78 per paid admission ticket (no ticket service fee for free admission or add-ons alone). No additional card-processing charge is added at checkout.
               </p>
 
               <div className="border-t border-zinc-200 pt-4 dark:border-white/10">
                 <div className="flex justify-between text-xl font-black">
-                  <span>{addOnTaxPending || estimatedFeeTax === null ? "Subtotal + estimated admission tax" : "Estimated total"}</span>
+                  <span>{addOnTaxPending || estimatedFeeTax === null ? "Estimated subtotal + admission tax" : "Estimated total"}</span>
                   <span>${(displayedTotal + estimatedAdmissionTax).toFixed(2)}{addOnTaxPending || estimatedFeeTax === null ? " + other tax" : ""}</span>
                 </div>
                 {paidPurchase && <p className="mt-2 text-xs text-zinc-700">Stripe shows the final tax and total before you pay.</p>}
