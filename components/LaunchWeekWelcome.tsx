@@ -30,7 +30,7 @@ export default function LaunchWeekWelcome() {
           Now live
         </span>
         <span className="text-xs font-medium text-zinc-700 sm:text-sm">
-          The city is open. Go make a night of it.
+          Good things are happening. Find your next experience.
         </span>
         <Link href="/events" className="group inline-flex items-center gap-1 text-xs font-bold text-violet-700 underline-offset-4 transition hover:underline focus-visible:underline sm:text-sm">
           Explore events <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
