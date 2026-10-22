@@ -29,11 +29,30 @@ export default function LaunchWeekWelcome() {
 
   return (
     <>
-      <div className="mx-auto max-w-[1240px] px-5 pt-4">
-        <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-orange-200 bg-white px-4 py-3 text-center shadow-sm">
-          <span aria-hidden="true" className="text-xl text-orange-600">✦</span>
-          <p className="text-sm font-semibold text-zinc-900">We’re live! Your next experience starts here.</p>
-          <Link href="/events" className="text-sm font-bold text-orange-700 underline underline-offset-4">Explore events →</Link>
+      <div className="mx-auto max-w-[1240px] px-5 pt-4 sm:pt-5">
+        <div className="relative isolate overflow-hidden rounded-[1.6rem] border border-orange-200 bg-white shadow-[0_8px_30px_rgba(124,58,237,0.08)]">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-orange-50 via-white to-violet-50" />
+          <div aria-hidden="true" className="pointer-events-none absolute -left-12 -top-20 h-44 w-44 rounded-full border-[22px] border-orange-200/35" />
+          <div aria-hidden="true" className="pointer-events-none absolute -right-12 -bottom-24 h-48 w-48 rounded-full border-[24px] border-violet-200/40" />
+          <div className="relative flex flex-col items-center gap-4 px-5 py-5 sm:flex-row sm:justify-between sm:gap-6 sm:px-7">
+            <div className="flex min-w-0 items-center gap-4">
+              <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-violet-600 text-2xl text-white shadow-lg shadow-orange-500/15" aria-hidden="true">
+                ✦
+                <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 motion-safe:animate-pulse" />
+              </span>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-orange-800">Just launched</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-700">FunctionHour is live</span>
+                </div>
+                <p className="mt-1.5 text-lg font-black leading-tight tracking-tight text-zinc-950 sm:text-xl">Your city. Your people. Your next experience.</p>
+                <p className="mt-1 text-xs font-medium text-zinc-600 sm:text-sm">The doors are open. Find something worth going out for.</p>
+              </div>
+            </div>
+            <Link href="/events" className="group inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 text-sm font-black text-white shadow-sm transition hover:bg-violet-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:w-auto">
+              Explore events <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">↗</span>
+            </Link>
+          </div>
         </div>
       </div>
       {show && (
