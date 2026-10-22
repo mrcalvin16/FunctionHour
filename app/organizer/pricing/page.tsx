@@ -19,6 +19,12 @@ export const metadata: Metadata = {
     "Clear, competitive pricing for event organizers. No monthly subscription. 3.7% + $1.78 per paid ticket—one cent below Eventbrite's published per-ticket fee.",
 };
 
+const SERVICE_RATE = 0.037;
+const FLAT_FEE_CENTS = 178;
+const EXAMPLE_TICKET_CENTS = 2000;
+const exampleFeeCents = Math.round(EXAMPLE_TICKET_CENTS * SERVICE_RATE) + FLAT_FEE_CENTS;
+const dollars = (cents: number) => (cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
+
 const features = [
   "Create and publish events",
   "Unlimited ticket types and quantities",
@@ -117,8 +123,8 @@ export default function OrganizerPricingPage() {
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Function Hour launch pricing</p>
                   <h2 className="mt-3 text-4xl font-black tracking-tight">Simple pricing<span className="text-violet-700">.</span></h2>
                 </div>
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-violet-200 bg-violet-50 text-violet-700">
-                  <Ticket className="h-5 w-5" />
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-violet-300 bg-violet-100 text-violet-900">
+                  <Ticket aria-hidden="true" className="h-6 w-6 stroke-[2.5]" />
                 </span>
               </div>
 
@@ -130,7 +136,7 @@ export default function OrganizerPricingPage() {
                   </div>
                   <p className="text-3xl font-black tracking-tight">3.7% + $1.78</p>
                 </div>
-                <div className="my-4 h-px bg-white/[0.08]" />
+                <div className="my-4 h-px bg-zinc-200" />
                 <div className="flex items-center justify-between gap-3 text-xs">
                   <span className="text-zinc-500">Monthly subscription</span>
                   <span className="font-black text-zinc-950">None</span>
@@ -146,7 +152,7 @@ export default function OrganizerPricingPage() {
                 ))}
               </ul>
               <p className="mt-6 border-t border-zinc-200 pt-5 text-[11px] leading-5 text-zinc-500">
-                Example: a $20 ticket has a $2.52 Function Hour service fee, for a $22.52 total before any applicable taxes.
+                Example: a {dollars(EXAMPLE_TICKET_CENTS)} ticket has a {dollars(exampleFeeCents)} Function Hour service fee ({dollars(Math.round(EXAMPLE_TICKET_CENTS * SERVICE_RATE))} + {dollars(FLAT_FEE_CENTS)}), for a {dollars(EXAMPLE_TICKET_CENTS + exampleFeeCents)} total before any applicable taxes.
               </p>
             </div>
           </div>
