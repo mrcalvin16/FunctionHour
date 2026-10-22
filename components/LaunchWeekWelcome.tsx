@@ -23,17 +23,17 @@ export default function LaunchWeekWelcome() {
   if (!active) return null;
 
   return (
-    <div className="border-b border-zinc-200/70 bg-white">
-      <div className="mx-auto flex min-h-11 max-w-[1240px] flex-wrap items-center justify-center gap-x-3 gap-y-1 px-5 py-2 text-center sm:px-7">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.13em] text-orange-700">
+    <div className="border-b border-zinc-200/70 bg-[#faf9f7]">
+      <div className="mx-auto flex min-h-12 max-w-[1240px] flex-wrap items-center justify-center gap-x-3 gap-y-1 px-5 py-2 text-center sm:px-7">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.13em] text-orange-700 ring-1 ring-orange-100">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-orange-500" />
           Now live
         </span>
         <span className="text-xs font-medium text-zinc-700 sm:text-sm">
-          Your next experience is waiting.
+          The city is open. Go make a night of it.
         </span>
-        <Link href="/events" className="inline-flex items-center gap-1 text-xs font-semibold text-violet-700 underline-offset-4 transition hover:underline focus-visible:underline sm:text-sm">
-          Explore events <span aria-hidden="true">↗</span>
+        <Link href="/events" className="group inline-flex items-center gap-1 text-xs font-bold text-violet-700 underline-offset-4 transition hover:underline focus-visible:underline sm:text-sm">
+          Explore events <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
         </Link>
       </div>
     </div>
