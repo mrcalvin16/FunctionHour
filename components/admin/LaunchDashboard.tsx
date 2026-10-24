@@ -6,7 +6,9 @@ type Overview = {
   sessionEstimate: number; pageViews: number; activeSessions30m: number;
   registrations: number; organizers: number; supportRequests: number;
   negativeSignals: number; unresolvedNegative: number; urgent: number; limited: boolean;
-  funnel: { browseClicks: number; signupClicks: number; createEventClicks: number; ticketClicks: number; checkoutOrders: number; publishedEvents: number; publishingOrganizers: number; organizerActivationRate: number | null };
+  funnel: { browseClicks: number; signupClicks: number; createEventClicks: number; ticketClicks: number; checkoutOrders: number; createdEvents: number; publishedEvents: number; publishingOrganizers: number; organizerActivationRate: number | null };
+  recentCreatedEvents: { id: string; name: string; city: string; state: string; createdAt: number }[];
+  eventsByCity: { city: string; count: number }[];
   productFeedback: { id: string; message: string; status: string; createdAt: number }[];
   daily: { date: string; visits: number; signups: number }[];
   recentNegative: { id: string; category: string; message: string; priority: string; status: string; createdAt: number }[];
@@ -73,11 +75,20 @@ export default function LaunchDashboard() {
     </section>
     <section className="rounded-2xl border bg-white p-5">
       <h2 className="text-xl font-bold">Organizer activation</h2>
-      <p className="mt-1 text-sm text-zinc-600">Publishing activity in the selected window. The click-to-publish values are not tied to identical organizers.</p>
+      <p className="mt-1 text-sm text-zinc-600">New real event records created in the selected window, excluding demos. Creation does not necessarily mean the event is published.</p>
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        {([["Create-event clicks", data.funnel.createEventClicks], ["Events published", data.funnel.publishedEvents], ["Publishing organizers", data.funnel.publishingOrganizers]] as const).map(([label, value]) =>
+        {([["Create-event clicks", data.funnel.createEventClicks], ["New events created", data.funnel.createdEvents], ["Event creators", data.funnel.publishingOrganizers]] as const).map(([label, value]) =>
           <div key={label} className="rounded-xl bg-zinc-50 p-4"><p className="text-sm text-zinc-600">{label}</p><p className="mt-1 text-2xl font-bold">{value}</p></div>)}
       </div>
+    </section>
+    <section className="rounded-2xl border bg-white p-5">
+      <h2 className="text-xl font-bold">Recently created events</h2>
+      <p className="mt-1 text-sm text-zinc-600">Real event creations during the selected period. This is not a publication or sales count.</p>
+      <div className="mt-4 overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr><th className="py-2">Event</th><th>City</th><th>Created (UTC)</th></tr></thead>
+      <tbody>{data.recentCreatedEvents.map(event => <tr key={event.id} className="border-t"><td className="py-3 font-medium">{event.name}</td><td>{[event.city,event.state].filter(Boolean).join(", ") || "Unspecified"}</td><td>{new Date(event.createdAt).toLocaleString()}</td></tr>)}</tbody></table>
+      {!data.recentCreatedEvents.length && <p className="py-4 text-zinc-600">No new real events created in this period.</p>}</div>
+      <h3 className="mt-6 font-semibold">Event creations by city</h3>
+      <div className="mt-2 flex flex-wrap gap-2">{data.eventsByCity.map(item => <span key={item.city} className="rounded-full bg-zinc-100 px-3 py-2 text-sm">{item.city}: {item.count}</span>)}</div>
     </section>
     <section className="rounded-2xl border bg-white p-5">
       <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-xl font-bold">Product feedback</h2><Link href="/feedback" className="font-semibold text-violet-700">Open feedback form →</Link></div>
