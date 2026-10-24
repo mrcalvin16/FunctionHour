@@ -75,7 +75,7 @@ export const launchOverview = query({
     }
     const ctas = await ctx.db.query("ctaActivity").withIndex("by_createdAt", q => q.gte("createdAt", since)).order("desc").take(5001);
     const eventRecords = await ctx.db.query("events").order("desc").take(5001);
-    const recentEvents = eventRecords.filter(e => (e.createdAt ?? e._creationTime) >= since && !e.isDemo);
+    const recentEvents = eventRecords.filter(e => (e.createdAt ?? e._creationTime) >= since && !e.isDemo && !e.demoHidden);
     const orders = await ctx.db.query("ticketOrders").order("desc").take(5001);
     const paidOrders = orders.filter(order => order.paidAt >= since && order.status === "paid");
     const countCta = (key: string) => ctas.filter(click => click.cta === key).length;
@@ -87,10 +87,20 @@ export const launchOverview = query({
       createEventClicks: countCta("create_event"),
       ticketClicks: countCta("get_tickets") + countCta("ticket_checkout"),
       checkoutOrders: paidOrders.length,
-      publishedEvents: recentEvents.length,
+      createdEvents: recentEvents.length,
+      publishedEvents: recentEvents.length, // Legacy field; this is a creation count, not verified publication.
       publishingOrganizers: organizerIds.size,
     };
     return {
+      recentCreatedEvents: recentEvents.slice(0, 20).map(event => ({
+        id: event._id, name: event.name, city: event.city || "", state: event.state || "",
+        createdAt: event.createdAt ?? event._creationTime,
+      })),
+      eventsByCity: Object.entries(recentEvents.reduce<Record<string, number>>((counts, event) => {
+        const city = [event.city, event.state].filter(Boolean).join(", ") || "Unspecified";
+        counts[city] = (counts[city] ?? 0) + 1;
+        return counts;
+      }, {})).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([city, count]) => ({ city, count })),
       funnel, productFeedback: feedback.slice(0, 15).map(item => ({ id: item._id, message: item.message.slice(0, 300), status: item.status, createdAt: item.createdAt })),
       sessionEstimate: Math.min(visits.length, 5000), pageViews: visits.slice(0, 5000).reduce((n, v) => n + v.pageViews, 0),
       activeSessions30m: visits.filter(v => v.lastSeenAt >= now - 1800000).length,
