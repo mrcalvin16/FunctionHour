@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     template: "%s | Function Hour",
   },
   description: "Discover local events, parties, nightlife, festivals and experiences on FunctionHour. Buy tickets, explore what’s happening near you, or create your own event.",
-  applicationName: "Function Hour",
+  applicationName: "FunctionHour",
   appleWebApp: {
     capable: true,
     title: "Function Hour",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: "Function Hour",
+    siteName: "FunctionHour",
     url: "https://functionhour.com",
     title: "FunctionHour | Discover Events, Buy Tickets & Host Events",
     description: "Good events. Better hours. Find your next function.",
