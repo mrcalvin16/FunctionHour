@@ -45,14 +45,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -128,12 +128,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -149,6 +143,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -218,7 +219,7 @@ function CreateEventPageContent() {
   }
 
   return (
-    <main className="min-h-screen bg-white px-6 py-10 text-zinc-950">
+    <main className="min-h-screen bg-black px-6 py-10 text-white">
       <section className="mx-auto max-w-3xl">
         <div className="mb-8">
           <p className="text-sm uppercase tracking-[0.3em] text-white/40">
@@ -262,8 +263,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -271,7 +271,7 @@ function CreateEventPageContent() {
             />
 {fieldFeedback("name")}</div>
 
-            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Event description <span className="text-red-700">*</span></label>
+            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Description <span className="text-red-700">*</span></label>
 
 {fieldFeedback("description")}</div>t";
 
@@ -320,14 +320,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -403,12 +403,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -424,6 +418,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -537,8 +538,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -554,8 +554,7 @@ function CreateEventPageContent() {
             />
 
             <div className="min-w-0"><label htmlFor="category" className="mb-2 block text-sm font-bold text-zinc-900">Category <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="category"
+<select id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -574,8 +573,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="venueName" className="mb-2 block text-sm font-bold text-zinc-900">Venue name <span className="text-red-700">*</span></label>
-<input
-                  id="venueName" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
+<input id="venueName" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
                   value={venueName}
                   onChange={(e) => setVenueName(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -584,8 +582,7 @@ function CreateEventPageContent() {
 {fieldFeedback("venueName")}</div>
 
                 <div className="min-w-0"><label htmlFor="venueAddress" className="mb-2 block text-sm font-bold text-zinc-900">Street address <span className="text-red-700">*</span></label>
-<input
-                  id="venueAddress" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
+<input id="venueAddress" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
                   value={venueAddress}
                   onChange={(e) => setVenueAddress(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -595,8 +592,7 @@ function CreateEventPageContent() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="min-w-0"><label htmlFor="city" className="mb-2 block text-sm font-bold text-zinc-900">City <span className="text-red-700">*</span></label>
-<input
-                  id="city" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
+<input id="city" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -604,9 +600,8 @@ function CreateEventPageContent() {
                   />
 {fieldFeedback("city")}</div>
 
-                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State / region <span className="text-red-700">*</span></label>
-<input
-                  id="stateValue" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
+                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State <span className="text-red-700">*</span></label>
+<input id="stateValue" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
                     value={stateValue}
                     onChange={(e) => setStateValue(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -618,8 +613,7 @@ function CreateEventPageContent() {
             </div>
 
             <div className="min-w-0"><label htmlFor="eventDate" className="mb-2 block text-sm font-bold text-zinc-900">Event date and time <span className="text-red-700">*</span></label>
-<input
-                  id="eventDate" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
+<input id="eventDate" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
               type="datetime-local"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
@@ -628,7 +622,8 @@ function CreateEventPageContent() {
 {fieldFeedback("eventDate")}</div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
+              <div className="min-w-0"><label htmlFor="price" className="mb-2 block text-sm font-bold text-zinc-900">Ticket price <span className="text-red-700">*</span></label>
+<input id="price" aria-invalid={attemptedPublish && Boolean(fieldErrors.price)} aria-describedby={attemptedPublish && fieldErrors.price ? "price-error" : undefined}
                 type="number"
                 min="0"
                 step="0.01"
@@ -637,8 +632,10 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Ticket price"
               />
+{fieldFeedback("price")}</div>
 
-              <input
+              <div className="min-w-0"><label htmlFor="totalTickets" className="mb-2 block text-sm font-bold text-zinc-900">Total tickets <span className="text-red-700">*</span></label>
+<input id="totalTickets" aria-invalid={attemptedPublish && Boolean(fieldErrors.totalTickets)} aria-describedby={attemptedPublish && fieldErrors.totalTickets ? "totalTickets-error" : undefined}
                 type="number"
                 min="1"
                 value={totalTickets}
@@ -646,6 +643,7 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Total tickets"
               />
+{fieldFeedback("totalTickets")}</div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -661,8 +659,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="dressCode" className="mb-2 block text-sm font-bold text-zinc-900">Dress code <span className="text-zinc-500">(optional)</span></label>
-<input
-                  id="dressCode"
+<input id="dressCode"
                   value={dressCode}
                   onChange={(e) => setDressCode(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -671,8 +668,7 @@ function CreateEventPageContent() {
 </div>
 
                 <div className="min-w-0"><label htmlFor="ageRequirement" className="mb-2 block text-sm font-bold text-zinc-900">Age requirement <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="ageRequirement"
+<select id="ageRequirement"
                   value={ageRequirement}
                   onChange={(e) => setAgeRequirement(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -732,14 +728,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -815,12 +811,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -836,6 +826,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -949,8 +946,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -958,7 +954,7 @@ function CreateEventPageContent() {
             />
 {fieldFeedback("name")}</div>
 
-            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Event description <span className="text-red-700">*</span></label>
+            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Description <span className="text-red-700">*</span></label>
 
 {fieldFeedback("description")}</div>t";
 
@@ -1007,14 +1003,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -1090,12 +1086,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -1111,6 +1101,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -1224,8 +1221,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1241,8 +1237,7 @@ function CreateEventPageContent() {
             />
 
             <div className="min-w-0"><label htmlFor="category" className="mb-2 block text-sm font-bold text-zinc-900">Category <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="category"
+<select id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1261,8 +1256,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="venueName" className="mb-2 block text-sm font-bold text-zinc-900">Venue name <span className="text-red-700">*</span></label>
-<input
-                  id="venueName" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
+<input id="venueName" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
                   value={venueName}
                   onChange={(e) => setVenueName(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1271,8 +1265,7 @@ function CreateEventPageContent() {
 {fieldFeedback("venueName")}</div>
 
                 <div className="min-w-0"><label htmlFor="venueAddress" className="mb-2 block text-sm font-bold text-zinc-900">Street address <span className="text-red-700">*</span></label>
-<input
-                  id="venueAddress" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
+<input id="venueAddress" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
                   value={venueAddress}
                   onChange={(e) => setVenueAddress(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1282,8 +1275,7 @@ function CreateEventPageContent() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="min-w-0"><label htmlFor="city" className="mb-2 block text-sm font-bold text-zinc-900">City <span className="text-red-700">*</span></label>
-<input
-                  id="city" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
+<input id="city" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1291,9 +1283,8 @@ function CreateEventPageContent() {
                   />
 {fieldFeedback("city")}</div>
 
-                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State / region <span className="text-red-700">*</span></label>
-<input
-                  id="stateValue" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
+                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State <span className="text-red-700">*</span></label>
+<input id="stateValue" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
                     value={stateValue}
                     onChange={(e) => setStateValue(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1305,8 +1296,7 @@ function CreateEventPageContent() {
             </div>
 
             <div className="min-w-0"><label htmlFor="eventDate" className="mb-2 block text-sm font-bold text-zinc-900">Event date and time <span className="text-red-700">*</span></label>
-<input
-                  id="eventDate" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
+<input id="eventDate" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
               type="datetime-local"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
@@ -1315,7 +1305,8 @@ function CreateEventPageContent() {
 {fieldFeedback("eventDate")}</div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
+              <div className="min-w-0"><label htmlFor="price" className="mb-2 block text-sm font-bold text-zinc-900">Ticket price <span className="text-red-700">*</span></label>
+<input id="price" aria-invalid={attemptedPublish && Boolean(fieldErrors.price)} aria-describedby={attemptedPublish && fieldErrors.price ? "price-error" : undefined}
                 type="number"
                 min="0"
                 step="0.01"
@@ -1324,8 +1315,10 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Ticket price"
               />
+{fieldFeedback("price")}</div>
 
-              <input
+              <div className="min-w-0"><label htmlFor="totalTickets" className="mb-2 block text-sm font-bold text-zinc-900">Total tickets <span className="text-red-700">*</span></label>
+<input id="totalTickets" aria-invalid={attemptedPublish && Boolean(fieldErrors.totalTickets)} aria-describedby={attemptedPublish && fieldErrors.totalTickets ? "totalTickets-error" : undefined}
                 type="number"
                 min="1"
                 value={totalTickets}
@@ -1333,6 +1326,7 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Total tickets"
               />
+{fieldFeedback("totalTickets")}</div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -1348,8 +1342,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="dressCode" className="mb-2 block text-sm font-bold text-zinc-900">Dress code <span className="text-zinc-500">(optional)</span></label>
-<input
-                  id="dressCode"
+<input id="dressCode"
                   value={dressCode}
                   onChange={(e) => setDressCode(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -1358,8 +1351,7 @@ function CreateEventPageContent() {
 </div>
 
                 <div className="min-w-0"><label htmlFor="ageRequirement" className="mb-2 block text-sm font-bold text-zinc-900">Age requirement <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="ageRequirement"
+<select id="ageRequirement"
                   value={ageRequirement}
                   onChange={(e) => setAgeRequirement(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -1426,14 +1418,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -1509,12 +1501,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -1530,6 +1516,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -1643,8 +1636,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1652,7 +1644,7 @@ function CreateEventPageContent() {
             />
 {fieldFeedback("name")}</div>
 
-            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Event description <span className="text-red-700">*</span></label>
+            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Description <span className="text-red-700">*</span></label>
 
 {fieldFeedback("description")}</div>t";
 
@@ -1701,14 +1693,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -1784,12 +1776,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -1805,6 +1791,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -1918,8 +1911,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1935,8 +1927,7 @@ function CreateEventPageContent() {
             />
 
             <div className="min-w-0"><label htmlFor="category" className="mb-2 block text-sm font-bold text-zinc-900">Category <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="category"
+<select id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1955,8 +1946,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="venueName" className="mb-2 block text-sm font-bold text-zinc-900">Venue name <span className="text-red-700">*</span></label>
-<input
-                  id="venueName" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
+<input id="venueName" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
                   value={venueName}
                   onChange={(e) => setVenueName(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1965,8 +1955,7 @@ function CreateEventPageContent() {
 {fieldFeedback("venueName")}</div>
 
                 <div className="min-w-0"><label htmlFor="venueAddress" className="mb-2 block text-sm font-bold text-zinc-900">Street address <span className="text-red-700">*</span></label>
-<input
-                  id="venueAddress" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
+<input id="venueAddress" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
                   value={venueAddress}
                   onChange={(e) => setVenueAddress(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1976,8 +1965,7 @@ function CreateEventPageContent() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="min-w-0"><label htmlFor="city" className="mb-2 block text-sm font-bold text-zinc-900">City <span className="text-red-700">*</span></label>
-<input
-                  id="city" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
+<input id="city" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1985,9 +1973,8 @@ function CreateEventPageContent() {
                   />
 {fieldFeedback("city")}</div>
 
-                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State / region <span className="text-red-700">*</span></label>
-<input
-                  id="stateValue" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
+                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State <span className="text-red-700">*</span></label>
+<input id="stateValue" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
                     value={stateValue}
                     onChange={(e) => setStateValue(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -1999,8 +1986,7 @@ function CreateEventPageContent() {
             </div>
 
             <div className="min-w-0"><label htmlFor="eventDate" className="mb-2 block text-sm font-bold text-zinc-900">Event date and time <span className="text-red-700">*</span></label>
-<input
-                  id="eventDate" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
+<input id="eventDate" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
               type="datetime-local"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
@@ -2009,7 +1995,8 @@ function CreateEventPageContent() {
 {fieldFeedback("eventDate")}</div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
+              <div className="min-w-0"><label htmlFor="price" className="mb-2 block text-sm font-bold text-zinc-900">Ticket price <span className="text-red-700">*</span></label>
+<input id="price" aria-invalid={attemptedPublish && Boolean(fieldErrors.price)} aria-describedby={attemptedPublish && fieldErrors.price ? "price-error" : undefined}
                 type="number"
                 min="0"
                 step="0.01"
@@ -2018,8 +2005,10 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Ticket price"
               />
+{fieldFeedback("price")}</div>
 
-              <input
+              <div className="min-w-0"><label htmlFor="totalTickets" className="mb-2 block text-sm font-bold text-zinc-900">Total tickets <span className="text-red-700">*</span></label>
+<input id="totalTickets" aria-invalid={attemptedPublish && Boolean(fieldErrors.totalTickets)} aria-describedby={attemptedPublish && fieldErrors.totalTickets ? "totalTickets-error" : undefined}
                 type="number"
                 min="1"
                 value={totalTickets}
@@ -2027,6 +2016,7 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Total tickets"
               />
+{fieldFeedback("totalTickets")}</div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -2042,8 +2032,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="dressCode" className="mb-2 block text-sm font-bold text-zinc-900">Dress code <span className="text-zinc-500">(optional)</span></label>
-<input
-                  id="dressCode"
+<input id="dressCode"
                   value={dressCode}
                   onChange={(e) => setDressCode(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -2052,8 +2041,7 @@ function CreateEventPageContent() {
 </div>
 
                 <div className="min-w-0"><label htmlFor="ageRequirement" className="mb-2 block text-sm font-bold text-zinc-900">Age requirement <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="ageRequirement"
+<select id="ageRequirement"
                   value={ageRequirement}
                   onChange={(e) => setAgeRequirement(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -2113,14 +2101,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -2196,12 +2184,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -2217,6 +2199,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -2330,8 +2319,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -2339,7 +2327,7 @@ function CreateEventPageContent() {
             />
 {fieldFeedback("name")}</div>
 
-            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Event description <span className="text-red-700">*</span></label>
+            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Description <span className="text-red-700">*</span></label>
 
 {fieldFeedback("description")}</div>t";
 
@@ -2388,14 +2376,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -2471,12 +2459,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -2492,6 +2474,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -2605,8 +2594,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -2622,8 +2610,7 @@ function CreateEventPageContent() {
             />
 
             <div className="min-w-0"><label htmlFor="category" className="mb-2 block text-sm font-bold text-zinc-900">Category <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="category"
+<select id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -2642,8 +2629,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="venueName" className="mb-2 block text-sm font-bold text-zinc-900">Venue name <span className="text-red-700">*</span></label>
-<input
-                  id="venueName" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
+<input id="venueName" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
                   value={venueName}
                   onChange={(e) => setVenueName(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -2652,8 +2638,7 @@ function CreateEventPageContent() {
 {fieldFeedback("venueName")}</div>
 
                 <div className="min-w-0"><label htmlFor="venueAddress" className="mb-2 block text-sm font-bold text-zinc-900">Street address <span className="text-red-700">*</span></label>
-<input
-                  id="venueAddress" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
+<input id="venueAddress" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
                   value={venueAddress}
                   onChange={(e) => setVenueAddress(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -2663,8 +2648,7 @@ function CreateEventPageContent() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="min-w-0"><label htmlFor="city" className="mb-2 block text-sm font-bold text-zinc-900">City <span className="text-red-700">*</span></label>
-<input
-                  id="city" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
+<input id="city" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -2672,9 +2656,8 @@ function CreateEventPageContent() {
                   />
 {fieldFeedback("city")}</div>
 
-                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State / region <span className="text-red-700">*</span></label>
-<input
-                  id="stateValue" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
+                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State <span className="text-red-700">*</span></label>
+<input id="stateValue" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
                     value={stateValue}
                     onChange={(e) => setStateValue(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -2686,8 +2669,7 @@ function CreateEventPageContent() {
             </div>
 
             <div className="min-w-0"><label htmlFor="eventDate" className="mb-2 block text-sm font-bold text-zinc-900">Event date and time <span className="text-red-700">*</span></label>
-<input
-                  id="eventDate" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
+<input id="eventDate" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
               type="datetime-local"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
@@ -2696,7 +2678,8 @@ function CreateEventPageContent() {
 {fieldFeedback("eventDate")}</div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
+              <div className="min-w-0"><label htmlFor="price" className="mb-2 block text-sm font-bold text-zinc-900">Ticket price <span className="text-red-700">*</span></label>
+<input id="price" aria-invalid={attemptedPublish && Boolean(fieldErrors.price)} aria-describedby={attemptedPublish && fieldErrors.price ? "price-error" : undefined}
                 type="number"
                 min="0"
                 step="0.01"
@@ -2705,8 +2688,10 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Ticket price"
               />
+{fieldFeedback("price")}</div>
 
-              <input
+              <div className="min-w-0"><label htmlFor="totalTickets" className="mb-2 block text-sm font-bold text-zinc-900">Total tickets <span className="text-red-700">*</span></label>
+<input id="totalTickets" aria-invalid={attemptedPublish && Boolean(fieldErrors.totalTickets)} aria-describedby={attemptedPublish && fieldErrors.totalTickets ? "totalTickets-error" : undefined}
                 type="number"
                 min="1"
                 value={totalTickets}
@@ -2714,6 +2699,7 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Total tickets"
               />
+{fieldFeedback("totalTickets")}</div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -2729,8 +2715,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="dressCode" className="mb-2 block text-sm font-bold text-zinc-900">Dress code <span className="text-zinc-500">(optional)</span></label>
-<input
-                  id="dressCode"
+<input id="dressCode"
                   value={dressCode}
                   onChange={(e) => setDressCode(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -2739,8 +2724,7 @@ function CreateEventPageContent() {
 </div>
 
                 <div className="min-w-0"><label htmlFor="ageRequirement" className="mb-2 block text-sm font-bold text-zinc-900">Age requirement <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="ageRequirement"
+<select id="ageRequirement"
                   value={ageRequirement}
                   onChange={(e) => setAgeRequirement(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -2814,14 +2798,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -2897,12 +2881,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -2918,6 +2896,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -3031,8 +3016,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -3040,7 +3024,7 @@ function CreateEventPageContent() {
             />
 {fieldFeedback("name")}</div>
 
-            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Event description <span className="text-red-700">*</span></label>
+            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Description <span className="text-red-700">*</span></label>
 
 {fieldFeedback("description")}</div>t";
 
@@ -3089,14 +3073,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -3172,12 +3156,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -3193,6 +3171,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -3306,8 +3291,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -3323,8 +3307,7 @@ function CreateEventPageContent() {
             />
 
             <div className="min-w-0"><label htmlFor="category" className="mb-2 block text-sm font-bold text-zinc-900">Category <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="category"
+<select id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -3343,8 +3326,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="venueName" className="mb-2 block text-sm font-bold text-zinc-900">Venue name <span className="text-red-700">*</span></label>
-<input
-                  id="venueName" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
+<input id="venueName" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
                   value={venueName}
                   onChange={(e) => setVenueName(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -3353,8 +3335,7 @@ function CreateEventPageContent() {
 {fieldFeedback("venueName")}</div>
 
                 <div className="min-w-0"><label htmlFor="venueAddress" className="mb-2 block text-sm font-bold text-zinc-900">Street address <span className="text-red-700">*</span></label>
-<input
-                  id="venueAddress" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
+<input id="venueAddress" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
                   value={venueAddress}
                   onChange={(e) => setVenueAddress(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -3364,8 +3345,7 @@ function CreateEventPageContent() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="min-w-0"><label htmlFor="city" className="mb-2 block text-sm font-bold text-zinc-900">City <span className="text-red-700">*</span></label>
-<input
-                  id="city" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
+<input id="city" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -3373,9 +3353,8 @@ function CreateEventPageContent() {
                   />
 {fieldFeedback("city")}</div>
 
-                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State / region <span className="text-red-700">*</span></label>
-<input
-                  id="stateValue" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
+                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State <span className="text-red-700">*</span></label>
+<input id="stateValue" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
                     value={stateValue}
                     onChange={(e) => setStateValue(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -3387,8 +3366,7 @@ function CreateEventPageContent() {
             </div>
 
             <div className="min-w-0"><label htmlFor="eventDate" className="mb-2 block text-sm font-bold text-zinc-900">Event date and time <span className="text-red-700">*</span></label>
-<input
-                  id="eventDate" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
+<input id="eventDate" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
               type="datetime-local"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
@@ -3397,7 +3375,8 @@ function CreateEventPageContent() {
 {fieldFeedback("eventDate")}</div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
+              <div className="min-w-0"><label htmlFor="price" className="mb-2 block text-sm font-bold text-zinc-900">Ticket price <span className="text-red-700">*</span></label>
+<input id="price" aria-invalid={attemptedPublish && Boolean(fieldErrors.price)} aria-describedby={attemptedPublish && fieldErrors.price ? "price-error" : undefined}
                 type="number"
                 min="0"
                 step="0.01"
@@ -3406,8 +3385,10 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Ticket price"
               />
+{fieldFeedback("price")}</div>
 
-              <input
+              <div className="min-w-0"><label htmlFor="totalTickets" className="mb-2 block text-sm font-bold text-zinc-900">Total tickets <span className="text-red-700">*</span></label>
+<input id="totalTickets" aria-invalid={attemptedPublish && Boolean(fieldErrors.totalTickets)} aria-describedby={attemptedPublish && fieldErrors.totalTickets ? "totalTickets-error" : undefined}
                 type="number"
                 min="1"
                 value={totalTickets}
@@ -3415,6 +3396,7 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Total tickets"
               />
+{fieldFeedback("totalTickets")}</div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -3430,8 +3412,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="dressCode" className="mb-2 block text-sm font-bold text-zinc-900">Dress code <span className="text-zinc-500">(optional)</span></label>
-<input
-                  id="dressCode"
+<input id="dressCode"
                   value={dressCode}
                   onChange={(e) => setDressCode(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -3440,8 +3421,7 @@ function CreateEventPageContent() {
 </div>
 
                 <div className="min-w-0"><label htmlFor="ageRequirement" className="mb-2 block text-sm font-bold text-zinc-900">Age requirement <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="ageRequirement"
+<select id="ageRequirement"
                   value={ageRequirement}
                   onChange={(e) => setAgeRequirement(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -3501,14 +3481,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -3584,12 +3564,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -3605,6 +3579,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -3718,8 +3699,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -3727,7 +3707,7 @@ function CreateEventPageContent() {
             />
 {fieldFeedback("name")}</div>
 
-            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Event description <span className="text-red-700">*</span></label>
+            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Description <span className="text-red-700">*</span></label>
 
 {fieldFeedback("description")}</div>t";
 
@@ -3776,14 +3756,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -3859,12 +3839,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -3880,6 +3854,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -3993,8 +3974,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4010,8 +3990,7 @@ function CreateEventPageContent() {
             />
 
             <div className="min-w-0"><label htmlFor="category" className="mb-2 block text-sm font-bold text-zinc-900">Category <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="category"
+<select id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4030,8 +4009,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="venueName" className="mb-2 block text-sm font-bold text-zinc-900">Venue name <span className="text-red-700">*</span></label>
-<input
-                  id="venueName" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
+<input id="venueName" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
                   value={venueName}
                   onChange={(e) => setVenueName(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4040,8 +4018,7 @@ function CreateEventPageContent() {
 {fieldFeedback("venueName")}</div>
 
                 <div className="min-w-0"><label htmlFor="venueAddress" className="mb-2 block text-sm font-bold text-zinc-900">Street address <span className="text-red-700">*</span></label>
-<input
-                  id="venueAddress" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
+<input id="venueAddress" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
                   value={venueAddress}
                   onChange={(e) => setVenueAddress(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4051,8 +4028,7 @@ function CreateEventPageContent() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="min-w-0"><label htmlFor="city" className="mb-2 block text-sm font-bold text-zinc-900">City <span className="text-red-700">*</span></label>
-<input
-                  id="city" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
+<input id="city" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4060,9 +4036,8 @@ function CreateEventPageContent() {
                   />
 {fieldFeedback("city")}</div>
 
-                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State / region <span className="text-red-700">*</span></label>
-<input
-                  id="stateValue" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
+                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State <span className="text-red-700">*</span></label>
+<input id="stateValue" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
                     value={stateValue}
                     onChange={(e) => setStateValue(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4074,8 +4049,7 @@ function CreateEventPageContent() {
             </div>
 
             <div className="min-w-0"><label htmlFor="eventDate" className="mb-2 block text-sm font-bold text-zinc-900">Event date and time <span className="text-red-700">*</span></label>
-<input
-                  id="eventDate" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
+<input id="eventDate" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
               type="datetime-local"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
@@ -4084,7 +4058,8 @@ function CreateEventPageContent() {
 {fieldFeedback("eventDate")}</div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
+              <div className="min-w-0"><label htmlFor="price" className="mb-2 block text-sm font-bold text-zinc-900">Ticket price <span className="text-red-700">*</span></label>
+<input id="price" aria-invalid={attemptedPublish && Boolean(fieldErrors.price)} aria-describedby={attemptedPublish && fieldErrors.price ? "price-error" : undefined}
                 type="number"
                 min="0"
                 step="0.01"
@@ -4093,8 +4068,10 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Ticket price"
               />
+{fieldFeedback("price")}</div>
 
-              <input
+              <div className="min-w-0"><label htmlFor="totalTickets" className="mb-2 block text-sm font-bold text-zinc-900">Total tickets <span className="text-red-700">*</span></label>
+<input id="totalTickets" aria-invalid={attemptedPublish && Boolean(fieldErrors.totalTickets)} aria-describedby={attemptedPublish && fieldErrors.totalTickets ? "totalTickets-error" : undefined}
                 type="number"
                 min="1"
                 value={totalTickets}
@@ -4102,6 +4079,7 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Total tickets"
               />
+{fieldFeedback("totalTickets")}</div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -4117,8 +4095,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="dressCode" className="mb-2 block text-sm font-bold text-zinc-900">Dress code <span className="text-zinc-500">(optional)</span></label>
-<input
-                  id="dressCode"
+<input id="dressCode"
                   value={dressCode}
                   onChange={(e) => setDressCode(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -4127,8 +4104,7 @@ function CreateEventPageContent() {
 </div>
 
                 <div className="min-w-0"><label htmlFor="ageRequirement" className="mb-2 block text-sm font-bold text-zinc-900">Age requirement <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="ageRequirement"
+<select id="ageRequirement"
                   value={ageRequirement}
                   onChange={(e) => setAgeRequirement(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -4195,14 +4171,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -4278,12 +4254,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -4299,6 +4269,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -4412,8 +4389,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4421,7 +4397,7 @@ function CreateEventPageContent() {
             />
 {fieldFeedback("name")}</div>
 
-            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Event description <span className="text-red-700">*</span></label>
+            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Description <span className="text-red-700">*</span></label>
 
 {fieldFeedback("description")}</div>t";
 
@@ -4470,14 +4446,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -4553,12 +4529,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -4574,6 +4544,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -4687,8 +4664,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4704,8 +4680,7 @@ function CreateEventPageContent() {
             />
 
             <div className="min-w-0"><label htmlFor="category" className="mb-2 block text-sm font-bold text-zinc-900">Category <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="category"
+<select id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4724,8 +4699,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="venueName" className="mb-2 block text-sm font-bold text-zinc-900">Venue name <span className="text-red-700">*</span></label>
-<input
-                  id="venueName" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
+<input id="venueName" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
                   value={venueName}
                   onChange={(e) => setVenueName(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4734,8 +4708,7 @@ function CreateEventPageContent() {
 {fieldFeedback("venueName")}</div>
 
                 <div className="min-w-0"><label htmlFor="venueAddress" className="mb-2 block text-sm font-bold text-zinc-900">Street address <span className="text-red-700">*</span></label>
-<input
-                  id="venueAddress" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
+<input id="venueAddress" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
                   value={venueAddress}
                   onChange={(e) => setVenueAddress(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4745,8 +4718,7 @@ function CreateEventPageContent() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="min-w-0"><label htmlFor="city" className="mb-2 block text-sm font-bold text-zinc-900">City <span className="text-red-700">*</span></label>
-<input
-                  id="city" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
+<input id="city" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4754,9 +4726,8 @@ function CreateEventPageContent() {
                   />
 {fieldFeedback("city")}</div>
 
-                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State / region <span className="text-red-700">*</span></label>
-<input
-                  id="stateValue" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
+                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State <span className="text-red-700">*</span></label>
+<input id="stateValue" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
                     value={stateValue}
                     onChange={(e) => setStateValue(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -4768,8 +4739,7 @@ function CreateEventPageContent() {
             </div>
 
             <div className="min-w-0"><label htmlFor="eventDate" className="mb-2 block text-sm font-bold text-zinc-900">Event date and time <span className="text-red-700">*</span></label>
-<input
-                  id="eventDate" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
+<input id="eventDate" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
               type="datetime-local"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
@@ -4778,7 +4748,8 @@ function CreateEventPageContent() {
 {fieldFeedback("eventDate")}</div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
+              <div className="min-w-0"><label htmlFor="price" className="mb-2 block text-sm font-bold text-zinc-900">Ticket price <span className="text-red-700">*</span></label>
+<input id="price" aria-invalid={attemptedPublish && Boolean(fieldErrors.price)} aria-describedby={attemptedPublish && fieldErrors.price ? "price-error" : undefined}
                 type="number"
                 min="0"
                 step="0.01"
@@ -4787,8 +4758,10 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Ticket price"
               />
+{fieldFeedback("price")}</div>
 
-              <input
+              <div className="min-w-0"><label htmlFor="totalTickets" className="mb-2 block text-sm font-bold text-zinc-900">Total tickets <span className="text-red-700">*</span></label>
+<input id="totalTickets" aria-invalid={attemptedPublish && Boolean(fieldErrors.totalTickets)} aria-describedby={attemptedPublish && fieldErrors.totalTickets ? "totalTickets-error" : undefined}
                 type="number"
                 min="1"
                 value={totalTickets}
@@ -4796,6 +4769,7 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Total tickets"
               />
+{fieldFeedback("totalTickets")}</div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -4811,8 +4785,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="dressCode" className="mb-2 block text-sm font-bold text-zinc-900">Dress code <span className="text-zinc-500">(optional)</span></label>
-<input
-                  id="dressCode"
+<input id="dressCode"
                   value={dressCode}
                   onChange={(e) => setDressCode(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -4821,8 +4794,7 @@ function CreateEventPageContent() {
 </div>
 
                 <div className="min-w-0"><label htmlFor="ageRequirement" className="mb-2 block text-sm font-bold text-zinc-900">Age requirement <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="ageRequirement"
+<select id="ageRequirement"
                   value={ageRequirement}
                   onChange={(e) => setAgeRequirement(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -4882,14 +4854,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -4965,12 +4937,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -4986,6 +4952,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -5099,8 +5072,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -5108,7 +5080,7 @@ function CreateEventPageContent() {
             />
 {fieldFeedback("name")}</div>
 
-            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Event description <span className="text-red-700">*</span></label>
+            <div className="min-w-0"><label htmlFor="description" className="mb-2 block text-sm font-bold text-zinc-900">Description <span className="text-red-700">*</span></label>
 
 {fieldFeedback("description")}</div>t";
 
@@ -5157,14 +5129,14 @@ function CreateEventPageContent() {
     venueName: venueName.trim() ? "" : "Enter the venue name.",
     venueAddress: venueAddress.trim() ? "" : "Enter the street address.",
     city: city.trim() ? "" : "Enter the city.",
-    stateValue: stateValue.trim() ? "" : "Enter the state or region.",
-    eventDate: !eventDate ? "Choose the event date and time." : new Date(eventDate).getTime() <= Date.now() || !Number.isFinite(new Date(eventDate).getTime()) ? "Choose a future date and time." : "",
-    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : !Number.isFinite(Number(price)) || Number(price) < 0 ? "Enter a valid price of 0 or more." : "",
-    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : !Number.isInteger(Number(totalTickets)) || Number(totalTickets) <= 0 ? "Enter a whole number greater than 0." : "",
-    refundPolicy: refundPolicy.trim() ? "" : "Describe your refund policy.",
+    stateValue: stateValue.trim() ? "" : "Enter the state.",
+    eventDate: !eventDate ? "Choose a date and time." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Enter a ticket price (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Enter ticket capacity." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Enter a refund policy.",
   };
   const missingCount = Object.values(fieldErrors).filter(Boolean).length;
-  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={`${id}-error`} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
+  const fieldFeedback = (id: string) => attemptedPublish && fieldErrors[id] ? <p id={id + "-error"} role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[id]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -5240,12 +5212,6 @@ function CreateEventPageContent() {
     e.preventDefault();
     setError("");
     setAttemptedPublish(true);
-    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
-    if (firstInvalid) {
-      setError(`${missingCount} required field${missingCount === 1 ? "" : "s"} need attention. Review the highlighted fields below.`);
-      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
-      return;
-    }
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -5261,6 +5227,13 @@ function CreateEventPageContent() {
 
     if (!convexToken) {
       setError("Your secure session is still loading. Please refresh and try again.");
+      return;
+    }
+
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please correct the highlighted required fields before publishing.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -5374,8 +5347,7 @@ function CreateEventPageContent() {
             )}
 
             <div className="min-w-0"><label htmlFor="name" className="mb-2 block text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
-<input
-                  id="name" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
+<input id="name" aria-invalid={attemptedPublish && Boolean(fieldErrors.name)} aria-describedby={attemptedPublish && fieldErrors.name ? "name-error" : undefined}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -5391,8 +5363,7 @@ function CreateEventPageContent() {
             />
 
             <div className="min-w-0"><label htmlFor="category" className="mb-2 block text-sm font-bold text-zinc-900">Category <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="category"
+<select id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -5411,8 +5382,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="venueName" className="mb-2 block text-sm font-bold text-zinc-900">Venue name <span className="text-red-700">*</span></label>
-<input
-                  id="venueName" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
+<input id="venueName" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueName)} aria-describedby={attemptedPublish && fieldErrors.venueName ? "venueName-error" : undefined}
                   value={venueName}
                   onChange={(e) => setVenueName(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -5421,8 +5391,7 @@ function CreateEventPageContent() {
 {fieldFeedback("venueName")}</div>
 
                 <div className="min-w-0"><label htmlFor="venueAddress" className="mb-2 block text-sm font-bold text-zinc-900">Street address <span className="text-red-700">*</span></label>
-<input
-                  id="venueAddress" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
+<input id="venueAddress" aria-invalid={attemptedPublish && Boolean(fieldErrors.venueAddress)} aria-describedby={attemptedPublish && fieldErrors.venueAddress ? "venueAddress-error" : undefined}
                   value={venueAddress}
                   onChange={(e) => setVenueAddress(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -5432,8 +5401,7 @@ function CreateEventPageContent() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="min-w-0"><label htmlFor="city" className="mb-2 block text-sm font-bold text-zinc-900">City <span className="text-red-700">*</span></label>
-<input
-                  id="city" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
+<input id="city" aria-invalid={attemptedPublish && Boolean(fieldErrors.city)} aria-describedby={attemptedPublish && fieldErrors.city ? "city-error" : undefined}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -5441,9 +5409,8 @@ function CreateEventPageContent() {
                   />
 {fieldFeedback("city")}</div>
 
-                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State / region <span className="text-red-700">*</span></label>
-<input
-                  id="stateValue" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
+                  <div className="min-w-0"><label htmlFor="stateValue" className="mb-2 block text-sm font-bold text-zinc-900">State <span className="text-red-700">*</span></label>
+<input id="stateValue" aria-invalid={attemptedPublish && Boolean(fieldErrors.stateValue)} aria-describedby={attemptedPublish && fieldErrors.stateValue ? "stateValue-error" : undefined}
                     value={stateValue}
                     onChange={(e) => setStateValue(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
@@ -5455,8 +5422,7 @@ function CreateEventPageContent() {
             </div>
 
             <div className="min-w-0"><label htmlFor="eventDate" className="mb-2 block text-sm font-bold text-zinc-900">Event date and time <span className="text-red-700">*</span></label>
-<input
-                  id="eventDate" aria-required="true" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
+<input id="eventDate" aria-invalid={attemptedPublish && Boolean(fieldErrors.eventDate)} aria-describedby={attemptedPublish && fieldErrors.eventDate ? "eventDate-error" : undefined}
               type="datetime-local"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
@@ -5465,7 +5431,8 @@ function CreateEventPageContent() {
 {fieldFeedback("eventDate")}</div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
+              <div className="min-w-0"><label htmlFor="price" className="mb-2 block text-sm font-bold text-zinc-900">Ticket price <span className="text-red-700">*</span></label>
+<input id="price" aria-invalid={attemptedPublish && Boolean(fieldErrors.price)} aria-describedby={attemptedPublish && fieldErrors.price ? "price-error" : undefined}
                 type="number"
                 min="0"
                 step="0.01"
@@ -5474,8 +5441,10 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Ticket price"
               />
+{fieldFeedback("price")}</div>
 
-              <input
+              <div className="min-w-0"><label htmlFor="totalTickets" className="mb-2 block text-sm font-bold text-zinc-900">Total tickets <span className="text-red-700">*</span></label>
+<input id="totalTickets" aria-invalid={attemptedPublish && Boolean(fieldErrors.totalTickets)} aria-describedby={attemptedPublish && fieldErrors.totalTickets ? "totalTickets-error" : undefined}
                 type="number"
                 min="1"
                 value={totalTickets}
@@ -5483,6 +5452,7 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-white/40"
                 placeholder="Total tickets"
               />
+{fieldFeedback("totalTickets")}</div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -5498,8 +5468,7 @@ function CreateEventPageContent() {
 
               <div className="space-y-4">
                 <div className="min-w-0"><label htmlFor="dressCode" className="mb-2 block text-sm font-bold text-zinc-900">Dress code <span className="text-zinc-500">(optional)</span></label>
-<input
-                  id="dressCode"
+<input id="dressCode"
                   value={dressCode}
                   onChange={(e) => setDressCode(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -5508,8 +5477,7 @@ function CreateEventPageContent() {
 </div>
 
                 <div className="min-w-0"><label htmlFor="ageRequirement" className="mb-2 block text-sm font-bold text-zinc-900">Age requirement <span className="text-zinc-500">(optional)</span></label>
-<select
-                  id="ageRequirement"
+<select id="ageRequirement"
                   value={ageRequirement}
                   onChange={(e) => setAgeRequirement(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-zinc-950 outline-none focus:border-violet-400/40"
@@ -5544,8 +5512,7 @@ function CreateEventPageContent() {
             </div>
 
             <div className="min-w-0"><label htmlFor="image" className="mb-2 block text-sm font-bold text-zinc-900">Event image <span className="text-zinc-500">(optional)</span></label>
-<input
-                  id="image"
+<input id="image"
               type="file"
               accept="image/*"
               onChange={(e) => setImage(e.target.files?.[0] ?? null)}
