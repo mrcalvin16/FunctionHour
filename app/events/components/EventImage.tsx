@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+import { useEffect, useState } from "react";
+import { brandedMediaUrl } from "@/lib/brandedMediaUrl";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -23,6 +24,12 @@ export default function EventImage({
     !directImageUrl && storageId ? { storageId } : "skip"
   );
   const imageUrl = directImageUrl || storedImageUrl;
+  const src = brandedMediaUrl(imageUrl) ?? imageUrl;
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    setFailedSrc(null);
+  }, [src]);
 
   if (!directImageUrl && !storageId) {
     return (
@@ -40,7 +47,7 @@ export default function EventImage({
     );
   }
 
-  if (!imageUrl) {
+  if (!src || failedSrc === src) {
     return (
       <div className="flex h-56 items-center justify-center bg-zinc-900 text-zinc-500">
         Image unavailable
@@ -49,12 +56,17 @@ export default function EventImage({
   }
 
   return (
-    <div className="relative h-56 w-full overflow-hidden">
-      <Image
-        src={imageUrl}
+    <div className="relative h-full min-h-0 w-full overflow-hidden">
+      {/* Public flyers are already served by our branded /media rewrite.
+          Render them directly rather than routing the proxy through Next's
+          image optimizer, which can fail while the event detail image works. */}
+      <img
+        src={src}
         alt={alt}
-        fill
-        className={className}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailedSrc(src)}
+        className={`block h-full w-full object-cover ${className}`}
       />
     </div>
   );
