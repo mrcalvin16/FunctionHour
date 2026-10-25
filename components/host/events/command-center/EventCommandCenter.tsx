@@ -35,6 +35,8 @@ export type EventCommandEvent = {
   location: string;
   eventDate: number;
   dateString: string;
+  endDate?: number;
+  endDateString?: string;
   price?: number;
   totalTickets?: number;
   maxTicketsPerOrder?: number;
