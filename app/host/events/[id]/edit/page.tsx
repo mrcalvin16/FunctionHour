@@ -256,43 +256,14 @@ export default function EditEventPage() {
     setIsSaving(true);
 
     try {
-      const location = [venueName, venueAddress, city, stateValue]
-        .filter(Boolean)
-        .join(", ");
-
-      // Only submit schedule and venue fields when the organizer actually
-      // changes them. Existing ticket holders require a separate change flow.
-      const normalizedState = stateValue.trim().toUpperCase();
-      const venueChanged =
-        (protectedEdits.current.has("venueName") && venueName.trim() !== (event.venueName ?? "")) ||
-        (protectedEdits.current.has("venueAddress") && venueAddress.trim() !== (event.venueAddress ?? "")) ||
-        (protectedEdits.current.has("city") && city.trim() !== (event.city ?? "")) ||
-        (protectedEdits.current.has("state") && normalizedState !== (event.state ?? "").trim().toUpperCase());
-      const startChanged = protectedEdits.current.has("start") && dateString !== (event.dateString ?? "");
-      const endChanged = protectedEdits.current.has("end") && endDateString.trim() !== (event.endDateString ?? "");
-      const coordinates = venueChanged ? await geocodeAddress(location) : {};
-
+      // Standard Save is deliberately limited to ordinary settings. Schedule
+      // and venue changes always require the attendee-notification workflow.
+      // Do not infer protected edits from hydrated legacy event fields.
       await updateEvent({
         eventId: event._id,
         name: name.trim(),
         description: description.trim(),
         category,
-        ...(venueChanged && {
-          location,
-          venueName: venueName.trim(),
-          venueAddress: venueAddress.trim(),
-          city: city.trim(),
-          state: normalizedState,
-          ...coordinates,
-        }),
-        ...(startChanged && {
-          dateString,
-          eventDate: new Date(dateString).getTime(),
-        }),
-        ...(endChanged && {
-          endDateString: endDateString.trim(),
-          endDate: endDateString.trim() ? new Date(endDateString).getTime() : undefined,
-        }),
         price: Number(price),
         totalTickets: Number(totalTickets),
         maxTicketsPerOrder: Number(maxTicketsPerOrder),
@@ -306,8 +277,7 @@ export default function EditEventPage() {
         entryNotes: entryNotes.trim(),
       });
 
-      protectedEdits.current.clear();
-      setStatusMessage("Event updated successfully.");
+      setStatusMessage("Event settings saved. Date, time and venue changes must be made through Event changes.");
       router.refresh();
     } catch (err) {
       console.error("Error updating event:", err);
