@@ -9,6 +9,7 @@ import { useUser, SignInButton } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import EventLocationPreview from "@/components/events/EventLocationPreview";
 import EventAnnouncements from "@/components/events/EventAnnouncements";
+import EventTalent from "@/components/events/EventTalent";
 import { BadgeCheck } from "lucide-react";
 
 import type { Id } from "@/convex/_generated/dataModel";
@@ -382,6 +383,8 @@ export default function EventDetailPage({
 
               <EventAnnouncements announcements={announcements} />
             </div>
+
+            <EventTalent eventId={eventId} canManage={canManageEvent} />
 
             {canManageEvent && savedCreative && savedCreative.length > 0 && (
               <div className="order-5 mt-5 rounded-[1.5rem] border border-white/10 bg-[#111] p-5 sm:mt-6 sm:p-6">
