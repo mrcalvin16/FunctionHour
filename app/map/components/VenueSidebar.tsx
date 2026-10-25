@@ -107,14 +107,14 @@ export default function VenueSidebar({
                 className="h-44 w-full object-cover"
               />
             ) : (
-              <div className="flex h-44 items-center justify-center bg-white/[0.05] text-sm text-white/30">
+              <div className="flex h-44 items-center justify-center bg-white/[0.05] text-sm text-zinc-600">
                 No image
               </div>
             )}
 
             <div className="p-5">
               <div className="mb-2 flex items-center justify-between gap-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-600">
                   {event.city || "City TBA"}
                   {event.state ? `, ${event.state}` : ""}
                 </p>
