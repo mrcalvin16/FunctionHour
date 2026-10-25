@@ -848,3 +848,13 @@ html.light .organizer-shell .organizer-event-cover .organizer-revenue-badge p {
 
 /* Entry-pass details remain legible on their white cards. */
 html.light .ticket-pass-detail-icon > svg { color: #5b21b6 !important; }
+
+/* Organizer OS active navigation is a saturated brand surface, not a light card.
+   Keep its nested icon and labels white despite global light-mode text normalization. */
+html.light .organizer-shell .organizer-sidebar a[class*="from-violet-700"],
+html.light .organizer-shell .organizer-sidebar a[class*="from-violet-700"] :is(span, svg) {
+  color: #ffffff !important;
+}
+html.light .organizer-shell .organizer-sidebar a[class*="from-violet-700"] > span:first-child {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+}
