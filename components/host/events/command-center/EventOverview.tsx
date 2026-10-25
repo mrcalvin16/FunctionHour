@@ -380,7 +380,7 @@ function MetricCard({
     <article className="relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[#0c0b14]/85 p-5 backdrop-blur-xl">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600">
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-600">
             {label}
           </p>
           <p
@@ -452,7 +452,7 @@ function QuickAction({
           {detail}
         </span>
       </span>
-      <ArrowUpRight className="h-4 w-4 shrink-0 opacity-40 transition group-hover:opacity-100" />
+      <ArrowUpRight className="h-4 w-4 shrink-0 opacity-80 transition group-hover:opacity-100" />
     </Link>
   );
 }
@@ -470,7 +470,7 @@ function EventDetail({
     <div className="flex items-start gap-3">
       <Icon className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
       <div className="min-w-0">
-        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-zinc-600">
+        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-zinc-600">
           {label}
         </p>
         <p className="mt-1 truncate text-xs font-bold text-zinc-300">
