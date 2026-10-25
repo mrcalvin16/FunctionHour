@@ -296,7 +296,22 @@ export const validateCode = query({
       return null;
     }
 
-    const normalizedCode = args.code.trim();
+    // Phone cameras recognize a FunctionHour URL; the in-app scanner still
+    // resolves the underlying ticket ID. Legacy raw IDs and QR tokens work.
+    const scannedCode = args.code.trim();
+    let normalizedCode = scannedCode;
+    if (/^https?:\/\//i.test(scannedCode)) {
+      try {
+        const url = new URL(scannedCode);
+        const match = url.pathname.match(/^\/tickets\/([^/]+)\/?$/);
+        if (!["functionhour.com", "www.functionhour.com"].includes(url.hostname.toLowerCase()) || !match) {
+          return null;
+        }
+        normalizedCode = decodeURIComponent(match[1]);
+      } catch {
+        return null;
+      }
+    }
 
     if (!normalizedCode) {
       return null;
