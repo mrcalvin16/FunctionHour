@@ -37,9 +37,11 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
   const qrValue = `https://functionhour.com/tickets/${ticket._id}`;
   const shortCode = String(ticket._id).slice(-8).toUpperCase();
   const isRevoked = Boolean(ticket.revokedAt) || ticket.status === "cancelled";
+  // An event with an end time stays active until that time, not merely
+  // until doors open. Legacy events without an end time keep old behavior.
   const eventTime = getEventTime(
-    ticket.event.eventDate,
-    ticket.event.dateString,
+    ticket.event.endDate ?? ticket.event.eventDate,
+    ticket.event.endDateString ?? ticket.event.dateString,
   );
   const eventEnded = eventTime !== null && eventTime < Date.now();
   const status = isRevoked
