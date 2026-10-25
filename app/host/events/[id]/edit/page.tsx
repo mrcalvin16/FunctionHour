@@ -314,6 +314,60 @@ export default function EditEventPage() {
     }
   }
 
+  async function handleSaveOtherSettings() {
+    if (!event || isSaving) return;
+    setError("");
+    setStatusMessage("");
+
+    // This action deliberately excludes date, time, address, location and
+    // coordinates. Organizers must use Event changes for those fields.
+    const numericPrice = Number(price);
+    const numericTickets = Number(totalTickets);
+    const orderLimit = Number(maxTicketsPerOrder);
+    if (!name.trim() || !description.trim() || !refundPolicy.trim() ||
+        !Number.isFinite(numericPrice) || numericPrice < 0 ||
+        !Number.isInteger(numericTickets) || numericTickets < 1 ||
+        !Number.isInteger(orderLimit) || orderLimit < 1 || orderLimit > 10 ||
+        (refundContactEmail.trim() && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(refundContactEmail.trim()))) {
+      setError("Check the event name, description, price, capacity, purchase limit and refund settings before saving.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await updateEvent({
+        eventId: event._id,
+        name: name.trim(),
+        description: description.trim(),
+        category,
+        price: numericPrice,
+        totalTickets: numericTickets,
+        maxTicketsPerOrder: orderLimit,
+        refundPolicy: refundPolicy.trim(),
+        refundDeadline: refundDeadline.trim(),
+        refundContactEmail: refundContactEmail.trim(),
+        dressCode: dressCode.trim(),
+        ageRequirement: ageRequirement.trim(),
+        parkingInfo: parkingInfo.trim(),
+        entryNotes: entryNotes.trim(),
+      });
+      // Reset only the unsaved protected fields, making the form consistent
+      // with the event record rather than implying those edits were saved.
+      setVenueName(event.venueName ?? "");
+      setVenueAddress(event.venueAddress ?? "");
+      setCity(event.city ?? "");
+      setStateValue((event.state ?? "").trim().toUpperCase());
+      setDateString(event.dateString ?? "");
+      setEndDateString(event.endDateString ?? "");
+      setStatusMessage("Other settings saved. Date, time and venue changes were NOT saved. Use Event changes to update attendees.");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to save other settings.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   async function handleDeleteEvent() {
     setDeleteError("");
     setIsDeleting(true);
@@ -369,12 +423,25 @@ export default function EditEventPage() {
             <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
               <p>{error}</p>
               {error.includes("ticket holders") && (
-                <Link
-                  href={`/host/events/${event._id}/changes`}
-                  className="mt-3 inline-flex font-semibold text-white underline underline-offset-4"
-                >
-                  Open Event changes
-                </Link>
+                <div className="mt-3 flex flex-wrap items-center gap-4">
+                  <button
+                    type="button"
+                    disabled={isSaving}
+                    onClick={handleSaveOtherSettings}
+                    className="rounded-xl bg-white px-4 py-2 font-semibold text-zinc-950 disabled:opacity-50"
+                  >
+                    {isSaving ? "Saving…" : "Save other settings only"}
+                  </button>
+                  <Link
+                    href={`/host/events/${event._id}/changes`}
+                    className="font-semibold text-white underline underline-offset-4"
+                  >
+                    Open Event changes
+                  </Link>
+                  <p className="w-full text-xs text-red-100">
+                    Saving other settings will not save changes to the event date, time or venue. Those fields will be reset to their current values.
+                  </p>
+                </div>
               )}
             </div>
           )}
