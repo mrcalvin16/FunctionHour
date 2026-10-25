@@ -165,7 +165,7 @@ export default function EventsWorkspacePage() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search events or venues"
-              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-zinc-700"
+              className="w-full bg-transparent text-sm text-zinc-950 outline-none placeholder:text-zinc-500"
             />
           </label>
         </div>
@@ -318,7 +318,7 @@ function CalendarView({
         {weekdayLabels.map((day) => (
           <div
             key={day}
-            className="px-1 py-3 text-center text-[9px] font-black uppercase tracking-wider text-zinc-600"
+            className="px-1 py-3 text-center text-[11px] font-black uppercase tracking-wider text-zinc-600"
           >
             {day}
           </div>
@@ -352,13 +352,13 @@ function CalendarView({
                         key={event._id}
                         href={`/host/events/${event._id}`}
                         title={`${event.name} — ${formatDate(event.eventDate)}`}
-                        className="block truncate rounded-md border border-violet-400/20 bg-violet-500/15 px-1.5 py-1 text-[8px] font-bold text-violet-200 transition hover:bg-violet-500/25 sm:text-[10px]"
+                        className="block truncate rounded-md border border-violet-400/20 bg-violet-500/15 px-1.5 py-1 text-[11px] font-bold text-violet-200 transition hover:bg-violet-500/25 sm:text-[10px]"
                       >
                         {event.name}
                       </Link>
                     ))}
                     {dayEvents.length > 3 && (
-                      <p className="px-1 text-[8px] text-zinc-600">
+                      <p className="px-1 text-[11px] text-zinc-600">
                         +{dayEvents.length - 3} more
                       </p>
                     )}
@@ -378,7 +378,7 @@ function CalendarView({
               className="flex items-center gap-3 p-4 transition hover:bg-white/[0.04]"
             >
               <span className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-violet-500/15 text-violet-200">
-                <span className="text-[8px] font-black uppercase">
+                <span className="text-[11px] font-black uppercase">
                   {new Intl.DateTimeFormat("en", { month: "short" }).format(
                     event.eventDate,
                   )}
@@ -396,7 +396,7 @@ function CalendarView({
                   {event.location || "Location pending"}
                 </span>
               </span>
-              <span className="text-zinc-700">→</span>
+              <span className="text-zinc-500">→</span>
             </Link>
           ))
         ) : (
