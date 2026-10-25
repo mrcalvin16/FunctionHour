@@ -226,6 +226,7 @@ eventInteractions: defineTable({
     kind: v.union(v.literal("cancelled"), v.literal("postponed"), v.literal("rescheduled"), v.literal("venue_changed")),
     message: v.string(),
     previousDate: v.number(),
+    showPublicAlert: v.optional(v.boolean()),
     nextDate: v.optional(v.number()),
     previousVenue: v.optional(v.string()),
     nextVenue: v.optional(v.string()),
