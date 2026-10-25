@@ -78,6 +78,17 @@ eventInteractions: defineTable({
     .index("by_tokenIdentifier", ["tokenIdentifier"])
     .index("by_verificationRequested", ["verificationRequested"]),
 
+  eventTalent: defineTable({
+    eventId: v.id("events"),
+    name: v.string(),
+    role: v.string(),
+    bio: v.optional(v.string()),
+    instagram: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+    sortOrder: v.number(),
+    createdAt: v.number(),
+  }).index("by_event", ["eventId"]),
+
   events: defineTable({
     name: v.string(),
     description: v.string(),
