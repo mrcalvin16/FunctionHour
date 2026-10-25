@@ -41,6 +41,7 @@ export default function EditEventPage() {
   const [stateValue, setStateValue] = useState("");
 
   const [dateString, setDateString] = useState("");
+  const [endDateString, setEndDateString] = useState("");
   const [price, setPrice] = useState("");
   const [totalTickets, setTotalTickets] = useState("");
   const [maxTicketsPerOrder, setMaxTicketsPerOrder] = useState("10");
@@ -76,6 +77,7 @@ export default function EditEventPage() {
     setStateValue(event.state ?? "");
 
     setDateString(event.dateString ?? "");
+    setEndDateString(event.endDateString ?? "");
     setPrice(String(event.price ?? 0));
     setTotalTickets(String(event.totalTickets ?? 0));
     setMaxTicketsPerOrder(String(event.maxTicketsPerOrder ?? 10));
@@ -164,6 +166,10 @@ export default function EditEventPage() {
       };
     }
 
+    if (endDateString && (!Number.isFinite(new Date(endDateString).getTime()) || new Date(endDateString).getTime() <= new Date(dateString).getTime())) {
+      return { message: "End time must be after the start time.", fieldId: "event-end-date" };
+    }
+
     const numericPrice = Number(price);
     const numericTickets = Number(totalTickets);
 
@@ -248,6 +254,7 @@ export default function EditEventPage() {
         longitude,
         dateString,
         eventDate: new Date(dateString).getTime(),
+        ...(endDateString ? { endDateString, endDate: new Date(endDateString).getTime() } : {}),
         price: Number(price),
         totalTickets: Number(totalTickets),
         maxTicketsPerOrder: Number(maxTicketsPerOrder),
@@ -444,7 +451,7 @@ export default function EditEventPage() {
           <section className="grid gap-5 md:grid-cols-3">
             <div>
               <label className="text-sm font-semibold text-white/70">
-                Event Date
+                Event Start
               </label>
               <input
                 id="event-date"
@@ -454,6 +461,19 @@ export default function EditEventPage() {
                 onChange={(e) => setDateString(e.target.value)}
                 className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
               />
+            </div>
+
+            <div>
+              <label htmlFor="event-end-date" className="text-sm font-semibold text-white/70">Event End</label>
+              <input
+                id="event-end-date"
+                type="datetime-local"
+                min={dateString || undefined}
+                value={endDateString}
+                onChange={(e) => setEndDateString(e.target.value)}
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
+              />
+              <p className="mt-1 text-xs text-white/50">Add an end time for existing events. Use the next date for after-midnight endings.</p>
             </div>
 
             <div>
