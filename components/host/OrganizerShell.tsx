@@ -384,7 +384,7 @@ function Sidebar({
     <aside
       id="organizer-navigation"
       className={[
-        "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-zinc-200 bg-white shadow-[8px_0_36px_rgba(45,25,70,0.05)] transition-all duration-300",
+        "organizer-sidebar fixed inset-y-0 left-0 z-50 flex flex-col border-r border-zinc-200 bg-white shadow-[8px_0_36px_rgba(45,25,70,0.05)] transition-all duration-300",
         collapsed ? "lg:w-[92px]" : "lg:w-[272px]",
         mobileOpen
           ? "w-[min(290px,calc(100vw-24px))] translate-x-0"
@@ -403,7 +403,7 @@ function Sidebar({
           type="button"
           onClick={onMobileClose}
           aria-label="Close menu"
-          className="ml-3 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 lg:hidden"
+          className="ml-3 flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-800 lg:hidden"
         >
           <Icon name="close" />
         </button>
@@ -474,7 +474,7 @@ function SidebarItem({
         className={[
           "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition",
           active
-            ? "bg-violet-950/25 text-white"
+            ? "bg-white/20 text-white"
             : item.accent === "orange"
               ? "text-orange-400"
               : "text-violet-700",
@@ -501,7 +501,7 @@ function SidebarItem({
 
             <span
               className={[
-                "mt-0.5 block truncate text-[10px]",
+                "mt-0.5 block truncate text-[11px]",
                 active
                   ? "text-white"
                   : item.accent === "orange"
@@ -518,7 +518,7 @@ function SidebarItem({
               Soon
             </span>
           ) : active ? (
-            <span className="text-violet-200">›</span>
+            <span className="text-white">›</span>
           ) : null}
         </>
       )}
