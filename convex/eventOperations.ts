@@ -77,7 +77,7 @@ export const changeEvent = mutation({
 
 const validEmail = (value?: string | null) => {
   const normalized = value?.trim().toLowerCase();
-  return normalized && /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(normalized)
+  return normalized && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)
     ? normalized : undefined;
 };
 
