@@ -47,11 +47,24 @@ function EventImage({
   }
 
   return (
-    <img
-      src={finalImageUrl}
-      alt={name ? `${name} event` : "Event image"}
-      className="h-full w-full object-cover"
-    />
+    <div className="w-full">
+      <a
+        href={finalImageUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={name ? `View full flyer for ${name}` : "View full event flyer"}
+        className="group block w-full focus-visible:outline focus-visible:outline-4 focus-visible:outline-violet-500"
+      >
+        <img
+          src={finalImageUrl}
+          alt={name ? `${name} event flyer` : "Event flyer"}
+          className="block h-auto max-h-[85vh] w-full object-contain"
+        />
+        <span className="block bg-zinc-950 px-4 py-3 text-center text-sm font-semibold text-white transition group-hover:text-violet-300">
+          View full flyer ↗
+        </span>
+      </a>
+    </div>
   );
 }
 
@@ -252,7 +265,7 @@ export default function EventDetailPage({
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(310px,0.7fr)] lg:items-start">
           <div className="contents lg:block">
             <div className="order-1 overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111] shadow-2xl sm:rounded-[2rem]">
-              <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-zinc-900 sm:aspect-[16/10]">
+              <div className="flex w-full items-center justify-center bg-zinc-950">
                 <EventImage
                   storageId={event.imageStorageId}
                   imageUrl={event.imageUrl}
