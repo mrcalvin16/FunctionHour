@@ -32,9 +32,9 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
     return <TicketUnavailable />;
   }
 
-  // Check-in accepts ticket IDs. Encoding the ID keeps the QR compact and
-  // avoids exposing the buyer's email in older stored QR tokens.
-  const qrValue = String(ticket._id);
+  // A full URL opens FunctionHour in standard phone cameras. The organizer
+  // check-in scanner extracts the same ticket ID for server-side validation.
+  const qrValue = `https://functionhour.com/tickets/${ticket._id}`;
   const shortCode = String(ticket._id).slice(-8).toUpperCase();
   const isRevoked = Boolean(ticket.revokedAt) || ticket.status === "cancelled";
   const eventTime = getEventTime(
