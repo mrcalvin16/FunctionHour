@@ -16,23 +16,33 @@ export default function OrganizerPortalLink({
   attendeeLabel?: string;
   organizerHref?: string;
 }) {
-  const { isLoaded, isSignedIn } = useAuth();
-  const { user: clerkUser } = useUser();
-  // Match the verified-email rule enforced by the admin portal on the server.
-  const isAdmin = isSignedIn && clerkUser?.emailAddresses.some((email) =>
-    email.verification?.status === "verified" &&
-    email.emailAddress.trim().toLowerCase() === "operations@functionhour.com",
+  const { isLoaded, isSignedIn, userId } = useAuth();
+  const { isLoaded: userLoaded, user: clerkUser } = useUser();
+  const identityReady = isLoaded && userLoaded &&
+    (!isSignedIn || Boolean(userId && clerkUser?.id === userId));
+  const access = useQuery(
+    api.users.getOrganizerAccess,
+    identityReady && isSignedIn && userId ? {} : "skip",
   );
-  const user = useQuery(api.users.getCurrentUser, isSignedIn ? {} : "skip");
-  const ownedEvents = useQuery(api.events.getMyEvents, isSignedIn ? {} : "skip");
-  const canAccess = user?.isOrganizer === true || Boolean(ownedEvents?.length);
-  const href = !isLoaded
-    ? "/onboarding"
-    : !isSignedIn
-      ? "/sign-up?redirect_url=%2Fhost%2Fprofile"
-      : isAdmin
-        ? "/admin"
-        : canAccess
+  const isResolving = !identityReady || (isSignedIn && access === undefined);
+
+  // Never show an account-specific role or link until the active Clerk
+  // identity and the Convex access result have both resolved.
+  if (isResolving) {
+    return <span aria-label="Loading account navigation" className={className}>{attendeeLabel}</span>;
+  }
+
+  const isAdmin = Boolean(isSignedIn && clerkUser?.id === userId &&
+    clerkUser?.emailAddresses.some((email) =>
+      email.verification?.status === "verified" &&
+      email.emailAddress.trim().toLowerCase() === "operations@functionhour.com"
+    ));
+  const canAccess = access?.canAccessOrganizerTools === true;
+  const href = !isSignedIn
+    ? "/sign-up?redirect_url=%2Fhost%2Fprofile"
+    : isAdmin
+      ? "/admin"
+      : canAccess
         ? organizerHref
         : "/host/profile";
 
