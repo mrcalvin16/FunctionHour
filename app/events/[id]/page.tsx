@@ -17,6 +17,7 @@ import VenueRules from "@/components/functionhour/VenueRules";
 import { getEventViewAttribution } from "@/lib/analytics/eventViewAttribution";
 import { getPrivacyPreferences, PRIVACY_PREFERENCES_EVENT } from "@/lib/privacyPreferences";
 import { attendeeVenue } from "@/lib/attendeeDisplay";
+import { brandedMediaUrl } from "@/lib/brandedMediaUrl";
 import { formatEventDate, getBuyerPriceLabel, getFromPriceLabel, isEventUpcoming } from "../eventPresentation";
 
 function EventImage({
@@ -49,14 +50,14 @@ function EventImage({
   return (
     <div className="w-full">
       <a
-        href={finalImageUrl}
+        href={brandedMediaUrl(finalImageUrl) ?? finalImageUrl}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={name ? `View full flyer for ${name}` : "View full event flyer"}
         className="group block w-full focus-visible:outline focus-visible:outline-4 focus-visible:outline-violet-500"
       >
         <img
-          src={finalImageUrl}
+          src={brandedMediaUrl(finalImageUrl) ?? finalImageUrl}
           alt={name ? `${name} event flyer` : "Event flyer"}
           className="block h-auto max-h-[85vh] w-full object-contain"
         />
@@ -97,7 +98,7 @@ function MerchImage({
   }
 
   return (
-    <img src={finalUrl} alt={name} className="h-full w-full object-cover" />
+    <img src={brandedMediaUrl(finalUrl) ?? finalUrl} alt={name} className="h-full w-full object-cover" />
   );
 }
 
@@ -340,7 +341,7 @@ export default function EventDetailPage({
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 text-xl font-black">
                   {organizer?.avatarUrl ? (
                     <img
-                      src={organizer.avatarUrl}
+                      src={brandedMediaUrl(organizer.avatarUrl) ?? organizer.avatarUrl}
                       alt={organizerName}
                       className="h-full w-full object-cover"
                     />
@@ -437,7 +438,7 @@ export default function EventDetailPage({
 
                       {creative.imageUrl && (
                         <img
-                          src={creative.imageUrl}
+                          src={brandedMediaUrl(creative.imageUrl) ?? creative.imageUrl}
                           alt={creative.title || "Saved creative"}
                           className="mt-4 h-40 w-full rounded-2xl object-cover"
                         />
