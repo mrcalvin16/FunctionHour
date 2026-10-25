@@ -58,6 +58,8 @@ export const createEvent = mutation({
 
     dateString: v.optional(v.string()),
     eventDate: v.optional(v.float64()),
+    endDate: v.optional(v.float64()),
+    endDateString: v.optional(v.string()),
 
     price: v.optional(v.float64()),
     totalTickets: v.optional(v.float64()),
@@ -102,6 +104,9 @@ export const createEvent = mutation({
       throw new Error("Complete organizer onboarding before creating an event.");
     }
 
+    if (args.endDate !== undefined && (!Number.isFinite(args.endDate) || args.endDate <= (args.eventDate ?? Date.now()))) {
+      throw new Error("Event end must be after the start date and time.");
+    }
     validateTicketPurchaseLimit(args.maxTicketsPerOrder);
     const eventId = await ctx.db.insert("events", {
       name: args.name,
@@ -119,6 +124,8 @@ export const createEvent = mutation({
 
       dateString: args.dateString ?? "",
       eventDate: args.eventDate ?? Date.now(),
+      endDate: args.endDate,
+      endDateString: args.endDateString,
 
       price: args.price ?? 0,
       totalTickets: args.totalTickets ?? 0,
@@ -410,6 +417,8 @@ export const updateEvent = mutation({
 
     dateString: v.optional(v.string()),
     eventDate: v.optional(v.float64()),
+    endDate: v.optional(v.float64()),
+    endDateString: v.optional(v.string()),
 
     price: v.optional(v.float64()),
     totalTickets: v.optional(v.float64()),
@@ -437,11 +446,16 @@ export const updateEvent = mutation({
       throw new Error("Event not found.");
     }
 
+    const nextStart = args.eventDate ?? event.eventDate;
+    const nextEnd = args.endDate ?? event.endDate;
+    if (nextEnd !== undefined && (!Number.isFinite(nextEnd) || nextEnd <= nextStart)) {
+      throw new Error("Event end must be after the start date and time.");
+    }
     if (args.eventDate !== undefined && event.salesEndAt !== undefined && event.salesEndAt > args.eventDate) {
       throw new Error("Move or remove the ticket sales deadline before setting an earlier event date.");
     }
 
-    if (args.eventDate !== undefined || args.dateString !== undefined ||
+    if (args.eventDate !== undefined || args.dateString !== undefined || args.endDate !== undefined || args.endDateString !== undefined ||
       args.venueName !== undefined || args.venueAddress !== undefined || args.location !== undefined || args.city !== undefined || args.state !== undefined || args.latitude !== undefined || args.longitude !== undefined) {
       const hasTickets = await ctx.db.query("tickets").withIndex("by_event", (q) => q.eq("eventId", args.eventId)).take(1);
       const hasOrders = await ctx.db.query("ticketOrders").withIndex("by_event_and_paidAt", (q) => q.eq("eventId", args.eventId)).take(1);
@@ -470,6 +484,8 @@ export const updateEvent = mutation({
 
       ...(args.dateString !== undefined && { dateString: args.dateString }),
       ...(args.eventDate !== undefined && { eventDate: args.eventDate }),
+      ...(args.endDate !== undefined && { endDate: args.endDate }),
+      ...(args.endDateString !== undefined && { endDateString: args.endDateString }),
 
       ...(args.price !== undefined && { price: args.price }),
       ...(args.totalTickets !== undefined && {
