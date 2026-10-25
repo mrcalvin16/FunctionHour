@@ -25,6 +25,7 @@ function CreateEventPageContent() {
   const [stateValue, setStateValue] = useState("");
 
   const [eventDate, setEventDate] = useState("");
+  const [endDateString, setEndDateString] = useState("");
   const [price, setPrice] = useState("");
   const [totalTickets, setTotalTickets] = useState("");
 
@@ -46,7 +47,8 @@ function CreateEventPageContent() {
     venueAddress: venueAddress.trim() ? "" : "Street address is required.",
     city: city.trim() ? "" : "City is required.",
     stateValue: stateValue.trim() ? "" : "State is required.",
-    eventDate: !eventDate ? "Date and time are required." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    eventDate: !eventDate ? "Start date and time are required." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future start date and time.",
+    endDateString: !endDateString ? "End date and time are required." : !eventDate || !Number.isFinite(new Date(endDateString).getTime()) || new Date(endDateString).getTime() <= new Date(eventDate).getTime() ? "End time must be after the start time." : "",
     price: price.trim() === "" ? "Ticket price is required (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
     totalTickets: !totalTickets.trim() ? "Ticket capacity is required." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
     refundPolicy: refundPolicy.trim() ? "" : "Refund policy is required.",
@@ -58,11 +60,11 @@ function CreateEventPageContent() {
   const checklist = useMemo(() => [
     { label: "Event name and description", ready: Boolean(name.trim() && description.trim()) },
     { label: "Venue, address, and city", ready: Boolean(venueName.trim() && venueAddress.trim() && city.trim() && stateValue.trim()) },
-    { label: "Future date and time", ready: Boolean(eventDate && new Date(eventDate).getTime() > Date.now()) },
+    { label: "Start and end time", ready: Boolean(eventDate && endDateString && new Date(eventDate).getTime() > Date.now() && new Date(endDateString).getTime() > new Date(eventDate).getTime()) },
     { label: "Ticket price and capacity", ready: price !== "" && Number(price) >= 0 && Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 },
     { label: "Refund terms", ready: Boolean(refundPolicy.trim()) },
     { label: "Event image (recommended)", ready: Boolean(image), optional: true },
-  ], [name, description, venueName, venueAddress, city, stateValue, eventDate, price, totalTickets, refundPolicy, image]);
+  ], [name, description, venueName, venueAddress, city, stateValue, eventDate, endDateString, price, totalTickets, refundPolicy, image]);
 
   useEffect(() => {
     if (!draftKey) return;
@@ -72,7 +74,7 @@ function CreateEventPageContent() {
       const draft = JSON.parse(raw) as Record<string, string>;
       setName(draft.name || ""); setDescription(draft.description || ""); setCategory(draft.category || "Party");
       setVenueName(draft.venueName || ""); setVenueAddress(draft.venueAddress || "");
-      setCity(draft.city || ""); setStateValue(draft.stateValue || ""); setEventDate(draft.eventDate || "");
+      setCity(draft.city || ""); setStateValue(draft.stateValue || ""); setEventDate(draft.eventDate || ""); setEndDateString(draft.endDateString || "");
       setPrice(draft.price || ""); setTotalTickets(draft.totalTickets || "");
       setDressCode(draft.dressCode || ""); setAgeRequirement(draft.ageRequirement || "21+");
       setParkingInfo(draft.parkingInfo || ""); setEntryNotes(draft.entryNotes || "");
@@ -85,7 +87,7 @@ function CreateEventPageContent() {
     if (!draftKey) return;
     try {
       window.localStorage.setItem(draftKey, JSON.stringify({ name, description, category, venueName,
-        venueAddress, city, stateValue, eventDate, price, totalTickets, dressCode, ageRequirement,
+        venueAddress, city, stateValue, eventDate, endDateString, price, totalTickets, dressCode, ageRequirement,
         parkingInfo, entryNotes, refundPolicy }));
       setDraftNotice("Draft saved on this device. Event images are not saved with local drafts.");
     } catch { setDraftNotice("Unable to save a draft on this device."); }
@@ -196,6 +198,8 @@ function CreateEventPageContent() {
         longitude,
         eventDate: new Date(eventDate).getTime(),
         dateString: eventDate,
+        endDate: new Date(endDateString).getTime(),
+        endDateString,
         price: Number(price),
         totalTickets: Number(totalTickets),
 
@@ -338,7 +342,7 @@ function CreateEventPageContent() {
               </div>
             </div>
 
-            <label htmlFor="eventDate" className="block mb-2 text-sm font-bold text-zinc-900">Event date and time <span className="text-red-700">*</span></label>
+            <label htmlFor="eventDate" className="block mb-2 text-sm font-bold text-zinc-900">Event start date and time <span className="text-red-700">*</span></label>
                 <input id="eventDate"
               type="datetime-local"
               value={eventDate}
@@ -346,6 +350,19 @@ function CreateEventPageContent() {
               className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
             />
                 {feedback("eventDate")}
+
+            <label htmlFor="endDateString" className="mt-4 block mb-2 text-sm font-bold text-zinc-900">Event end date and time <span className="text-red-700">*</span></label>
+            <input
+              id="endDateString"
+              type="datetime-local"
+              required
+              min={eventDate || undefined}
+              value={endDateString}
+              onChange={(e) => setEndDateString(e.target.value)}
+              className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
+            />
+            {feedback("endDateString")}
+            <p className="mt-1 text-xs text-zinc-500">For events ending after midnight, choose the following date.</p>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label htmlFor="price" className="block mb-2 text-sm font-bold text-zinc-900">Ticket price <span className="text-red-700">*</span></label>
