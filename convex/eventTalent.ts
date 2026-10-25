@@ -66,7 +66,8 @@ export const move = mutation({
     const index = lineup.findIndex(p => p._id === performer._id);
     const other = lineup[index + (args.direction === "up" ? -1 : 1)];
     if (!other) return;
-    await ctx.db.patch(performer._id, { sortOrder: other.sortOrder });
-    await ctx.db.patch(other._id, { sortOrder: performer.sortOrder });
+    const targetIndex = lineup.findIndex(p => p._id === other._id);
+    [lineup[index], lineup[targetIndex]] = [lineup[targetIndex], lineup[index]];
+    await Promise.all(lineup.map((p, position) => ctx.db.patch(p._id, { sortOrder: position })));
   },
 });
