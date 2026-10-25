@@ -1,4 +1,6 @@
-"use client";
+"use clien
+                {feedback("refundPolicy")}
+                {feedback("description")}t";
 
 import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "convex/react";
@@ -38,6 +40,21 @@ function CreateEventPageContent() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [attemptedPublish, setAttemptedPublish] = useState(false);
+  const fieldErrors: Record<string, string> = {
+    name: name.trim() ? "" : "Event name is required.",
+    description: description.trim() ? "" : "Description is required.",
+    venueName: venueName.trim() ? "" : "Venue name is required.",
+    venueAddress: venueAddress.trim() ? "" : "Street address is required.",
+    city: city.trim() ? "" : "City is required.",
+    stateValue: stateValue.trim() ? "" : "State is required.",
+    eventDate: !eventDate ? "Date and time are required." : new Date(eventDate).getTime() > Date.now() ? "" : "Choose a future date and time.",
+    price: price.trim() === "" ? "Ticket price is required (0 for free)." : Number(price) >= 0 && Number.isFinite(Number(price)) ? "" : "Enter a valid price.",
+    totalTickets: !totalTickets.trim() ? "Ticket capacity is required." : Number.isInteger(Number(totalTickets)) && Number(totalTickets) > 0 ? "" : "Enter a whole number greater than 0.",
+    refundPolicy: refundPolicy.trim() ? "" : "Refund policy is required.",
+  };
+  const missingCount = Object.values(fieldErrors).filter(Boolean).length;
+  const feedback = (key: string) => attemptedPublish && fieldErrors[key] ? <p role="alert" className="mt-1 text-sm font-semibold text-red-700">{fieldErrors[key]}</p> : null;
   const [draftNotice, setDraftNotice] = useState("");
   const draftKey = userId ? `functionhour:event-draft:${userId}` : null;
   const checklist = useMemo(() => [
@@ -112,6 +129,7 @@ function CreateEventPageContent() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    setAttemptedPublish(true);
 
     if (!isLoaded) {
       setError("Auth is still loading. Try again in a second.");
@@ -130,23 +148,10 @@ function CreateEventPageContent() {
       return;
     }
 
-    if (
-      !name ||
-      !description ||
-      !venueName ||
-      !venueAddress ||
-      !city ||
-      !stateValue ||
-      !eventDate ||
-      price === "" ||
-      !totalTickets
-    ) {
-      setError("Please fill out all required fields.");
-      return;
-    }
-
-    if (checklist.some((item) => !item.ready && !item.optional)) {
-      setError("Complete the required publishing details, including refund terms, before publishing.");
+    const firstInvalid = Object.keys(fieldErrors).find((key) => fieldErrors[key]);
+    if (firstInvalid) {
+      setError("Please complete the highlighted required fields.");
+      requestAnimationFrame(() => document.getElementById(firstInvalid)?.focus());
       return;
     }
 
@@ -239,6 +244,7 @@ function CreateEventPageContent() {
         ) : (
           <form
             onSubmit={handleSubmit}
+            noValidate
             className="space-y-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6"
           >
             <div className="rounded-2xl border border-violet-300/30 bg-violet-950/30 p-5">
@@ -258,21 +264,25 @@ function CreateEventPageContent() {
               </div>
             )}
 
-            <input
+            <label htmlFor="name" className="block mb-2 text-sm font-bold text-zinc-900">Event name <span className="text-red-700">*</span></label>
+                <input id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
               placeholder="Event name"
             />
+                {feedback("name")}
 
-            <textarea
+            <label htmlFor="description" className="block mb-2 text-sm font-bold text-zinc-900">Event description <span className="text-red-700">*</span></label>
+                <textarea id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="min-h-32 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
               placeholder="Tell people what your event is about..."
             />
 
-            <select
+            <label htmlFor="category" className="block mb-2 text-sm font-bold text-zinc-900">Category <span className="text-zinc-500">(optional)</span></label>
+                <select id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
@@ -289,47 +299,58 @@ function CreateEventPageContent() {
               <h2 className="mb-4 text-xl font-black">Venue Location</h2>
 
               <div className="space-y-4">
-                <input
+                <label htmlFor="venueName" className="block mb-2 text-sm font-bold text-zinc-900">Venue name <span className="text-red-700">*</span></label>
+                <input id="venueName"
                   value={venueName}
                   onChange={(e) => setVenueName(e.target.value)}
                   className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
                   placeholder="Venue name"
                 />
+                {feedback("venueName")}
 
-                <input
+                <label htmlFor="venueAddress" className="block mb-2 text-sm font-bold text-zinc-900">Street address <span className="text-red-700">*</span></label>
+                <input id="venueAddress"
                   value={venueAddress}
                   onChange={(e) => setVenueAddress(e.target.value)}
                   className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
                   placeholder="Street address"
                 />
+                {feedback("venueAddress")}
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input
+                  <label htmlFor="city" className="block mb-2 text-sm font-bold text-zinc-900">City <span className="text-red-700">*</span></label>
+                <input id="city"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
                     placeholder="City"
                   />
+                {feedback("city")}
 
-                  <input
+                  <label htmlFor="stateValue" className="block mb-2 text-sm font-bold text-zinc-900">State <span className="text-red-700">*</span></label>
+                <input id="stateValue"
                     value={stateValue}
                     onChange={(e) => setStateValue(e.target.value)}
                     className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
                     placeholder="State"
                   />
+                {feedback("stateValue")}
                 </div>
               </div>
             </div>
 
-            <input
+            <label htmlFor="eventDate" className="block mb-2 text-sm font-bold text-zinc-900">Event date and time <span className="text-red-700">*</span></label>
+                <input id="eventDate"
               type="datetime-local"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
               className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
             />
+                {feedback("eventDate")}
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <input
+              <label htmlFor="price" className="block mb-2 text-sm font-bold text-zinc-900">Ticket price <span className="text-red-700">*</span></label>
+                <input id="price"
                 type="number"
                 min="0"
                 step="0.01"
@@ -338,8 +359,10 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
                 placeholder="Ticket price"
               />
+                {feedback("price")}
 
-              <input
+              <label htmlFor="totalTickets" className="block mb-2 text-sm font-bold text-zinc-900">Ticket capacity <span className="text-red-700">*</span></label>
+                <input id="totalTickets"
                 type="number"
                 min="1"
                 value={totalTickets}
@@ -347,6 +370,7 @@ function CreateEventPageContent() {
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
                 placeholder="Total tickets"
               />
+                {feedback("totalTickets")}
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-black/40 p-5">
@@ -361,14 +385,16 @@ function CreateEventPageContent() {
               </div>
 
               <div className="space-y-4">
-                <input
+                <label htmlFor="dressCode" className="block mb-2 text-sm font-bold text-zinc-900">Dress code <span className="text-zinc-500">(optional)</span></label>
+                <input id="dressCode"
                   value={dressCode}
                   onChange={(e) => setDressCode(e.target.value)}
                   className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-violet-400/40"
                   placeholder="Dress code (All White, Upscale Casual, Festival Wear...)"
                 />
 
-                <select
+                <label htmlFor="ageRequirement" className="block mb-2 text-sm font-bold text-zinc-900">Age requirement <span className="text-zinc-500">(optional)</span></label>
+                <select id="ageRequirement"
                   value={ageRequirement}
                   onChange={(e) => setAgeRequirement(e.target.value)}
                   className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-violet-400/40"
@@ -378,21 +404,24 @@ function CreateEventPageContent() {
                   <option>All Ages</option>
                 </select>
 
-                <textarea
+                <label htmlFor="parkingInfo" className="block mb-2 text-sm font-bold text-zinc-900">Parking information <span className="text-zinc-500">(optional)</span></label>
+                <textarea id="parkingInfo"
                   value={parkingInfo}
                   onChange={(e) => setParkingInfo(e.target.value)}
                   className="min-h-24 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-violet-400/40"
                   placeholder="Parking instructions, valet, nearby lots..."
                 />
 
-                <textarea
+                <label htmlFor="entryNotes" className="block mb-2 text-sm font-bold text-zinc-900">Entry notes <span className="text-zinc-500">(optional)</span></label>
+                <textarea id="entryNotes"
                   value={entryNotes}
                   onChange={(e) => setEntryNotes(e.target.value)}
                   className="min-h-24 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-violet-400/40"
                   placeholder="Entry notes, arrival times, security rules..."
                 />
 
-                <textarea
+                <label htmlFor="refundPolicy" className="block mb-2 text-sm font-bold text-zinc-900">Refund policy <span className="text-red-700">*</span></label>
+                <textarea id="refundPolicy"
                   value={refundPolicy}
                   onChange={(e) => setRefundPolicy(e.target.value)}
                   className="min-h-24 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-violet-400/40"
@@ -401,7 +430,8 @@ function CreateEventPageContent() {
               </div>
             </div>
 
-            <input
+            <label htmlFor="image" className="block mb-2 text-sm font-bold text-zinc-900">Event image <span className="text-zinc-500">(optional)</span></label>
+                <input id="image"
               type="file"
               accept="image/*"
               onChange={(e) => setImage(e.target.files?.[0] ?? null)}
@@ -410,7 +440,7 @@ function CreateEventPageContent() {
 
             <button
               type="submit"
-              disabled={isSubmitting || checklist.some((item) => !item.ready && !item.optional)}
+              disabled={isSubmitting}
               className="w-full rounded-2xl bg-white px-5 py-4 font-black text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? "Publishing event..." : "Publish event"}
