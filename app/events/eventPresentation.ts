@@ -13,6 +13,8 @@ export type DiscoveryEvent = {
   state?: string;
   dateString?: string;
   eventDate?: number;
+  endDateString?: string;
+  endDate?: number;
   price?: number;
   startingPrice?: number;
   ticketsSold?: number;

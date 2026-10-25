@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { attendeeEventDate } from "@/lib/attendeeDisplay";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -545,26 +546,21 @@ export default function EditEventPage() {
               <h2 className="text-2xl font-black">Schedule &amp; tickets</h2>
               <p className="mt-1 text-sm text-white/55">View the current schedule and update ticket capacity or purchase limits here. Use Event changes to reschedule an event.</p>
             </div>
-            <div className="grid gap-5 md:grid-cols-2">
-              <div>
-                <label htmlFor="event-date" className="text-sm font-semibold text-white/80">Start date &amp; time</label>
-                <input id="event-date" required type="datetime-local" value={dateString}
-                  readOnly aria-describedby="schedule-change-help"
-                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
-              </div>
-              <div>
-                <label htmlFor="event-end-date" className="text-sm font-semibold text-white/80">End date &amp; time</label>
-                <input id="event-end-date" type="datetime-local" min={dateString || undefined} value={endDateString}
-                  readOnly aria-describedby="schedule-change-help"
-                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
-                <p className="mt-2 text-xs text-white/50">Optional end time. Edit the schedule through Event changes.</p>
-              </div>
-            </div>
-            <div id="schedule-change-help" className="rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 text-sm text-white">
-              Start and end dates cannot be saved from Settings when tickets exist. To change either time, use the attendee-notification workflow.
-              <Link href={`/host/events/${event._id}/changes`} className="ml-2 font-bold text-orange-300 underline underline-offset-4">
-                Change event date / time
+            <div className="rounded-2xl border border-white/15 bg-white/5 p-5">
+              <p className="text-sm font-semibold text-white/80">Event schedule</p>
+              <p className="mt-2 text-lg font-bold text-white">{attendeeEventDate(event)}</p>
+              <p className="mt-2 text-xs text-white/60">
+                Includes the end time when one is set. Ticket holders see this schedule on the event page and their tickets.
+              </p>
+              <Link
+                href={`/host/events/${event._id}/changes`}
+                className="mt-4 inline-flex rounded-xl bg-orange-500 px-4 py-3 text-sm font-bold text-black hover:bg-orange-400"
+              >
+                Edit start / end date &amp; time
               </Link>
+              <p className="mt-3 text-xs text-white/55">
+                Schedule updates for ticketed events are recorded in Event changes so attendees can be notified.
+              </p>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
               <div>
