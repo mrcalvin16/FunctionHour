@@ -32,6 +32,8 @@ export default function HostProfilePage() {
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
+  const [removeBanner, setRemoveBanner] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -87,11 +89,15 @@ export default function HostProfilePage() {
         website,
         instagram,
         ...(avatarStorageId ? { avatarStorageId } : {}),
+        removeAvatar: removeAvatar && !avatarStorageId,
         ...(bannerStorageId ? { bannerStorageId } : {}),
+        removeBanner: removeBanner && !bannerStorageId,
       });
 
       setAvatarFile(null);
       setBannerFile(null);
+      setRemoveAvatar(false);
+      setRemoveBanner(false);
       setMessage("Organizer profile saved.");
     } catch (error) {
       console.error(error);
@@ -180,7 +186,7 @@ export default function HostProfilePage() {
           <div
             className="h-48 bg-cover bg-center bg-white/10"
             style={{
-              backgroundImage: profile?.bannerUrl
+              backgroundImage: profile?.bannerUrl && !removeBanner
                 ? `url(${profile.bannerUrl})`
                 : "linear-gradient(135deg, #18181b, #3f3f46)",
             }}
@@ -190,7 +196,7 @@ export default function HostProfilePage() {
             <div className="-mt-12 flex flex-col gap-4 sm:p-6 md:flex-row md:items-end md:justify-between">
               <div className="flex items-end gap-4">
                 <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-[1.5rem] sm:rounded-3xl border border-white/20 bg-zinc-900 text-2xl sm:text-3xl font-bold">
-                  {profile?.avatarUrl ? (
+                  {profile?.avatarUrl && !removeAvatar ? (
                     <img
                       src={profile.avatarUrl}
                       alt="Organizer avatar"
@@ -248,9 +254,11 @@ export default function HostProfilePage() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
+                  onChange={(e) => { setAvatarFile(e.target.files?.[0] ?? null); if (e.target.files?.[0]) setRemoveAvatar(false); }}
                   className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white"
                 />
+                {profile?.avatarUrl && !removeAvatar && <button type="button" onClick={() => { setRemoveAvatar(true); setAvatarFile(null); }} className="mt-2 rounded-lg border border-red-300 px-3 py-2 text-sm font-semibold text-red-700">Remove avatar / logo</button>}
+                {removeAvatar && <p className="mt-2 text-sm text-zinc-600">Avatar will be removed when you save. <button type="button" className="underline" onClick={() => setRemoveAvatar(false)}>Undo</button></p>}
               </div>
 
               <div>
@@ -260,9 +268,11 @@ export default function HostProfilePage() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setBannerFile(e.target.files?.[0] ?? null)}
+                  onChange={(e) => { setBannerFile(e.target.files?.[0] ?? null); if (e.target.files?.[0]) setRemoveBanner(false); }}
                   className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white"
                 />
+                {profile?.bannerUrl && !removeBanner && <button type="button" onClick={() => { setRemoveBanner(true); setBannerFile(null); }} className="mt-2 rounded-lg border border-red-300 px-3 py-2 text-sm font-semibold text-red-700">Remove banner</button>}
+                {removeBanner && <p className="mt-2 text-sm text-zinc-600">Banner will be removed when you save. <button type="button" className="underline" onClick={() => setRemoveBanner(false)}>Undo</button></p>}
               </div>
 
               <div className="md:col-span-2">

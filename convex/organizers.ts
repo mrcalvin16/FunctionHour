@@ -106,6 +106,8 @@ export const updateMyOrganizerProfile = mutation({
 
     avatarStorageId: v.optional(v.id("_storage")),
     bannerStorageId: v.optional(v.id("_storage")),
+    removeAvatar: v.optional(v.boolean()),
+    removeBanner: v.optional(v.boolean()),
   },
 
   handler: async (ctx, args) => {
@@ -141,7 +143,10 @@ export const updateMyOrganizerProfile = mutation({
       patch.instagram = args.instagram;
     }
 
-    if (args.avatarStorageId !== undefined) {
+    if (args.removeAvatar) {
+      patch.avatarStorageId = undefined;
+      patch.avatarUrl = "";
+    } else if (args.avatarStorageId !== undefined) {
       patch.avatarStorageId = args.avatarStorageId;
 
       const avatarUrl = await ctx.storage.getUrl(
@@ -151,7 +156,10 @@ export const updateMyOrganizerProfile = mutation({
       patch.avatarUrl = avatarUrl ?? "";
     }
 
-    if (args.bannerStorageId !== undefined) {
+    if (args.removeBanner) {
+      patch.bannerStorageId = undefined;
+      patch.bannerUrl = "";
+    } else if (args.bannerStorageId !== undefined) {
       patch.bannerStorageId = args.bannerStorageId;
 
       const bannerUrl = await ctx.storage.getUrl(
