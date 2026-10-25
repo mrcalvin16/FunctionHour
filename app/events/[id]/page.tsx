@@ -59,9 +59,9 @@ function EventImage({
         <img
           src={brandedMediaUrl(finalImageUrl) ?? finalImageUrl}
           alt={name ? `${name} event flyer` : "Event flyer"}
-          className="block h-auto max-h-[85vh] w-full object-contain"
+          className="mx-auto block h-auto max-h-[68vh] w-auto max-w-full object-contain sm:max-h-[72vh]"
         />
-        <span className="block bg-zinc-950 px-4 py-3 text-center text-sm font-semibold text-white transition group-hover:text-violet-300">
+        <span className="block bg-zinc-950 px-4 py-2.5 text-center text-xs font-semibold text-white transition group-hover:text-violet-300">
           View full flyer ↗
         </span>
       </a>
@@ -265,15 +265,7 @@ export default function EventDetailPage({
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(310px,0.7fr)] lg:items-start">
           <div className="contents lg:block">
-            <div className="order-1 overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111] shadow-2xl sm:rounded-[2rem]">
-              <div className="flex w-full items-center justify-center bg-zinc-950">
-                <EventImage
-                  storageId={event.imageStorageId}
-                  imageUrl={event.imageUrl}
-                  name={event.name}
-                />
-              </div>
-
+            <div className="order-1 overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111] shadow-lg sm:rounded-[2rem]">
               <div className="p-5 sm:p-7">
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-violet-700">
                   {event.category || "Experience"}
@@ -294,15 +286,16 @@ export default function EventDetailPage({
                 </p>
 
                 <div className="mt-6 grid gap-3 border-t border-white/10 pt-5 sm:grid-cols-2">
-                  <EventSignalCard
-                    label="Date"
-                    value={formatEventDate(event)}
-                  />
-                  <EventSignalCard
-                    label="Venue"
-                    value={attendeeVenue(event)}
-                  />
+                  <EventSignalCard label="Date" value={formatEventDate(event)} />
+                  <EventSignalCard label="Venue" value={attendeeVenue(event)} />
                 </div>
+              </div>
+              <div className="flex w-full items-center justify-center border-t border-white/10 bg-zinc-950/5">
+                <EventImage
+                  storageId={event.imageStorageId}
+                  imageUrl={event.imageUrl}
+                  name={event.name}
+                />
               </div>
             </div>
 
@@ -599,7 +592,7 @@ export default function EventDetailPage({
 
             <div className="mt-3 flex items-end justify-between gap-4">
               <div>
-                <p className="text-sm text-white/70">Tickets</p>
+                <p className="text-sm text-white/70">Admission</p>
                 <p className="mt-1 text-2xl font-black tracking-[-0.05em] sm:text-3xl">
                   {startingPrice === null ? "—" : getFromPriceLabel({ startingPrice })}
                 </p>
