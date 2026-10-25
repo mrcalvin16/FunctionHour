@@ -1,6 +1,4 @@
-"use clien
-                {feedback("refundPolicy")}
-                {feedback("description")}t";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "convex/react";
@@ -280,6 +278,7 @@ function CreateEventPageContent() {
               className="min-h-32 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
               placeholder="Tell people what your event is about..."
             />
+            {feedback("description")}
 
             <label htmlFor="category" className="block mb-2 text-sm font-bold text-zinc-900">Category <span className="text-zinc-500">(optional)</span></label>
                 <select id="category"
@@ -427,6 +426,7 @@ function CreateEventPageContent() {
                   className="min-h-24 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-violet-400/40"
                   placeholder="Refund policy..."
                 />
+                {feedback("refundPolicy")}
               </div>
             </div>
 
