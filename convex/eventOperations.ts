@@ -188,9 +188,8 @@ export const getPublicChanges = query({
     if (!event) return [];
     return (await ctx.db.query("eventChanges")
       .withIndex("by_eventId_and_createdAt", (q) => q.eq("eventId", args.eventId))
-      .order("desc").take(20))
+      .order("desc").take(1))
       .filter((change) => change.showPublicAlert !== false)
-      .slice(0, 1)
       .map(({ _id, kind, message, createdAt, nextDate, nextVenue }) => ({ _id, kind, message, createdAt, nextDate, nextVenue }));
   },
 });
