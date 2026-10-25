@@ -23,16 +23,15 @@ export const changeEvent = mutation({
     if (event.eventStatus === "cancelled") throw new Error("A cancelled event cannot be reopened here. Contact Operations.");
     if (args.kind === "rescheduled" && (!Number.isFinite(args.nextDate) || args.nextDate! <= Date.now())) throw new Error("Choose a future event date.");
     if (args.kind === "rescheduled") {
-      if (!args.nextDateString || !Number.isFinite(new Date(args.nextDateString).getTime()) ||
-          new Date(args.nextDateString).getTime() !== args.nextDate) {
+      if (!args.nextDateString || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$/.test(args.nextDateString)) {
         throw new Error("Choose a valid start date and time.");
       }
       const nextEnd = args.nextEndDateString === ""
         ? undefined
         : args.nextEndDate ?? event.endDate;
       if (args.nextEndDateString !== undefined && args.nextEndDateString !== "" &&
-          (!Number.isFinite(new Date(args.nextEndDateString).getTime()) ||
-           new Date(args.nextEndDateString).getTime() !== args.nextEndDate)) {
+          (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$/.test(args.nextEndDateString) ||
+           !Number.isFinite(args.nextEndDate))) {
         throw new Error("Choose a valid end date and time.");
       }
       if (nextEnd !== undefined && nextEnd <= args.nextDate!) {
