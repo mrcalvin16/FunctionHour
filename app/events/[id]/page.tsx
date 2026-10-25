@@ -281,10 +281,6 @@ export default function EventDetailPage({
                   {event.name}
                 </h1>
 
-                <p className="mt-4 max-w-3xl text-base leading-7 text-white/65 sm:text-lg">
-                  {event.description}
-                </p>
-
                 <div className="mt-6 grid gap-3 border-t border-white/10 pt-5 sm:grid-cols-2">
                   <EventSignalCard label="Date" value={formatEventDate(event)} />
                   <EventSignalCard label="Venue" value={attendeeVenue(event)} />
@@ -297,6 +293,12 @@ export default function EventDetailPage({
                   name={event.name}
                 />
               </div>
+              {event.description && (
+                <div className="p-5 sm:p-7">
+                  <p className="mb-2 text-[11px] font-black uppercase tracking-[0.18em] text-violet-700">About this event</p>
+                  <p className="max-w-3xl whitespace-pre-line text-base leading-7 text-white/65 sm:text-lg">{event.description}</p>
+                </div>
+              )}
             </div>
 
             <div className="order-3 mt-5 overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111] p-5 sm:mt-6 sm:p-6">
