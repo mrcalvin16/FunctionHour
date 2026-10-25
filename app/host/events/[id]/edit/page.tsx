@@ -22,6 +22,14 @@ const categories = [
   "Sports",
 ];
 
+const usStates = [
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA",
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA",
+  "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY",
+  "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX",
+  "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+];
+
 export default function EditEventPage() {
   const router = useRouter();
   const { event, capabilities, role } = useEventCommandCenter();
@@ -41,6 +49,7 @@ export default function EditEventPage() {
   const [stateValue, setStateValue] = useState("");
 
   const [dateString, setDateString] = useState("");
+  const [endDateString, setEndDateString] = useState("");
   const [price, setPrice] = useState("");
   const [totalTickets, setTotalTickets] = useState("");
   const [maxTicketsPerOrder, setMaxTicketsPerOrder] = useState("10");
@@ -73,9 +82,10 @@ export default function EditEventPage() {
     setVenueName(event.venueName ?? "");
     setVenueAddress(event.venueAddress ?? "");
     setCity(event.city ?? "");
-    setStateValue(event.state ?? "");
+    setStateValue((event.state ?? "").trim().toUpperCase());
 
     setDateString(event.dateString ?? "");
+    setEndDateString(event.endDateString ?? "");
     setPrice(String(event.price ?? 0));
     setTotalTickets(String(event.totalTickets ?? 0));
     setMaxTicketsPerOrder(String(event.maxTicketsPerOrder ?? 10));
@@ -164,6 +174,18 @@ export default function EditEventPage() {
       };
     }
 
+    if (endDateString.trim()) {
+      const end = new Date(endDateString).getTime();
+      if (!Number.isFinite(end) || end <= new Date(dateString).getTime()) {
+        return { message: "End date and time must be after the event starts.", fieldId: "event-end-date" };
+      }
+    }
+
+    const orderLimit = Number(maxTicketsPerOrder);
+    if (!Number.isInteger(orderLimit) || orderLimit < 1 || orderLimit > 10) {
+      return { message: "Choose a purchase limit from 1 to 10.", fieldId: "max-tickets-per-order" };
+    }
+
     const numericPrice = Number(price);
     const numericTickets = Number(totalTickets);
 
@@ -243,11 +265,13 @@ export default function EditEventPage() {
         venueName: venueName.trim(),
         venueAddress: venueAddress.trim(),
         city: city.trim(),
-        state: stateValue.trim(),
+        state: stateValue.trim().toUpperCase(),
         latitude,
         longitude,
         dateString,
         eventDate: new Date(dateString).getTime(),
+        endDateString: endDateString.trim(),
+        endDate: endDateString.trim() ? new Date(endDateString).getTime() : undefined,
         price: Number(price),
         totalTickets: Number(totalTickets),
         maxTicketsPerOrder: Number(maxTicketsPerOrder),
@@ -433,75 +457,67 @@ export default function EditEventPage() {
                 <input
                   id="event-state"
                   required
+                  list="event-state-options"
+                  maxLength={2}
+                  placeholder="LA"
                   value={stateValue}
-                  onChange={(e) => setStateValue(e.target.value)}
+                  onChange={(e) => setStateValue(e.target.value.toUpperCase())}
                   className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
                 />
+                <datalist id="event-state-options">
+                  {usStates.map((state) => <option key={state} value={state} />)}
+                </datalist>
+                <p className="mt-2 text-xs text-white/50">Use the two-letter state abbreviation (e.g., LA).</p>
               </div>
             </div>
           </section>
 
-          <section className="grid gap-5 md:grid-cols-3">
+          <section className="space-y-6 rounded-3xl border border-white/10 bg-black/40 p-5 sm:p-6">
             <div>
-              <label className="text-sm font-semibold text-white/70">
-                Event Date
-              </label>
-              <input
-                id="event-date"
-                required
-                type="datetime-local"
-                value={dateString}
-                onChange={(e) => setDateString(e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
-              />
+              <h2 className="text-2xl font-black">Schedule &amp; tickets</h2>
+              <p className="mt-1 text-sm text-white/55">Set the event schedule, capacity, and purchase limits.</p>
             </div>
-
-            <div>
-              <label className="text-sm font-semibold text-white/70">
-                Fallback ticket price
-              </label>
-              <p className="mt-1 text-xs text-white/45">
-                Used when this event has no ticket types. Edit ticket type
-                prices in{" "}
-                <Link
-                  className="text-orange-300 underline"
-                  href={`/host/events/${event._id}/tickets`}
-                >
-                  Tickets
-                </Link>
-                .
-              </p>
-              <input
-                id="event-price"
-                required
-                type="number"
-                min="0"
-                step="0.01"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
-              />
+            <div className="grid gap-5 md:grid-cols-2">
+              <div>
+                <label htmlFor="event-date" className="text-sm font-semibold text-white/80">Start date &amp; time</label>
+                <input id="event-date" required type="datetime-local" value={dateString}
+                  onChange={(e) => setDateString(e.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
+              </div>
+              <div>
+                <label htmlFor="event-end-date" className="text-sm font-semibold text-white/80">End date &amp; time</label>
+                <input id="event-end-date" type="datetime-local" min={dateString || undefined} value={endDateString}
+                  onChange={(e) => setEndDateString(e.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
+                <p className="mt-2 text-xs text-white/50">Optional for existing events. Add an end time to help guests plan.</p>
+              </div>
             </div>
-
-            <div>
-              <label className="text-sm font-semibold text-white/70">
-                Total Tickets
-              </label>
-              <input
-                id="total-tickets"
-                required
-                type="number"
-                min="1"
-                step="1"
-                value={totalTickets}
-                onChange={(e) => setTotalTickets(e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
-              />
+            <div className="grid gap-5 md:grid-cols-3">
+              <div>
+                <label htmlFor="event-price" className="text-sm font-semibold text-white/80">Default ticket price</label>
+                <input id="event-price" required type="number" min="0" step="0.01" value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
+                <p className="mt-2 text-xs leading-relaxed text-white/50">
+                  Only used if no ticket types are set. Manage ticket prices in{" "}
+                  <Link className="font-semibold text-orange-300 underline" href={`/host/events/${event._id}/tickets`}>Tickets</Link>.
+                </p>
+              </div>
+              <div>
+                <label htmlFor="total-tickets" className="text-sm font-semibold text-white/80">Event capacity</label>
+                <input id="total-tickets" required type="number" min="1" step="1" value={totalTickets}
+                  onChange={(e) => setTotalTickets(e.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
+                <p className="mt-2 text-xs text-white/50">Total number of available tickets.</p>
+              </div>
+              <div>
+                <label htmlFor="max-tickets-per-order" className="text-sm font-semibold text-white/80">Tickets per order</label>
+                <input id="max-tickets-per-order" required type="number" min="1" max="10" step="1"
+                  value={maxTicketsPerOrder} onChange={(e) => setMaxTicketsPerOrder(e.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
+                <p className="mt-2 text-xs text-white/50">Maximum 10 tickets in one purchase.</p>
+              </div>
             </div>
-              <label className="block text-sm font-semibold text-zinc-800">Maximum tickets per order
-                <input required type="number" min="1" max="10" step="1" value={maxTicketsPerOrder} onChange={(e) => setMaxTicketsPerOrder(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900" />
-                <span className="mt-2 block text-xs font-normal text-zinc-600">Set a purchase limit from 1 to 10. Total capacity is managed separately.</span>
-              </label>
           </section>
 
           <section className="space-y-5 rounded-3xl border border-orange-500/20 bg-orange-500/5 p-5">
