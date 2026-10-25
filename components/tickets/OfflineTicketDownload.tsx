@@ -87,8 +87,8 @@ export default function OfflineTicketDownload({
       context.font = "23px Arial, sans-serif";
       drawWrappedText(context, `Ticket holder: ${holderName}`, 68, 540, 764, 31, 2);
 
-      // Serialize the actual QR SVG, preserving the same ticket ID scanned
-      // by the online check-in workflow.
+      // Serialize the ticket QR SVG. It links to FunctionHour for phone
+      // cameras and resolves to the ticket ID in the organizer scanner.
       const svg = qr.cloneNode(true) as SVGSVGElement;
       svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
       svg.setAttribute("width", "512");
