@@ -652,7 +652,7 @@ export default function EventDetailPage({
                 </p>
               )}
 
-            {eventChanges && eventChanges.length > 0 && <div className="mt-5 rounded-xl border border-orange-400/60 bg-orange-500/10 p-4 text-white" role="status">
+            {eventChanges && eventChanges.length > 0 && <div className="mt-5 rounded-xl border border-orange-300 bg-orange-50 p-4 text-orange-950" role="status">
               <strong className="block text-base">Event update: {eventChanges[0].kind.replace("_", " ")}</strong>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6">{eventChanges[0].message}</p>
             </div>}
