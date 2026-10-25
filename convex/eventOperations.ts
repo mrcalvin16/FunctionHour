@@ -8,7 +8,7 @@ const kind = v.union(v.literal("cancelled"), v.literal("postponed"), v.literal("
 
 export const changeEvent = mutation({
   args: {
-    eventId: v.id("events"), kind, message: v.string(),
+    eventId: v.id("events"), kind, message: v.string(), showPublicAlert: v.optional(v.boolean()),
     nextDate: v.optional(v.number()), nextDateString: v.optional(v.string()),
     nextEndDate: v.optional(v.number()), nextEndDateString: v.optional(v.string()),
     nextVenue: v.optional(v.string()),
@@ -50,7 +50,7 @@ export const changeEvent = mutation({
     if (args.kind === "postponed" && event.eventStatus === "postponed") throw new Error("The event is already postponed.");
     if (event.eventStatus === "postponed" && args.kind === "venue_changed") throw new Error("Reschedule the postponed event before changing its venue.");
     const changeId = await ctx.db.insert("eventChanges", {
-      eventId: args.eventId, kind: args.kind, message,
+      eventId: args.eventId, kind: args.kind, message, showPublicAlert: args.showPublicAlert ?? false,
       previousDate: event.eventDate, nextDate: args.nextDate,
       previousVenue: event.venueName, nextVenue: args.nextVenue?.trim(),
       createdBy: identity.subject, createdAt: Date.now(),
@@ -160,6 +160,19 @@ export const rebuildChangeNotices = mutation({
   },
 });
 
+// Visibility controls only the public event-page alert; attendee emails and the
+// immutable event-change audit are independent of this preference.
+export const setPublicAlertVisibility = mutation({
+  args: { changeId: v.id("eventChanges"), showPublicAlert: v.boolean() },
+  handler: async (ctx, args) => {
+    const change = await ctx.db.get(args.changeId);
+    if (!change) throw new Error("Event change not found.");
+    await requireEventCapability(ctx, change.eventId, "manage_event");
+    await ctx.db.patch(args.changeId, { showPublicAlert: args.showPublicAlert });
+    return true;
+  },
+});
+
 export const getChanges = query({
   args: { eventId: v.id("events") },
   handler: async (ctx, args) => {
@@ -175,7 +188,9 @@ export const getPublicChanges = query({
     if (!event) return [];
     return (await ctx.db.query("eventChanges")
       .withIndex("by_eventId_and_createdAt", (q) => q.eq("eventId", args.eventId))
-      .order("desc").take(3))
+      .order("desc").take(20))
+      .filter((change) => change.showPublicAlert !== false)
+      .slice(0, 1)
       .map(({ _id, kind, message, createdAt, nextDate, nextVenue }) => ({ _id, kind, message, createdAt, nextDate, nextVenue }));
   },
 });
