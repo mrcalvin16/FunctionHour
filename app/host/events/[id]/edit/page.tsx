@@ -70,10 +70,16 @@ export default function EditEventPage() {
   const [deleteError, setDeleteError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const initializedEventId = useRef<string | null>(null);
+  // Only a deliberate organizer edit may trigger a protected event change.
+  // Legacy records may store venue/address and datetime strings differently
+  // from the browser form, so comparing hydrated values alone is unreliable.
+  const protectedEdits = useRef(new Set<string>());
+  const markProtectedEdit = (field: string) => protectedEdits.current.add(field);
 
   useEffect(() => {
     if (!event || initializedEventId.current === event._id) return;
     initializedEventId.current = event._id;
+    protectedEdits.current.clear();
 
     setName(event.name ?? "");
     setDescription(event.description ?? "");
@@ -258,12 +264,12 @@ export default function EditEventPage() {
       // changes them. Existing ticket holders require a separate change flow.
       const normalizedState = stateValue.trim().toUpperCase();
       const venueChanged =
-        venueName.trim() !== (event.venueName ?? "") ||
-        venueAddress.trim() !== (event.venueAddress ?? "") ||
-        city.trim() !== (event.city ?? "") ||
-        normalizedState !== (event.state ?? "").trim().toUpperCase();
-      const startChanged = dateString !== (event.dateString ?? "");
-      const endChanged = endDateString.trim() !== (event.endDateString ?? "");
+        (protectedEdits.current.has("venueName") && venueName.trim() !== (event.venueName ?? "")) ||
+        (protectedEdits.current.has("venueAddress") && venueAddress.trim() !== (event.venueAddress ?? "")) ||
+        (protectedEdits.current.has("city") && city.trim() !== (event.city ?? "")) ||
+        (protectedEdits.current.has("state") && normalizedState !== (event.state ?? "").trim().toUpperCase());
+      const startChanged = protectedEdits.current.has("start") && dateString !== (event.dateString ?? "");
+      const endChanged = protectedEdits.current.has("end") && endDateString.trim() !== (event.endDateString ?? "");
       const coordinates = venueChanged ? await geocodeAddress(location) : {};
 
       await updateEvent({
@@ -300,6 +306,7 @@ export default function EditEventPage() {
         entryNotes: entryNotes.trim(),
       });
 
+      protectedEdits.current.clear();
       setStatusMessage("Event updated successfully.");
       router.refresh();
     } catch (err) {
@@ -359,6 +366,7 @@ export default function EditEventPage() {
       setStateValue((event.state ?? "").trim().toUpperCase());
       setDateString(event.dateString ?? "");
       setEndDateString(event.endDateString ?? "");
+      protectedEdits.current.clear();
       setStatusMessage("Other settings saved. Date, time and venue changes were NOT saved. Use Event changes to update attendees.");
       router.refresh();
     } catch (err) {
@@ -508,7 +516,7 @@ export default function EditEventPage() {
                 id="venue-name"
                 required
                 value={venueName}
-                onChange={(e) => setVenueName(e.target.value)}
+                onChange={(e) => { markProtectedEdit("venueName"); setVenueName(e.target.value) }}
                 className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
               />
             </div>
@@ -521,7 +529,7 @@ export default function EditEventPage() {
                 id="venue-address"
                 required
                 value={venueAddress}
-                onChange={(e) => setVenueAddress(e.target.value)}
+                onChange={(e) => { markProtectedEdit("venueAddress"); setVenueAddress(e.target.value) }}
                 className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
               />
             </div>
@@ -535,7 +543,7 @@ export default function EditEventPage() {
                   id="event-city"
                   required
                   value={city}
-                  onChange={(e) => setCity(e.target.value)}
+                  onChange={(e) => { markProtectedEdit("city"); setCity(e.target.value) }}
                   className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
                 />
               </div>
@@ -551,7 +559,7 @@ export default function EditEventPage() {
                   maxLength={2}
                   placeholder="LA"
                   value={stateValue}
-                  onChange={(e) => setStateValue(e.target.value.toUpperCase())}
+                  onChange={(e) => { markProtectedEdit("state"); setStateValue(e.target.value.toUpperCase()) }}
                   className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40"
                 />
                 <datalist id="event-state-options">
@@ -571,13 +579,13 @@ export default function EditEventPage() {
               <div>
                 <label htmlFor="event-date" className="text-sm font-semibold text-white/80">Start date &amp; time</label>
                 <input id="event-date" required type="datetime-local" value={dateString}
-                  onChange={(e) => setDateString(e.target.value)}
+                  onChange={(e) => { markProtectedEdit("start"); setDateString(e.target.value) }}
                   className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
               </div>
               <div>
                 <label htmlFor="event-end-date" className="text-sm font-semibold text-white/80">End date &amp; time</label>
                 <input id="event-end-date" type="datetime-local" min={dateString || undefined} value={endDateString}
-                  onChange={(e) => setEndDateString(e.target.value)}
+                  onChange={(e) => { markProtectedEdit("end"); setEndDateString(e.target.value) }}
                   className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
                 <p className="mt-2 text-xs text-white/50">Optional for existing events. Add an end time to help guests plan.</p>
               </div>
