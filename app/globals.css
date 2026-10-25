@@ -294,21 +294,35 @@ html.light :where(button, a, [role="button"]) svg {
   visibility: visible;
 }
 
+/* Only saturated action surfaces need white SVGs. Substring selectors such as
+   bg-violet-5 also match bg-violet-50, turning icons white on pale tiles. */
 html.light :where(
   [class*="bg-gradient"],
-  [class*="bg-red-5"],
-  [class*="bg-red-6"],
-  [class*="bg-blue-5"],
-  [class*="bg-blue-6"],
-  [class*="bg-violet-5"],
-  [class*="bg-violet-6"],
-  [class*="bg-orange-5"],
-  [class*="bg-fuchsia-5"],
-  [class*="bg-amber-5"],
-  [class*="bg-emerald-5"],
-  [class*="bg-green-5"]
+  [class~="bg-red-500"],
+  [class~="bg-red-600"],
+  [class~="bg-blue-500"],
+  [class~="bg-blue-600"],
+  [class~="bg-violet-500"],
+  [class~="bg-violet-600"],
+  [class~="bg-orange-500"],
+  [class~="bg-fuchsia-500"],
+  [class~="bg-amber-500"],
+  [class~="bg-emerald-500"],
+  [class~="bg-green-500"]
 ) > svg {
   color: #ffffff !important;
+}
+
+/* Organizer dashboard icons inherit their intended dark accent foreground,
+   including on pale violet/orange/emerald tiles. */
+html.light .organizer-shell :is(
+  [class~="bg-violet-50"],
+  [class~="bg-orange-50"],
+  [class~="bg-emerald-50"],
+  [class~="bg-fuchsia-50"],
+  [class~="bg-blue-50"]
+) > svg {
+  color: inherit !important;
 }
 
 /* These illustrated orbit badges retain white lettering on their saturated surfaces. */
