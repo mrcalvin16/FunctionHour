@@ -23,6 +23,7 @@ import type * as disputeEvidence from "../disputeEvidence.js";
 import type * as eventAccess from "../eventAccess.js";
 import type * as eventCreative from "../eventCreative.js";
 import type * as eventOperations from "../eventOperations.js";
+import type * as eventTalent from "../eventTalent.js";
 import type * as gateIssues from "../gateIssues.js";
 import type * as postEvent from "../postEvent.js";
 import type * as eventMessages from "../eventMessages.js";
@@ -68,6 +69,7 @@ declare const fullApi: ApiFromModules<{
   eventAccess: typeof eventAccess;
   eventCreative: typeof eventCreative;
   eventOperations: typeof eventOperations;
+  eventTalent: typeof eventTalent;
   gateIssues: typeof gateIssues;
   postEvent: typeof postEvent;
   eventMessages: typeof eventMessages;
