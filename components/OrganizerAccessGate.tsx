@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
@@ -10,28 +10,46 @@ import { parseEventId } from "@/lib/eventStaff";
 
 export default function OrganizerAccessGate({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { isLoaded, isSignedIn } = useAuth();
-  const user = useQuery(api.users.getCurrentUser, isSignedIn ? {} : "skip");
-  const ownedEvents = useQuery(api.events.getMyEvents, isSignedIn ? {} : "skip");
+  const { isLoaded, isSignedIn, userId } = useAuth();
+  // A single identity-scoped query determines organizer eligibility, instead
+  // of waiting for the full user profile and all owned event records.
+  const organizerAccess = useQuery(
+    api.users.getOrganizerAccess,
+    isLoaded && isSignedIn && userId ? {} : "skip",
+  );
   const eventPath = pathname.match(/^\/host\/events\/([^/]+)/);
   const staffEventId = parseEventId(eventPath?.[1]);
   const staffAccess = useQuery(
     api.eventAccess.getMyEventAccess,
-    isSignedIn && staffEventId ? { eventId: staffEventId } : "skip"
+    isLoaded && isSignedIn && userId && staffEventId ? { eventId: staffEventId } : "skip",
   );
-  const accessLoading =
-    isSignedIn &&
-    (user === undefined ||
-      ownedEvents === undefined ||
-      (staffEventId !== null && staffAccess === undefined));
-  const canAccessOrganizerTools = user?.isOrganizer === true || Boolean(ownedEvents?.length);
-  const canAccessStaffWorkspace = Boolean(staffAccess?.role);
+  const accessLoading = Boolean(
+    isLoaded && isSignedIn && userId &&
+    (organizerAccess === undefined || (staffEventId && staffAccess === undefined))
+  );
+  const [slowAccess, setSlowAccess] = useState(false);
+
+  useEffect(() => {
+    setSlowAccess(false);
+    if (!accessLoading) return;
+    const timer = window.setTimeout(() => setSlowAccess(true), 12000);
+    return () => window.clearTimeout(timer);
+  }, [accessLoading, userId, pathname]);
 
   if (!isLoaded || accessLoading) {
-    return <AccessScreen title="Loading Organizer OS…" />;
+    return slowAccess ? (
+      <AccessScreen
+        title="Organizer OS is taking longer than expected"
+        description="Your account is still connecting. You can retry safely; no event or ticket information has been changed."
+        action="Retry loading"
+        onRetry={() => window.location.reload()}
+        secondaryHref="/events"
+        secondaryAction="Browse Events"
+      />
+    ) : <AccessScreen title="Loading Organizer OS…" />;
   }
 
-  if (!isSignedIn) {
+  if (!isSignedIn || !userId) {
     return (
       <AccessScreen
         title="Organizer sign-in required"
@@ -43,13 +61,12 @@ export default function OrganizerAccessGate({ children }: { children: ReactNode 
   }
 
   // Signed-in attendees need this route to create their organizer identity.
-  // Saving the profile promotes the account via Convex.
-  if (pathname === "/host/profile") {
-    return children;
-  }
+  if (pathname === "/host/profile") return children;
 
-  // Event staff can open only the event workspace for which Convex confirms
-  // their role. They do not need an organizer profile or owned events.
+  const canAccessOrganizerTools = organizerAccess?.isOrganizer === true;
+  const canAccessStaffWorkspace = Boolean(staffAccess?.role);
+
+  // Event staff access is scoped to their event workspace, not all Organizer OS routes.
   if (!canAccessOrganizerTools && !canAccessStaffWorkspace) {
     return (
       <AccessScreen
@@ -71,6 +88,7 @@ function AccessScreen({
   description,
   href,
   action,
+  onRetry,
   secondaryHref,
   secondaryAction,
 }: {
@@ -78,6 +96,7 @@ function AccessScreen({
   description?: string;
   href?: string;
   action?: string;
+  onRetry?: () => void;
   secondaryHref?: string;
   secondaryAction?: string;
 }) {
@@ -87,11 +106,17 @@ function AccessScreen({
         <p className="text-xs font-black uppercase tracking-[0.3em] text-orange-400">Function Hour</p>
         <h1 className="mt-4 text-3xl font-black">{title}</h1>
         {description ? <p className="mt-3 text-zinc-400">{description}</p> : null}
-        {href && action ? (
+        {action && (href || onRetry) ? (
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href={href} className="rounded-full bg-gradient-to-r from-violet-600 to-orange-500 px-6 py-3 font-bold">
-              {action}
-            </Link>
+            {onRetry ? (
+              <button type="button" onClick={onRetry} className="rounded-full bg-gradient-to-r from-violet-600 to-orange-500 px-6 py-3 font-bold">
+                {action}
+              </button>
+            ) : (
+              <Link href={href!} className="rounded-full bg-gradient-to-r from-violet-600 to-orange-500 px-6 py-3 font-bold">
+                {action}
+              </Link>
+            )}
             {secondaryHref && secondaryAction ? (
               <Link href={secondaryHref} className="rounded-full border border-white/15 px-6 py-3 font-bold hover:bg-white/10">
                 {secondaryAction}
