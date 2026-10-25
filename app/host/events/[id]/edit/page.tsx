@@ -277,7 +277,7 @@ export default function EditEventPage() {
         entryNotes: entryNotes.trim(),
       });
 
-      setStatusMessage("Event settings saved. Date, time and venue changes must be made through Event changes.");
+      setStatusMessage("Event details and ticket settings saved. The event schedule was not changed; use Event changes for dates and times.");
       router.refresh();
     } catch (err) {
       console.error("Error updating event:", err);
@@ -543,22 +543,28 @@ export default function EditEventPage() {
           <section className="space-y-6 rounded-3xl border border-white/10 bg-black/40 p-5 sm:p-6">
             <div>
               <h2 className="text-2xl font-black">Schedule &amp; tickets</h2>
-              <p className="mt-1 text-sm text-white/55">Set the event schedule, capacity, and purchase limits.</p>
+              <p className="mt-1 text-sm text-white/55">View the current schedule and update ticket capacity or purchase limits here. Use Event changes to reschedule an event.</p>
             </div>
             <div className="grid gap-5 md:grid-cols-2">
               <div>
                 <label htmlFor="event-date" className="text-sm font-semibold text-white/80">Start date &amp; time</label>
                 <input id="event-date" required type="datetime-local" value={dateString}
-                  onChange={(e) => { markProtectedEdit("start"); setDateString(e.target.value) }}
+                  readOnly aria-describedby="schedule-change-help"
                   className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
               </div>
               <div>
                 <label htmlFor="event-end-date" className="text-sm font-semibold text-white/80">End date &amp; time</label>
                 <input id="event-end-date" type="datetime-local" min={dateString || undefined} value={endDateString}
-                  onChange={(e) => { markProtectedEdit("end"); setEndDateString(e.target.value) }}
+                  readOnly aria-describedby="schedule-change-help"
                   className="mt-2 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-white/40" />
-                <p className="mt-2 text-xs text-white/50">Optional for existing events. Add an end time to help guests plan.</p>
+                <p className="mt-2 text-xs text-white/50">Optional end time. Edit the schedule through Event changes.</p>
               </div>
+            </div>
+            <div id="schedule-change-help" className="rounded-2xl border border-orange-400/30 bg-orange-400/10 p-4 text-sm text-white">
+              Start and end dates cannot be saved from Settings when tickets exist. To change either time, use the attendee-notification workflow.
+              <Link href={`/host/events/${event._id}/changes`} className="ml-2 font-bold text-orange-300 underline underline-offset-4">
+                Change event date / time
+              </Link>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
               <div>

@@ -8,7 +8,9 @@ const kind = v.union(v.literal("cancelled"), v.literal("postponed"), v.literal("
 export const changeEvent = mutation({
   args: {
     eventId: v.id("events"), kind, message: v.string(),
-    nextDate: v.optional(v.number()), nextVenue: v.optional(v.string()),
+    nextDate: v.optional(v.number()), nextDateString: v.optional(v.string()),
+    nextEndDate: v.optional(v.number()), nextEndDateString: v.optional(v.string()),
+    nextVenue: v.optional(v.string()),
     nextVenueAddress: v.optional(v.string()), nextLocation: v.optional(v.string()),
     nextCity: v.optional(v.string()), nextState: v.optional(v.string()),
   },
@@ -20,6 +22,29 @@ export const changeEvent = mutation({
     if (message.length < 15 || message.length > 1500) throw new Error("Explain the change in 15–1,500 characters.");
     if (event.eventStatus === "cancelled") throw new Error("A cancelled event cannot be reopened here. Contact Operations.");
     if (args.kind === "rescheduled" && (!Number.isFinite(args.nextDate) || args.nextDate! <= Date.now())) throw new Error("Choose a future event date.");
+    if (args.kind === "rescheduled") {
+      if (!args.nextDateString || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$/.test(args.nextDateString)) {
+        throw new Error("Choose a valid start date and time.");
+      }
+      const nextEnd = args.nextEndDateString === ""
+        ? undefined
+        : args.nextEndDate ?? event.endDate;
+      if (args.nextEndDateString !== undefined && args.nextEndDateString !== "" &&
+          (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$/.test(args.nextEndDateString) ||
+           !Number.isFinite(args.nextEndDate))) {
+        throw new Error("Choose a valid end date and time.");
+      }
+      if (nextEnd !== undefined && nextEnd <= args.nextDate!) {
+        throw new Error("End time must be after the start time.");
+      }
+      if (event.salesEndAt !== undefined && event.salesEndAt > args.nextDate!) {
+        throw new Error("Move the ticket sales deadline before scheduling an earlier start.");
+      }
+      if (args.nextDate === event.eventDate &&
+          nextEnd === event.endDate) {
+        throw new Error("Choose a different start or end time.");
+      }
+    }
     if (args.kind === "venue_changed" && (!args.nextVenue?.trim() || args.nextVenue.trim().length > 200 || !args.nextCity?.trim() || !args.nextState?.trim() || !args.nextVenueAddress?.trim())) throw new Error("Enter the new venue name, address, city, and state.");
     if (args.kind === "postponed" && event.eventStatus === "postponed") throw new Error("The event is already postponed.");
     if (event.eventStatus === "postponed" && args.kind === "venue_changed") throw new Error("Reschedule the postponed event before changing its venue.");
@@ -34,7 +59,14 @@ export const changeEvent = mutation({
       ...(args.kind === "cancelled" || args.kind === "postponed" ? { payoutHoldClearedAt: undefined, payoutHoldClearedBy: undefined, payoutHoldReviewNote: undefined } : {}),
       ...(args.kind === "cancelled" && { eventStatus: "cancelled" as const }),
       ...(args.kind === "postponed" && { eventStatus: "postponed" as const }),
-      ...(args.kind === "rescheduled" && { eventStatus: "scheduled" as const, eventDate: args.nextDate!, dateString: new Date(args.nextDate!).toISOString() }),
+      ...(args.kind === "rescheduled" && {
+        eventStatus: "scheduled" as const,
+        eventDate: args.nextDate!, dateString: args.nextDateString!,
+        ...(args.nextEndDateString !== undefined && {
+          endDateString: args.nextEndDateString,
+          endDate: args.nextEndDateString === "" ? undefined : args.nextEndDate,
+        }),
+      }),
       ...(args.kind === "venue_changed" && { venueName: args.nextVenue!.trim(), venueAddress: args.nextVenueAddress!.trim(), city: args.nextCity!.trim(), state: args.nextState!.trim(), location: `${args.nextCity!.trim()}, ${args.nextState!.trim()}`, latitude: undefined, longitude: undefined }),
     });
     await ctx.scheduler.runAfter(0, internal.eventOperations.queueNotices, { changeId, phase: "orders", cursor: null });
