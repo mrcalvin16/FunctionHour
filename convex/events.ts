@@ -23,11 +23,20 @@ export const generateUploadUrl = mutation({
   },
 });
 
+
+function brandedEventImageUrl(url: string | null): string | null {
+  if (!url) return null;
+  const prefix = "https://colorless-aardvark-337.convex.cloud/api/storage/";
+  return url.startsWith(prefix)
+    ? `https://functionhour.com/media/${url.slice(prefix.length)}`
+    : url;
+}
+
 export const getImageUrls = query({
   args: { storageIds: v.array(v.id("_storage")) },
   handler: async (ctx, args) => {
     if (args.storageIds.length > 100) throw new Error("Too many image layers.");
-    return await Promise.all(args.storageIds.map(async (storageId) => ({ storageId, url: await ctx.storage.getUrl(storageId) })));
+    return await Promise.all(args.storageIds.map(async (storageId) => ({ storageId, url: brandedEventImageUrl(await ctx.storage.getUrl(storageId)) })));
   },
 });
 
@@ -36,7 +45,7 @@ export const getImageUrl = query({
     storageId: v.id("_storage"),
   },
   handler: async (ctx, args) => {
-    return await ctx.storage.getUrl(args.storageId);
+    return brandedEventImageUrl(await ctx.storage.getUrl(args.storageId));
   },
 });
 

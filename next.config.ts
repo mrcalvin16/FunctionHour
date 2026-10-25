@@ -18,6 +18,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/media/:fileId",
+        destination:
+          "https://colorless-aardvark-337.convex.cloud/api/storage/:fileId",
+      },
+    ];
+  },
+
   async headers() {
     return [{
       source: "/:path*",
