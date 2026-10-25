@@ -22,7 +22,7 @@ export default function EventChangesPage() {
   const canManage = capabilities.includes("manage_event");
   const changes = useQuery(api.eventOperations.getChanges, canManage ? { eventId: event._id } : "skip");
   const changeEvent = useMutation(api.eventOperations.changeEvent);
-  const [kind, setKind] = useState<ChangeKind>("postponed");
+  const [kind, setKind] = useState<ChangeKind>("rescheduled");
   const [message, setMessage] = useState("");
   const [date, setDate] = useState(() => toLocalDateTime(event.eventDate));
   const [endDate, setEndDate] = useState(() => toLocalDateTime(event.endDate));
@@ -79,15 +79,23 @@ export default function EventChangesPage() {
     <div><p className="text-xs font-bold uppercase tracking-[.17em] text-orange-700">Event operations</p><h2 className="mt-2 text-3xl font-black">Event changes</h2><p className="mt-3 text-sm leading-6 text-zinc-600">Record a cancellation, postponement, new date, or venue change. Ticket sales pause while an event is cancelled or postponed. Send every buyer notice below; the list includes paid and complimentary ticket holders. Refunds require separate Operations review in Stripe.</p></div>
     <div className="rounded-3xl border border-zinc-200 bg-white shadow-sm p-5 sm:p-7">
       <label className="block text-sm font-bold">What changed?<select className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" value={kind} onChange={(e) => setKind(e.target.value as ChangeKind)}>{Object.entries(labels).map(([key, value]) => <option key={key} value={key}>{value}</option>)}</select></label>
-      {kind === "rescheduled" && <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <label className="block text-sm font-bold">Event start date &amp; time (your device timezone)
-          <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" />
-        </label>
-        <label className="block text-sm font-bold">Event end date &amp; time (optional)
-          <input type="datetime-local" min={date || undefined} value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" />
-        </label>
-        <p className="text-sm text-zinc-600 sm:col-span-2">Confirm the revised schedule below, then send the queued notices to ticket holders. Leaving the end time blank removes it.</p>
-      </div>}
+      {kind === "rescheduled" && (
+        <fieldset className="mt-4 rounded-2xl border border-zinc-300 bg-zinc-50 p-4 sm:p-5">
+          <legend className="px-2 text-base font-bold">Event schedule</legend>
+          <p className="mb-4 text-sm text-zinc-600">Set the start and end together. Both times appear on the event page and attendee tickets.</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-bold">Starts
+              <input type="datetime-local" required value={date} onChange={(e) => setDate(e.target.value)}
+                className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" />
+            </label>
+            <label className="block text-sm font-bold">Ends (optional)
+              <input type="datetime-local" min={date || undefined} value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" />
+            </label>
+          </div>
+          <p className="mt-3 text-xs text-zinc-600">Times use your device timezone. Leave Ends blank to remove an existing end time. Confirm the change below, then send the queued notices to ticket holders.</p>
+        </fieldset>
+      )}
       {kind === "venue_changed" && <div className="mt-4 grid gap-4 sm:grid-cols-2"><label className="text-sm font-bold">New venue name<input value={venue} onChange={(e) => setVenue(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" /></label><label className="text-sm font-bold">Street address<input value={address} onChange={(e) => setAddress(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" /></label><label className="text-sm font-bold">City<input value={city} onChange={(e) => setCity(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" /></label><label className="text-sm font-bold">State<input value={state} onChange={(e) => setState(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" /></label></div>}
       <label className="mt-4 block text-sm font-bold">Message to attendees<textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4} maxLength={1500} placeholder="Explain what happened, what attendees should do next, and where to ask about refunds." className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" /></label>
       <label className="mt-4 block text-sm font-bold">Type “{event.name}” to confirm<input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" /></label>
