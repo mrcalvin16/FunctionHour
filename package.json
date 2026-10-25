@@ -26,7 +26,7 @@
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.460.0",
     "mapbox-gl": "^3.23.1",
-    "next": "^15.5.27",
+    "next": "^15.5.28",
     "openai": "^6.49.0",
     "qrcode.react": "^4.2.0",
     "react": "^18.3.1",
@@ -40,7 +40,7 @@
     "stripe": "^17.7.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.23.8"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/mapbox-gl": "^3.4.1",
