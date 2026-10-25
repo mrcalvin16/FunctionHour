@@ -44,10 +44,10 @@ export default function DiscoveryNav() {
         </Link>
 
         <div className="hidden min-w-0 flex-1 flex-wrap items-center justify-end gap-2 lg:flex">
-          {browseLinks.map(({ href, label }) => <Link key={href} href={href} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}{href === "/my-event-passport" && <span className="ml-1.5 inline-block rounded-full bg-violet-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-800">Beta</span>}</Link>)}
+          {browseLinks.map(({ href, label }) => <Link key={href} href={href} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}</Link>)}
           <SignedIn>
             <FollowingNavLink className={linkClass} />
-            {accountLinks.map(({ href, label }) => <Link key={href} href={href} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}{href === "/my-event-passport" && <span className="ml-1.5 inline-block rounded-full bg-violet-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-800">Beta</span>}</Link>)}
+            {accountLinks.map(({ href, label }) => <Link key={href} href={href} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}</Link>)}
             <OrganizerPortalLink className={actionClass} />
           </SignedIn>
           <SignedOut>
@@ -68,10 +68,10 @@ export default function DiscoveryNav() {
       {menuOpen && (
         <nav id="discovery-mobile-menu" aria-label="Mobile navigation" className="border-t border-zinc-200 bg-white px-4 py-4 lg:hidden">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2 sm:grid-cols-3">
-            {browseLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}{href === "/my-event-passport" && <span className="ml-1.5 inline-block rounded-full bg-violet-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-800">Beta</span>}</Link>)}
+            {browseLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}</Link>)}
             <SignedIn>
               <FollowingNavLink className={linkClass} onClick={() => setMenuOpen(false)} />
-              {accountLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}{href === "/my-event-passport" && <span className="ml-1.5 inline-block rounded-full bg-violet-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-800">Beta</span>}</Link>)}
+              {accountLinks.map(({ href, label }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} aria-current={isCurrentLink(pathname, href) ? "page" : undefined} className={getLinkClass(pathname, href)}>{label}</Link>)}
               <OrganizerPortalLink className={actionClass} />
             </SignedIn>
             <SignedOut>
