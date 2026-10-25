@@ -205,7 +205,7 @@ export const getAll = query({
 
         return {
           ...event,
-          imageUrl,
+          imageUrl: brandedEventImageUrl(imageUrl),
           hasMerch,
           startingPrice,
           isSoldOut: soldOut,
@@ -263,7 +263,7 @@ export const getMapEvents = query({
           totalTickets: event.totalTickets,
           ticketsSold: event.ticketsSold,
           isDemo: event.isDemo,
-          imageUrl,
+          imageUrl: brandedEventImageUrl(imageUrl),
 
         };
       }),
@@ -290,7 +290,7 @@ export const getById = query({
 
     return {
       ...event,
-      imageUrl,
+      imageUrl: brandedEventImageUrl(imageUrl),
     };
   },
 });
@@ -317,7 +317,7 @@ export const getMyEvents = query({
 
         return {
           ...event,
-          imageUrl,
+          imageUrl: brandedEventImageUrl(imageUrl),
         };
       }),
     );
@@ -366,7 +366,7 @@ export const getEventsByCity = query({
 
         return {
           ...event,
-          imageUrl,
+          imageUrl: brandedEventImageUrl(imageUrl),
         };
       }),
     );
@@ -393,7 +393,7 @@ export const getEventsByVenue = query({
 
         return {
           ...event,
-          imageUrl,
+          imageUrl: brandedEventImageUrl(imageUrl),
         };
       }),
     );
@@ -905,7 +905,7 @@ export const getTrendingEvents = query({
 
         return {
           ...event,
-          imageUrl,
+          imageUrl: brandedEventImageUrl(imageUrl),
           trendingScore: score,
         };
       }),
@@ -973,7 +973,7 @@ export const getSellerEvents = query({
 
         return {
           ...event,
-          imageUrl,
+          imageUrl: brandedEventImageUrl(imageUrl),
           metrics,
 
           // Compatibility field for the existing seller UI.

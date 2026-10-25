@@ -3,6 +3,13 @@ import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/s
 import type { Doc } from "./_generated/dataModel";
 import { getEventEndTimestamp, isEventPast, isEventUpcoming } from "./eventDates";
 
+// Public organizer and event media only; private uploads must retain access controls.
+function publicMediaUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const prefix = "https://colorless-aardvark-337.convex.cloud/api/storage/";
+  return url.startsWith(prefix) ? `https://functionhour.com/media/${url.slice(prefix.length)}` : url;
+}
+
 function publicEventSummary(event: Doc<"events">) {
   return {
     _id: event._id,
@@ -15,7 +22,7 @@ function publicEventSummary(event: Doc<"events">) {
     dateString: event.dateString,
     eventDate: event.eventDate,
     imageStorageId: event.imageStorageId,
-    imageUrl: event.imageUrl,
+    imageUrl: publicMediaUrl(event.imageUrl),
   };
 }
 
@@ -291,8 +298,8 @@ export const getOrganizerByUserId = query({
         organizerName: organizer.organizerName ?? "",
         name: organizer.name ?? "",
         bio: organizer.bio ?? "",
-        avatarUrl: organizer.avatarStorageId ? await ctx.storage.getUrl(organizer.avatarStorageId) : organizer.avatarUrl ?? "",
-        bannerUrl: organizer.bannerStorageId ? await ctx.storage.getUrl(organizer.bannerStorageId) : organizer.bannerUrl ?? "",
+        avatarUrl: publicMediaUrl(organizer.avatarStorageId ? await ctx.storage.getUrl(organizer.avatarStorageId) : organizer.avatarUrl) ?? "",
+        bannerUrl: publicMediaUrl(organizer.bannerStorageId ? await ctx.storage.getUrl(organizer.bannerStorageId) : organizer.bannerUrl) ?? "",
         website: organizer.website ?? "",
         instagram: organizer.instagram ?? "",
         isVerifiedOrganizer: organizer.isVerifiedOrganizer === true,
