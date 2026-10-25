@@ -54,12 +54,12 @@ function EventImage({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={name ? `View full flyer for ${name}` : "View full event flyer"}
-        className="group block w-full focus-visible:outline focus-visible:outline-4 focus-visible:outline-violet-500"
+        className="group block w-full max-w-[650px] focus-visible:outline focus-visible:outline-4 focus-visible:outline-violet-500"
       >
         <img
           src={brandedMediaUrl(finalImageUrl) ?? finalImageUrl}
           alt={name ? `${name} event flyer` : "Event flyer"}
-          className="mx-auto block h-auto max-h-[68vh] w-auto max-w-full object-contain sm:max-h-[72vh]"
+          className="mx-auto block h-auto max-h-[80vh] w-auto max-w-full object-contain sm:max-h-[88vh]"
         />
         <span className="block bg-zinc-950 px-4 py-2.5 text-center text-xs font-semibold text-white transition group-hover:text-violet-300">
           View full flyer ↗
@@ -245,48 +245,47 @@ export default function EventDetailPage({
     organizer?.organizerName || organizer?.name || "Organizer";
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#080808] text-white">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,58,237,0.12),transparent_34%),radial-gradient(circle_at_90%_30%,rgba(249,115,22,0.08),transparent_28%)]" />
+    <main className="relative min-h-screen overflow-hidden bg-[#fdfcfb] text-zinc-900">
+      
       <section className="relative mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/events"
-            className="inline-flex min-h-11 items-center text-sm font-semibold text-white/60 transition hover:text-white"
+            className="inline-flex min-h-11 items-center text-sm font-semibold text-zinc-600 transition hover:text-zinc-950"
           >
             ← All events
           </Link>
           <Link
             href="/"
-            className="text-xs font-black tracking-[0.22em] text-white"
+            className="text-xs font-black tracking-[0.22em] text-zinc-900"
           >
             FUNCTION<span className="text-violet-700">HOUR</span>
           </Link>
         </div>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(310px,0.7fr)] lg:items-start">
+        {/* Editorial event header: experience first, commerce second. */}
+        <header className="mt-8 mb-7 sm:mt-12 sm:mb-9">
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-violet-700">
+            {event.category || "Experience"}
+          </p>
+          {event.isDemo && (
+            <p className="mt-3 inline-flex rounded-full border border-violet-300 bg-violet-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-violet-800">
+              Demo Event
+            </p>
+          )}
+          <h1 className="mt-3 max-w-5xl text-3xl font-black leading-[1.08] tracking-[-0.055em] sm:text-5xl lg:text-[3.5rem]" style={{ color: "#18181b" }}>
+            {event.name}
+          </h1>
+          <div className="mt-6 flex flex-wrap items-start gap-x-10 gap-y-4 border-t border-zinc-200 pt-5">
+            <EventSignalCard label="When" value={formatEventDate(event)} />
+            <EventSignalCard label="Where" value={attendeeVenue(event)} />
+          </div>
+        </header>
+
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(310px,0.7fr)] lg:items-start lg:gap-12">
           <div className="contents lg:block">
-            <div className="order-1 overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111] shadow-lg sm:rounded-[2rem]">
-              <div className="p-5 sm:p-7">
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-violet-700">
-                  {event.category || "Experience"}
-                </p>
-
-                {event.isDemo && (
-                  <p className="mt-3 inline-flex rounded-full border border-violet-300/40 bg-violet-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-violet-950 dark:border-violet-300/25 dark:bg-violet-400/10 dark:text-violet-200">
-                    Demo Event
-                  </p>
-                )}
-
-                <h1 className="mt-3 max-w-3xl text-3xl font-black leading-tight tracking-[-0.04em] sm:text-5xl">
-                  {event.name}
-                </h1>
-
-                <div className="mt-6 grid gap-3 border-t border-white/10 pt-5 sm:grid-cols-2">
-                  <EventSignalCard label="Date" value={formatEventDate(event)} />
-                  <EventSignalCard label="Venue" value={attendeeVenue(event)} />
-                </div>
-              </div>
-              <div className="flex w-full items-center justify-center border-t border-white/10 bg-zinc-950/5">
+            <div className="order-1 overflow-hidden">
+              <div className="flex min-h-[260px] w-full items-center justify-center overflow-hidden rounded-2xl bg-[#f4f1f8] px-3 py-6 sm:px-8 sm:py-9">
                 <EventImage
                   storageId={event.imageStorageId}
                   imageUrl={event.imageUrl}
@@ -294,9 +293,9 @@ export default function EventDetailPage({
                 />
               </div>
               {event.description && (
-                <div className="p-5 sm:p-7">
-                  <p className="mb-2 text-[11px] font-black uppercase tracking-[0.18em] text-violet-700">About this event</p>
-                  <p className="max-w-3xl whitespace-pre-line text-base leading-7 text-white/65 sm:text-lg">{event.description}</p>
+                <div className="pt-8 sm:pt-10">
+                  <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-violet-700">The experience</p>
+                  <p className="max-w-3xl whitespace-pre-line text-base leading-8 sm:text-lg" style={{ color: "#3f3f46" }}>{event.description}</p>
                 </div>
               )}
             </div>
@@ -587,7 +586,7 @@ export default function EventDetailPage({
             )}
           </div>
 
-          <aside className="order-2 h-fit overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#141414] p-5 shadow-2xl lg:sticky lg:top-5 sm:p-6">
+          <aside className="order-2 h-fit overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-[0_12px_40px_rgba(24,24,27,0.06)] lg:sticky lg:top-6 sm:p-7" style={{ color: "#18181b" }}>
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/40">
               Tickets
             </p>
@@ -595,7 +594,7 @@ export default function EventDetailPage({
             <div className="mt-3 flex items-end justify-between gap-4">
               <div>
                 <p className="text-sm text-white/70">Admission</p>
-                <p className="mt-1 text-2xl font-black tracking-[-0.05em] sm:text-3xl">
+                <p className="mt-1 text-3xl font-black tracking-[-0.05em] sm:text-4xl">
                   {startingPrice === null ? "—" : getFromPriceLabel({ startingPrice })}
                 </p>
                 {startingPrice !== null && startingPrice > 0 && (
@@ -673,7 +672,7 @@ export default function EventDetailPage({
                 </p>
               </div>
             )}
-            <div className="mt-5 rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm leading-6 text-white">
+            <div className="mt-5 border-t border-zinc-200 pt-4 text-sm leading-6 text-zinc-600">
               <span className="font-black">Refund terms: </span>{event.refundPolicy || "All sales are final unless otherwise stated by the event host."}
               {event.refundDeadline && <span className="block text-white/80">Deadline: {event.refundDeadline}</span>}
             </div>
@@ -697,7 +696,7 @@ export default function EventDetailPage({
                 </button>
               ) : !isSignedIn ? (
                 <SignInButton mode="modal">
-                  <button className="w-full rounded-xl bg-white px-5 py-4 font-black text-black transition hover:bg-violet-100">
+                  <button className="w-full rounded-xl bg-violet-700 px-5 py-4 font-black text-white transition hover:bg-violet-800">
                     Sign in to get tickets
                   </button>
                 </SignInButton>
@@ -711,7 +710,7 @@ export default function EventDetailPage({
               ) : (
                 <Link
                   href={`/events/${event._id}/checkout`}
-                  className="block w-full rounded-xl bg-gradient-to-r from-violet-500 to-orange-500 px-5 py-4 text-center font-black text-white transition hover:brightness-110"
+                  className="block w-full rounded-xl bg-violet-700 px-5 py-4 text-center font-black text-white transition hover:bg-violet-800"
                 >
                   Get tickets
                 </Link>
@@ -841,12 +840,12 @@ export default function EventDetailPage({
 
 function EventSignalCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-xl bg-white/[0.04] px-4 py-3">
-      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
+    <div className="min-w-0 max-w-md">
+      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">
         {label}
       </p>
 
-      <p className="mt-1 text-sm font-bold leading-6 text-white">{value}</p>
+      <p className="mt-1 text-sm font-semibold leading-6" style={{ color: "#27272a" }}>{value}</p>
     </div>
   );
 }
