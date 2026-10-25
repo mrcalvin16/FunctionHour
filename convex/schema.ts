@@ -85,6 +85,8 @@ eventInteractions: defineTable({
     bio: v.optional(v.string()),
     instagram: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
+    imageStorageId: v.optional(v.id("_storage")),
+    isHeadliner: v.optional(v.boolean()),
     sortOrder: v.number(),
     createdAt: v.number(),
   }).index("by_event", ["eventId"]),
