@@ -465,23 +465,34 @@ export const updateEvent = mutation({
       throw new Error("Move or remove the ticket sales deadline before setting an earlier event date.");
     }
 
-    const scheduleOrVenueChanged =
+    // Report the exact protected fields so organizers can distinguish a real
+    // event change from an ordinary settings update.
+    const changedProtectedFields: string[] = [];
+    if (
       (args.eventDate !== undefined && args.eventDate !== event.eventDate) ||
-      (args.dateString !== undefined && args.dateString !== event.dateString) ||
+      (args.dateString !== undefined && args.dateString !== event.dateString)
+    ) changedProtectedFields.push("start date/time");
+    if (
       (args.endDate !== undefined && args.endDate !== event.endDate) ||
-      (args.endDateString !== undefined && args.endDateString !== (event.endDateString ?? "")) ||
-      (args.venueName !== undefined && args.venueName !== (event.venueName ?? "")) ||
-      (args.venueAddress !== undefined && args.venueAddress !== (event.venueAddress ?? "")) ||
-      (args.location !== undefined && args.location !== event.location) ||
-      (args.city !== undefined && args.city !== (event.city ?? "")) ||
-      (args.state !== undefined && args.state.trim().toUpperCase() !== (event.state ?? "").trim().toUpperCase()) ||
+      (args.endDateString !== undefined && args.endDateString !== (event.endDateString ?? ""))
+    ) changedProtectedFields.push("end date/time");
+    if (args.venueName !== undefined && args.venueName !== (event.venueName ?? "")) changedProtectedFields.push("venue name");
+    if (args.venueAddress !== undefined && args.venueAddress !== (event.venueAddress ?? "")) changedProtectedFields.push("venue address");
+    if (args.city !== undefined && args.city !== (event.city ?? "")) changedProtectedFields.push("city");
+    if (args.state !== undefined && args.state.trim().toUpperCase() !== (event.state ?? "").trim().toUpperCase()) changedProtectedFields.push("state");
+    if (args.location !== undefined && args.location !== event.location) changedProtectedFields.push("location");
+    if (
       (args.latitude !== undefined && args.latitude !== event.latitude) ||
-      (args.longitude !== undefined && args.longitude !== event.longitude);
-    if (scheduleOrVenueChanged) {
+      (args.longitude !== undefined && args.longitude !== event.longitude)
+    ) changedProtectedFields.push("map coordinates");
+
+    if (changedProtectedFields.length > 0) {
       const hasTickets = await ctx.db.query("tickets").withIndex("by_event", (q) => q.eq("eventId", args.eventId)).take(1);
       const hasOrders = await ctx.db.query("ticketOrders").withIndex("by_event_and_paidAt", (q) => q.eq("eventId", args.eventId)).take(1);
       if (hasTickets.length || hasOrders.length) {
-        throw new Error("This event has ticket holders. Use Event changes to notify them about date or venue updates.");
+        throw new Error(
+          `This event has ticket holders. Protected changes detected: ${changedProtectedFields.join(", ")}. Use Event changes to notify ticket holders, or revert those fields before saving other settings.`
+        );
       }
     }
 
