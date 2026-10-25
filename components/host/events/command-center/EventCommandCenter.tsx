@@ -229,7 +229,7 @@ export default function EventCommandCenter({
               <div className="min-w-0">
                 <Link
                   href="/host/events"
-                  className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500 transition hover:text-white"
+                  className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-600 transition hover:text-zinc-950"
                 >
                   <ChevronLeft className="h-3.5 w-3.5" />
                   All events
@@ -311,17 +311,17 @@ export default function EventCommandCenter({
                 const classes = [
                   "relative inline-flex min-h-11 items-center gap-2 rounded-xl px-3.5 text-xs font-black transition",
                   active
-                    ? "bg-white/[0.09] text-white"
+                    ? "bg-orange-50 text-zinc-950"
                     : item.soon
-                      ? "cursor-default text-zinc-700"
-                      : "text-zinc-500 hover:bg-white/[0.05] hover:text-white",
+                      ? "cursor-default text-zinc-500"
+                      : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950",
                 ].join(" ");
                 const content = (
                   <>
                     <Icon className="h-4 w-4" />
                     {item.label}
                     {item.soon ? (
-                      <span className="rounded-full border border-white/[0.07] px-1.5 py-0.5 text-[7px] uppercase tracking-wider text-zinc-700">
+                      <span className="rounded-full border border-white/[0.07] px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-zinc-600">
                         Soon
                       </span>
                     ) : null}
