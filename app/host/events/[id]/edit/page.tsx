@@ -366,8 +366,16 @@ export default function EditEventPage() {
           className="space-y-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 md:p-8"
         >
           {error && (
-            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
-              {error}
+            <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+              <p>{error}</p>
+              {error.includes("ticket holders") && (
+                <Link
+                  href={`/host/events/${event._id}/changes`}
+                  className="mt-3 inline-flex font-semibold text-white underline underline-offset-4"
+                >
+                  Open Event changes
+                </Link>
+              )}
             </div>
           )}
 
