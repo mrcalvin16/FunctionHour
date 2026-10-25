@@ -254,24 +254,39 @@ export default function EditEventPage() {
         .filter(Boolean)
         .join(", ");
 
-      const { latitude, longitude } = await geocodeAddress(location);
+      // Only submit schedule and venue fields when the organizer actually
+      // changes them. Existing ticket holders require a separate change flow.
+      const normalizedState = stateValue.trim().toUpperCase();
+      const venueChanged =
+        venueName.trim() !== (event.venueName ?? "") ||
+        venueAddress.trim() !== (event.venueAddress ?? "") ||
+        city.trim() !== (event.city ?? "") ||
+        normalizedState !== (event.state ?? "").trim().toUpperCase();
+      const startChanged = dateString !== (event.dateString ?? "");
+      const endChanged = endDateString.trim() !== (event.endDateString ?? "");
+      const coordinates = venueChanged ? await geocodeAddress(location) : {};
 
       await updateEvent({
         eventId: event._id,
         name: name.trim(),
         description: description.trim(),
         category,
-        location,
-        venueName: venueName.trim(),
-        venueAddress: venueAddress.trim(),
-        city: city.trim(),
-        state: stateValue.trim().toUpperCase(),
-        latitude,
-        longitude,
-        dateString,
-        eventDate: new Date(dateString).getTime(),
-        endDateString: endDateString.trim(),
-        endDate: endDateString.trim() ? new Date(endDateString).getTime() : undefined,
+        ...(venueChanged && {
+          location,
+          venueName: venueName.trim(),
+          venueAddress: venueAddress.trim(),
+          city: city.trim(),
+          state: normalizedState,
+          ...coordinates,
+        }),
+        ...(startChanged && {
+          dateString,
+          eventDate: new Date(dateString).getTime(),
+        }),
+        ...(endChanged && {
+          endDateString: endDateString.trim(),
+          endDate: endDateString.trim() ? new Date(endDateString).getTime() : undefined,
+        }),
         price: Number(price),
         totalTickets: Number(totalTickets),
         maxTicketsPerOrder: Number(maxTicketsPerOrder),
