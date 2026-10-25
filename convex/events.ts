@@ -465,8 +465,19 @@ export const updateEvent = mutation({
       throw new Error("Move or remove the ticket sales deadline before setting an earlier event date.");
     }
 
-    if (args.eventDate !== undefined || args.dateString !== undefined || args.endDate !== undefined || args.endDateString !== undefined ||
-      args.venueName !== undefined || args.venueAddress !== undefined || args.location !== undefined || args.city !== undefined || args.state !== undefined || args.latitude !== undefined || args.longitude !== undefined) {
+    const scheduleOrVenueChanged =
+      (args.eventDate !== undefined && args.eventDate !== event.eventDate) ||
+      (args.dateString !== undefined && args.dateString !== event.dateString) ||
+      (args.endDate !== undefined && args.endDate !== event.endDate) ||
+      (args.endDateString !== undefined && args.endDateString !== (event.endDateString ?? "")) ||
+      (args.venueName !== undefined && args.venueName !== (event.venueName ?? "")) ||
+      (args.venueAddress !== undefined && args.venueAddress !== (event.venueAddress ?? "")) ||
+      (args.location !== undefined && args.location !== event.location) ||
+      (args.city !== undefined && args.city !== (event.city ?? "")) ||
+      (args.state !== undefined && args.state.trim().toUpperCase() !== (event.state ?? "").trim().toUpperCase()) ||
+      (args.latitude !== undefined && args.latitude !== event.latitude) ||
+      (args.longitude !== undefined && args.longitude !== event.longitude);
+    if (scheduleOrVenueChanged) {
       const hasTickets = await ctx.db.query("tickets").withIndex("by_event", (q) => q.eq("eventId", args.eventId)).take(1);
       const hasOrders = await ctx.db.query("ticketOrders").withIndex("by_event_and_paidAt", (q) => q.eq("eventId", args.eventId)).take(1);
       if (hasTickets.length || hasOrders.length) {
