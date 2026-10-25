@@ -25,6 +25,7 @@ export default function EditEventPage({
 
   const [name, setName] = useState("");
   const [dateString, setDateString] = useState("");
+  const [endDateString, setEndDateString] = useState("");
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
   const [totalTickets, setTotalTickets] = useState("");
@@ -36,6 +37,7 @@ export default function EditEventPage({
 
     setName(event.name ?? "");
     setDateString(event.dateString ?? "");
+    setEndDateString(event.endDateString ?? "");
     setLocation(event.location ?? "");
     setPrice(event.price?.toString() ?? "");
     setTotalTickets(event.totalTickets?.toString() ?? "");
@@ -50,6 +52,10 @@ export default function EditEventPage({
       return;
     }
 
+    if (endDateString && (!dateString || !Number.isFinite(new Date(endDateString).getTime()) || new Date(endDateString).getTime() <= new Date(dateString).getTime())) {
+      alert("End time must be after the start time.");
+      return;
+    }
     setIsSaving(true);
 
     try {
@@ -60,6 +66,7 @@ export default function EditEventPage({
         location,
         dateString,
         eventDate: dateString ? new Date(dateString).getTime() : undefined,
+        ...(endDateString ? { endDateString, endDate: new Date(endDateString).getTime() } : {}),
         price: price ? Number(price) : undefined,
         totalTickets: totalTickets ? Number(totalTickets) : undefined,
       });
@@ -144,13 +151,23 @@ export default function EditEventPage({
           <div>
             <label className="text-sm text-white/60">Date</label>
             <input
-              type="date"
+              type="datetime-local"
               value={dateString}
               onChange={(e) => setDateString(e.target.value)}
               className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
             />
           </div>
 
+          <div>
+            <label className="text-sm text-white/60">Event end date and time (optional for existing events)</label>
+            <input
+              type="datetime-local"
+              min={dateString || undefined}
+              value={endDateString}
+              onChange={(e) => setEndDateString(e.target.value)}
+              className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+            />
+          </div>
           <div>
             <label className="text-sm text-white/60">Location</label>
             <input

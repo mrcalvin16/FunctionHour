@@ -74,6 +74,9 @@ export default async function EventLayout({
         name: event.name,
         description: event.description || event.name,
         startDate,
+        ...(typeof event.endDate === "number" && Number.isFinite(event.endDate) && event.endDate > event.eventDate
+          ? { endDate: new Date(event.endDate).toISOString() }
+          : {}),
         eventStatus: "https://schema.org/EventScheduled",
         eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
         url: `https://functionhour.com/events/${id}`,
