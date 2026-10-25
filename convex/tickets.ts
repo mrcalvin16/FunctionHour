@@ -506,7 +506,7 @@ export const createTicket = mutation({
     // reachable email for essential event-change notifications.
     const ownerIdentifiers = await getTicketOwnerIdentifiers(ctx, identity);
     const buyerEmail = ownerIdentifiers.find((value) =>
-      /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(value),
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
     );
     if (!buyerEmail) {
       throw new Error("Add a valid email address to your FunctionHour profile before claiming a free ticket.");
