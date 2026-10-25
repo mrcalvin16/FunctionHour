@@ -24,6 +24,8 @@ export default function EventChangesPage() {
   const changes = useQuery(api.eventOperations.getChanges, canManage ? { eventId: event._id } : "skip");
   const changeEvent = useMutation(api.eventOperations.changeEvent);
   const rebuildChangeNotices = useMutation(api.eventOperations.rebuildChangeNotices);
+  const setPublicAlertVisibility = useMutation(api.eventOperations.setPublicAlertVisibility);
+  const [showPublicAlert, setShowPublicAlert] = useState(false);
   const [kind, setKind] = useState<ChangeKind>("rescheduled");
   const [message, setMessage] = useState("");
   const [date, setDate] = useState(() => toLocalDateTime(event.eventDate));
@@ -54,7 +56,7 @@ export default function EventChangesPage() {
     setBusy(true); setFeedback("");
     try {
       await changeEvent({
-        eventId: event._id, kind, message,
+        eventId: event._id, kind, message, showPublicAlert,
         ...(kind === "rescheduled" && {
           nextDate: new Date(date).getTime(), nextDateString: date,
           nextEndDateString: endDate,
@@ -62,11 +64,21 @@ export default function EventChangesPage() {
         }),
         ...(kind === "venue_changed" && { nextVenue: venue, nextVenueAddress: address, nextCity: city, nextState: state }),
       });
-      setConfirmation(""); setMessage("");
+      setConfirmation(""); setMessage(""); setShowPublicAlert(false);
       setFeedback("Event updated. The buyer notice list is being prepared. Send all pending notices below.");
     } catch (error) { setFeedback(error instanceof Error ? error.message : "Unable to update event."); }
     finally { setBusy(false); }
   }
+  async function toggleAlert(changeId: Id<"eventChanges">, visible: boolean) {
+    setBusy(true); setFeedback("");
+    try {
+      await setPublicAlertVisibility({ changeId, showPublicAlert: visible });
+      setFeedback(visible ? "Public event-page alert enabled." : "Public event-page alert hidden. Attendee email notices are unchanged.");
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : "Unable to update alert visibility.");
+    } finally { setBusy(false); }
+  }
+
   async function rebuild(changeId: Id<"eventChanges">) {
     setBusy(true);
     setFeedback("");
@@ -119,10 +131,14 @@ export default function EventChangesPage() {
       <p className={`mt-2 text-xs ${message.trim().length < 15 ? "text-amber-700" : "text-zinc-600"}`}>
         {message.trim().length}/15 minimum characters · Explain the schedule change to attendees.
       </p>
+      <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+        <input type="checkbox" checked={showPublicAlert} onChange={(e) => setShowPublicAlert(e.target.checked)} className="mt-1 h-5 w-5 accent-violet-700" />
+        <span><span className="block text-sm font-bold">Show an alert on the public event page</span><span className="mt-1 block text-xs leading-5 text-zinc-600">Optional. Display this update near ticket checkout. You can show or hide it later without changing the event or sending another email.</span></span>
+      </label>
       <label className="mt-4 block text-sm font-bold">Type “{event.name}” to confirm<input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-300 bg-white p-3 text-zinc-950 shadow-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20" /></label>
       <button onClick={save} disabled={busy} className="mt-5 rounded-xl bg-orange-600 px-5 py-3 font-bold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:bg-orange-100 disabled:text-orange-900/60">Record change</button>
     </div>
     {feedback && <p role="status" className="rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-950">{feedback}</p>}
-    <section><h3 className="text-xl font-bold">Buyer notices</h3><p className="mt-2 text-sm text-zinc-600">Email delivery is batched so a failed request can be retried. Keep sending until each change shows all notices sent.</p><div className="mt-4 space-y-3">{changes?.map((change) => <article key={change._id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><p className="font-bold">{labels[change.kind]} · {new Date(change.createdAt).toLocaleString()}</p><p className="mt-2 whitespace-pre-wrap text-sm text-zinc-600">{change.message}</p><p className="mt-3 text-xs text-zinc-600">{change.queueComplete ? `${change.sentCount} of ${change.queuedCount} notices sent` : "Preparing buyer list…"}{change.queueComplete && change.unresolvedCount ? ` · ${change.unresolvedCount} ticket(s) missing a reachable email` : ""}</p>{change.queueComplete && <button disabled={busy} onClick={() => rebuild(change._id)} className="mt-3 mr-3 rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm font-bold text-zinc-900 hover:bg-zinc-100 disabled:opacity-50">Recheck ticket holders</button>}{change.queueComplete && change.queuedCount === 0 && <p className="mt-2 text-sm font-semibold text-amber-800">No notification recipients were found. Recheck ticket holders before assuming no attendees need an update.</p>}{change.queueComplete && change.sentCount < change.queuedCount && <button disabled={busy} onClick={() => send(change._id)} className="mt-3 rounded-xl bg-violet-500 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Send next 10 notices</button>}</article>)}</div></section>
+    <section><h3 className="text-xl font-bold">Buyer notices</h3><p className="mt-2 text-sm text-zinc-600">Email delivery is batched so a failed request can be retried. Keep sending until each change shows all notices sent.</p><div className="mt-4 space-y-3">{changes?.map((change) => <article key={change._id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><p className="font-bold">{labels[change.kind]} · {new Date(change.createdAt).toLocaleString()}</p><p className="mt-2 whitespace-pre-wrap text-sm text-zinc-600">{change.message}</p><label className="mt-3 flex cursor-pointer items-center gap-3 text-sm font-semibold text-zinc-800"><input type="checkbox" className="h-4 w-4 accent-violet-700" checked={change.showPublicAlert !== false} disabled={busy} onChange={(e) => toggleAlert(change._id, e.target.checked)} /> Show public page alert</label><p className="mt-3 text-xs text-zinc-600">{change.queueComplete ? `${change.sentCount} of ${change.queuedCount} notices sent` : "Preparing buyer list…"}{change.queueComplete && change.unresolvedCount ? ` · ${change.unresolvedCount} ticket(s) missing a reachable email` : ""}</p>{change.queueComplete && <button disabled={busy} onClick={() => rebuild(change._id)} className="mt-3 mr-3 rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm font-bold text-zinc-900 hover:bg-zinc-100 disabled:opacity-50">Recheck ticket holders</button>}{change.queueComplete && change.queuedCount === 0 && <p className="mt-2 text-sm font-semibold text-amber-800">No notification recipients were found. Recheck ticket holders before assuming no attendees need an update.</p>}{change.queueComplete && change.sentCount < change.queuedCount && <button disabled={busy} onClick={() => send(change._id)} className="mt-3 rounded-xl bg-violet-500 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Send next 10 notices</button>}</article>)}</div></section>
   </div>;
 }
