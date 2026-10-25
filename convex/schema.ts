@@ -99,6 +99,8 @@ eventInteractions: defineTable({
 
     eventDate: v.float64(),
     dateString: v.string(),
+    endDate: v.optional(v.float64()),
+    endDateString: v.optional(v.string()),
 
     price: v.optional(v.float64()),
     totalTickets: v.optional(v.float64()),
