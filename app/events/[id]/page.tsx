@@ -652,10 +652,27 @@ export default function EventDetailPage({
                 </p>
               )}
 
-            {eventChanges && eventChanges.length > 0 && <div className="mt-5 rounded-xl border border-orange-300 bg-orange-50 p-4 text-orange-950" role="status">
-              <strong className="block text-base">Event update: {eventChanges[0].kind.replace("_", " ")}</strong>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-6">{eventChanges[0].message}</p>
-            </div>}
+            {eventChanges && eventChanges.length > 0 && (
+              <div
+                className="mt-5 rounded-xl border border-orange-300 bg-orange-50 p-4"
+                role="status"
+                aria-label="Important event update"
+                style={{ color: "#431407", backgroundColor: "#fff7ed" }}
+              >
+                <strong
+                  className="block text-base font-bold"
+                  style={{ color: "#7c2d12" }}
+                >
+                  Event update: {eventChanges[0].kind.replace("_", " ")}
+                </strong>
+                <p
+                  className="mt-2 whitespace-pre-wrap text-sm leading-6"
+                  style={{ color: "#431407" }}
+                >
+                  {eventChanges[0].message}
+                </p>
+              </div>
+            )}
             <div className="mt-5 rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm leading-6 text-white">
               <span className="font-black">Refund terms: </span>{event.refundPolicy || "All sales are final unless otherwise stated by the event host."}
               {event.refundDeadline && <span className="block text-white/80">Deadline: {event.refundDeadline}</span>}
