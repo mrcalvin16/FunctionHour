@@ -502,9 +502,20 @@ export const createTicket = mutation({
       }
     }
 
+    // Free checkouts bypass Stripe, so the ticket itself must retain a
+    // reachable email for essential event-change notifications.
+    const ownerIdentifiers = await getTicketOwnerIdentifiers(ctx, identity);
+    const buyerEmail = ownerIdentifiers.find((value) =>
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+    );
+    if (!buyerEmail) {
+      throw new Error("Add a valid email address to your FunctionHour profile before claiming a free ticket.");
+    }
+
     const ticketId = await ctx.db.insert("tickets", {
       eventId: args.eventId,
       userId: identity.subject,
+      buyerEmail,
       status: "active",
       checkedIn: false,
       purchasedAt: Date.now(),

@@ -233,6 +233,7 @@ eventInteractions: defineTable({
     createdAt: v.number(),
     queuedCount: v.number(),
     sentCount: v.number(),
+    unresolvedCount: v.optional(v.number()),
     queueComplete: v.boolean(),
   }).index("by_eventId_and_createdAt", ["eventId", "createdAt"]),
 

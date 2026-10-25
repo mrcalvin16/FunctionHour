@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
-import { internalMutation, mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query, type MutationCtx } from "./_generated/server";
+import type { Doc } from "./_generated/dataModel";
 import { requireEventCapability } from "./eventAccess";
 
 const kind = v.union(v.literal("cancelled"), v.literal("postponed"), v.literal("rescheduled"), v.literal("venue_changed"));
@@ -74,6 +75,32 @@ export const changeEvent = mutation({
   },
 });
 
+const validEmail = (value?: string | null) => {
+  const normalized = value?.trim().toLowerCase();
+  return normalized && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)
+    ? normalized : undefined;
+};
+
+// Legacy free tickets were issued with userId but without buyerEmail.
+// Resolve the attendee's profile using the existing user indexes instead of
+// silently treating a claimed ticket as an uncontactable buyer.
+async function ticketNoticeEmail(ctx: MutationCtx, ticket: Doc<"tickets">) {
+  const direct = validEmail(ticket.buyerEmail);
+  if (direct) return direct;
+  const owner = String(ticket.userId);
+  const fromOwner = validEmail(owner);
+  if (fromOwner) return fromOwner;
+  const profileId = ctx.db.normalizeId("users", owner);
+  const profile = profileId ? await ctx.db.get(profileId) : null;
+  if (profile?.email) return validEmail(profile.email);
+  const byClerk = await ctx.db.query("users")
+    .withIndex("by_clerkId", (q) => q.eq("clerkId", owner)).first();
+  if (byClerk?.email) return validEmail(byClerk.email);
+  const byUser = await ctx.db.query("users")
+    .withIndex("by_userId", (q) => q.eq("userId", owner)).first();
+  return validEmail(byUser?.email);
+}
+
 export const queueNotices = internalMutation({
   args: { changeId: v.id("eventChanges"), phase: v.union(v.literal("orders"), v.literal("tickets")), cursor: v.union(v.string(), v.null()) },
   handler: async (ctx, args) => {
@@ -83,16 +110,27 @@ export const queueNotices = internalMutation({
       ? await ctx.db.query("ticketOrders").withIndex("by_event_and_paidAt", (q) => q.eq("eventId", change.eventId)).paginate({ numItems: 40, cursor: args.cursor })
       : await ctx.db.query("tickets").withIndex("by_event", (q) => q.eq("eventId", change.eventId)).paginate({ numItems: 40, cursor: args.cursor });
     let added = 0;
+    let unresolved = 0;
     for (const row of page.page) {
-      const email = row.buyerEmail?.trim().toLowerCase();
-      if (!email || ("status" in row && (row.status === "refunded" || row.status === "cancelled" || row.status === "revoked"))) continue;
+      if ("status" in row && (row.status === "refunded" || row.status === "cancelled" || row.status === "revoked")) continue;
+      const email = args.phase === "tickets"
+        ? await ticketNoticeEmail(ctx, row as Doc<"tickets">)
+        : validEmail(row.buyerEmail);
+      if (!email) {
+        // Report missing contacts instead of showing a misleading 0 of 0.
+        if (args.phase === "tickets") unresolved++;
+        continue;
+      }
       const exists = await ctx.db.query("eventChangeNotices").withIndex("by_changeId_and_email", (q) => q.eq("changeId", args.changeId).eq("email", email)).unique();
       if (!exists) {
         await ctx.db.insert("eventChangeNotices", { changeId: args.changeId, email, status: "pending", createdAt: Date.now() });
         added++;
       }
     }
-    await ctx.db.patch(args.changeId, { queuedCount: change.queuedCount + added });
+    await ctx.db.patch(args.changeId, {
+      queuedCount: change.queuedCount + added,
+      unresolvedCount: (change.unresolvedCount ?? 0) + unresolved,
+    });
     if (!page.isDone) {
       await ctx.scheduler.runAfter(0, internal.eventOperations.queueNotices, { ...args, cursor: page.continueCursor });
     } else if (args.phase === "orders") {
@@ -100,6 +138,25 @@ export const queueNotices = internalMutation({
     } else {
       await ctx.db.patch(args.changeId, { queueComplete: true });
     }
+  },
+});
+
+// Organizers may recheck previously issued free tickets after profile emails
+// become available. Existing notices are deduplicated and never re-sent.
+export const rebuildChangeNotices = mutation({
+  args: { changeId: v.id("eventChanges") },
+  handler: async (ctx, args) => {
+    const change = await ctx.db.get(args.changeId);
+    if (!change) throw new Error("Event change not found.");
+    await requireEventCapability(ctx, change.eventId, "manage_event");
+    if (!change.queueComplete) {
+      throw new Error("The attendee list is still being prepared. Try again shortly.");
+    }
+    await ctx.db.patch(change._id, { queueComplete: false, unresolvedCount: 0 });
+    await ctx.scheduler.runAfter(0, internal.eventOperations.queueNotices, {
+      changeId: change._id, phase: "orders", cursor: null,
+    });
+    return true;
   },
 });
 
