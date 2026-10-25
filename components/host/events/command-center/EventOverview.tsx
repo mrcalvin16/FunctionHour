@@ -259,10 +259,10 @@ export default function EventOverview() {
           </div>
         </div>
 
-        <aside className="rounded-[1.75rem] border border-white/[0.08] bg-gradient-to-br from-[#171128] via-[#0f0d17] to-[#17100d] p-5 shadow-[0_30px_100px_rgba(0,0,0,0.22)] sm:p-6">
+        <aside className="rounded-[1.75rem] border border-zinc-200 bg-white p-5 text-zinc-950 shadow-sm sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.23em] text-violet-300">
+              <p className="text-[10px] font-black uppercase tracking-[0.23em] text-violet-700">
                 Event setup
               </p>
               <h2 className="mt-2 text-xl font-black tracking-tight">
@@ -270,14 +270,14 @@ export default function EventOverview() {
               </h2>
             </div>
 
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.08] bg-black/30">
-              <span className="text-lg font-black text-white">
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-violet-200 bg-violet-50">
+              <span className="select-none text-lg font-black text-violet-800">
                 {readinessPercent}%
               </span>
             </div>
           </div>
 
-          <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/[0.06]">
+          <div className="mt-5 h-2 overflow-hidden rounded-full bg-zinc-100">
             <div
               className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-orange-400"
               style={{ width: `${readinessPercent}%` }}
@@ -288,7 +288,7 @@ export default function EventOverview() {
             {readiness.map((item) => (
               <div
                 key={item.label}
-                className="flex items-start gap-3 rounded-2xl border border-white/[0.07] bg-black/20 p-3.5"
+                className="flex items-start gap-3 rounded-2xl border border-zinc-200 bg-zinc-50 p-3.5"
               >
                 <span
                   className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
@@ -305,7 +305,7 @@ export default function EventOverview() {
                 </span>
 
                 <span className="min-w-0">
-                  <span className="block text-xs font-black text-zinc-200">
+                  <span className="block text-xs font-black text-zinc-900">
                     {item.label}
                   </span>
                   <span className="mt-1 block text-[10px] leading-4 text-zinc-600">
