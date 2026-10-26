@@ -2,6 +2,24 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  boostQuotes: defineTable({
+    eventId: v.id("events"),
+    organizerId: v.string(),
+    areaKey: v.string(),
+    placement: v.union(v.literal("discovery"), v.literal("featured"), v.literal("spotlight")),
+    durationDays: v.number(),
+    totalCents: v.number(),
+    currency: v.literal("usd"),
+    pricingVersion: v.string(),
+    marketDemandIndex: v.number(),
+    competingBoosts: v.number(),
+    availableSlots: v.number(),
+    daysUntilEvent: v.number(),
+    calculatedAt: v.number(),
+    expiresAt: v.number(),
+    status: v.union(v.literal("quoted"), v.literal("expired"), v.literal("paid"), v.literal("cancelled")),
+  }).index("by_event", ["eventId"]).index("by_organizer", ["organizerId"]).index("by_expiresAt", ["expiresAt"]),
+
   checkInReversals: defineTable({
     eventId: v.id("events"), ticketId: v.id("tickets"),
     staffUserId: v.string(), originalCheckInAt: v.optional(v.number()),
