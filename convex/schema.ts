@@ -17,7 +17,11 @@ export default defineSchema({
     daysUntilEvent: v.number(),
     calculatedAt: v.number(),
     expiresAt: v.number(),
-    status: v.union(v.literal("quoted"), v.literal("expired"), v.literal("paid"), v.literal("cancelled")),
+    status: v.union(v.literal("quoted"), v.literal("checkout_pending"), v.literal("expired"), v.literal("paid"), v.literal("refunded"), v.literal("cancelled")),
+    stripeCheckoutSessionId: v.optional(v.string()),
+    stripePaymentIntentId: v.optional(v.string()),
+    paidAt: v.optional(v.number()),
+    refundedAt: v.optional(v.number()),
   }).index("by_event", ["eventId"]).index("by_organizer", ["organizerId"]).index("by_expiresAt", ["expiresAt"]),
 
   checkInReversals: defineTable({
