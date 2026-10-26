@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
-import OrganizerPortalLink from "@/components/OrganizerPortalLink";
+import { SignedOut } from "@clerk/nextjs";
 
 // A lightweight launch-month welcome. Automatically retires after November 21.
 const START = Date.parse("2026-10-22T00:00:00-05:00");
@@ -60,7 +59,7 @@ export default function LaunchWeekWelcome() {
             <p className="mt-1 text-lg font-black leading-tight tracking-[-0.03em] text-zinc-950 sm:text-xl">
               Your next great experience starts here.
             </p>
-            <p className="mt-1 text-sm text-zinc-700">Find your people, discover events, or bring your own idea to life.</p>
+            <p className="mt-1 text-sm text-zinc-700">Host or attend your first event. Your next great memory is one click away.</p>
           </div>
         </div>
         <div className="flex w-full shrink-0 flex-wrap items-center justify-center gap-2 sm:w-auto md:justify-end">
@@ -69,14 +68,6 @@ export default function LaunchWeekWelcome() {
               <span aria-hidden="true" className="fh-launch-month-arrow">↗</span> Sign up free
             </Link>
           </SignedOut>
-          <OrganizerPortalLink
-            attendeeLabel="Create an event →"
-            organizerLabel="Organizer OS →"
-            className="inline-flex min-h-11 items-center justify-center rounded-full border border-orange-300 bg-white px-5 py-2.5 text-sm font-extrabold text-zinc-950 shadow-sm transition hover:border-orange-500 hover:bg-orange-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
-          />
-          <SignedIn>
-            <Link href="/events" className="text-sm font-bold text-violet-800 underline-offset-4 hover:underline">Browse events ↗</Link>
-          </SignedIn>
         </div>
       </div>
     </section>
