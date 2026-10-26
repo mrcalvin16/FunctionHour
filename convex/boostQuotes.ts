@@ -87,7 +87,7 @@ export const createPreviewQuote = mutation({
       expiresAt: quote.expiresAt,
       status: "quoted",
     });
-    return { quoteId, totalCents: quote.totalCents, currency: "usd" as const, expiresAt: quote.expiresAt, signalQuality: market.signalQuality, checkoutEnabled: false };
+    return { quoteId, totalCents: quote.totalCents, currency: "usd" as const, expiresAt: quote.expiresAt, signalQuality: market.signalQuality, checkoutEnabled: process.env.BOOST_PAYMENTS_ENABLED === "true" };
   },
 });
 
