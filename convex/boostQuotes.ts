@@ -5,7 +5,7 @@ import { buildBoostQuote, assertBoostQuoteEligible } from "../lib/boostQuoteGuar
 import { deriveAreaDemand } from "../lib/boostMarketSignals";
 
 const placementValidator = v.union(v.literal("discovery"), v.literal("featured"), v.literal("spotlight"));
-const ALLOCATED_SLOTS_PER_AREA = 5; // provisional inventory policy; checkout remains disabled
+const ALLOCATED_SLOTS_PER_AREA = 5; // provisional placement inventory policy
 
 /**
  * Organizer-authorized quote preview persisted for audit. No Stripe checkout or
@@ -24,6 +24,8 @@ export const createPreviewQuote = mutation({
     const now = Date.now();
     if (!Number.isFinite(event.eventDate) || event.eventDate <= now || event.eventStatus === "cancelled")
       throw new Error("Only upcoming, active events can be boosted");
+    if (args.durationDays === 0.5 && event.eventDate - now < 12 * 60 * 60 * 1000)
+      throw new Error("A 12-hour boost requires at least 12 hours before the event starts");
     const city = event.city?.trim().toLowerCase();
     const state = event.state?.trim().toLowerCase();
     if (!city || !state) throw new Error("Add an event city and state before requesting a boost");
@@ -127,6 +129,7 @@ export const getQuoteForCheckout = query({
     if (Date.now() >= quote.expiresAt) return null;
     const event = await ctx.db.get(quote.eventId);
     if (!event || event.eventDate <= Date.now() || event.eventStatus === "cancelled") return null;
+    if (quote.durationDays === 0.5 && event.eventDate - Date.now() < 12 * 60 * 60 * 1000) return null;
     return { quoteId: quote._id, eventId: quote.eventId, totalCents: quote.totalCents,
       placement: quote.placement, durationDays: quote.durationDays, expiresAt: quote.expiresAt };
   },
@@ -164,6 +167,7 @@ export const activatePaidBoost = mutation({
     const event = await ctx.db.get(quote.eventId);
     if (!event) throw new Error("Event missing");
     const now = Date.now();
+    if (event.eventDate <= now || event.eventStatus === "cancelled") throw new Error("Event is no longer eligible for promotion");
     const weight = { discovery: 100, featured: 250, spotlight: 500 }[quote.placement];
     await ctx.db.insert("boostOrders", {
       eventId: quote.eventId, organizerId: quote.organizerId,
@@ -175,7 +179,7 @@ export const activatePaidBoost = mutation({
     await ctx.db.patch(quote._id, { status: "paid", stripePaymentIntentId: args.stripePaymentIntentId, paidAt: now });
     await ctx.db.patch(quote.eventId, {
       isPromoted: true, promotionTier: quote.placement, featuredWeight: weight,
-      promotionEndsAt: Math.max(now, event.promotionEndsAt ?? 0) + quote.durationDays * 86400000,
+      promotionEndsAt: Math.min(event.eventDate, Math.max(now, event.promotionEndsAt ?? 0) + quote.durationDays * 86400000),
     });
     return true;
   },
