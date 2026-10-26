@@ -45,7 +45,8 @@ export const createPreviewQuote = mutation({
       const [views, interactions] = await Promise.all([
         ctx.db.query("eventViews").withIndex("by_event_and_createdAt", q =>
           q.eq("eventId", e._id).gte("createdAt", since)).take(200),
-        ctx.db.query("eventInteractions").withIndex("by_event", q => q.eq("eventId", String(e._id))).take(200),
+        ctx.db.query("eventInteractions").withIndex("by_event_and_createdAt", q =>
+          q.eq("eventId", String(e._id)).gte("createdAt", since)).take(200),
       ]);
       return { views: views.length,
         clicks: interactions.filter(i => i.type === "click" && i.createdAt >= since).length };
