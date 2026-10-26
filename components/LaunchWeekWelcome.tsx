@@ -2,10 +2,23 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+import OrganizerPortalLink from "@/components/OrganizerPortalLink";
 
-// A quiet, temporary launch notice. No popup, overlay, or local storage.
+// A lightweight launch-month welcome. Automatically retires after November 21.
 const START = Date.parse("2026-10-22T00:00:00-05:00");
-const END = Date.parse("2026-11-02T00:00:00-06:00");
+const END = Date.parse("2026-11-22T00:00:00-06:00");
+
+const confetti = [
+  { left: "5%", top: "17%", rotate: "-20deg", delay: "0s", color: "#f97316" },
+  { left: "14%", top: "73%", rotate: "32deg", delay: ".4s", color: "#a855f7" },
+  { left: "28%", top: "11%", rotate: "45deg", delay: ".9s", color: "#ec4899" },
+  { left: "43%", top: "81%", rotate: "-35deg", delay: ".2s", color: "#f97316" },
+  { left: "59%", top: "15%", rotate: "20deg", delay: "1.1s", color: "#a855f7" },
+  { left: "72%", top: "79%", rotate: "-45deg", delay: ".6s", color: "#ec4899" },
+  { left: "85%", top: "17%", rotate: "35deg", delay: "1.4s", color: "#f97316" },
+  { left: "96%", top: "72%", rotate: "-25deg", delay: ".8s", color: "#a855f7" },
+];
 
 export default function LaunchWeekWelcome() {
   const [active, setActive] = useState(false);
@@ -23,19 +36,49 @@ export default function LaunchWeekWelcome() {
   if (!active) return null;
 
   return (
-    <div className="border-b border-zinc-200/70 bg-[#faf9f7]">
-      <div className="mx-auto flex min-h-12 max-w-[1240px] flex-wrap items-center justify-center gap-x-3 gap-y-1 px-5 py-2 text-center sm:px-7">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.13em] text-orange-700 ring-1 ring-orange-100">
-          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-orange-500" />
-          Now live
-        </span>
-        <span className="text-xs font-medium text-zinc-700 sm:text-sm">
-          Good things are happening. Find your next experience.
-        </span>
-        <Link href="/events" className="group inline-flex items-center gap-1 text-xs font-bold text-violet-700 underline-offset-4 transition hover:underline focus-visible:underline sm:text-sm">
-          Explore events <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
-        </Link>
+    <section aria-label="FunctionHour launch month" className="relative isolate overflow-hidden border-b border-orange-100 bg-[#fff7f0]">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        {confetti.map((piece, index) => (
+          <span
+            key={index}
+            className="fh-launch-month-confetti absolute h-2.5 w-1.5 rounded-[2px]"
+            style={{
+              left: piece.left,
+              top: piece.top,
+              backgroundColor: piece.color,
+              transform: `rotate(${piece.rotate})`,
+              animationDelay: piece.delay,
+            }}
+          />
+        ))}
       </div>
-    </div>
+      <div className="relative mx-auto flex max-w-[1240px] flex-col items-center justify-between gap-4 px-5 py-5 sm:px-7 md:flex-row md:gap-7 md:py-5">
+        <div className="flex min-w-0 items-start gap-3">
+          <span aria-hidden="true" className="fh-launch-month-celebrate mt-0.5 text-2xl">🎉</span>
+          <div>
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-orange-700">Launch month · FunctionHour is live</p>
+            <p className="mt-1 text-lg font-black leading-tight tracking-[-0.03em] text-zinc-950 sm:text-xl">
+              Your next great experience starts here.
+            </p>
+            <p className="mt-1 text-sm text-zinc-700">Find your people, discover events, or bring your own idea to life.</p>
+          </div>
+        </div>
+        <div className="flex w-full shrink-0 flex-wrap items-center justify-center gap-2 sm:w-auto md:justify-end">
+          <SignedOut>
+            <Link href="/sign-up" data-cta="launch_month_sign_up" className="fh-launch-month-cta inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-violet-700 px-5 py-2.5 text-sm font-extrabold text-white shadow-[0_8px_22px_rgba(109,40,217,0.2)] transition hover:bg-violet-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">
+              <span aria-hidden="true" className="fh-launch-month-arrow">↗</span> Sign up free
+            </Link>
+          </SignedOut>
+          <OrganizerPortalLink
+            attendeeLabel="Create an event →"
+            organizerLabel="Organizer OS →"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-orange-300 bg-white px-5 py-2.5 text-sm font-extrabold text-zinc-950 shadow-sm transition hover:border-orange-500 hover:bg-orange-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+          />
+          <SignedIn>
+            <Link href="/events" className="text-sm font-bold text-violet-800 underline-offset-4 hover:underline">Browse events ↗</Link>
+          </SignedIn>
+        </div>
+      </div>
+    </section>
   );
 }
