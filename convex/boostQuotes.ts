@@ -37,9 +37,23 @@ export const createPreviewQuote = mutation({
       e.isPromoted === true &&
       (e.promotionEndsAt ?? 0) > now
     ).length;
+    // Bounded seven-day event views and clicks in the target city/state.
+    // If the area has insufficient observations, deriveAreaDemand uses a neutral fallback.
+    const since = now - 7 * 86400000;
+    const sampleEvents = areaEvents.filter(e => e.state?.trim().toLowerCase() === state).slice(0, 25);
+    const samples = await Promise.all(sampleEvents.map(async e => {
+      const [views, interactions] = await Promise.all([
+        ctx.db.query("eventViews").withIndex("by_event_and_createdAt", q =>
+          q.eq("eventId", e._id).gte("createdAt", since)).take(200),
+        ctx.db.query("eventInteractions").withIndex("by_event_and_createdAt", q =>
+          q.eq("eventId", String(e._id)).gte("createdAt", since)).take(200),
+      ]);
+      return { views: views.length,
+        clicks: interactions.filter(i => i.type === "click" && i.createdAt >= since).length };
+    }));
     const market = deriveAreaDemand({
-      eligibleEventViews7d: 0,
-      eligibleEventClicks7d: 0,
+      eligibleEventViews7d: samples.reduce((sum, item) => sum + item.views, 0),
+      eligibleEventClicks7d: samples.reduce((sum, item) => sum + item.clicks, 0),
       activeCompetingBoosts: competingBoosts,
       availablePlacementSlots: ALLOCATED_SLOTS_PER_AREA,
     });
@@ -74,7 +88,7 @@ export const createPreviewQuote = mutation({
       expiresAt: quote.expiresAt,
       status: "quoted",
     });
-    return { quoteId, totalCents: quote.totalCents, currency: "usd" as const, expiresAt: quote.expiresAt, signalQuality: market.signalQuality, checkoutEnabled: false };
+    return { quoteId, totalCents: quote.totalCents, currency: "usd" as const, expiresAt: quote.expiresAt, signalQuality: market.signalQuality, checkoutEnabled: process.env.BOOST_PAYMENTS_ENABLED === "true" };
   },
 });
 
@@ -98,5 +112,95 @@ export const getMyPreviewQuote = query({
       },
     }, { eventId: String(quote.eventId), organizerId: identity.subject, now: Date.now(), expectedTotalCents: quote.totalCents });
     return { totalCents: quote.totalCents, currency: quote.currency, placement: quote.placement, durationDays: quote.durationDays, expiresAt: quote.expiresAt, checkoutEnabled: false };
+  },
+});
+
+
+// Server-only checkout helpers. Never accept an amount from the browser.
+export const getQuoteForCheckout = query({
+  args: { serverSecret: v.string(), quoteId: v.id("boostQuotes"), clerkId: v.string() },
+  handler: async (ctx, args) => {
+    if (!process.env.STRIPE_WEBHOOK_SHARED_SECRET || args.serverSecret !== process.env.STRIPE_WEBHOOK_SHARED_SECRET)
+      throw new Error("Unauthorized server request");
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote || quote.organizerId !== args.clerkId || quote.status !== "quoted") return null;
+    if (Date.now() >= quote.expiresAt) return null;
+    const event = await ctx.db.get(quote.eventId);
+    if (!event || event.eventDate <= Date.now() || event.eventStatus === "cancelled") return null;
+    return { quoteId: quote._id, eventId: quote.eventId, totalCents: quote.totalCents,
+      placement: quote.placement, durationDays: quote.durationDays, expiresAt: quote.expiresAt };
+  },
+});
+
+export const attachCheckoutSession = mutation({
+  args: { serverSecret: v.string(), quoteId: v.id("boostQuotes"), clerkId: v.string(),
+    stripeCheckoutSessionId: v.string() },
+  handler: async (ctx, args) => {
+    if (!process.env.STRIPE_WEBHOOK_SHARED_SECRET || args.serverSecret !== process.env.STRIPE_WEBHOOK_SHARED_SECRET)
+      throw new Error("Unauthorized server request");
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote || quote.organizerId !== args.clerkId || Date.now() >= quote.expiresAt)
+      throw new Error("Invalid or expired quote");
+    if (quote.status === "checkout_pending" && quote.stripeCheckoutSessionId === args.stripeCheckoutSessionId) return true;
+    if (quote.status !== "quoted") throw new Error("Quote already used");
+    await ctx.db.patch(quote._id, { status: "checkout_pending", stripeCheckoutSessionId: args.stripeCheckoutSessionId });
+    return true;
+  },
+});
+
+export const activatePaidBoost = mutation({
+  args: { serverSecret: v.string(), quoteId: v.id("boostQuotes"),
+    stripeCheckoutSessionId: v.string(), stripePaymentIntentId: v.optional(v.string()),
+    amountTotal: v.number(), currency: v.string() },
+  handler: async (ctx, args) => {
+    if (!process.env.STRIPE_WEBHOOK_SHARED_SECRET || args.serverSecret !== process.env.STRIPE_WEBHOOK_SHARED_SECRET)
+      throw new Error("Unauthorized webhook");
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote || quote.stripeCheckoutSessionId !== args.stripeCheckoutSessionId)
+      throw new Error("Unknown checkout session");
+    if (quote.status === "paid") return true; // webhook idempotency
+    if (quote.status !== "checkout_pending" || args.amountTotal !== quote.totalCents || args.currency !== "usd")
+      throw new Error("Boost payment mismatch");
+    const event = await ctx.db.get(quote.eventId);
+    if (!event) throw new Error("Event missing");
+    const now = Date.now();
+    const weight = { discovery: 100, featured: 250, spotlight: 500 }[quote.placement];
+    await ctx.db.insert("boostOrders", {
+      eventId: quote.eventId, organizerId: quote.organizerId,
+      tier: quote.placement, amount: quote.totalCents / 100, status: "paid",
+      durationDays: quote.durationDays, featuredWeight: weight,
+      stripeCheckoutSessionId: args.stripeCheckoutSessionId,
+      stripePaymentIntentId: args.stripePaymentIntentId, createdAt: now, updatedAt: now,
+    });
+    await ctx.db.patch(quote._id, { status: "paid", stripePaymentIntentId: args.stripePaymentIntentId, paidAt: now });
+    await ctx.db.patch(quote.eventId, {
+      isPromoted: true, promotionTier: quote.placement, featuredWeight: weight,
+      promotionEndsAt: Math.max(now, event.promotionEndsAt ?? 0) + quote.durationDays * 86400000,
+    });
+    return true;
+  },
+});
+
+export const recordBoostRefund = mutation({
+  args: { serverSecret: v.string(), stripePaymentIntentId: v.string(), fullyRefunded: v.boolean() },
+  handler: async (ctx, args) => {
+    if (!process.env.STRIPE_WEBHOOK_SHARED_SECRET || args.serverSecret !== process.env.STRIPE_WEBHOOK_SHARED_SECRET)
+      throw new Error("Unauthorized webhook");
+    const order = await ctx.db.query("boostOrders").withIndex("by_payment_intent", q =>
+      q.eq("stripePaymentIntentId", args.stripePaymentIntentId)).first();
+    if (!order || !args.fullyRefunded || order.status === "refunded") return false;
+    await ctx.db.patch(order._id, { status: "refunded", updatedAt: Date.now() });
+    const quotes = await ctx.db.query("boostQuotes").withIndex("by_event", q => q.eq("eventId", order.eventId)).collect();
+    const quote = quotes.find(q => q.stripePaymentIntentId === args.stripePaymentIntentId);
+    if (quote) await ctx.db.patch(quote._id, { status: "refunded", refundedAt: Date.now() });
+    const event = await ctx.db.get(order.eventId);
+    const otherPaid = await ctx.db.query("boostOrders").withIndex("by_event", q =>
+      q.eq("eventId", order.eventId)).collect();
+    const newerPaidBoostExists = otherPaid.some(o => o._id !== order._id &&
+      o.status === "paid" && (o.createdAt ?? 0) >= (order.createdAt ?? 0));
+    if (event && !newerPaidBoostExists && event.promotionTier === order.tier) {
+      await ctx.db.patch(order.eventId, { isPromoted: false, promotionEndsAt: undefined, featuredWeight: 0, promotionTier: undefined });
+    }
+    return true;
   },
 });

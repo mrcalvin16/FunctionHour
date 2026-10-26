@@ -17,7 +17,11 @@ export default defineSchema({
     daysUntilEvent: v.number(),
     calculatedAt: v.number(),
     expiresAt: v.number(),
-    status: v.union(v.literal("quoted"), v.literal("expired"), v.literal("paid"), v.literal("cancelled")),
+    status: v.union(v.literal("quoted"), v.literal("checkout_pending"), v.literal("expired"), v.literal("paid"), v.literal("refunded"), v.literal("cancelled")),
+    stripeCheckoutSessionId: v.optional(v.string()),
+    stripePaymentIntentId: v.optional(v.string()),
+    paidAt: v.optional(v.number()),
+    refundedAt: v.optional(v.number()),
   }).index("by_event", ["eventId"]).index("by_organizer", ["organizerId"]).index("by_expiresAt", ["expiresAt"]),
 
   checkInReversals: defineTable({
@@ -38,7 +42,8 @@ eventInteractions: defineTable({
   type: v.string(), // view | click | save | map_hover
   createdAt: v.float64(),
 }).index("by_user", ["userId"])
-  .index("by_event", ["eventId"]),
+  .index("by_event", ["eventId"])
+  .index("by_event_and_createdAt", ["eventId", "createdAt"]),
 
   users: defineTable({
     clerkId: v.optional(v.string()),
@@ -908,7 +913,8 @@ eventInteractions: defineTable({
   })
     .index("by_event", ["eventId"])
     .index("by_organizer", ["organizerId"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    .index("by_payment_intent", ["stripePaymentIntentId"]),
 
 
   savedEvents: defineTable({

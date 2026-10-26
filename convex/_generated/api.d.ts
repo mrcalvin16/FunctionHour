@@ -13,6 +13,7 @@ import type * as analytics from "../analytics.js";
 import type * as analyticsSources from "../analyticsSources.js";
 import type * as audience from "../audience.js";
 import type * as budget from "../budget.js";
+import type * as boostQuotes from "../boostQuotes.js";
 import type * as checkIn from "../checkIn.js";
 import type * as compTickets from "../compTickets.js";
 import type * as crons from "../crons.js";
@@ -59,6 +60,7 @@ declare const fullApi: ApiFromModules<{
   analyticsSources: typeof analyticsSources;
   audience: typeof audience;
   budget: typeof budget;
+  boostQuotes: typeof boostQuotes;
   checkIn: typeof checkIn;
   compTickets: typeof compTickets;
   crons: typeof crons;

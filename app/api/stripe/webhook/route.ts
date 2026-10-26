@@ -349,6 +349,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true });
     }
 
+    if (session.metadata?.checkoutType === "dynamic_boost") {
+      const quoteId = session.metadata.quoteId;
+      if (!quoteId || session.payment_status !== "paid" || session.amount_total == null || !session.currency)
+        return NextResponse.json({ error: "Invalid dynamic boost payment" }, { status: 400 });
+      const serverSecret = process.env.STRIPE_WEBHOOK_SHARED_SECRET;
+      if (!serverSecret) return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+      await convex.mutation(api.boostQuotes.activatePaidBoost, {
+        serverSecret, quoteId: quoteId as Id<"boostQuotes">,
+        stripeCheckoutSessionId: session.id,
+        stripePaymentIntentId: typeof session.payment_intent === "string"
+          ? session.payment_intent : session.payment_intent?.id,
+        amountTotal: session.amount_total, currency: session.currency,
+      });
+      return NextResponse.json({ received: true });
+    }
+
     const eventId = session.metadata?.eventId;
     const tier = session.metadata?.tier;
     const durationDays = Number(session.metadata?.durationDays || 0);
@@ -415,6 +431,11 @@ export async function POST(req: Request) {
       webhookSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
       stripePaymentIntentId,
       refundedAmount: charge.amount_refunded / 100,
+    });
+    await convex.mutation(api.boostQuotes.recordBoostRefund, {
+      serverSecret: process.env.STRIPE_WEBHOOK_SHARED_SECRET!,
+      stripePaymentIntentId,
+      fullyRefunded: charge.amount_refunded >= charge.amount,
     });
     const receiptEmail = charge.receipt_email || charge.billing_details?.email;
     if (receiptEmail) {
