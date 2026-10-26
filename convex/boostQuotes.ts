@@ -37,9 +37,22 @@ export const createPreviewQuote = mutation({
       e.isPromoted === true &&
       (e.promotionEndsAt ?? 0) > now
     ).length;
+    // Bounded seven-day event views and clicks in the target city/state.
+    // If the area has insufficient observations, deriveAreaDemand uses a neutral fallback.
+    const since = now - 7 * 86400000;
+    const sampleEvents = areaEvents.filter(e => e.state?.trim().toLowerCase() === state).slice(0, 25);
+    const samples = await Promise.all(sampleEvents.map(async e => {
+      const [views, interactions] = await Promise.all([
+        ctx.db.query("eventViews").withIndex("by_event_and_createdAt", q =>
+          q.eq("eventId", e._id).gte("createdAt", since)).take(200),
+        ctx.db.query("eventInteractions").withIndex("by_event", q => q.eq("eventId", String(e._id))).take(200),
+      ]);
+      return { views: views.length,
+        clicks: interactions.filter(i => i.type === "click" && i.createdAt >= since).length };
+    }));
     const market = deriveAreaDemand({
-      eligibleEventViews7d: 0,
-      eligibleEventClicks7d: 0,
+      eligibleEventViews7d: samples.reduce((sum, item) => sum + item.views, 0),
+      eligibleEventClicks7d: samples.reduce((sum, item) => sum + item.clicks, 0),
       activeCompetingBoosts: competingBoosts,
       availablePlacementSlots: ALLOCATED_SLOTS_PER_AREA,
     });
