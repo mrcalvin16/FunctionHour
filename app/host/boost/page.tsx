@@ -5,15 +5,14 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import DynamicBoostCheckout from "@/components/host/DynamicBoostCheckout";
 import type { Id } from "@/convex/_generated/dataModel";
 import {
   ArrowLeft,
   ArrowUpRight,
   Check,
-  Crown,
   Sparkles,
   Ticket,
-  Zap,
 } from "lucide-react";
 
 export default function BoostEventPage() {
@@ -38,7 +37,6 @@ function BoostEventContent() {
   const eventId = searchParams.get("eventId");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [isBoosting, setIsBoosting] = useState(false);
 
   const event = useQuery(
     api.events.getById,
@@ -48,36 +46,12 @@ function BoostEventContent() {
 
   useEffect(() => {
     if (searchParams.get("boost") === "success") {
-      setSuccessMessage("Boost payment confirmed. Your event promotion is activating now.");
+      setSuccessMessage("Payment submitted. Your promotion activates only after Stripe confirms payment.");
     } else if (searchParams.get("boost") === "cancelled") {
       setErrorMessage("Checkout was cancelled. No charge was made.");
     }
   }, [searchParams]);
 
-  async function handleBoost(tier: string) {
-    if (!eventId || isBoosting) return;
-
-    setIsBoosting(true);
-    setSuccessMessage("");
-    setErrorMessage("");
-
-    try {
-      const response = await fetch("/api/boost/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eventId, tier }),
-      });
-      const data = await response.json();
-      if (!response.ok || !data.url) {
-        throw new Error(data.error || "Checkout failed.");
-      }
-      window.location.href = data.url;
-    } catch (error) {
-      console.error("Failed to start checkout:", error);
-      setErrorMessage("Unable to start boost checkout. Please try again.");
-      setIsBoosting(false);
-    }
-  }
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#f8f7f5] text-zinc-950">
@@ -186,18 +160,7 @@ function BoostEventContent() {
             </section>
 
             <section className="mt-10">
-              <div className="mb-5 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-violet-700">Step 2 · Choose a boost</p>
-                  <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Pick your spotlight</h2>
-                </div>
-                <p className="text-sm text-zinc-700">One-time payment · Review on Stripe before paying</p>
-              </div>
-              <div className="grid gap-4 md:grid-cols-3">
-                <BoostPlan title="Spotlight" price="$15" desc="24-hour discovery boost." icon="sparkles" disabled={isBoosting} isBoosting={isBoosting} onSelect={() => handleBoost("spotlight")} />
-                <BoostPlan title="Weekend Push" price="$35" desc="3-day featured boost." icon="zap" featured disabled={isBoosting} isBoosting={isBoosting} onSelect={() => handleBoost("weekend_push")} />
-                <BoostPlan title="City Takeover" price="$75" desc="7-day premium placement." icon="crown" disabled={isBoosting} isBoosting={isBoosting} onSelect={() => handleBoost("city_takeover")} />
-              </div>
+              <DynamicBoostCheckout eventId={eventId as Id<"events">} />
             </section>
 
             <section className="mt-8 grid gap-3 rounded-[1.5rem] border border-zinc-200 bg-white p-5 sm:grid-cols-3 sm:p-6">
@@ -223,53 +186,3 @@ function BoostEventContent() {
   );
 }
 
-function BoostPlan({
-  title,
-  price,
-  desc,
-  icon,
-  featured = false,
-  disabled = false,
-  isBoosting = false,
-  onSelect,
-}: {
-  title: string;
-  price: string;
-  desc: string;
-  icon: "sparkles" | "zap" | "crown";
-  featured?: boolean;
-  disabled?: boolean;
-  isBoosting?: boolean;
-  onSelect: () => void;
-}) {
-  const PlanIcon = icon === "sparkles" ? Sparkles : icon === "zap" ? Zap : Crown;
-
-  return (
-    <article className={featured
-      ? "relative flex flex-col overflow-hidden rounded-[1.75rem] border-2 border-violet-400 bg-violet-50 p-6 text-zinc-950 shadow-[0_12px_40px_rgba(92,48,180,0.1)] sm:p-7"
-      : "relative flex flex-col overflow-hidden rounded-[1.75rem] border border-zinc-200 bg-white p-6 text-zinc-950 shadow-[0_12px_40px_rgba(24,24,27,0.05)] transition hover:-translate-y-1 hover:shadow-lg sm:p-7"}
-    >
-      {featured && <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-orange-500" />}
-      {featured && <span className="absolute right-5 top-5 rounded-full border border-violet-200 bg-violet-100 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-violet-800">Popular</span>}
-      <span className={featured
-        ? "grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-[0_8px_24px_rgba(124,58,237,0.3)]"
-        : "grid h-12 w-12 place-items-center rounded-2xl bg-violet-50 text-violet-700"}
-      >
-        <PlanIcon className="h-5 w-5" aria-hidden="true" />
-      </span>
-      <p className={featured ? "mt-5 text-xs font-black uppercase tracking-[0.22em] text-violet-800" : "mt-5 text-xs font-black uppercase tracking-[0.22em] text-violet-700"}>{title}</p>
-      <p className={featured ? "mt-3 text-4xl font-black tracking-tight text-zinc-950" : "mt-3 text-4xl font-black tracking-tight text-zinc-950"}>{price}</p>
-      <p className={featured ? "mt-3 min-h-10 text-sm leading-6 text-zinc-700" : "mt-3 min-h-10 text-sm leading-6 text-zinc-700"}>{desc}</p>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={onSelect}
-        className={disabled
-          ? "mt-7 inline-flex min-h-12 w-full cursor-wait items-center justify-center gap-2 rounded-xl bg-zinc-200 px-5 text-sm font-black text-zinc-700 disabled:opacity-80"
-          : "mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 px-5 text-sm font-black text-white shadow-[0_8px_24px_rgba(124,58,237,0.24)] transition hover:scale-[1.01] hover:from-violet-500 hover:to-fuchsia-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"}
-      >
-        {disabled ? "Opening checkout…" : <>Continue to checkout <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></>}
-      </button>
-    </article>
-  );
-}
