@@ -54,14 +54,14 @@ function EventImage({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={name ? `View full flyer for ${name}` : "View full event flyer"}
-        className="group block w-full max-w-[650px] focus-visible:outline focus-visible:outline-4 focus-visible:outline-violet-500"
+        className="group mx-auto block w-fit max-w-full focus-visible:outline focus-visible:outline-4 focus-visible:outline-violet-500"
       >
         <img
           src={brandedMediaUrl(finalImageUrl) ?? finalImageUrl}
           alt={name ? `${name} event flyer` : "Event flyer"}
-          className="mx-auto block h-auto max-h-[80vh] w-auto max-w-full object-contain sm:max-h-[88vh]"
+          className="mx-auto block h-auto max-h-[65vh] w-auto max-w-full rounded-sm object-contain shadow-[0_30px_90px_rgba(0,0,0,0.38)] transition-transform duration-500 group-hover:scale-[1.015] sm:max-h-[72vh]"
         />
-        <span className="block bg-zinc-950 px-4 py-2.5 text-center text-xs font-semibold text-white transition group-hover:text-violet-300">
+        <span className="block px-4 py-3 text-center text-xs font-semibold tracking-wide text-white/75 transition group-hover:text-white">
           View full flyer ↗
         </span>
       </a>
@@ -244,9 +244,9 @@ export default function EventDetailPage({
     organizer?.organizerName || organizer?.name || "Organizer";
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#faf9f7] text-zinc-900">
+    <main className="relative min-h-screen overflow-hidden bg-[#fcfbfa] text-zinc-900">
       
-      <section className="relative mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
+      <section className="relative mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/events"
@@ -263,40 +263,44 @@ export default function EventDetailPage({
         </div>
 
         {/* Scalable editorial masthead: all content comes from the event record. */}
-        <header className="mt-9 mb-9 border-b border-zinc-200 pb-9 sm:mt-14 sm:mb-11 sm:pb-11">
-          <div className="mb-5 flex items-center gap-3">
+        <header className="relative mb-7 mt-7 overflow-hidden rounded-[2rem] border border-zinc-200/80 bg-white px-6 py-8 shadow-[0_18px_70px_rgba(39,25,67,0.045)] sm:mb-9 sm:mt-10 sm:px-10 sm:py-11">
+          <div className="relative z-10 mb-5 flex flex-wrap items-center gap-3">
             <span className="h-2 w-2 rounded-full bg-violet-700" aria-hidden="true" />
             <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-violet-800">{event.category || "Experience"}</span>
             <span className="h-px w-10 bg-zinc-300" aria-hidden="true" />
-            <span className="text-[11px] font-medium tracking-wide text-zinc-500">Discover something worth doing.</span>
+            <span className="text-[11px] font-medium tracking-wide text-zinc-500">A FunctionHour experience</span>
           </div>
           {event.isDemo && <p className="mb-3 inline-flex rounded-full border border-violet-300 bg-violet-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-violet-800">Demo Event</p>}
-          <h1 className="max-w-5xl text-[clamp(2.3rem,5.2vw,5rem)] font-black leading-[1.04] tracking-[-0.065em] text-zinc-950">{event.name}</h1>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:max-w-4xl">
+          <h1 className="relative z-10 max-w-4xl text-[clamp(2.4rem,5vw,4.8rem)] font-black leading-[1.06] tracking-[-0.06em] text-zinc-950">{event.name}</h1>
+          <div className="relative z-10 mt-8 grid gap-6 border-t border-zinc-100 pt-6 sm:grid-cols-2 lg:max-w-4xl">
             <EventSignalCard icon="date" label="Date & time" value={formatEventDate(event)} />
             <EventSignalCard icon="place" label="Location" value={attendeeVenue(event)} />
           </div>
         </header>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(310px,0.72fr)] lg:items-start lg:gap-12">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.72fr)] lg:items-start lg:gap-9">
           <div className="contents lg:block">
             <div className="order-1 overflow-hidden">
-              <div className="flex min-h-[260px] w-full items-center justify-center overflow-hidden rounded-[1.75rem] rounded-tr-[5rem] bg-[#ece6f5] px-4 py-9 shadow-[0_20px_55px_rgba(55,31,90,0.08)] sm:px-10 sm:py-12">
+              <div className="relative flex min-h-[340px] w-full items-center justify-center overflow-hidden rounded-[1.75rem] bg-[#19151f] px-5 py-10 shadow-[0_25px_75px_rgba(35,20,49,0.16)] sm:min-h-[470px] sm:px-10 sm:py-12">
+                <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,rgba(124,58,237,0.24),transparent_66%)]" />
+                <div aria-hidden="true" className="pointer-events-none absolute left-6 top-6 text-[10px] font-bold uppercase tracking-[0.24em] text-white/45">The event / 01</div>
+                <div className="relative z-10 w-full">
                 <EventImage
                   storageId={event.imageStorageId}
                   imageUrl={event.imageUrl}
                   name={event.name}
                 />
+                </div>
               </div>
               {event.description && (
-                <div className="pt-8 sm:pt-10">
-                  <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-violet-700">The experience</p>
+                <div className="mt-7 rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-7 sm:px-8 sm:py-9">
+                  <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-violet-700">Inside the experience</p>
                   <p className="max-w-3xl whitespace-pre-line text-base leading-8 sm:text-lg" style={{ color: "#3f3f46" }}>{event.description}</p>
                 </div>
               )}
             </div>
 
-            <div className="order-3 mt-10 overflow-hidden border-t border-zinc-200 pt-8 sm:mt-12 sm:pt-10">
+            <div className="order-3 mt-7 overflow-hidden rounded-[1.5rem] border border-zinc-200 bg-white p-6 sm:mt-9 sm:p-8">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.22em] text-zinc-500">
@@ -582,15 +586,15 @@ export default function EventDetailPage({
             )}
           </div>
 
-          <aside className="order-2 relative h-fit overflow-hidden rounded-[1.75rem] border border-zinc-200 bg-white p-6 shadow-[0_20px_60px_rgba(40,26,66,0.09)] lg:sticky lg:top-6 sm:p-7" style={{ color: "#18181b" }}>
+          <aside className="order-2 relative h-fit overflow-hidden rounded-[1.75rem] border border-zinc-200 bg-white p-6 shadow-[0_25px_70px_rgba(40,26,66,0.12)] before:absolute before:inset-x-0 before:top-0 before:h-1.5 before:bg-violet-700 lg:sticky lg:top-6 sm:p-8" style={{ color: "#18181b" }}>
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-zinc-500">
-              Tickets
+              Your way in
             </p>
 
             <div className="mt-3 flex items-end justify-between gap-4">
               <div>
-                <p className="text-sm text-zinc-600">Admission</p>
-                <p className="mt-1 text-3xl font-black tracking-[-0.05em] sm:text-4xl">
+                <p className="text-sm text-zinc-600">Tickets from</p>
+                <p className="mt-1 text-4xl font-black tracking-[-0.06em] sm:text-5xl">
                   {startingPrice === null ? "—" : getFromPriceLabel({ startingPrice })}
                 </p>
                 {startingPrice !== null && startingPrice > 0 && (
