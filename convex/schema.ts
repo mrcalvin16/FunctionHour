@@ -912,7 +912,8 @@ eventInteractions: defineTable({
   })
     .index("by_event", ["eventId"])
     .index("by_organizer", ["organizerId"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    .index("by_payment_intent", ["stripePaymentIntentId"]),
 
 
   savedEvents: defineTable({
