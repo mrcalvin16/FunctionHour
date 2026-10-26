@@ -20,6 +20,9 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
+      // Serve the existing official brand assets at browser-standard icon URLs.
+      { source: "/favicon.ico", destination: "/function-hour-tab-20261007.ico" },
+      { source: "/apple-touch-icon.png", destination: "/function-hour-apple-icon.png" },
       {
         source: "/media/:fileId",
         destination:
