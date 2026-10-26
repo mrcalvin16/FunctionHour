@@ -49,7 +49,7 @@ export default function DynamicBoostCheckout({ eventId }: { eventId: Id<"events"
       <label className="text-sm font-semibold">Duration
         <select value={durationDays} onChange={e => { setDurationDays(Number(e.target.value)); setQuote(null); }}
           className="mt-2 block w-full rounded-xl border border-zinc-300 p-3">
-          <option value={3}>3 days</option><option value={7}>7 days</option><option value={14}>14 days</option>
+          <option value={0.5}>Last-minute · 12 hours</option><option value={3}>3 days</option><option value={7}>7 days</option><option value={14}>14 days</option>
         </select>
       </label>
     </div>
@@ -60,7 +60,7 @@ export default function DynamicBoostCheckout({ eventId }: { eventId: Id<"events"
     {quote && <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
       <p className="text-sm text-zinc-600">Your quoted total</p>
       <p className="mt-1 text-4xl font-black">${(quote.totalCents / 100).toFixed(2)}</p>
-      <p className="mt-2 text-xs text-zinc-600">Valid for 15 minutes from issue. {quote.signalQuality === "insufficient_data" ? "Limited local activity data; a neutral demand estimate was used." : "Based on recent local event activity."} Boosts do not guarantee ticket sales.</p>
+      <p className="mt-2 text-xs text-zinc-600">Valid for 15 minutes from issue. {quote.signalQuality === "insufficient_data" ? "Limited local activity data; a neutral demand estimate was used." : "Based on recent local event activity."} 12-hour boosts require at least 12 hours before the event starts. Promotions end at event start. Boosts do not guarantee ticket sales.</p>
       <button type="button" onClick={checkout} disabled={loading || !quote.checkoutEnabled}
         className="mt-4 min-h-12 rounded-xl bg-violet-700 px-6 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
         {quote.checkoutEnabled ? "Approve price and pay securely" : "Payment activation pending"}
