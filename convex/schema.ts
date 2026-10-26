@@ -42,7 +42,8 @@ eventInteractions: defineTable({
   type: v.string(), // view | click | save | map_hover
   createdAt: v.float64(),
 }).index("by_user", ["userId"])
-  .index("by_event", ["eventId"]),
+  .index("by_event", ["eventId"])
+  .index("by_event_and_createdAt", ["eventId", "createdAt"]),
 
   users: defineTable({
     clerkId: v.optional(v.string()),
