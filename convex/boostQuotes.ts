@@ -24,8 +24,12 @@ export const createPreviewQuote = mutation({
     const now = Date.now();
     if (!Number.isFinite(event.eventDate) || event.eventDate <= now || event.eventStatus === "cancelled")
       throw new Error("Only upcoming, active events can be boosted");
-    if (args.durationDays === 0.5 && event.eventDate - now < 12 * 60 * 60 * 1000)
-      throw new Error("A 12-hour boost requires at least 12 hours before the event starts");
+    if (args.durationDays === 0.5 && event.eventDate - now < 60 * 60 * 1000)
+      throw new Error("Last-minute boosts require at least one hour before the event starts");
+    // Quarter-hour increments prevent quoting more promotion time than is available.
+    const effectiveDurationDays = args.durationDays === 0.5
+      ? Math.min(12, Math.floor((event.eventDate - now) / (15 * 60 * 1000)) / 4) / 24
+      : args.durationDays;
     const city = event.city?.trim().toLowerCase();
     const state = event.state?.trim().toLowerCase();
     if (!city || !state) throw new Error("Add an event city and state before requesting a boost");
@@ -64,7 +68,7 @@ export const createPreviewQuote = mutation({
       organizerId: identity.subject,
       areaKey,
       placement: args.placement,
-      durationDays: args.durationDays,
+      durationDays: effectiveDurationDays,
       now,
       market: {
         areaDemandIndex: market.areaDemandIndex,
@@ -90,7 +94,7 @@ export const createPreviewQuote = mutation({
       expiresAt: quote.expiresAt,
       status: "quoted",
     });
-    return { quoteId, totalCents: quote.totalCents, currency: "usd" as const, expiresAt: quote.expiresAt, signalQuality: market.signalQuality, checkoutEnabled: process.env.BOOST_PAYMENTS_ENABLED === "true" };
+    return { quoteId, totalCents: quote.totalCents, durationHours: quote.durationDays * 24, currency: "usd" as const, expiresAt: quote.expiresAt, signalQuality: market.signalQuality, checkoutEnabled: process.env.BOOST_PAYMENTS_ENABLED === "true" };
   },
 });
 
@@ -129,7 +133,7 @@ export const getQuoteForCheckout = query({
     if (Date.now() >= quote.expiresAt) return null;
     const event = await ctx.db.get(quote.eventId);
     if (!event || event.eventDate <= Date.now() || event.eventStatus === "cancelled") return null;
-    if (quote.durationDays === 0.5 && event.eventDate - Date.now() < 12 * 60 * 60 * 1000) return null;
+    if (quote.durationDays <= 0.5 && event.eventDate - Date.now() < 30 * 60 * 1000) return null;
     return { quoteId: quote._id, eventId: quote.eventId, totalCents: quote.totalCents,
       placement: quote.placement, durationDays: quote.durationDays, expiresAt: quote.expiresAt };
   },
@@ -179,7 +183,9 @@ export const activatePaidBoost = mutation({
     await ctx.db.patch(quote._id, { status: "paid", stripePaymentIntentId: args.stripePaymentIntentId, paidAt: now });
     await ctx.db.patch(quote.eventId, {
       isPromoted: true, promotionTier: quote.placement, featuredWeight: weight,
-      promotionEndsAt: Math.min(event.eventDate, Math.max(now, event.promotionEndsAt ?? 0) + quote.durationDays * 86400000),
+      promotionEndsAt: Math.min(event.eventDate, quote.durationDays <= 0.5
+        ? now + quote.durationDays * 86400000
+        : Math.max(now, event.promotionEndsAt ?? 0) + quote.durationDays * 86400000),
     });
     return true;
   },

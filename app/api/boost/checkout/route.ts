@@ -32,7 +32,9 @@ export async function POST(req: Request) {
           currency: "usd",
           unit_amount: quote.totalCents,
           product_data: { name: `FunctionHour ${quote.placement} boost`,
-            description: `${quote.durationDays}-day event promotion` },
+            description: quote.durationDays <= 0.5
+              ? `Last-minute promotion (up to ${Number((quote.durationDays * 24).toFixed(2))} hours, ending at event start)`
+              : `${quote.durationDays}-day event promotion` },
         },
       }],
       metadata: { checkoutType: "dynamic_boost", quoteId, eventId: String(quote.eventId), organizerId: user.id },

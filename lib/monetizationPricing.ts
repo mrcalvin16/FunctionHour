@@ -27,7 +27,7 @@ export function quoteBoostCents(s: BoostSignals): { totalCents: number; multipli
     !Number.isInteger(s.competingBoosts) || s.competingBoosts < 0 ||
     !Number.isInteger(s.availableSlots) || s.availableSlots < 1 ||
     !Number.isInteger(s.daysUntilEvent) || s.daysUntilEvent < 0 ||
-    (!Number.isInteger(s.durationDays) && s.durationDays !== 0.5) || s.durationDays < 0.5 || s.durationDays > 30 ||
+    (s.durationDays > 0.5 && !Number.isInteger(s.durationDays)) || s.durationDays < 1 / 24 || s.durationDays > 30 ||
     !["discovery","featured","spotlight"].includes(s.placement)) throw new Error("Invalid boost signals");
   const basePerDay = { discovery: 250, featured: 500, spotlight: 850 }[s.placement];
   const demand = 0.8 + s.areaDemandIndex * 1.2;
@@ -35,7 +35,8 @@ export function quoteBoostCents(s: BoostSignals): { totalCents: number; multipli
   const urgency = s.daysUntilEvent <= 3 ? 1.2 : s.daysUntilEvent <= 7 ? 1.1 : 1;
   const durationDiscount = s.durationDays >= 14 ? 0.8 : s.durationDays >= 7 ? 0.9 : 1;
   const multiplier = demand * competition * urgency * durationDiscount;
-  const minimumCents = s.durationDays === 0.5 ? 250 : BOOST_MIN_CENTS;
+  // Last-minute prices are proportional to the available hours (minimum $1).
+  const minimumCents = s.durationDays <= 0.5 ? 100 : BOOST_MIN_CENTS;
   const totalCents = clamp(Math.round(basePerDay * s.durationDays * multiplier), minimumCents, BOOST_MAX_CENTS);
   return { totalCents, multiplier: Math.round(multiplier*100)/100,
     factors: { demand, competition, urgency, durationDiscount } };
