@@ -119,7 +119,6 @@ export default function EventDetailPage({
   const { isLoaded, isSignedIn } = useUser();
 
   const event = useQuery(api.events.getById, { eventId });
-  const eventChanges = useQuery(api.eventOperations.getPublicChanges, { eventId });
   const [salesClock, setSalesClock] = useState(() => Date.now());
   useEffect(() => {
     const timer = window.setInterval(() => setSalesClock(Date.now()), 15_000);
@@ -648,27 +647,6 @@ export default function EventDetailPage({
                 </p>
               )}
 
-            {eventChanges && eventChanges.length > 0 && (
-              <div
-                className="mt-5 rounded-xl border border-orange-300 bg-orange-50 p-4"
-                role="status"
-                aria-label="Important event update"
-                style={{ color: "#431407", backgroundColor: "#fff7ed" }}
-              >
-                <strong
-                  className="block text-base font-bold"
-                  style={{ color: "#7c2d12" }}
-                >
-                  Event update: {eventChanges[0].kind.replace("_", " ")}
-                </strong>
-                <p
-                  className="mt-2 whitespace-pre-wrap text-sm leading-6"
-                  style={{ color: "#431407" }}
-                >
-                  {eventChanges[0].message}
-                </p>
-              </div>
-            )}
             <div className="mt-5 border-t border-zinc-200 pt-4 text-sm leading-6 text-zinc-600">
               <span className="font-black">Refund terms: </span>{event.refundPolicy || "All sales are final unless otherwise stated by the event host."}
               {event.refundDeadline && <span className="block text-zinc-600">Deadline: {event.refundDeadline}</span>}
