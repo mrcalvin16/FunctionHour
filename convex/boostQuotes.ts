@@ -193,7 +193,11 @@ export const recordBoostRefund = mutation({
     const quote = quotes.find(q => q.stripePaymentIntentId === args.stripePaymentIntentId);
     if (quote) await ctx.db.patch(quote._id, { status: "refunded", refundedAt: Date.now() });
     const event = await ctx.db.get(order.eventId);
-    if (event && event.promotionTier === order.tier) {
+    const otherPaid = await ctx.db.query("boostOrders").withIndex("by_event", q =>
+      q.eq("eventId", order.eventId)).collect();
+    const newerPaidBoostExists = otherPaid.some(o => o._id !== order._id &&
+      o.status === "paid" && (o.createdAt ?? 0) >= (order.createdAt ?? 0));
+    if (event && !newerPaidBoostExists && event.promotionTier === order.tier) {
       await ctx.db.patch(order.eventId, { isPromoted: false, promotionEndsAt: undefined, featuredWeight: 0, promotionTier: undefined });
     }
     return true;
