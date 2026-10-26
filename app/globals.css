@@ -872,3 +872,25 @@ html.light .organizer-shell .organizer-sidebar a[class*="from-violet-700"] :is(s
 html.light .organizer-shell .organizer-sidebar a[class*="from-violet-700"] > span:first-child {
   background-color: rgba(255, 255, 255, 0.22) !important;
 }
+
+/* Launch-month welcome: festive but lightweight, never blocks navigation. */
+@keyframes fh-launch-month-float {
+  0%, 100% { translate: 0 0; opacity: .7; }
+  50% { translate: 0 -7px; opacity: 1; }
+}
+@keyframes fh-launch-month-nudge {
+  0%, 100% { transform: translate(0, 0); }
+  45% { transform: translate(3px, -3px); }
+}
+@keyframes fh-launch-month-pop {
+  0%, 100% { transform: rotate(-8deg) scale(1); }
+  50% { transform: rotate(10deg) scale(1.1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fh-launch-month-confetti { animation: fh-launch-month-float 3.5s ease-in-out infinite; }
+  .fh-launch-month-arrow { display: inline-block; animation: fh-launch-month-nudge 1.7s ease-in-out infinite; }
+  .fh-launch-month-celebrate { display: inline-block; animation: fh-launch-month-pop 3s ease-in-out infinite; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fh-launch-month-confetti, .fh-launch-month-arrow, .fh-launch-month-celebrate { animation: none !important; }
+}
