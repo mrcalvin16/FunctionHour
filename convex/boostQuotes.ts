@@ -185,8 +185,8 @@ export const recordBoostRefund = mutation({
   handler: async (ctx, args) => {
     if (!process.env.STRIPE_WEBHOOK_SHARED_SECRET || args.serverSecret !== process.env.STRIPE_WEBHOOK_SHARED_SECRET)
       throw new Error("Unauthorized webhook");
-    const orders = await ctx.db.query("boostOrders").collect();
-    const order = orders.find(o => o.stripePaymentIntentId === args.stripePaymentIntentId);
+    const order = await ctx.db.query("boostOrders").withIndex("by_payment_intent", q =>
+      q.eq("stripePaymentIntentId", args.stripePaymentIntentId)).first();
     if (!order || !args.fullyRefunded || order.status === "refunded") return false;
     await ctx.db.patch(order._id, { status: "refunded", updatedAt: Date.now() });
     const quotes = await ctx.db.query("boostQuotes").withIndex("by_event", q => q.eq("eventId", order.eventId)).collect();
