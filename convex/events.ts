@@ -407,6 +407,29 @@ export const getEventsByVenue = query({
   },
 });
 
+export const updateEventMerchSettings = mutation({
+  args: {
+    eventId: v.id("events"),
+    enabled: v.boolean(),
+    shippingPolicy: v.string(),
+    pickupInstructions: v.string(),
+    returnPolicy: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requireEventCapability(ctx, args.eventId, "manage_event");
+    const event = await ctx.db.get(args.eventId);
+    if (!event) throw new Error("Event not found.");
+    const clean = (value: string) => value.trim().slice(0, 2000);
+    await ctx.db.patch(args.eventId, {
+      merchEnabled: args.enabled,
+      merchShippingPolicy: clean(args.shippingPolicy),
+      merchPickupInstructions: clean(args.pickupInstructions),
+      merchReturnPolicy: clean(args.returnPolicy),
+    });
+    return true;
+  },
+});
+
 export const updateEvent = mutation({
   args: {
     eventId: v.id("events"),
