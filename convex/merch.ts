@@ -135,13 +135,19 @@ export const getStorefront = query({
       });
     }
     return {
+      settings: {
+        enabled: event.merchEnabled !== false,
+        shippingPolicy: event.merchShippingPolicy ?? "",
+        pickupInstructions: event.merchPickupInstructions ?? "",
+        returnPolicy: event.merchReturnPolicy ?? "",
+      },
       event: {
         _id: event._id,
         name: event.name,
         eventDate: event.eventDate,
         location: event.location,
       },
-      products: availableProducts,
+      products: event.merchEnabled === false ? [] : availableProducts,
     };
   },
 });
