@@ -53,6 +53,19 @@ export default function EventMerchStore({
       });
     });
   }, [store]);
+  const liveProducts = store?.products;
+  useEffect(() => {
+    if (!liveProducts) return;
+    setCart((items) => items.flatMap((item) => {
+      const product = liveProducts.find((entry) => entry._id === item.merchId);
+      if (!product) return [];
+      const variant = item.variantId ? product.variants.find((entry) => entry._id === item.variantId) : undefined;
+      if (item.variantId && !variant) return [];
+      const available = variant?.available ?? product.available;
+      if (available < 1) return [];
+      return [{ ...item, available, price: variant?.price ?? product.price, quantity: Math.min(item.quantity, available, 10) }];
+    }));
+  }, [liveProducts]);
   const total = useMemo(
     () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cart],
@@ -132,22 +145,20 @@ export default function EventMerchStore({
   }
 
   function changeQuantity(index: number, delta: number) {
-    setCart((items) =>
-      items.map((item, itemIndex) =>
-        itemIndex === index
-          ? {
-              ...item,
-              quantity: Math.max(
-                1,
-                Math.min(10, item.available, item.quantity + delta),
-              ),
-            }
-          : item,
-      ),
-    );
+    setError("");
+    setCart((items) => items.flatMap((item, itemIndex) => {
+      if (itemIndex !== index) return [item];
+      if (delta < 0 && item.quantity === 1) return [];
+      return [{ ...item, quantity: Math.max(1, Math.min(10, item.available, item.quantity + delta)) }];
+    }));
   }
 
   async function checkout() {
+    if (!cart.length) return;
+    if (cart.some((item) => item.quantity < 1 || item.quantity > item.available || item.quantity > 10)) {
+      setError("Cart quantity exceeds available inventory. Please review your items.");
+      return;
+    }
     if (
       (fulfillment === "pickup" && !supportsPickup) ||
       (fulfillment === "shipping" && !supportsShipping)
@@ -349,6 +360,7 @@ export default function EventMerchStore({
                       </div>
                       <button
                         type="button"
+                        aria-label={`Remove ${item.name} from cart`}
                         onClick={() =>
                           setCart((items) =>
                             items.filter((_, itemIndex) => itemIndex !== index),
@@ -362,6 +374,7 @@ export default function EventMerchStore({
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
+                          aria-label={`Decrease quantity of ${item.name}${item.quantity === 1 ? " (remove)" : ""}`}
                           onClick={() => changeQuantity(index, -1)}
                           className="rounded-lg border border-white/[0.08] p-1"
                         >
@@ -372,6 +385,8 @@ export default function EventMerchStore({
                         </span>
                         <button
                           type="button"
+                          aria-label={`Increase quantity of ${item.name}`}
+                          disabled={item.quantity >= Math.min(10, item.available)}
                           onClick={() => changeQuantity(index, 1)}
                           className="rounded-lg border border-white/[0.08] p-1"
                         >
@@ -430,7 +445,7 @@ export default function EventMerchStore({
                   data-cta="merch_checkout"
                   onClick={() => void checkout()}
                   disabled={
-                    busy ||
+                    busy || !cart.length ||
                     (fulfillment === "pickup"
                       ? !supportsPickup
                       : !supportsShipping)
