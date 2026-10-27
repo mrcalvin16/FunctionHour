@@ -518,7 +518,7 @@ export default function EventDetailPage({
                     No merch added yet.
                   </div>
                 ) : (
-                  <div className="mt-4 grid gap-5 md:grid-cols-1 sm:grid-cols-2">
+                  <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4">
                     {merchItems.map((item) => {
                       const available = item.variants.length
                         ? Math.max(...item.variants.map((variant) => variant.available))
@@ -526,11 +526,9 @@ export default function EventDetailPage({
                       return (
                       <div
                         key={item._id}
-                        className="group relative overflow-hidden rounded-[2rem] border border-zinc-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-300/35 hover:shadow-[0_0_60px_rgba(249,115,22,0.12)]"
+                        className="group min-w-0 overflow-hidden bg-white"
                       >
-                        <div className="pointer-events-none absolute right-[-60px] top-[-60px] h-40 w-40 rounded-full bg-orange-500/10 blur-3xl transition group-hover:bg-violet-500/20" />
-                        <div className="relative flex h-48 items-center justify-center overflow-hidden bg-white/10">
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent z-10" />
+                        <div className="relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg bg-zinc-100">
                           <MerchImage
                             imageUrl={item.imageUrl}
                             storageId={item.imageStorageId}
@@ -538,39 +536,39 @@ export default function EventDetailPage({
                           />
                         </div>
 
-                        <div className="p-5">
-                          <h3 className="font-bold">{item.name}</h3>
+                        <div className="px-0 py-3">
+                          <h3 className="line-clamp-2 text-sm font-semibold text-zinc-950">{item.name}</h3>
 
                           {item.description && (
-                            <p className="mt-2 line-clamp-3 text-sm text-zinc-600">
+                            <p className="mt-1 line-clamp-2 text-xs text-zinc-500">
                               {item.description}
                             </p>
                           )}
 
-                          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <p className="font-bold">${item.price}</p>
-                            <p className="text-sm text-zinc-600">
+                          <div className="mt-2 flex flex-wrap items-center justify-between gap-1">
+                            <p className="text-sm font-semibold">${item.price}</p>
+                            <p className="text-xs text-zinc-500">
                               {available > 0 ? `${available} left` : "Sold out"}
                             </p>
                           </div>
 
-                          <div className="mt-4 flex flex-wrap gap-2">
+                          <div className="mt-3 flex flex-wrap gap-2">
                             {available > 0 ? (
                               <Link
                                 href={`/events/${event._id}/merch?product=${encodeURIComponent(item._id)}`}
-                                className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-orange-500 px-5 text-sm font-black text-white shadow-sm transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                                className="inline-flex min-h-10 items-center justify-center rounded-lg bg-zinc-950 px-3 text-xs font-semibold text-white transition hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"
                               >
                                 Buy this item
                               </Link>
                             ) : (
-                              <span className="inline-flex min-h-11 items-center rounded-xl border border-zinc-200 px-4 text-sm font-bold text-zinc-600">
+                              <span className="inline-flex min-h-10 items-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-600">
                                 Sold out
                               </span>
                             )}
                             {canManageEvent && (
                               <Link
                                 href={`/host/events/${event._id}/merch/${item._id}/edit`}
-                                className="inline-flex min-h-11 items-center rounded-xl border border-zinc-200 px-4 text-sm font-semibold text-zinc-900 hover:bg-zinc-100"
+                                className="inline-flex min-h-10 items-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-900 hover:bg-zinc-100"
                               >
                                 Edit Merch
                               </Link>
