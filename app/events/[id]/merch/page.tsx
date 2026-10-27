@@ -70,6 +70,10 @@ export default function EventMerchStore({
     () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cart],
   );
+  const storefrontProducts = store?.products ?? [];
+  const hasPickup = storefrontProducts.some((product) => product.fulfillmentMethod === "pickup" || product.fulfillmentMethod === "hybrid");
+  const hasShipping = storefrontProducts.some((product) => product.fulfillmentMethod === "shipping" || product.fulfillmentMethod === "hybrid" || product.fulfillmentMethod === "printful");
+  const hasPreorders = storefrontProducts.some((product) => Boolean(product.preorderCutoffAt));
   const supportsPickup = cart.every(
     (item) => item.fulfillmentMethod !== "shipping",
   );
@@ -333,6 +337,37 @@ export default function EventMerchStore({
                   No merch is currently on sale.
                 </p>
               </div>
+            )}
+            {store.products.length > 0 && (
+              <section aria-labelledby="merch-fulfillment-title" className="mt-8 rounded-2xl border border-white/10 p-5 sm:p-6">
+                <h2 id="merch-fulfillment-title" className="text-lg font-semibold">Merchandise details</h2>
+                <p className="mt-1 text-sm text-zinc-400">Fulfillment options depend on the products you select. Review your cart before checkout.</p>
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  {hasShipping && (
+                    <div>
+                      <h3 className="text-sm font-semibold">Shipping</h3>
+                      <p className="mt-1 text-xs leading-5 text-zinc-400">Shipping costs are estimated in your cart when shipping is selected. Delivery timing varies by organizer and product.</p>
+                    </div>
+                  )}
+                  {hasPickup && (
+                    <div>
+                      <h3 className="text-sm font-semibold">Event pickup</h3>
+                      <p className="mt-1 text-xs leading-5 text-zinc-400">Pickup is offered on eligible items. Confirm the pickup location and collection instructions with the organizer.</p>
+                    </div>
+                  )}
+                  {hasPreorders && (
+                    <div>
+                      <h3 className="text-sm font-semibold">Preorders</h3>
+                      <p className="mt-1 text-xs leading-5 text-zinc-400">Some items may be preorder-only. Check the product details and confirm fulfillment timing with the organizer.</p>
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="text-sm font-semibold">Returns & exchanges</h3>
+                    <p className="mt-1 text-xs leading-5 text-zinc-400">Policies may vary by item and organizer. Ask the organizer about eligibility before ordering.</p>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs text-zinc-500">Merchandise is optional for organizers. Events without published merchandise do not show a public merch section.</p>
+              </section>
             )}
           </section>
           <aside className="h-fit rounded-[1.75rem] border border-white/[0.08] bg-white/[0.04] p-5 lg:sticky lg:top-24">
