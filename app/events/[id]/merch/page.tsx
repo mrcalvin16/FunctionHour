@@ -146,20 +146,11 @@ export default function EventMerchStore({
 
   function changeQuantity(index: number, delta: number) {
     setError("");
-    setCart((items) =>
-      items.flatMap((item, itemIndex) =>
-        itemIndex === index && item.quantity === 1 && delta < 0
-          ? []
-          : [{
-              ...item,
-              quantity: Math.max(
-                1,
-                Math.min(10, item.available, item.quantity + delta),
-              ),
-            }
-          : item,
-      }]),
-    );
+    setCart((items) => items.flatMap((item, itemIndex) => {
+      if (itemIndex !== index) return [item];
+      if (delta < 0 && item.quantity === 1) return [];
+      return [{ ...item, quantity: Math.max(1, Math.min(10, item.available, item.quantity + delta)) }];
+    }));
   }
 
   async function checkout() {
