@@ -346,13 +346,13 @@ export default function EventMerchStore({
                   {hasShipping && (
                     <div>
                       <h3 className="text-sm font-semibold">Shipping</h3>
-                      <p className="mt-1 text-xs leading-5 text-zinc-400">Shipping costs are estimated in your cart when shipping is selected. Delivery timing varies by organizer and product.</p>
+                      <p className="mt-1 text-xs leading-5 text-zinc-400">{store.settings.shippingPolicy || "Shipping costs are estimated in your cart when shipping is selected. Delivery timing varies by organizer and product."}</p>
                     </div>
                   )}
                   {hasPickup && (
                     <div>
                       <h3 className="text-sm font-semibold">Event pickup</h3>
-                      <p className="mt-1 text-xs leading-5 text-zinc-400">Pickup is offered on eligible items. Confirm the pickup location and collection instructions with the organizer.</p>
+                      <p className="mt-1 text-xs leading-5 text-zinc-400">{store.settings.pickupInstructions || "Pickup is offered on eligible items. Confirm the pickup location and collection instructions with the organizer."}</p>
                     </div>
                   )}
                   {hasPreorders && (
@@ -363,7 +363,7 @@ export default function EventMerchStore({
                   )}
                   <div>
                     <h3 className="text-sm font-semibold">Returns & exchanges</h3>
-                    <p className="mt-1 text-xs leading-5 text-zinc-400">Policies may vary by item and organizer. Ask the organizer about eligibility before ordering.</p>
+                    <p className="mt-1 text-xs leading-5 text-zinc-400">{store.settings.returnPolicy || "Policies may vary by item and organizer. Ask the organizer about eligibility before ordering."}</p>
                   </div>
                 </div>
                 <p className="mt-4 text-xs text-zinc-500">Merchandise is optional for organizers. Events without published merchandise do not show a public merch section.</p>
