@@ -9,6 +9,7 @@ import { useUser, SignInButton } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import EventLocationPreview from "@/components/events/EventLocationPreview";
 import EventAnnouncements from "@/components/events/EventAnnouncements";
+import EventMerchSettings from "@/components/merch/EventMerchSettings";
 import EventTalentBoundary from "@/components/events/EventTalentBoundary";
 import { BadgeCheck, CalendarDays, MapPin, Ticket } from "lucide-react";
 
@@ -509,6 +510,7 @@ export default function EventDetailPage({
                   </div>
                 </div>
 
+                {canManageEvent && merch?.settings && <EventMerchSettings eventId={eventId} settings={merch.settings} />}
                 {merch === undefined ? (
                   <div className="mt-4 max-w-full rounded-[1.5rem] sm:rounded-3xl border border-zinc-200 bg-white p-4 sm:p-6 text-zinc-600">
                     Loading merch...
