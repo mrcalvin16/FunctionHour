@@ -148,6 +148,10 @@ eventInteractions: defineTable({
 
     userId: v.string(),
     organizerId: v.optional(v.string()),
+    merchEnabled: v.optional(v.boolean()),
+    merchShippingPolicy: v.optional(v.string()),
+    merchPickupInstructions: v.optional(v.string()),
+    merchReturnPolicy: v.optional(v.string()),
 
     createdAt: v.optional(v.float64()),
 
