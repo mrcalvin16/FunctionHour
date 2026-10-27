@@ -188,6 +188,7 @@ export const reserveCartForCheckout = mutation({
     if (existing) throw new Error("Checkout reservation already exists.");
     const event = await ctx.db.get(args.eventId);
     if (!event) throw new Error("Event not found.");
+    if (event.merchEnabled === false) throw new Error("Merchandise is disabled for this event.");
     if (event.isDemo) throw new Error("Demo events cannot start merchandise checkout.");
     if (event.eventStatus === "cancelled" || event.eventStatus === "postponed") throw new Error("Checkout is paused for this event.");
     const now = Date.now();
