@@ -426,7 +426,7 @@ export default function EditEventPage() {
           )}
 
           {statusMessage && (
-            <div className="rounded-2xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-200">
+            <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-base font-semibold leading-7 text-emerald-950 shadow-sm" role="status" aria-live="polite">
               {statusMessage}
             </div>
           )}
