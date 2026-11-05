@@ -160,17 +160,17 @@ export default function HostEventTicketsPage({
 
         <section className="mb-8 rounded-[2rem] border border-violet-400/25 bg-violet-400/[0.08] p-5 sm:p-6">
           <h3 className="text-xl font-black">Sales window & availability</h3>
-          <p className="mt-2 text-sm text-zinc-200">Set when new ticket orders stop. Times use your device timezone. You can close sales immediately by choosing a time in the past, or mark the whole event sold out. Existing Stripe Checkout sessions may finish before they expire.</p>
+          <p className="mt-2 text-sm leading-6 text-zinc-100">Set when new ticket orders stop. Times use your device timezone. You can close sales immediately by choosing a time in the past, or mark the whole event sold out. Existing Stripe Checkout sessions may finish before they expire.</p>
           <div className="mt-5 flex flex-wrap items-end gap-3">
             <label className="min-w-[230px] flex-1 text-sm font-bold text-white">Sell tickets until
               <input aria-label="Ticket sales deadline" type="datetime-local" value={salesDeadline} onChange={(e) => setSalesDeadline(e.target.value)} className="mt-2 block w-full rounded-xl border border-white/30 bg-white px-4 py-3 text-zinc-950" />
             </label>
             <button type="button" disabled={savingSales} onClick={saveSalesDeadline} className="rounded-xl bg-white px-5 py-3 text-sm font-black text-zinc-950 disabled:opacity-50">Save deadline</button>
-            <button type="button" disabled={savingSales || !event.salesEndAt} onClick={() => { setSalesDeadline(""); setSavingSales(true); updateTicketSalesSettings({ eventId, salesEndAt: null }).then(() => setMessage("Sales deadline removed.")).catch((error) => setMessage(error instanceof Error ? error.message : "Unable to clear deadline.")).finally(() => setSavingSales(false)); }} className="rounded-xl border border-white/40 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">Remove deadline</button>
+            <button type="button" disabled={savingSales || !event.salesEndAt} onClick={() => { setSalesDeadline(""); setSavingSales(true); updateTicketSalesSettings({ eventId, salesEndAt: null }).then(() => setMessage("Sales deadline removed.")).catch((error) => setMessage(error instanceof Error ? error.message : "Unable to clear deadline.")).finally(() => setSavingSales(false)); }} className="rounded-xl border border-white/50 px-5 py-3 text-sm font-bold text-white disabled:opacity-50 disabled:text-zinc-400">Remove deadline</button>
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/15 pt-5">
             <button type="button" disabled={savingSales} onClick={toggleEventSoldOut} className={`rounded-xl px-5 py-3 text-sm font-black disabled:opacity-50 ${event.isSoldOut ? "bg-emerald-300 text-zinc-950" : "bg-orange-500 text-zinc-950"}`}>{event.isSoldOut ? "Mark event available" : "Mark event sold out"}</button>
-            <p className="text-sm font-semibold text-zinc-200">{event.isSoldOut ? "Event manually marked sold out" : event.salesEndAt && Date.now() >= event.salesEndAt ? "Sales deadline passed" : event.salesEndAt ? `Scheduled to close ${new Date(event.salesEndAt).toLocaleString()}` : "No early sales deadline"}</p>
+            <p className="text-sm font-semibold text-zinc-100">{event.isSoldOut ? "Event manually marked sold out" : event.salesEndAt && Date.now() >= event.salesEndAt ? "Sales deadline passed" : event.salesEndAt ? `Scheduled to close ${new Date(event.salesEndAt).toLocaleString()}` : "No early sales deadline"}</p>
           </div>
         </section>
 
