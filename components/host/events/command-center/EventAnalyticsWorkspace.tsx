@@ -60,7 +60,7 @@ export default function EventAnalyticsWorkspace() {
           <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
             Performance analytics
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-700">
             Revenue, demand, acquisition, and gate performance for {event.name}.
           </p>
         </div>
@@ -228,7 +228,7 @@ function AnalyticsMetric({
       />
       <div className="relative flex items-start justify-between gap-4">
         <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-zinc-600">
+        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-zinc-500">
             {label}
           </p>
           {value === undefined ? (
@@ -238,7 +238,7 @@ function AnalyticsMetric({
               {value}
             </p>
           )}
-          <p className="mt-2 text-[10px] font-bold text-zinc-600">
+          <p className="mt-2 text-[10px] font-bold text-zinc-500">
             {detail}
           </p>
         </div>
