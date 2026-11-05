@@ -161,7 +161,7 @@ export default function EventMessagesWorkspace() {
         <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
           Event messages
         </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-300">
           Publish event-page updates now and prepare targeted email campaigns for {event.name}.
         </p>
       </div>
@@ -241,7 +241,7 @@ export default function EventMessagesWorkspace() {
 
           {channel === "email" ? (
             <div className="mt-5">
-              <label className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-600">
+              <label className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-300">
                 Audience
               </label>
               <select
@@ -251,7 +251,7 @@ export default function EventMessagesWorkspace() {
                     event.target.value as MessageAudience
                   )
                 }
-                className="mt-2 min-h-12 w-full rounded-xl border border-white/[0.09] bg-black/35 px-4 text-sm font-bold text-zinc-300 outline-none focus:border-violet-400/30"
+                className="mt-2 min-h-12 w-full rounded-xl border border-white/20 bg-[#171421] px-4 text-sm font-bold text-white outline-none focus:border-violet-300"
               >
                 {(workspace?.audiences ?? []).map((item) => (
                   <option key={item.key} value={item.key}>
@@ -259,13 +259,13 @@ export default function EventMessagesWorkspace() {
                   </option>
                 ))}
               </select>
-              <p className="mt-2 text-[10px] leading-5 text-amber-200/60">
+              <p className="mt-2 text-[10px] leading-5 text-amber-200">
                 Email delivery is not connected. This campaign will remain a draft for {selectedAudience?.emailReachable ?? 0} reachable recipients.
               </p>
             </div>
           ) : null}
 
-          <label className="mt-5 block text-[10px] font-black uppercase tracking-[0.16em] text-zinc-600">
+          <label className="mt-5 block text-[10px] font-black uppercase tracking-[0.16em] text-zinc-300">
             Subject
           </label>
           <input
@@ -273,14 +273,14 @@ export default function EventMessagesWorkspace() {
             maxLength={120}
             onChange={(event) => setSubject(event.target.value)}
             placeholder="Important update for your guests"
-            className="mt-2 min-h-12 w-full rounded-xl border border-white/[0.09] bg-black/35 px-4 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-violet-400/30"
+            className="mt-2 min-h-12 w-full rounded-xl border border-white/20 bg-[#171421] px-4 text-sm font-bold text-white outline-none placeholder:text-zinc-400 focus:border-violet-300"
           />
 
           <div className="mt-5 flex items-center justify-between gap-4">
-            <label className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-600">
+            <label className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-300">
               Message
             </label>
-            <span className="text-[9px] font-bold tabular-nums text-zinc-700">
+            <span className="text-[9px] font-bold tabular-nums text-zinc-400">
               {body.length.toLocaleString()} / 2,000
             </span>
           </div>
@@ -289,7 +289,7 @@ export default function EventMessagesWorkspace() {
             maxLength={2_000}
             onChange={(event) => setBody(event.target.value)}
             placeholder="Share schedule, venue, entry, or weather details..."
-            className="mt-2 min-h-44 w-full resize-y rounded-xl border border-white/[0.09] bg-black/35 p-4 text-sm leading-6 text-white outline-none placeholder:text-zinc-700 focus:border-violet-400/30"
+            className="mt-2 min-h-44 w-full resize-y rounded-xl border border-white/20 bg-[#171421] p-4 text-sm leading-6 text-white outline-none placeholder:text-zinc-400 focus:border-violet-300"
           />
 
           <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -339,7 +339,7 @@ export default function EventMessagesWorkspace() {
               <p className="mt-4 text-sm font-bold text-zinc-400">
                 No messages yet
               </p>
-              <p className="mt-2 text-xs leading-5 text-zinc-600">
+          <p className="mt-2 text-xs leading-5 text-zinc-400">
                 Published updates and campaign drafts will appear here.
               </p>
             </div>
@@ -375,13 +375,13 @@ function AudienceCard({
     <article className="rounded-[1.5rem] border border-white/[0.08] bg-[#0c0b14]/90 p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.17em] text-zinc-600">
+          <p className="text-[9px] font-black uppercase tracking-[0.17em] text-zinc-400">
             {label}
           </p>
           <p className="mt-2 text-2xl font-black tabular-nums text-white">
             {count.toLocaleString()}
           </p>
-          <p className="mt-1 text-[10px] font-bold text-zinc-700">
+          <p className="mt-1 text-[10px] font-bold text-zinc-400">
             {emailReachable.toLocaleString()} reachable emails
           </p>
         </div>
@@ -416,13 +416,13 @@ function ChannelButton({
     >
       <Icon
         className={`h-4 w-4 ${
-          active ? "text-violet-200" : "text-zinc-600"
+        active ? "text-violet-200" : "text-zinc-400"
         }`}
       />
       <p className="mt-3 text-xs font-black text-zinc-200">
         {title}
       </p>
-      <p className="mt-1 text-[10px] font-bold text-zinc-600">
+      <p className="mt-1 text-[10px] font-bold text-zinc-400">
         {detail}
       </p>
     </button>
@@ -456,7 +456,7 @@ function MessageCard({
           <p className="truncate text-xs font-black text-zinc-200">
             {message.subject}
           </p>
-          <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.13em] text-zinc-700">
+          <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.13em] text-zinc-400">
             {message.channel === "event_page"
               ? "Event page"
               : "Email"}{" "}
@@ -470,7 +470,7 @@ function MessageCard({
         </span>
       </div>
 
-      <p className="mt-3 line-clamp-2 text-[11px] leading-5 text-zinc-600">
+      <p className="mt-3 line-clamp-2 text-[11px] leading-5 text-zinc-300">
         {message.body}
       </p>
 
@@ -481,7 +481,7 @@ function MessageCard({
               type="button"
               disabled={pending}
               onClick={() => onEdit(message)}
-              className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/[0.08] px-3 text-[9px] font-black text-zinc-500 transition hover:text-white disabled:opacity-40"
+              className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/[0.14] px-3 text-[9px] font-black text-zinc-300 transition hover:text-white disabled:opacity-40"
             >
               <PencilLine className="h-3.5 w-3.5" />
               Edit draft
@@ -491,7 +491,7 @@ function MessageCard({
             type="button"
             disabled={pending}
             onClick={() => onArchive(message._id)}
-            className="ml-auto inline-flex min-h-9 items-center gap-2 rounded-lg border border-orange-400/10 bg-orange-400/[0.04] px-3 text-[9px] font-black text-orange-200/60 transition hover:text-orange-200 disabled:opacity-40"
+            className="ml-auto inline-flex min-h-9 items-center gap-2 rounded-lg border border-orange-400/20 bg-orange-400/[0.06] px-3 text-[9px] font-black text-orange-200 transition hover:text-orange-100 disabled:opacity-40"
           >
             <Archive className="h-3.5 w-3.5" />
             Archive
