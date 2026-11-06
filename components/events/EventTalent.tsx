@@ -24,11 +24,9 @@ export default function EventTalent({ eventId, canManage }: { eventId: Id<"event
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   if (!canManage && !performers?.length) return null;
-  return <section className="order-4 mt-5 rounded-[1.5rem] border border-white/10 bg-[#111] p-5 sm:mt-6 sm:p-6">
+  return <section className="order-4 lg:mt-4 rounded-2xl border border-white/10 bg-[#111] p-4 sm:p-5">
     <div className="flex items-center justify-between gap-3">
-      <div><p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">The lineup</p>
-        <h2 className="mt-2 text-2xl font-black">Meet the talent</h2>
-        <p className="mt-2 text-sm text-white/60">The people bringing this experience to life.</p></div>
+      <div><h2 className="text-lg font-bold tracking-tight">The lineup</h2></div>
       {canManage && <button type="button" onClick={() => { setEditing(!editing); setEditId(null); setName(""); setBio(""); setInstagram(""); setPhoto(undefined); setHeadliner(false); }} className="rounded-xl border border-white/20 px-4 py-3 text-sm font-semibold hover:bg-white/10">{editing ? "Close" : "+ Add talent"}</button>}
     </div>
     {canManage && editing && <form className="mt-5 grid gap-3 rounded-xl bg-white/5 p-4" onSubmit={async e => {
@@ -55,7 +53,7 @@ export default function EventTalent({ eventId, canManage }: { eventId: Id<"event
       {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
       <button disabled={busy || uploading || !name.trim()} className="rounded-xl bg-orange-500 px-5 py-3 font-bold text-black disabled:opacity-50">{busy ? "Saving..." : editId ? "Save changes" : "Add performer"}</button>
     </form>}
-    {performers?.length ? <div className="mt-6 grid gap-3 sm:grid-cols-2">
+    {performers?.length ? <div className="mt-4 grid gap-3 sm:grid-cols-2">
       {performers.map(p => <div key={p._id} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
         <TalentPhoto storageId={p.imageStorageId} name={p.name} />
         <div className="min-w-0 flex-1"><p className="font-bold">{p.name} {p.isHeadliner && <span className="ml-1 rounded-full bg-orange-500 px-2 py-0.5 text-[10px] text-black">HEADLINER</span>}</p><p className="text-sm text-orange-300">{p.role}</p>
