@@ -87,3 +87,12 @@ The live public homepage and Secondliner's Ball detail page were inspected. The 
 | Medium | Offline files | Verify that both downloads open, text is readable with assistive technology, and the online ticket remains accessible after reopening |
 
 Standards used to organize follow-up: [WCAG 2.2](https://www.w3.org/TR/WCAG22/), including non-text content, keyboard access, bypass blocks, name/role/value, and status messages. These are audit targets, not claims that those criteria pass.
+
+
+## Signed-in follow-up and skip-navigation correction
+
+Live Chrome keyboard and accessibility-tree checks confirmed: Upcoming/Past ticket filters update pressed state and result counts; an existing ticket opens with Enter and exposes event details, QR label and reference; the text download succeeds and contains the expected fields; checkout quantity changes update totals; unchecked purchase terms produce an alert; purchase history opens with Enter. No order was placed and no purchase terms were accepted. This evidence does not establish spoken output behavior in VoiceOver or NVDA.
+
+The root skip-link wrapper included repeated navigation. Activating the link and then pressing Tab therefore returned focus to the home link. The shared skip control now moves focus to the page's main heading (or an explicitly marked content target), using the main landmark and wrapper as fallbacks. It temporarily makes a heading focusable without adding a normal Tab stop, preserves existing tabindex values, and scrolls the target into view. The next Tab should continue after that heading rather than restarting the header navigation. The anchor retains its existing fragment fallback when JavaScript is unavailable.
+
+Pending evidence: production keyboard retest of the homepage, wallet and checkout after deployment, and actual VoiceOver/NVDA testing. Flyer-only information, measured contrast/reflow, third-party payment and entry still require their own checks.

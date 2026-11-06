@@ -6,6 +6,7 @@ import ConvexClientProvider from "./ConvexClientProvider";
 import SyncUserWithConvex from "@/components/SyncUserWithConvex";
 import BackToHome from "@/components/navigation/BackToHome";
 import SupportChat from "@/components/support/SupportChat";
+import SkipToMainContent from "@/components/navigation/SkipToMainContent";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -82,9 +83,7 @@ export default function RootLayout({
     >
       <html lang="en" className="light" suppressHydrationWarning>
         <body>
-          <a className="skip-link" href="#main-content">
-            Skip to main content
-          </a>
+          <SkipToMainContent />
           <ConvexClientProvider>
             <SyncUserWithConvex />
             <CtaTracker />
