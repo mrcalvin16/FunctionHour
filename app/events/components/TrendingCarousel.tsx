@@ -24,7 +24,7 @@ export default function TrendingCarousel({
   const scroll = (direction: "left" | "right") => {
     scrollRef.current?.scrollBy({
       left: direction === "right" ? 360 : -360,
-      behavior: "smooth",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
     });
   };
 
@@ -60,11 +60,11 @@ export default function TrendingCarousel({
           return (
             <article key={event._id} className="group min-w-[280px] max-w-[280px] snap-start overflow-hidden rounded-[1.35rem] border border-zinc-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-md sm:min-w-[310px] sm:max-w-[310px]">
               <div className="relative h-[190px] overflow-hidden">
-                <Link href={`/events/${event._id}`}>
-                  <EventImage storageId={event.imageStorageId} imageUrl={event.imageUrl} />
+                <Link href={`/events/${event._id}`} aria-label={`View ${event.name || "Untitled event"}`}>
+                  <EventImage storageId={event.imageStorageId} imageUrl={event.imageUrl} alt="" />
                 </Link>
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/15" />
-                <button type="button" aria-label={isSaved ? "Remove saved event" : "Save event"} onClick={() => onToggleSave(event._id)} className={`absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border text-lg  ${isSaved ? "border-violet-300 bg-violet-600 text-white" : "border-white/20 bg-black/55 text-white hover:bg-white hover:text-black"}`}>
+                <button type="button" aria-label={isSaved ? `Remove ${event.name} from saved events` : `Save ${event.name}`} aria-pressed={isSaved} onClick={() => onToggleSave(event._id)} className={`absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border text-lg  ${isSaved ? "border-violet-300 bg-violet-600 text-white" : "border-white/20 bg-black/55 text-white hover:bg-white hover:text-black"}`}>
                   {isSaved ? "♥" : "♡"}
                 </button>
               </div>

@@ -173,7 +173,7 @@ export default function TicketPass({ ticketId }: { ticketId: Id<"tickets"> }) {
             </div>
 
             <p className="mt-5 font-mono text-sm font-black tracking-[0.22em] text-white">
-              {shortCode}
+              <span className="sr-only">Ticket reference: </span>{shortCode}
             </p>
 
             {!isRevoked && !ticket.checkedIn && !eventEnded ? (

@@ -71,7 +71,7 @@ export default function TicketWalletList({
     <section>
       <div
         className="mb-6 flex gap-2 overflow-x-auto pb-1"
-        role="tablist"
+        role="group"
         aria-label="Ticket groups"
       >
         <WalletTab
@@ -93,6 +93,8 @@ export default function TicketWalletList({
           onClick={() => setView("all")}
         />
       </div>
+
+      <p role="status" className="sr-only">{visibleTickets.length} {view} ticket{visibleTickets.length === 1 ? "" : "s"}</p>
 
       {visibleTickets.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.025] p-8 text-center">
@@ -177,6 +179,7 @@ export default function TicketWalletList({
 
                     <Link
                       href={`/tickets/${ticket._id}`}
+                      aria-label={`Open ticket for ${ticket.event?.name || "Untitled Event"}`}
                       className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-white px-5 text-sm font-black text-black transition hover:bg-orange-200 md:w-auto"
                     >
                       Open ticket
@@ -211,8 +214,7 @@ function WalletTab({
   return (
     <button
       type="button"
-      role="tab"
-      aria-selected={active}
+      aria-pressed={active}
       onClick={onClick}
       className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-xs font-black transition ${
         active
