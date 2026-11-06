@@ -41,7 +41,7 @@ export const seed = internalMutation({
       if (found) { eventIds.push(found); continue; }
       const userId = `demo-seasonal-${item.host}`;
       const eventId = await ctx.db.insert("events", {
-        name: `${item.name} (Demo)`, description: `${item.description}\n\n${DISCLAIMER}`,
+        name: item.name, description: `${item.description}\n\n${DISCLAIMER}`,
         shortDescription: item.description, category: item.category,
         tags: [...item.tags], city: item.city, state: item.state,
         location: `${item.city}, ${item.state}`,

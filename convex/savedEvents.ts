@@ -1,3 +1,4 @@
+import { eventDisplayName } from "../lib/eventDisplayName";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
@@ -38,6 +39,7 @@ export const getSavedEvents = query({
 
         return {
           ...event,
+          name: eventDisplayName(event),
           imageUrl,
           savedAt: item.createdAt,
         };

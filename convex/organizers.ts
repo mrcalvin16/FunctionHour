@@ -1,3 +1,4 @@
+import { eventDisplayName } from "../lib/eventDisplayName";
 import { v } from "convex/values";
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import type { Doc } from "./_generated/dataModel";
@@ -13,7 +14,7 @@ function publicMediaUrl(url: string | null | undefined): string | null {
 function publicEventSummary(event: Doc<"events">) {
   return {
     _id: event._id,
-    name: event.name,
+    name: eventDisplayName(event),
     description: event.description,
     category: event.category,
     location: event.location,
