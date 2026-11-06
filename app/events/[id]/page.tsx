@@ -11,7 +11,7 @@ import EventLocationPreview from "@/components/events/EventLocationPreview";
 import EventAnnouncements from "@/components/events/EventAnnouncements";
 import EventMerchSettings from "@/components/merch/EventMerchSettings";
 import EventTalentBoundary from "@/components/events/EventTalentBoundary";
-import { BadgeCheck, CalendarDays, MapPin, Ticket } from "lucide-react";
+import { BadgeCheck, CalendarDays, MapPin } from "lucide-react";
 
 import type { Id } from "@/convex/_generated/dataModel";
 import VenueRules from "@/components/functionhour/VenueRules";
@@ -60,9 +60,9 @@ function EventImage({
         <img
           src={brandedMediaUrl(finalImageUrl) ?? finalImageUrl}
           alt={name ? `${name} event flyer` : "Event flyer"}
-          className="mx-auto block h-auto max-h-[65vh] w-auto max-w-full rounded-sm object-contain shadow-[0_30px_90px_rgba(0,0,0,0.38)] transition-transform duration-500 group-hover:scale-[1.015] sm:max-h-[72vh]"
+          className="mx-auto block h-auto max-h-[54vh] w-auto max-w-full rounded-sm object-contain shadow-[0_30px_90px_rgba(0,0,0,0.38)] transition-transform duration-500 group-hover:scale-[1.015] sm:max-h-[60vh]"
         />
-        <span className="block px-4 py-3 text-center text-xs font-semibold tracking-wide text-white/75 transition group-hover:text-white">
+        <span className="block px-3 py-2 text-center text-xs font-semibold tracking-wide text-[#e4e4e7] transition group-hover:text-white">
           View full flyer ↗
         </span>
       </a>
@@ -246,8 +246,8 @@ export default function EventDetailPage({
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#fcfbfa] text-zinc-900">
-      
-      <section className="relative mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8">
+
+      <section className="relative mx-auto max-w-6xl px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/events"
@@ -263,28 +263,27 @@ export default function EventDetailPage({
           </Link>
         </div>
 
-        {/* Scalable editorial masthead: all content comes from the event record. */}
-        <header className="relative mb-7 mt-7 overflow-hidden rounded-[2rem] border border-zinc-200/80 bg-white px-6 py-8 shadow-[0_18px_70px_rgba(39,25,67,0.045)] sm:mb-9 sm:mt-10 sm:px-10 sm:py-11">
-          <div className="relative z-10 mb-5 flex flex-wrap items-center gap-3">
+        {/* Keep event essentials together, with the flyer and tickets directly below. */}
+        <header className="relative mb-5 mt-2 border-b border-zinc-200 pb-5 sm:mt-3">
+          <div className="relative z-10 mb-2 flex flex-wrap items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-violet-700" aria-hidden="true" />
             <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-violet-800">{event.category || "Experience"}</span>
             <span className="h-px w-10 bg-zinc-300" aria-hidden="true" />
             <span className="text-[11px] font-medium tracking-wide text-zinc-500">A FunctionHour experience</span>
           </div>
           {event.isDemo && <p className="mb-3 inline-flex rounded-full border border-violet-300 bg-violet-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-violet-800">Demo Event</p>}
-          <h1 className="relative z-10 max-w-4xl text-[clamp(2.4rem,5vw,4.8rem)] font-black leading-[1.06] tracking-[-0.06em] text-zinc-950">{event.name}</h1>
-          <div className="relative z-10 mt-8 grid gap-6 border-t border-zinc-100 pt-6 sm:grid-cols-2 lg:max-w-4xl">
+          <h1 className="relative z-10 max-w-5xl text-[clamp(1.875rem,3.2vw,3rem)] font-black leading-[1.12] tracking-[-0.04em] text-zinc-950">{event.name}</h1>
+          <div className="relative z-10 mt-4 grid gap-3 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:max-w-4xl">
             <EventSignalCard icon="date" label="Date & time" value={formatEventDate(event)} />
             <EventSignalCard icon="place" label="Location" value={attendeeVenue(event)} />
           </div>
         </header>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.72fr)] lg:items-start lg:gap-9">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-6">
           <div className="contents lg:block">
             <div className="order-1 overflow-hidden">
-              <div className="relative flex min-h-[340px] w-full items-center justify-center overflow-hidden rounded-[1.75rem] bg-[#19151f] px-5 py-10 shadow-[0_25px_75px_rgba(35,20,49,0.16)] sm:min-h-[470px] sm:px-10 sm:py-12">
+              <div className="relative flex w-full items-center justify-center overflow-hidden rounded-2xl bg-[#19151f] px-3 py-4 sm:px-5 sm:py-5">
                 <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,rgba(124,58,237,0.24),transparent_66%)]" />
-                <div aria-hidden="true" className="pointer-events-none absolute left-6 top-6 text-[10px] font-bold uppercase tracking-[0.24em] text-white/45">The event / 01</div>
                 <div className="relative z-10 w-full">
                 <EventImage
                   storageId={event.imageStorageId}
@@ -293,22 +292,23 @@ export default function EventDetailPage({
                 />
                 </div>
               </div>
-              {event.description && (
-                <div className="mt-7 rounded-[1.5rem] border border-zinc-200 bg-white px-6 py-7 sm:px-8 sm:py-9">
-                  <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-violet-700">Inside the experience</p>
-                  <p className="max-w-3xl whitespace-pre-line text-base leading-8 sm:text-lg" style={{ color: "#3f3f46" }}>{event.description}</p>
-                </div>
-              )}
             </div>
 
-            <div className="order-3 mt-7 overflow-hidden rounded-[1.5rem] border border-zinc-200 bg-white p-6 sm:mt-9 sm:p-8">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            {event.description && (
+              <section aria-labelledby="event-about-heading" className="order-3 lg:mt-4 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
+                <h2 id="event-about-heading" className="mb-2 text-lg font-bold tracking-tight text-zinc-950">About this event</h2>
+                <p className="whitespace-pre-line text-sm leading-6 sm:text-base sm:leading-7" style={{ color: "#3f3f46" }}>{event.description}</p>
+              </section>
+            )}
+
+            <div className="order-4 lg:mt-4 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
+              <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.22em] text-zinc-500">
                     Hosted By
                   </p>
                   <div className="mt-2 flex items-center gap-2">
-                    <h2 className="text-2xl font-black tracking-tight">
+                    <h2 className="text-lg font-bold tracking-tight">
                       {organizerName}
                     </h2>
                     {organizer?.isVerifiedOrganizer && (
@@ -333,7 +333,7 @@ export default function EventDetailPage({
 
                 </div>
 
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-zinc-200 bg-violet-100 text-xl font-black">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-zinc-200 bg-violet-100 text-xl font-black">
                   {organizer?.avatarUrl ? (
                     <img
                       src={brandedMediaUrl(organizer.avatarUrl) ?? organizer.avatarUrl}
@@ -378,7 +378,7 @@ export default function EventDetailPage({
                 {!event.isDemo && <ContactOrganizer organizerUserId={event.userId} organizerName={organizerName} eventId={event._id} appearance="light" />}
               </div>
 
-              <div className="mt-6 sm:mt-8">
+              <div className="mt-4">
                 <VenueRules
                   age={event.ageRequirement}
                   dressCode={event.dressCode}
@@ -396,13 +396,13 @@ export default function EventDetailPage({
             <EventTalentBoundary eventId={eventId} canManage={canManageEvent} />
 
             {canManageEvent && savedCreative && savedCreative.length > 0 && (
-              <div className="order-5 mt-5 rounded-[1.5rem] border border-zinc-200 bg-white p-5 sm:mt-6 sm:p-6">
+              <div className="order-5 lg:mt-4 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.3em] text-violet-700">
                       Launch Creative
                     </p>
-                    <h2 className="mt-2 text-2xl sm:text-3xl font-black tracking-[-0.04em] sm:tracking-tight">
+                    <h2 className="mt-2 text-xl font-bold tracking-tight">
                       Saved Flyers & Captions
                     </h2>
 
@@ -475,13 +475,13 @@ export default function EventDetailPage({
             )}
 
             {(canManageEvent || merchItems.length > 0) && (
-              <div className="order-4 mt-5 sm:mt-6">
+              <div className="order-4 lg:mt-4">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                     <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.3em] text-orange-800">
                       Event Commerce
                     </p>
-                    <h2 className="mt-2 text-2xl sm:text-3xl font-black tracking-[-0.04em] sm:tracking-tight">
+                    <h2 className="mt-2 text-xl font-bold tracking-tight">
                       Merch Drops
                     </h2>
                     <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-600">
@@ -584,17 +584,56 @@ export default function EventDetailPage({
                 )}
               </div>
             )}
+            <div className="order-5">
+              <EventLocationPreview
+                location={event.location}
+                venueName={event.venueName}
+                city={event.city}
+                state={event.state}
+              />
+            </div>
+            <details className="order-6 lg:mt-4 rounded-2xl border border-zinc-200 bg-white p-5 open:bg-white sm:p-5">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-black">
+                <span>Refunds and purchase terms</span>
+                <span className="text-sm font-semibold text-zinc-500">
+                  View details
+                </span>
+              </summary>
+              <div className="mt-5 border-t border-zinc-200 pt-5">
+                <p className="leading-7 text-zinc-600">
+                  {event.refundPolicy ||
+                    "All sales are final unless otherwise stated by the event host."}
+                </p>
+
+                {event.refundDeadline && (
+                  <p className="mt-4 text-sm text-zinc-500">
+                    Refund deadline:{" "}
+                    <span className="font-semibold text-zinc-900">
+                      {event.refundDeadline}
+                    </span>
+                  </p>
+                )}
+
+                {event.refundContactEmail && (
+                  <a
+                    href={`mailto:${event.refundContactEmail}`}
+                    className="mt-3 inline-block text-sm font-semibold text-orange-800 hover:text-orange-900"
+                  >
+                    Contact {event.refundContactEmail}
+                  </a>
+                )}
+              </div>
+            </details>
+
           </div>
 
-          <aside className="order-2 relative h-fit overflow-hidden rounded-[1.75rem] border border-zinc-200 bg-white p-6 shadow-[0_25px_70px_rgba(40,26,66,0.12)] before:absolute before:inset-x-0 before:top-0 before:h-1.5 before:bg-violet-700 lg:sticky lg:top-6 sm:p-8" style={{ color: "#18181b" }}>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-zinc-500">
-              Your way in
-            </p>
+          <aside aria-labelledby="event-tickets-heading" className="order-2 relative h-fit overflow-hidden rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-1 before:bg-violet-700 lg:sticky lg:top-4 sm:p-5" style={{ color: "#18181b" }}>
+            <h2 id="event-tickets-heading" className="text-lg font-bold tracking-tight text-zinc-950">Tickets</h2>
 
             <div className="mt-3 flex items-end justify-between gap-4">
               <div>
                 <p className="text-sm text-zinc-600">Tickets from</p>
-                <p className="mt-1 text-4xl font-black tracking-[-0.06em] sm:text-5xl">
+                <p className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">
                   {startingPrice === null ? "—" : getFromPriceLabel({ startingPrice })}
                 </p>
                 {startingPrice !== null && startingPrice > 0 && (
@@ -651,10 +690,6 @@ export default function EventDetailPage({
                 </p>
               )}
 
-            <div className="mt-5 border-t border-zinc-200 pt-4 text-sm leading-6 text-zinc-600">
-              <span className="font-black">Refund terms: </span>{event.refundPolicy || "All sales are final unless otherwise stated by the event host."}
-              {event.refundDeadline && <span className="block text-zinc-600">Deadline: {event.refundDeadline}</span>}
-            </div>
             <div className="mt-5">
               {event.isDemo ? (
                 <div className="w-full rounded-xl border-2 border-violet-400 bg-white px-5 py-4 text-center text-sm leading-6 text-black shadow-sm dark:border-violet-300/50 dark:bg-zinc-900 dark:text-white">
@@ -675,7 +710,7 @@ export default function EventDetailPage({
                 </button>
               ) : !isSignedIn ? (
                 <SignInButton mode="modal">
-                  <button className="w-full rounded-xl bg-violet-700 px-5 py-4 font-black text-white transition hover:bg-violet-800">
+                  <button className="w-full rounded-xl bg-violet-700 px-5 py-4 font-black !text-white transition hover:bg-violet-800">
                     Sign in to get tickets
                   </button>
                 </SignInButton>
@@ -689,7 +724,7 @@ export default function EventDetailPage({
               ) : (
                 <Link
                   href={`/events/${event._id}/checkout`}
-                  className="block w-full rounded-xl bg-violet-700 px-5 py-4 text-center font-black text-white transition hover:bg-violet-800"
+                  className="block w-full rounded-xl bg-violet-700 px-5 py-4 text-center font-black !text-white transition hover:bg-violet-800"
                 >
                   Get tickets
                 </Link>
@@ -702,6 +737,10 @@ export default function EventDetailPage({
               </p>
             )}
 
+            <div className="mt-5 border-t border-zinc-200 pt-4 text-sm leading-6 text-zinc-600">
+              <span className="font-black">Refund terms: </span>{event.refundPolicy || "All sales are final unless otherwise stated by the event host."}
+              {event.refundDeadline && <span className="block text-zinc-600">Deadline: {event.refundDeadline}</span>}
+            </div>
             <div className="mt-5 border-t border-zinc-200 pt-5">
               <ShareEventButton
                 eventId={event._id}
@@ -713,45 +752,7 @@ export default function EventDetailPage({
           </aside>
         </div>
 
-        <details className="mt-5 rounded-[1.5rem] border border-zinc-200 bg-white p-5 open:bg-white sm:mt-6 sm:p-6">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-black">
-            <span>Refunds and purchase terms</span>
-            <span className="text-sm font-semibold text-zinc-500">
-              View details
-            </span>
-          </summary>
-          <div className="mt-5 border-t border-zinc-200 pt-5">
-            <p className="leading-7 text-zinc-600">
-              {event.refundPolicy ||
-                "All sales are final unless otherwise stated by the event host."}
-            </p>
 
-            {event.refundDeadline && (
-              <p className="mt-4 text-sm text-zinc-500">
-                Refund deadline:{" "}
-                <span className="font-semibold text-zinc-900">
-                  {event.refundDeadline}
-                </span>
-              </p>
-            )}
-
-            {event.refundContactEmail && (
-              <a
-                href={`mailto:${event.refundContactEmail}`}
-                className="mt-3 inline-block text-sm font-semibold text-orange-800 hover:text-orange-900"
-              >
-                Contact {event.refundContactEmail}
-              </a>
-            )}
-          </div>
-        </details>
-
-        <EventLocationPreview
-          location={event.location}
-          venueName={event.venueName}
-          city={event.city}
-          state={event.state}
-        />
       </section>
       <div className="h-28 sm:hidden" />
 
