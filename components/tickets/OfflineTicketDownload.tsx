@@ -142,6 +142,28 @@ export default function OfflineTicketDownload({
     }
   }
 
+  function saveTextDetails() {
+    const details = [
+      "FUNCTION HOUR · TICKET DETAILS",
+      eventName,
+      `Date: ${date}`,
+      `Venue: ${venue}`,
+      `Ticket holder: ${holderName}`,
+      `Ticket type: ${ticketType}`,
+      `Ticket reference: ${ticketId.slice(-8).toUpperCase()}`,
+      `Online pass: ${window.location.origin}/tickets/${encodeURIComponent(ticketId)}`,
+      "Keep these details private. Open your online pass for the entry QR code, or ask event staff for help locating your ticket. Entry depends on ticket validity.",
+    ].join("\n");
+    const url = URL.createObjectURL(new Blob([details], { type: "text/plain;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `function-hour-ticket-${ticketId.slice(-8)}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
   return (
     <div className="mt-6 w-full">
       <button
@@ -151,7 +173,10 @@ export default function OfflineTicketDownload({
         className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-violet-700 px-5 text-sm font-bold text-white hover:bg-violet-800 disabled:opacity-60"
       >
         <Download className="h-4 w-4" />
-        {saving ? "Preparing pass…" : "Save for offline access"}
+        {saving ? "Preparing pass…" : "Save QR pass image"}
+      </button>
+      <button type="button" onClick={saveTextDetails} className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-violet-300 px-4 text-sm font-bold text-violet-800">
+        Download ticket details as text
       </button>
       <p className="mt-2 text-xs leading-5 text-zinc-300">
         Save the image to Photos or Files before you lose service. Entry still depends on the ticket being valid at check-in.

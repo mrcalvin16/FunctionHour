@@ -55,6 +55,7 @@ export default function HomePage() {
 
       <ExperienceHero search={search} setSearch={setSearch} category={category} setCategory={setCategory} city={city} setCity={setCity} view={view} setView={setView} events={((events ?? []) as DiscoveryEvent[]).filter((event) => isEventUpcoming(event))} quickFilter={quickFilter} setQuickFilter={setQuickFilter} />
 
+      <p role="status" className="sr-only">{events === undefined ? "Loading events" : `${displayedEvents.length} matching event${displayedEvents.length === 1 ? "" : "s"}`}</p>
       {events === undefined ? (
         <section className="mx-auto max-w-[1240px] px-5 py-20 text-center text-zinc-600">Loading events…</section>
       ) : displayedEvents.length > 0 ? (

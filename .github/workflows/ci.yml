@@ -40,7 +40,7 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Accessibility lint for core customer journeys
-        run: npx eslint app/accessibility/page.tsx app/map/page.tsx app/map/components/MapCanvas.tsx "app/events/[id]/checkout/page.tsx" app/events/components/DiscoveryEventCard.tsx components/SearchBar.tsx components/ui/button.tsx components/Footer.tsx
+        run: npx eslint app/accessibility/page.tsx app/map/page.tsx app/map/components/MapCanvas.tsx "app/events/[id]/checkout/page.tsx" app/events/components/DiscoveryEventCard.tsx components/SearchBar.tsx components/ui/button.tsx components/Footer.tsx app/HomePageClient.tsx app/events/components/TrendingCarousel.tsx components/tickets/TicketWalletList.tsx components/tickets/TicketPass.tsx components/tickets/OfflineTicketDownload.tsx
 
       - name: Type-check
         run: npm run typecheck
