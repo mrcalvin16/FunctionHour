@@ -45,6 +45,9 @@ jobs:
       - name: Type-check
         run: npm run typecheck
 
+      - name: Customer display regression checks
+        run: node --experimental-strip-types --test lib/attendeeDisplay.test.mjs lib/passportPlaces.test.mjs
+
       - name: Security regression checks
         run: npm run test:security
 

@@ -16,6 +16,9 @@ import {
 import { api } from "@/convex/_generated/api";
 import DiscoveryNav from "@/components/DiscoveryNav";
 import Footer from "@/components/Footer";
+import { eventDisplayDate } from "@/lib/attendeeDisplay";
+import { normalizePlace, placeLabel } from "@/lib/passportPlaces";
+import { getEventCategory } from "@/app/events/eventPresentation";
 import type { Doc } from "@/convex/_generated/dataModel";
 
 type PassportEvent = {
@@ -32,11 +35,12 @@ function getEventDate(event: { eventDate?: number; dateString?: string }) {
 }
 
 function formatMonth(date: number) {
-  return new Intl.DateTimeFormat("en-US", { month: "short" }).format(date);
+  return new Intl.DateTimeFormat("en-US", { month: "short", timeZone: "UTC" }).format(date);
 }
 
 function formatLongDate(date: number) {
   return new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -44,7 +48,7 @@ function formatLongDate(date: number) {
 }
 
 function getCity(event: Doc<"events">) {
-  return event.city || event.location?.split(",")[0] || "";
+  return placeLabel(event.city || event.location?.split(",")[0] || "");
 }
 
 function PassportArtwork({
@@ -108,8 +112,9 @@ export default function MyEventPassportPage() {
     for (const ticket of tickets) {
       const event = ticket.event;
       if (!event || event.isDemo) continue;
-      const date = getEventDate(event);
-      if (!Number.isFinite(date) || date > Date.now()) continue;
+      const instant = getEventDate(event);
+      if (!Number.isFinite(instant) || instant > Date.now()) continue;
+      const date = eventDisplayDate(event).getTime();
 
       const key = String(event._id);
       const existing = byEvent.get(key);
@@ -126,11 +131,11 @@ export default function MyEventPassportPage() {
   }, [tickets]);
 
   const years = useMemo(
-    () => [...new Set(pastEvents.map(({ date }) => new Date(date).getFullYear()))].sort((a, b) => b - a),
+    () => [...new Set(pastEvents.map(({ date }) => new Date(date).getUTCFullYear()))].sort((a, b) => b - a),
     [pastEvents],
   );
   const activeYear = selectedYear && years.includes(selectedYear) ? selectedYear : years[0];
-  const yearEvents = pastEvents.filter(({ date }) => new Date(date).getFullYear() === activeYear);
+  const yearEvents = pastEvents.filter(({ date }) => new Date(date).getUTCFullYear() === activeYear);
 
   const highlights = useMemo(() => {
     const mostFrequent = (values: string[]) => {
@@ -141,12 +146,12 @@ export default function MyEventPassportPage() {
 
     return {
       city: mostFrequent(yearEvents.map(({ event }) => getCity(event))),
-      category: mostFrequent(yearEvents.map(({ event }) => event.category || "")),
+      category: mostFrequent(yearEvents.map(({ event }) => getEventCategory(event))),
     };
   }, [yearEvents]);
 
-  const cityCount = new Set(yearEvents.map(({ event }) => getCity(event)).filter(Boolean)).size;
-  const categoryCount = new Set(yearEvents.map(({ event }) => event.category).filter(Boolean)).size;
+  const cityCount = new Set(yearEvents.map(({ event }) => normalizePlace(getCity(event))).filter(Boolean)).size;
+  const categoryCount = new Set(yearEvents.map(({ event }) => getEventCategory(event)).filter(Boolean)).size;
 
   if (!isLoaded) {
     return (
@@ -267,7 +272,7 @@ export default function MyEventPassportPage() {
                       {image && <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />}
                       <div className="absolute left-4 top-4 rounded-xl border border-white/75 bg-white/95 px-3 py-2 text-center shadow-sm backdrop-blur">
                         <span className="block text-[9px] font-black uppercase tracking-[0.14em] text-orange-800">{formatMonth(date)}</span>
-                        <span className="mt-0.5 block text-xl font-black leading-none text-zinc-950">{new Date(date).getDate()}</span>
+                        <span className="mt-0.5 block text-xl font-black leading-none text-zinc-950">{new Date(date).getUTCDate()}</span>
                       </div>
                       <span className={checkedIn ? "absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-white/95 px-3 py-1.5 text-[10px] font-black text-emerald-800 shadow-sm" : "absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-white/95 px-3 py-1.5 text-[10px] font-black text-orange-800 shadow-sm"}>
                         <TicketCheck className="h-4 w-4 shrink-0" strokeWidth={2.5} />{checkedIn ? "Checked in" : "In your history"}
@@ -277,7 +282,7 @@ export default function MyEventPassportPage() {
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600"><MapPin className="h-4 w-4 shrink-0 text-orange-700" strokeWidth={2.5} /><span className="truncate">{place}</span></div>
                       <h3 className="mt-2 line-clamp-2 text-xl font-black leading-snug tracking-[-0.025em] text-zinc-950">{event.name || "Untitled event"}</h3>
                       <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-100 pt-3">
-                        <span className="truncate text-[10px] font-black uppercase tracking-[0.14em] text-zinc-500">{event.category || "Experience"}</span>
+                        <span className="truncate text-[10px] font-black uppercase tracking-[0.14em] text-zinc-500">{getEventCategory(event)}</span>
                         <span className="shrink-0 text-xs font-semibold text-zinc-600">{formatLongDate(date)}</span>
                       </div>
                       {count > 1 && <p className="mt-2 text-xs font-medium text-zinc-500">{count} tickets for this event</p>}

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import EventImage from "./EventImage";
-import { getTicketListingLabel, getEventCategory, getEventTimestamp, getEventLocation, type DiscoveryEvent } from "../eventPresentation";
+import { eventDisplayDate } from "@/lib/attendeeDisplay";
+import { getTicketListingLabel, getEventCategory, getEventLocation, type DiscoveryEvent } from "../eventPresentation";
 
 type CardEvent = DiscoveryEvent & {
   organizerName?: string;
@@ -29,16 +30,16 @@ function getOrganizerName(event: CardEvent) {
 }
 
 function getEventSchedule(event: CardEvent) {
-  const timestamp = getEventTimestamp(event);
+  const timestamp = eventDisplayDate(event).getTime();
   if (!Number.isFinite(timestamp)) {
     return { date: event.dateString || event.formattedDate || "Date coming soon", time: "Time TBA" };
   }
   const date = new Intl.DateTimeFormat("en-US", {
-    weekday: "short", month: "short", day: "numeric", year: "numeric",
+    timeZone: "UTC", weekday: "short", month: "short", day: "numeric", year: "numeric",
   }).format(new Date(timestamp));
-  const hasTime = Boolean(event.eventDate) || /T\d{2}:\d{2}/.test(event.dateString || "");
+  const hasTime = !/^\d{4}-\d{2}-\d{2}$/.test(event.dateString || "") && (Boolean(event.eventDate) || /T\d{2}:\d{2}/.test(event.dateString || ""));
   const time = hasTime
-    ? new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(new Date(timestamp))
+    ? new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(new Date(timestamp))
     : "Time TBA";
   return { date, time };
 }
