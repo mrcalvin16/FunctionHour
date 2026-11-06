@@ -62,7 +62,7 @@ function EventImage({
           alt={name ? `${name} event flyer` : "Event flyer"}
           className="mx-auto block h-auto max-h-[54vh] w-auto max-w-full rounded-sm object-contain shadow-[0_30px_90px_rgba(0,0,0,0.38)] transition-transform duration-500 group-hover:scale-[1.015] sm:max-h-[60vh]"
         />
-        <span className="block px-3 py-2 text-center text-xs font-semibold tracking-wide text-white/75 transition group-hover:text-white">
+        <span className="block px-3 py-2 text-center text-xs font-semibold tracking-wide text-[#e4e4e7] transition group-hover:text-white">
           View full flyer ↗
         </span>
       </a>
@@ -710,7 +710,7 @@ export default function EventDetailPage({
                 </button>
               ) : !isSignedIn ? (
                 <SignInButton mode="modal">
-                  <button className="w-full rounded-xl bg-violet-700 px-5 py-4 font-black text-white transition hover:bg-violet-800">
+                  <button className="w-full rounded-xl bg-violet-700 px-5 py-4 font-black !text-white transition hover:bg-violet-800">
                     Sign in to get tickets
                   </button>
                 </SignInButton>
@@ -724,7 +724,7 @@ export default function EventDetailPage({
               ) : (
                 <Link
                   href={`/events/${event._id}/checkout`}
-                  className="block w-full rounded-xl bg-violet-700 px-5 py-4 text-center font-black text-white transition hover:bg-violet-800"
+                  className="block w-full rounded-xl bg-violet-700 px-5 py-4 text-center font-black !text-white transition hover:bg-violet-800"
                 >
                   Get tickets
                 </Link>
