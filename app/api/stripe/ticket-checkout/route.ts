@@ -7,6 +7,7 @@ import { getStripeClient } from "@/lib/stripe/server";
 import { createHash } from "node:crypto";
 import Stripe from "stripe";
 import { isEventTaxReviewCurrent } from "@/lib/ticketTax";
+import { normalizeTicketBuyerContact } from "@/lib/ticketBuyerContact";
 import { allocateTicketCents, ticketFeeCents } from "@/lib/ticketServiceFee";
 
 type CheckoutTicketRequest = {
@@ -177,10 +178,17 @@ export async function POST(req: Request) {
     const accountName =
       user.fullName?.trim() ||
       [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
-    const buyerName =
-      typeof submittedBuyerName === "string"
-        ? submittedBuyerName.trim().slice(0, 100)
-        : accountName;
+    let buyerName: string;
+    try {
+      buyerName = normalizeTicketBuyerContact(
+        submittedBuyerName ?? accountName, buyerEmail,
+      ).buyerName;
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : "Enter your name and email for this order." },
+        { status: 400 },
+      );
+    }
 
     const requestedTicket = tickets[0] as CheckoutTicketRequest;
     const quantity = Number(requestedTicket.quantity);

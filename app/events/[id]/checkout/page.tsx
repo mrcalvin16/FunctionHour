@@ -8,6 +8,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { estimateTicketTaxCents, isEventTaxReviewCurrent } from "@/lib/ticketTax";
+import { normalizeTicketBuyerContact } from "@/lib/ticketBuyerContact";
 import { ticketFeeTotalCents } from "@/lib/ticketServiceFee";
 import { isEventUpcoming } from "../../eventPresentation";
 import {
@@ -205,15 +206,13 @@ export default function EventCheckoutPage({
 
       const paidCheckout = Number(total) > 0;
 
-      if (!buyerEmail.trim()) {
-        setMessage("Email address is required.");
-        return;
-      }
+      const contact = normalizeTicketBuyerContact(buyerName, buyerEmail);
 
       if (!paidCheckout) {
         const ticketId = await createTicket({
           eventId,
           quantity,
+          ...contact,
           ticketTypeId: selectedTicketType?._id,
           addOnIds: selectedAddOns.map((addOn) => addOn._id),
         });
@@ -245,8 +244,7 @@ export default function EventCheckoutPage({
           },
           successPath: "/onboarding/attendee",
           cancelPath: `/events/${eventId}/checkout`,
-          buyerName: buyerName.trim(),
-          buyerEmail: buyerEmail.trim(),
+          ...contact,
           promoCode: discount?.valid ? promoToValidate : undefined,
         }),
       });
@@ -590,12 +588,16 @@ export default function EventCheckoutPage({
               ) : (
                 <>
                   <div className="space-y-3">
+                    <p id="checkout-contact-help" className="text-xs leading-5 text-zinc-600">Enter your name and one email for this order. All tickets will use these contact details; individual guest details are not needed.</p>
                     <div>
                       <label htmlFor="checkout-buyer-name" className="mb-1 block text-sm font-bold text-zinc-800">Full name</label>
                       <input
                         id="checkout-buyer-name"
                         name="name"
                         type="text"
+                        required
+                        maxLength={100}
+                        aria-describedby="checkout-contact-help"
                         autoComplete="name"
                         value={buyerName}
                         onChange={(e) => setBuyerName(e.target.value)}
@@ -608,6 +610,8 @@ export default function EventCheckoutPage({
                         id="checkout-buyer-email"
                         name="email"
                         type="email"
+                        maxLength={254}
+                        aria-describedby="checkout-contact-help"
                         autoComplete="email"
                         value={buyerEmail}
                         onChange={(e) => setBuyerEmail(e.target.value)}
