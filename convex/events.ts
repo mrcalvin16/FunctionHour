@@ -1,3 +1,4 @@
+import { eventDisplayName } from "../lib/eventDisplayName";
 import { validateTicketPurchaseLimit } from "./ticketPurchaseLimit";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
@@ -212,6 +213,7 @@ export const getAll = query({
 
         return {
           ...event,
+          name: eventDisplayName(event),
           imageUrl: brandedEventImageUrl(imageUrl),
           hasMerch,
           startingPrice,
@@ -250,7 +252,7 @@ export const getMapEvents = query({
 
         return {
           _id: event._id,
-          name: event.name,
+          name: eventDisplayName(event),
           description: event.description,
           category: event.category,
           location: event.location,
@@ -297,6 +299,7 @@ export const getById = query({
 
     return {
       ...event,
+      name: eventDisplayName(event),
       imageUrl: brandedEventImageUrl(imageUrl),
     };
   },
@@ -324,6 +327,7 @@ export const getMyEvents = query({
 
         return {
           ...event,
+          name: eventDisplayName(event),
           imageUrl: brandedEventImageUrl(imageUrl),
         };
       }),
@@ -349,7 +353,7 @@ export const verifyOrganizerEventForServer = query({
       (event.userId !== args.clerkId && event.organizerId !== args.clerkId)
     )
       return null;
-    return { eventId: event._id, name: event.name };
+    return { eventId: event._id, name: eventDisplayName(event) };
   },
 });
 
@@ -373,6 +377,7 @@ export const getEventsByCity = query({
 
         return {
           ...event,
+          name: eventDisplayName(event),
           imageUrl: brandedEventImageUrl(imageUrl),
         };
       }),
@@ -400,6 +405,7 @@ export const getEventsByVenue = query({
 
         return {
           ...event,
+          name: eventDisplayName(event),
           imageUrl: brandedEventImageUrl(imageUrl),
         };
       }),
@@ -966,6 +972,7 @@ export const getTrendingEvents = query({
 
         return {
           ...event,
+          name: eventDisplayName(event),
           imageUrl: brandedEventImageUrl(imageUrl),
           trendingScore: score,
         };
@@ -1034,6 +1041,7 @@ export const getSellerEvents = query({
 
         return {
           ...event,
+          name: eventDisplayName(event),
           imageUrl: brandedEventImageUrl(imageUrl),
           metrics,
 
