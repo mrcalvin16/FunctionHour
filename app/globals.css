@@ -895,3 +895,6 @@ html.light .organizer-shell .organizer-sidebar a[class*="from-violet-700"] > spa
   .fh-holiday-play .fh-holiday-lid { animation: fh-holiday-open 3.8s ease-out both; }
   .fh-holiday-play .fh-holiday-lights i { animation: fh-holiday-glow .7s ease-out both; }
 }
+
+/* Preserve white CTA text against the saturated holiday brand color. */
+html.light a.fh-holiday-cta, html.light a.fh-holiday-cta span { color: #ffffff !important; }
