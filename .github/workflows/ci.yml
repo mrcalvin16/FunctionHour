@@ -48,6 +48,9 @@ jobs:
       - name: Customer display regression checks
         run: node --experimental-strip-types --test lib/attendeeDisplay.test.mjs lib/passportPlaces.test.mjs
 
+      - name: Free RSVP quantity regression checks
+        run: npm run test:rsvp
+
       - name: Security regression checks
         run: npm run test:security
 
