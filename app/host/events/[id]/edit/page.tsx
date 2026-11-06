@@ -399,7 +399,7 @@ export default function EditEventPage() {
           className="space-y-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 md:p-8"
         >
           {error && (
-            <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+            <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-900">
               <p>{error}</p>
               {error.includes("ticket holders") && (
                 <div className="mt-3 flex flex-wrap items-center gap-4">
@@ -413,11 +413,11 @@ export default function EditEventPage() {
                   </button>
                   <Link
                     href={`/host/events/${event._id}/changes`}
-                    className="font-semibold text-white underline underline-offset-4"
+                    className="font-semibold text-red-900 underline underline-offset-4"
                   >
                     Open Event changes
                   </Link>
-                  <p className="w-full text-xs text-red-100">
+                  <p className="w-full text-xs text-red-800">
                     Saving other settings will not save changes to the event date, time or venue. Those fields will be reset to their current values.
                   </p>
                 </div>
@@ -426,7 +426,7 @@ export default function EditEventPage() {
           )}
 
           {statusMessage && (
-            <div className="rounded-2xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-200">
+            <div role="status" className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-medium text-green-900">
               {statusMessage}
             </div>
           )}
@@ -637,10 +637,10 @@ export default function EditEventPage() {
           </section>
 
           <div className="flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row">
-            <div className="sm:hidden">
+            <div className="sm:hidden" aria-hidden="true">
               {error && (
                 <p
-                  className="mb-3 text-sm font-semibold text-red-300"
+                  className="mb-3 text-sm font-semibold text-red-800"
                   role="alert"
                 >
                   {error}
@@ -648,7 +648,7 @@ export default function EditEventPage() {
               )}
               {statusMessage && (
                 <p
-                  className="mb-3 text-sm font-semibold text-emerald-300"
+                  className="mb-3 text-sm font-semibold text-emerald-800"
                   role="status"
                 >
                   {statusMessage}
@@ -674,7 +674,7 @@ export default function EditEventPage() {
 
         {role === "owner" ? (
           <section className="mt-8 rounded-3xl border border-red-500/30 bg-red-500/5 p-6">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-red-400">
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-red-700">
               Danger Zone
             </p>
             <h2 className="mt-2 text-2xl font-black">
@@ -702,7 +702,7 @@ export default function EditEventPage() {
                   className="w-full rounded-2xl border border-red-500/30 bg-black px-5 py-4 text-white outline-none focus:border-red-400"
                 />
                 {deleteError ? (
-                  <p className="text-sm text-red-300">{deleteError}</p>
+                  <p className="text-sm text-red-800">{deleteError}</p>
                 ) : null}
                 <button
                   type="button"
