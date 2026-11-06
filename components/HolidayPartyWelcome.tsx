@@ -59,7 +59,7 @@ export default function HolidayPartyWelcome() {
             <h2 id="holiday-party-heading" className="text-base font-extrabold leading-tight tracking-tight text-zinc-950 sm:text-lg">Your holiday party starts here</h2>
             <p className="mt-1 text-xs leading-5 text-zinc-700">Office parties, Friendsmas & more.</p>
           </div>
-          <Link href="/host/create" data-cta="holiday_create_event" className="fh-holiday-cta inline-flex min-h-11 shrink-0 items-center rounded-full bg-violet-700 px-4 py-2 text-xs font-bold text-white hover:bg-violet-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">Create your holiday event <span aria-hidden="true" className="ml-2">→</span></Link>
+          <Link href="/host/create" data-cta="holiday_create_event" className="fh-holiday-cta inline-flex min-h-11 max-w-full sm:shrink-0 items-center rounded-full bg-violet-700 px-4 py-2 text-xs font-bold text-white hover:bg-violet-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">Create your holiday event <span aria-hidden="true" className="ml-2">→</span></Link>
         </div>
       </div>
     </section>
