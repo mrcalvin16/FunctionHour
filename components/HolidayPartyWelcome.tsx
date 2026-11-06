@@ -40,24 +40,26 @@ export default function HolidayPartyWelcome() {
   if (!visible) return null;
 
   return (
-    <section aria-labelledby="holiday-party-heading" className="bg-[#fffaf7] px-4 py-4">
-      <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-4 overflow-hidden rounded-3xl border border-violet-200 bg-white px-6 py-6 sm:flex-row sm:gap-8 sm:px-8">
-        <button type="button" onClick={dismiss} aria-label="Dismiss holiday party invitation" className="absolute right-2 top-2 z-10 flex h-11 w-11 items-center justify-center rounded-full text-zinc-600 hover:bg-violet-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-700">
-          <X size={20} aria-hidden="true" />
+    <section aria-labelledby="holiday-party-heading" className="bg-[#fffaf7] px-4 py-2">
+      <div className="relative mx-auto flex max-w-5xl items-center gap-3 overflow-hidden rounded-2xl border border-violet-200 bg-white py-2 pl-3 pr-12 sm:gap-4 sm:pl-4">
+        <button type="button" onClick={dismiss} aria-label="Dismiss holiday party invitation" className="absolute right-0 top-0 z-10 flex h-11 w-11 items-center justify-center rounded-full text-zinc-600 hover:bg-violet-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-700">
+          <X size={18} aria-hidden="true" />
         </button>
-        <div aria-hidden="true" className={`fh-holiday-scene shrink-0 ${animate ? "fh-holiday-play" : ""}`}>
+        <div aria-hidden="true" className="h-[58px] w-16 shrink-0 sm:h-[81px] sm:w-[90px]">
+        <div className={`fh-holiday-scene origin-top-left scale-[.32] sm:scale-[.45] ${animate ? "fh-holiday-play" : ""}`}>
           <div className="fh-holiday-flyer"><span>YOU’RE INVITED</span><strong>Holiday<br />party</strong><span>LET’S CELEBRATE</span></div>
           <div className="fh-holiday-lights">{Array.from({ length: 7 }, (_, i) => <i key={i} style={{ animationDelay: `${1.2 + i * .2}s` }} />)}</div>
           <Image src="/chev-mascot.webp" alt="" width={100} height={100} className="fh-holiday-chev" />
           <div className="fh-holiday-gift"><span /></div>
           <div className="fh-holiday-lid"><span /></div>
         </div>
-        <div className="max-w-2xl pb-1 text-center sm:pr-7 sm:text-left">
-          <p className="mb-1 text-xs font-bold uppercase tracking-[.18em] text-violet-700">Our first holiday season together</p>
-          <h2 id="holiday-party-heading" className="text-2xl font-extrabold tracking-tight text-zinc-950 sm:text-3xl">Your holiday party starts here</h2>
-          <p className="mt-2 text-sm text-zinc-700">Office party. Friendsmas. End-of-year celebration.</p>
-          <p className="mt-1 text-sm text-zinc-700">You bring the people. We’ll help with the party.</p>
-          <Link href="/host/create" data-cta="holiday_create_event" className="fh-holiday-cta mt-4 inline-flex min-h-11 items-center rounded-full bg-violet-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-violet-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">Create your holiday event <span aria-hidden="true" className="ml-2">→</span></Link>
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div>
+            <h2 id="holiday-party-heading" className="text-base font-extrabold leading-tight tracking-tight text-zinc-950 sm:text-lg">Your holiday party starts here</h2>
+            <p className="mt-1 text-xs leading-5 text-zinc-700">Office parties, Friendsmas & more.</p>
+          </div>
+          <Link href="/host/create" data-cta="holiday_create_event" className="fh-holiday-cta inline-flex min-h-11 max-w-full sm:shrink-0 items-center rounded-full bg-violet-700 px-4 py-2 text-xs font-bold text-white hover:bg-violet-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">Create your holiday event <span aria-hidden="true" className="ml-2">→</span></Link>
         </div>
       </div>
     </section>
