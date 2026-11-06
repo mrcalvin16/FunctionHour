@@ -7,7 +7,7 @@ import schema from "./schema";
 const modules = import.meta.glob(["./**/*.ts", "!./**/*.test.ts"]);
 const setup = () => convexTest(schema, modules);
 type TestContext = ReturnType<typeof setup>;
-const buyer = (t: TestContext) => t.withIdentity({ subject: "guest", email: "guest@example.com" });
+const buyer = (t: TestContext) => t.withIdentity({ subject: "guest", name: "Guest Booker", email: "guest@example.com" });
 
 async function seed(t: TestContext, options: { limit?: number; capacity?: number; typeCapacity?: number; price?: number } = {}) {
   return t.run(async (ctx) => {
@@ -110,7 +110,7 @@ test("events without an explicit limit retain the ten-ticket default", async () 
 
 test("a failed email check rolls back inventory changes for the whole group", async () => {
   const t = setup(); const ids = await seed(t);
-  await expect(t.withIdentity({ subject: "no-email" }).mutation(api.tickets.createTicket, { ...ids, quantity: 4 })).rejects.toThrow(/valid email/);
+  await expect(t.withIdentity({ subject: "no-email", name: "No Email" }).mutation(api.tickets.createTicket, { ...ids, quantity: 4 })).rejects.toThrow(/valid email/);
   const state = await inventory(t, ids);
   expect(state.tickets).toHaveLength(0);
   expect(state.type?.sold).toBe(0);
@@ -121,11 +121,43 @@ test("separate group reservations cannot oversell the final spots", async () => 
   const t = setup(); const ids = await seed(t, { capacity: 5, typeCapacity: 5 });
   const outcomes = await Promise.allSettled([
     buyer(t).mutation(api.tickets.createTicket, { ...ids, quantity: 3 }),
-    t.withIdentity({ subject: "other", email: "other@example.com" }).mutation(api.tickets.createTicket, { ...ids, quantity: 3 }),
+    t.withIdentity({ subject: "other", name: "Other Booker", email: "other@example.com" }).mutation(api.tickets.createTicket, { ...ids, quantity: 3 }),
   ]);
   expect(outcomes.filter((result) => result.status === "fulfilled")).toHaveLength(1);
   const state = await inventory(t, ids);
   expect(state.tickets).toHaveLength(3);
   expect(state.event?.ticketsSold).toBe(3);
   expect(state.type?.sold).toBe(3);
+});
+
+test("stores one normalized booker name and email on every ticket in a group", async () => {
+  const t = setup(); const ids = await seed(t);
+  await buyer(t).mutation(api.tickets.createTicket, {
+    ...ids, quantity: 4, buyerName: "  Group   Booker  ", buyerEmail: "  Guest@Example.com  ",
+  });
+  const state = await inventory(t, ids);
+  expect(state.tickets).toHaveLength(4);
+  expect(state.tickets.every((ticket) => ticket.buyerName === "Group Booker" && ticket.buyerEmail === "guest@example.com")).toBe(true);
+});
+
+test.each([
+  { buyerName: "", buyerEmail: "guest@example.com", error: /Full name is required/ },
+  { buyerName: "   ", buyerEmail: "guest@example.com", error: /Full name is required/ },
+  { buyerName: "Guest Booker", buyerEmail: "", error: /valid email/ },
+  { buyerName: "Guest Booker", buyerEmail: "not-an-email", error: /valid email/ },
+  { buyerName: "x".repeat(101), buyerEmail: "guest@example.com", error: /100 characters/ },
+  { buyerName: "Guest Booker", buyerEmail: "unrelated@example.com", error: /signed-in account/ },
+])("rejects invalid or unrelated order contact without issuing any passes", async ({ error, ...contact }) => {
+  const t = setup(); const ids = await seed(t);
+  await expect(buyer(t).mutation(api.tickets.createTicket, { ...ids, ...contact, quantity: 4 })).rejects.toThrow(error);
+  const state = await inventory(t, ids);
+  expect(state.tickets).toHaveLength(0);
+  expect(state.event?.ticketsSold).toBe(0);
+  expect(state.type?.sold).toBe(0);
+});
+
+test("older clients without a supplied name require a usable account name", async () => {
+  const t = setup(); const ids = await seed(t);
+  await expect(t.withIdentity({ subject: "nameless", email: "guest@example.com" }).mutation(api.tickets.createTicket, { ...ids, quantity: 4 })).rejects.toThrow(/Full name is required/);
+  expect((await inventory(t, ids)).tickets).toHaveLength(0);
 });

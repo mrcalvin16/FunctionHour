@@ -1,4 +1,5 @@
 import { assertTicketPurchaseQuantity } from "./ticketPurchaseLimit";
+import { normalizeTicketBuyerContact } from "../lib/ticketBuyerContact";
 import { organizerTicketProceeds } from "../lib/ticketTax";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
@@ -434,6 +435,8 @@ export const createTicket = mutation({
   args: {
     eventId: v.id("events"),
     quantity: v.optional(v.number()),
+    buyerName: v.optional(v.string()),
+    buyerEmail: v.optional(v.string()),
     ticketTypeId: v.optional(v.id("ticketTypes")),
     addOnIds: v.optional(v.array(v.id("ticketAddOns"))),
   },
@@ -505,14 +508,17 @@ export const createTicket = mutation({
       }
     }
 
-    // Free checkouts bypass Stripe, so the ticket itself must retain a
-    // reachable email for essential event-change notifications.
+    // Keep all passes under one booker's contact and authenticated wallet.
     const ownerIdentifiers = await getTicketOwnerIdentifiers(ctx, identity);
-    const buyerEmail = ownerIdentifiers.find((value) =>
+    const accountEmail = ownerIdentifiers.find((value) =>
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
     );
-    if (!buyerEmail) {
-      throw new Error("Add a valid email address to your FunctionHour profile before claiming a free ticket.");
+    const { buyerName, buyerEmail } = normalizeTicketBuyerContact(
+      args.buyerName ?? identity.name,
+      args.buyerEmail ?? accountEmail,
+    );
+    if (!ownerIdentifiers.some((value) => value.trim().toLowerCase() === buyerEmail)) {
+      throw new Error("Use the email on your signed-in account so the tickets stay in the right wallet.");
     }
 
     const ticketIds: Id<"tickets">[] = [];
@@ -522,6 +528,7 @@ export const createTicket = mutation({
         eventId: args.eventId,
         userId: identity.subject,
         buyerEmail,
+        buyerName,
         status: "active",
         checkedIn: false,
         purchasedAt: now,
