@@ -6,6 +6,8 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import DiscoveryNav from "@/components/DiscoveryNav";
+import { attendeeEventDate, attendeeVenue } from "@/lib/attendeeDisplay";
+import { getTicketListingLabel } from "@/app/events/eventPresentation";
 
 function EventImage({ storageId, directImageUrl }: { storageId?: Id<"_storage">; directImageUrl?: string | null }) {
   const storedImageUrl = useQuery(
@@ -95,7 +97,7 @@ export default function SavedEventsPage() {
                     </span>
 
                     <span className="text-sm text-zinc-500">
-                      {event!.dateString}
+                      {attendeeEventDate(event!)}
                     </span>
                   </div>
 
@@ -109,11 +111,11 @@ export default function SavedEventsPage() {
 
                   <div className="mt-6 flex items-center justify-between">
                     <p className="text-sm text-zinc-400">
-                      {event!.location}
+                      {attendeeVenue(event!)}
                     </p>
 
                     <p className="text-lg font-bold">
-                      ${event!.price ?? 0}
+                      {getTicketListingLabel(event!)}
                     </p>
                   </div>
                 </div>

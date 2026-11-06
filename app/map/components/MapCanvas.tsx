@@ -11,6 +11,7 @@ import Map, {
   type ViewState,
 } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { attendeeEventDate } from "@/lib/attendeeDisplay";
 import { getFromPriceLabel } from "@/app/events/eventPresentation";
 
 export type MapEvent = {
@@ -47,15 +48,7 @@ const timestamp = (event: MapEvent) =>
   event.eventDate ?? (event.dateString ? Date.parse(event.dateString) : NaN);
 
 function formatDate(event: MapEvent) {
-  const raw = timestamp(event);
-  if (!Number.isFinite(raw)) return event.dateString || "Date coming soon";
-  return new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(raw));
+  return attendeeEventDate(event);
 }
 
 function locationLabel(event: MapEvent) {
@@ -186,9 +179,10 @@ export default function MapCanvas({
 
   useEffect(() => {
     const canvas = document.createElement("canvas");
-    const options = { failIfMajorPerformanceCaveat: true };
-    const context = (canvas.getContext("webgl2", options) ||
-      canvas.getContext("webgl", options)) as
+    // Permit software-backed WebGL2; rejecting a performance caveat disables
+    // otherwise functional browsers and remote desktops. Mapbox v3 needs WebGL2.
+    const options = { failIfMajorPerformanceCaveat: false };
+    const context = canvas.getContext("webgl2", options) as
       | WebGL2RenderingContext
       | WebGLRenderingContext
       | null;

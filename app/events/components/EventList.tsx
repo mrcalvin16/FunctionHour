@@ -3,12 +3,12 @@
 import Link from "next/link";
 import type { Id } from "@/convex/_generated/dataModel";
 import EventImage from "./EventImage";
+import { eventDisplayDate } from "@/lib/attendeeDisplay";
 import {
   formatEventDate,
   getTicketListingLabel,
   getEventCategory,
   getEventLocation,
-  getEventTimestamp,
   type DiscoveryEvent,
 } from "../eventPresentation";
 
@@ -39,7 +39,7 @@ export default function EventList({
         </div>
         <div className="divide-y divide-zinc-200">
           {events.map((event) => {
-            const timestamp = getEventTimestamp(event);
+            const timestamp = eventDisplayDate(event).getTime();
             const hasDate = Number.isFinite(timestamp);
             const date = hasDate ? new Date(timestamp) : null;
             const price = getTicketListingLabel(event);
@@ -50,10 +50,10 @@ export default function EventList({
               <article key={event._id} className="group grid grid-cols-[88px_minmax(0,1fr)] items-center gap-3 p-4 transition hover:bg-orange-50/50 sm:grid-cols-[112px_minmax(0,1fr)] sm:gap-5 sm:p-5 lg:grid-cols-[88px_112px_minmax(0,1.5fr)_minmax(0,1fr)_190px]">
                 <div className="hidden text-center lg:block">
                   <span className="block text-[11px] font-black uppercase tracking-widest text-violet-700">
-                    {date ? new Intl.DateTimeFormat("en-US", { month: "short" }).format(date) : "Date"}
+                    {date ? new Intl.DateTimeFormat("en-US", { month: "short", timeZone: "UTC" }).format(date) : "Date"}
                   </span>
                   <span className="block text-3xl font-black leading-none text-zinc-950">
-                    {date ? date.getDate() : "—"}
+                    {date ? date.getUTCDate() : "—"}
                   </span>
                 </div>
 
