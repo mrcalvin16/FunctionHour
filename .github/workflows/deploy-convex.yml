@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -35,5 +37,15 @@ jobs:
 
       - name: Deploy Convex production backend
         run: npx convex deploy --message "GitHub Actions ${GITHUB_SHA}"
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+
+      # Add this batch only on commits that change its importer; never reset older demos.
+      - name: Import seasonal demo event batch when changed
+        if: github.event_name == 'push'
+        run: |
+          if [ -f convex/seasonalDemoEvents.ts ] && ! git diff --quiet HEAD^ HEAD -- convex/seasonalDemoEvents.ts; then
+            npx convex run --prod seasonalDemoEvents:seed '{}'
+          fi
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
