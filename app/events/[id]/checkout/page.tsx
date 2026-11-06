@@ -123,9 +123,7 @@ export default function EventCheckoutPage({
     selectedTicketType?.quantity !== undefined ? Math.max(selectedTicketType.quantity - (selectedTicketType.sold ?? 0), 0) : 10,
     event?.totalTickets !== undefined && event.totalTickets > 0 ? Math.max(event.totalTickets - (event.ticketsSold ?? 0), 0) : 10,
   );
-  const maxQuantity = Number(basePrice) <= 0
-    ? 1
-    : Math.max(1, Math.min(event?.maxTicketsPerOrder ?? 10, selectedInventory));
+  const maxQuantity = Math.max(1, Math.min(event?.maxTicketsPerOrder ?? 10, selectedInventory));
 
   useEffect(() => {
     setQuantity((current) => Math.min(current, maxQuantity));
@@ -215,11 +213,12 @@ export default function EventCheckoutPage({
       if (!paidCheckout) {
         const ticketId = await createTicket({
           eventId,
+          quantity,
           ticketTypeId: selectedTicketType?._id,
           addOnIds: selectedAddOns.map((addOn) => addOn._id),
         });
 
-        router.push(`/tickets/${ticketId}?purchase=complete`);
+        router.push(quantity > 1 ? "/my-tickets?purchase=complete" : `/tickets/${ticketId}?purchase=complete`);
         return;
       }
 
