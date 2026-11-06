@@ -171,6 +171,14 @@ export default function EventDetailPage({
         ? Math.min(...activeTicketTypes.map((ticket) => ticket.price))
         : (event?.price ?? 0);
 
+  // Mixed free/paid events keep the general ticket action.
+  const isFreeEvent = ticketTypes !== undefined && (
+    activeTicketTypes.length > 0
+      ? activeTicketTypes.every((ticket) => ticket.price === 0)
+      : (event?.price ?? 0) === 0
+  );
+  const ticketActionLabel = isFreeEvent ? "Reserve free tickets" : "Get tickets";
+
   const savedCreative = useQuery(api.eventCreative.listPublishedByEvent, {
     eventId,
   });
@@ -711,7 +719,7 @@ export default function EventDetailPage({
               ) : !isSignedIn ? (
                 <SignInButton mode="modal">
                   <button className="w-full rounded-xl bg-violet-700 px-5 py-4 font-black !text-white transition hover:bg-violet-800">
-                    Sign in to get tickets
+                    {ticketActionLabel}
                   </button>
                 </SignInButton>
               ) : alreadyPurchased ? (
@@ -719,14 +727,14 @@ export default function EventDetailPage({
                   href="/my-tickets"
                   className="block w-full rounded-xl bg-emerald-400 px-5 py-4 text-center font-black text-black"
                 >
-                  View your ticket
+                  View your tickets
                 </Link>
               ) : (
                 <Link
                   href={`/events/${event._id}/checkout`}
                   className="block w-full rounded-xl bg-violet-700 px-5 py-4 text-center font-black !text-white transition hover:bg-violet-800"
                 >
-                  Get tickets
+                  {ticketActionLabel}
                 </Link>
               )}
             </div>
@@ -792,24 +800,24 @@ export default function EventDetailPage({
             <SignInButton mode="modal">
               <button
                 type="button"
-                className="shrink-0 rounded-2xl bg-gradient-to-r from-violet-500 to-orange-500 px-6 py-4 font-black text-white shadow-[0_0_30px_rgba(139,92,246,0.3)]"
+                className="shrink-0 max-w-[70%] min-h-11 rounded-2xl bg-gradient-to-r from-violet-500 to-orange-500 px-4 py-3 text-center text-sm font-black text-white shadow-[0_0_30px_rgba(139,92,246,0.3)]"
               >
-                Sign In
+                {ticketActionLabel}
               </button>
             </SignInButton>
           ) : alreadyPurchased ? (
             <Link
               href="/my-tickets"
-              className="shrink-0 rounded-2xl bg-green-500 px-6 py-4 font-black text-black shadow-[0_0_25px_rgba(34,197,94,0.2)]"
+              className="shrink-0 max-w-[70%] min-h-11 rounded-2xl bg-green-500 px-4 py-3 text-center text-sm font-black text-black shadow-[0_0_25px_rgba(34,197,94,0.2)]"
             >
-              View Ticket
+              View your tickets
             </Link>
           ) : (
             <Link
               href={`/events/${event._id}/checkout`}
-              className="shrink-0 rounded-2xl bg-gradient-to-r from-violet-500 to-orange-500 px-6 py-4 font-black text-white shadow-[0_0_30px_rgba(139,92,246,0.3)] transition active:scale-[0.98]"
+              className="shrink-0 max-w-[70%] min-h-11 rounded-2xl bg-gradient-to-r from-violet-500 to-orange-500 px-4 py-3 text-center text-sm font-black text-white shadow-[0_0_30px_rgba(139,92,246,0.3)] transition active:scale-[0.98]"
             >
-              Get Tickets →
+              {ticketActionLabel}
             </Link>
           )}
         </div>
