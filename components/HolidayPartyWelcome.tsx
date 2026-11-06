@@ -40,13 +40,13 @@ export default function HolidayPartyWelcome() {
   if (!visible) return null;
 
   return (
-    <section aria-labelledby="holiday-party-heading" className="bg-[#fffaf7] px-4 py-2">
-      <div className="relative mx-auto flex max-w-5xl items-center gap-3 overflow-hidden rounded-2xl border border-violet-200 bg-white py-2 pl-3 pr-12 sm:gap-4 sm:pl-4">
+    <section aria-labelledby="holiday-party-heading" className="bg-[#fffaf7] px-4 py-1">
+      <div className="relative mx-auto flex w-full max-w-[640px] items-center gap-3 overflow-hidden rounded-2xl border border-violet-200 bg-white py-1 pl-2 pr-10 sm:gap-3">
         <button type="button" onClick={dismiss} aria-label="Dismiss holiday party invitation" className="absolute right-0 top-0 z-10 flex h-11 w-11 items-center justify-center rounded-full text-zinc-600 hover:bg-violet-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-700">
           <X size={18} aria-hidden="true" />
         </button>
-        <div aria-hidden="true" className="h-[58px] w-16 shrink-0 sm:h-[81px] sm:w-[90px]">
-        <div className={`fh-holiday-scene origin-top-left scale-[.32] sm:scale-[.45] ${animate ? "fh-holiday-play" : ""}`}>
+        <div aria-hidden="true" className="h-10 w-11 shrink-0">
+        <div className={`fh-holiday-scene origin-top-left scale-[.22] ${animate ? "fh-holiday-play" : ""}`}>
           <div className="fh-holiday-flyer"><span>YOU’RE INVITED</span><strong>Holiday<br />party</strong><span>LET’S CELEBRATE</span></div>
           <div className="fh-holiday-lights">{Array.from({ length: 7 }, (_, i) => <i key={i} style={{ animationDelay: `${1.2 + i * .2}s` }} />)}</div>
           <Image src="/chev-mascot.webp" alt="" width={100} height={100} className="fh-holiday-chev" />
@@ -56,10 +56,10 @@ export default function HolidayPartyWelcome() {
         </div>
         <div className="flex min-w-0 flex-1 flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div>
-            <h2 id="holiday-party-heading" className="text-base font-extrabold leading-tight tracking-tight text-zinc-950 sm:text-lg">Your holiday party starts here</h2>
-            <p className="mt-1 text-xs leading-5 text-zinc-700">Office parties, Friendsmas & more.</p>
+            <h2 id="holiday-party-heading" className="text-sm font-extrabold leading-tight tracking-tight text-zinc-950">Your holiday party starts here</h2>
+            <p className="mt-0.5 text-[11px] leading-4 text-zinc-700">Office parties, Friendsmas & more.</p>
           </div>
-          <Link href="/host/create" data-cta="holiday_create_event" className="fh-holiday-cta inline-flex min-h-11 max-w-full sm:shrink-0 items-center rounded-full bg-violet-700 px-4 py-2 text-xs font-bold text-white hover:bg-violet-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">Create your holiday event <span aria-hidden="true" className="ml-2">→</span></Link>
+          <Link href="/host/create" data-cta="holiday_create_event" className="fh-holiday-cta inline-flex min-h-11 max-w-full sm:shrink-0 items-center rounded-full bg-violet-700 px-3 py-2 text-[11px] font-bold text-white hover:bg-violet-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700">Create your holiday event <span aria-hidden="true" className="ml-2">→</span></Link>
         </div>
       </div>
     </section>
